@@ -74,7 +74,8 @@ State Game::play(Config &c) {
             return PAUSE;
 
         accelerationControl(c);
-        rotationControl(c);
+        if (speed > 0.0f)
+            rotationControl(c);
 
         // Draw car
         sPlayer.setTexture(playerTextures[actual_code_image - 1]);
