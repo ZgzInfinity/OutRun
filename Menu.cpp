@@ -14,7 +14,7 @@
 using namespace sf;
 
 Config::Config() {
-    w.create(VideoMode(1366, 700), "Outrun Racing!", Style::Titlebar | Style::Close);
+    w.create(VideoMode(921, 691), "Outrun Racing!", Style::Titlebar | Style::Close);
     w.setFramerateLimit(FPS);
 
     menuKey = Keyboard::Escape;

@@ -24,6 +24,7 @@ class Game {
 
     std::vector<sf::Texture> playerTextures;
     sf::Sprite sPlayer;
+    int actual_code_image;
 
     sf::Text sText;
 
