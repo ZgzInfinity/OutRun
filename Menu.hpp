@@ -30,6 +30,7 @@ struct Config {
     sf::Font font;
 
     float camD; // Camera depth
+    int renderLen; // Length rendered
 };
 
 enum State {

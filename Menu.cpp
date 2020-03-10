@@ -29,6 +29,7 @@ Config::Config() {
     font = arial();
 
     camD = 0.84; // Camera depth
+    renderLen = 300;
 }
 
 void changeConfig(Config &c) {

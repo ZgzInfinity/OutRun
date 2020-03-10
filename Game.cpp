@@ -10,6 +10,9 @@
 #include <string>
 #include <cmath>
 
+#define PLAYERTEXTURES 1
+#define PLAYERSCALE 3.0f
+
 #define ACC 1.075f
 #define BRC 1.85f
 #define SPM 200
@@ -39,6 +42,20 @@ Game::Game(Config &c) : speed(0), acceleration(0), posX(0), mapId(make_pair(0, 0
         maps.push_back(vm);
     }
 
+    // Player
+    for (int i = 1; i <= PLAYERTEXTURES; i++) {
+        Texture t;
+        t.loadFromFile("resources/player/" + to_string(i) + ".png");
+        t.setSmooth(true);
+        t.setRepeated(false);
+        playerTextures.push_back(t);
+    }
+    sPlayer.setTexture(playerTextures[0]);
+    sPlayer.setScale(PLAYERSCALE, PLAYERSCALE);
+    sPlayer.setPosition(((float)c.w.getSize().x)/2.0f - sPlayer.getGlobalBounds().width / 2.0f,
+            ((float)c.w.getSize().y) * c.camD - sPlayer.getGlobalBounds().height / 2.0f);
+
+    // Text
     sText.setFillColor(Color::White);
     sText.setCharacterSize(50);
     sText.setPosition((float) sText.getCharacterSize(), (float) c.w.getSize().y - (float) sText.getCharacterSize());
@@ -62,6 +79,9 @@ State Game::play(Config &c) {
         accelerationControl(c);
         rotationControl(c);
 
+        // Draw car
+        c.w.draw(sPlayer);
+
         c.w.display();
     }
 
@@ -69,7 +89,7 @@ State Game::play(Config &c) {
 }
 
 void Game::mapControl(Config &c) {
-    maps[mapId.first][mapId.second].draw(c.w, c.camD, posX, speed);
+    maps[mapId.first][mapId.second].draw(c, c.camD, posX, speed);
     //TODO: Añadir bifurcaciones
 }
 
@@ -78,11 +98,14 @@ void Game::accelerationControl(Config &c) {
     if (Keyboard::isKeyPressed(c.brakeKey)) {
         speed -= pow(2.0f, 1.0f / (BRC * BRC)) - 1.0f;
         acceleration -= pow(2.0f, (ACC * ACC)) - 1.0f;
+        //TODO sPlayer
     }
     else if (Keyboard::isKeyPressed(c.accelerateKey)) {
         acceleration += pow(2.0f, 1.0f / (ACC * ACC)) - 1.0f;
 
         speed += pow(2.0f, 1.0f / (acceleration * acceleration)) - 1.0f;
+
+        //TODO sPlayer
     }
     else {
         speed -= pow(2.0f, 1.0f / (BRC * BRC * BRC)) - 1.0f;
@@ -106,10 +129,10 @@ void Game::accelerationControl(Config &c) {
 void Game::rotationControl(Config &c) {
     if (Keyboard::isKeyPressed(c.leftKey)) {
         posX--;
-        //TODO
+        //TODO sPlayer
     }
     if (Keyboard::isKeyPressed(c.rightKey)) {
         posX++;
-        //TODO
+        //TODO sPlayer
     }
 }

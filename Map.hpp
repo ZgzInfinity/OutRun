@@ -12,6 +12,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
+#include "Menu.hpp"
 
 class Map {
     sf::Texture bg; // Background
@@ -34,15 +35,12 @@ class Map {
     };
     std::vector<Line> lines;
 
-    const int roadW = 2000; // Road Width
-    const int segL = 200; // Segment length
-
     int posY;
 
 public:
     Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::string> &objectNames);
 
-    void draw(sf::RenderWindow &w, float camD,  int posX, float speed); // Relative position
+    void draw(Config &c, float camD,  int posX, float speed); // Relative position
 };
 
 
