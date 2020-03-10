@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+# Cmake
+.idea/
+.cmake-build-*/
+cmake-build-*/
+.directory
+CMakeLists.txt
