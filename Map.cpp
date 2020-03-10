@@ -62,11 +62,12 @@ Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::
 
         // Random objects
         if (dist(generator) > 0.875f) {
-            line.sprite.setTexture(objects[distObj(generator)]);
-            if (distBool(generator) == 0) // left
-                line.spriteX = (float) w.getSize().x / (float) ROADW + dist(generator) + (float) line.sprite.getScale().x / 2.0f;
-            else // right
-                line.spriteX = -(float) w.getSize().x / (float) ROADW - dist(generator) - (float) line.sprite.getScale().x / 2.0f;
+            line.spriteNum = distObj(generator);
+            line.offset = dist(generator);
+            line.left = distBool(generator) == 0;
+        }
+        else {
+            line.spriteNum = -1;
         }
 
         // Elevation
@@ -136,7 +137,8 @@ void Map::draw(Config &c, const float camD, int posX, float speed) {
 
     ////////draw objects////////
     for(int n = startPos + c.renderLen; n > startPos; n--)
-        lines[n%N].drawSprite(c.w);
+        if (lines[n%N].spriteNum > -1)
+            lines[n%N].drawSprite(c.w, objects);
 
 }
 
@@ -151,14 +153,19 @@ void Map::Line::project(int camX,int camY,int camZ, float camD, int width, int h
     W = scale * rW  * width / 2;
 }
 
-void Map::Line::drawSprite(RenderWindow &app) {
-    Sprite s = sprite;
-    int w = s.getTextureRect().width;
+void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objects) {
+    Sprite s(objects[spriteNum]);
+    if (left) // left
+        spriteX = (float) w.getSize().x / (float) ROADW + offset + (float) s.getScale().x / 2.0f;
+    else // right
+        spriteX = -(float) w.getSize().x / (float) ROADW - offset - (float) s.getScale().x / 2.0f;
+
+    int width = s.getTextureRect().width;
     int h = s.getTextureRect().height;
 
-    float destX = X + scale * spriteX * app.getSize().x/2;
+    float destX = X + scale * spriteX * w.getSize().x / 2;
     float destY = Y + 4;
-    float destW = w * W / 266;
+    float destW = width * W / 266;
     float destH = h * W / 266;
 
     destX += destW * spriteX; //offsetX
@@ -168,8 +175,8 @@ void Map::Line::drawSprite(RenderWindow &app) {
     if (clipH < 0) clipH = 0;
 
     if (clipH >= destH) return;
-    s.setTextureRect(IntRect(0,0,w,h-h*clipH/destH));
-    s.setScale(destW/w,destH/h);
+    s.setTextureRect(IntRect(0, 0, width, h - h * clipH / destH));
+    s.setScale(destW / width, destH / h);
     s.setPosition(destX, destY);
-    app.draw(s);
+    w.draw(s);
 }

@@ -24,14 +24,15 @@ class Map {
     {
         float x,y,z; //3d center of line
         float X,Y,W; //screen coord
-        float curve,spriteX,clip,scale;
-        sf::Sprite sprite;
+        float curve,spriteX,clip,scale,offset;
+        int spriteNum;
+        bool left;
 
         Line();
 
         void project(int camX,int camY,int camZ, float camD, int width, int height, int rW);
 
-        void drawSprite(sf::RenderWindow &app);
+        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objects);
     };
     std::vector<Line> lines;
 
