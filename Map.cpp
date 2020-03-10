@@ -17,7 +17,7 @@
 using namespace std;
 using namespace sf;
 
-#define BGS 0.666f // Background size
+#define BGS 0.525F // Background size
 #define SEGL 200 // Segment length
 #define ROADW 2000 // Road Width
 #define MAXLINES 4000
@@ -103,7 +103,7 @@ void Map::draw(Config &c, const float camD, int posX, float speed) {
 
     posY += speed;
     int N = lines.size();
-    float playerX = posX * 0.1f;
+    float playerX = posX * 0.05f;
     int startPos = posY % N;
     int camH = lines[startPos].y + 1500;
 

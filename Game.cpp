@@ -21,7 +21,7 @@
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : speed(0), acceleration(0), posX(0), mapId(make_pair(0, 0)) {
+Game::Game(Config &c) : speed(0), acceleration(0), posX(0), counter(3), mapId(make_pair(0, 0)) {
     int nm = 0;
     int nobjects[] = {6}; // TODO: Más mapas
     //for (int i = 0; i < 5; i++) {
@@ -74,14 +74,19 @@ State Game::play(Config &c) {
             return PAUSE;
 
         accelerationControl(c);
-        if (speed > 0.0f)
+        if (speed > 0.0f) {
             rotationControl(c);
+            counter++;
+        }
 
         // Draw car
-        sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-        sPlayer.setScale(PLAYERSCALE, PLAYERSCALE);
-        sPlayer.setPosition(((float)c.w.getSize().x)/2.0f - sPlayer.getGlobalBounds().width / 2.0f,
-                            ((float)c.w.getSize().y) * c.camD - sPlayer.getGlobalBounds().height / 2.0f);
+        if (counter > 2) {
+            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
+            sPlayer.setScale(PLAYERSCALE, PLAYERSCALE);
+            sPlayer.setPosition(((float)c.w.getSize().x)/2.0f - sPlayer.getGlobalBounds().width / 2.0f,
+                                ((float)c.w.getSize().y) * c.camD - sPlayer.getGlobalBounds().height / 2.0f);
+            counter = 0;
+        }
         c.w.draw(sPlayer);
 
         c.w.display();
