@@ -10,6 +10,8 @@
 #include <string>
 #include <cmath>
 
+#define MAXCOUNT 15
+
 #define PLAYERTEXTURES 40
 #define PLAYERSCALE 1.0f
 
@@ -21,7 +23,8 @@
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : speed(0), acceleration(0), posX(0), counter(3), mapId(make_pair(0, 0)) {
+Game::Game(Config &c) : speed(0), acceleration(0), posX(0), mapId(make_pair(0, 0)), actual_code_image(1),
+counter_code_image(0) {
     int nm = 0;
     int nobjects[] = {6}; // TODO: Más mapas
     //for (int i = 0; i < 5; i++) {
@@ -50,7 +53,6 @@ Game::Game(Config &c) : speed(0), acceleration(0), posX(0), counter(3), mapId(ma
         t.setRepeated(false);
         playerTextures.push_back(t);
     }
-    actual_code_image = 1;
 
     // Text
     sText.setFillColor(Color::White);
@@ -73,21 +75,7 @@ State Game::play(Config &c) {
         if (Keyboard::isKeyPressed(c.menuKey))
             return PAUSE;
 
-        accelerationControl(c);
-        if (speed > 0.0f) {
-            rotationControl(c);
-            counter++;
-        }
-
-        // Draw car
-        if (counter > 2) {
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-            sPlayer.setScale(PLAYERSCALE, PLAYERSCALE);
-            sPlayer.setPosition(((float)c.w.getSize().x)/2.0f - sPlayer.getGlobalBounds().width / 2.0f,
-                                ((float)c.w.getSize().y) * c.camD - sPlayer.getGlobalBounds().height / 2.0f);
-            counter = 0;
-        }
-        c.w.draw(sPlayer);
+        drawPlayer(c, accelerationControl(c), rotationControl(c));
 
         c.w.display();
     }
@@ -100,62 +88,15 @@ void Game::mapControl(Config &c) {
     //TODO: Añadir bifurcaciones
 }
 
-void Game::accelerationControl(Config &c) {
+Game::Action Game::accelerationControl(Config &c) {
+    Action a = NONE;
+
     //TODO Ejemplo de aceleración y frenado, dibujar y adaptar al coche
     if (Keyboard::isKeyPressed(c.brakeKey)) {
         speed -= pow(2.0f, 1.0f / (BRC * BRC)) - 1.0f;
         acceleration -= pow(2.0f, (ACC * ACC)) - 1.0f;
 
-        // Selection of the correct sprite of the motorbike
-        if (actual_code_image >= 1 && actual_code_image <= 4){
-            actual_code_image += 20;
-        }
-        else if (actual_code_image >= 21 && actual_code_image <= 24){
-            if (actual_code_image != 24){
-                actual_code_image++;
-            }
-            else {
-                actual_code_image--;
-            }
-            // Set the texture from the file
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-        }
-        else if (actual_code_image >= 5 && actual_code_image <= 12){
-            actual_code_image += 20;
-            // Set the texture from the file
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-        }
-        else if (actual_code_image >= 13 && actual_code_image <= 20){
-            actual_code_image += 20;
-            // Set the texture from the file
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-        }
-        else if (actual_code_image >= 25 && actual_code_image <= 32){
-            // Increment the actual code of the sprite
-            if (actual_code_image != 32){
-                // Increment the texture of the sprite
-                actual_code_image++;
-            }
-            else {
-                // Change sprite while the motorbike is turning to left
-                actual_code_image--;
-            }
-            // Set the texture from the file
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-        }
-        else if (actual_code_image >= 33 && actual_code_image <= 40){
-            // Increment the actual code of the sprite
-            if (actual_code_image != 40){
-                // Increment the texture of the sprite
-                actual_code_image++;
-            }
-            else {
-                // Change sprite while the motorbike is turning to left
-                actual_code_image--;
-            }
-            // Set the texture from the file
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-        }
+        a = BRAKE;
     }
     else if (Keyboard::isKeyPressed(c.accelerateKey)) {
         acceleration += pow(2.0f, 1.0f / (ACC * ACC)) - 1.0f;
@@ -166,22 +107,12 @@ void Game::accelerationControl(Config &c) {
         speed -= pow(2.0f, 1.0f / (BRC * BRC * BRC)) - 1.0f;
         acceleration -= pow(2.0f, (ACC * ACC)) - 1.0f;
     }
+
     if (speed <= 0.0f)
         speed = 0.0f;
-    else {
-        if (actual_code_image > 4){
-            // First advance sprite loaded
-            actual_code_image = 1;
-        }
-        else {
-            if (actual_code_image != 4){
-                actual_code_image++;
-            }
-            else {
-                actual_code_image = 1;
-            }
-        }
-    }
+    else if (a == NONE)
+        a = ACCELERATE;
+
     if (acceleration < 0.0f || speed < 0.5f)
         acceleration = 0.0f;
     if (speed > SPM)
@@ -193,53 +124,69 @@ void Game::accelerationControl(Config &c) {
     string strSpeed = to_string(speed * 100);
     sText.setString(strSpeed.substr(0, strSpeed.find('.')));
     c.w.draw(sText);
+
+    return a;
 }
 
-void Game::rotationControl(Config &c) {
-    if (Keyboard::isKeyPressed(c.leftKey)) {
-        posX--;
-
-        // Change the texture
-        if (actual_code_image < 5 || (actual_code_image >= 13 && actual_code_image <= 24) ||
-            (actual_code_image >= 33 && actual_code_image <= 40))
-        {
-            actual_code_image = 5;
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
+Game::Direction Game::rotationControl(Config &c) {
+    if (speed > 0.0f) {
+        if (Keyboard::isKeyPressed(c.leftKey)) {
+            posX--;
+            return TURNLEFT;
         }
-        else if (actual_code_image >= 5 && actual_code_image <= 12){
-            // Increment the actual code of the sprite
-            if (actual_code_image != 12){
-                // Increment the texture of the sprite
-                actual_code_image++;
-            }
-            else {
-                // Change sprite while the motorbike is turning to left
-                actual_code_image --;
-            }
-            // Set the texture from the file
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
+
+        if (Keyboard::isKeyPressed(c.rightKey)) {
+            posX++;
+            return TURNRIGHT;
         }
     }
-    if (Keyboard::isKeyPressed(c.rightKey)) {
-        posX++;
 
-        // Change the texture
-        if (actual_code_image < 13 || (actual_code_image >= 21 && actual_code_image <= 31)){
-            actual_code_image = 13;
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-        }
-        else if (actual_code_image <= 20){
-            // Increment the actual code of the sprite
-            if (actual_code_image != 20){
-                // Increment the texture of the sprite
-                actual_code_image++;
+    return RIGHT;
+}
+
+void Game::drawPlayer(Config &c, Game::Action a, Game::Direction d) {
+    if (a != NONE && counter_code_image >= MAXCOUNT) {
+        counter_code_image = 0;
+
+        if (speed > 0.0f)
+            actual_code_image++;
+
+        if (a == ACCELERATE) {
+            if (d == TURNLEFT) {
+                if (actual_code_image < 5 || actual_code_image > 12)
+                    actual_code_image = 5;
+            }
+            else if (d == TURNRIGHT) {
+                if (actual_code_image < 13 || actual_code_image > 20)
+                    actual_code_image = 13;
             }
             else {
-                // Change sprite while the motorbike is turning to left
-                actual_code_image --;
+                if (actual_code_image < 1 || actual_code_image > 4)
+                    actual_code_image = 1;
             }
-            // Set the texture from the file
-            sPlayer.setTexture(playerTextures[actual_code_image - 1]);
+        }
+        else if (a == BRAKE) {
+            if (d == TURNLEFT) {
+                if (actual_code_image < 25 || actual_code_image > 32)
+                    actual_code_image = 25;
+            }
+            else if (d == TURNRIGHT) {
+                if (actual_code_image < 33 || actual_code_image > 40)
+                    actual_code_image = 33;
+            }
+            else {
+                if (actual_code_image < 21 || actual_code_image > 24)
+                    actual_code_image = 21;
+            }
         }
     }
+    else {
+        counter_code_image++;
+    }
+
+    sPlayer.setTexture(playerTextures[actual_code_image - 1]);
+    sPlayer.setScale(PLAYERSCALE, PLAYERSCALE);
+    sPlayer.setPosition(((float)c.w.getSize().x)/2.0f - sPlayer.getGlobalBounds().width / 2.0f,
+                        ((float)c.w.getSize().y) * c.camD - sPlayer.getGlobalBounds().height / 2.0f);
+    c.w.draw(sPlayer);
 }
