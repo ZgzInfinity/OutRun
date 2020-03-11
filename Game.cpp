@@ -10,7 +10,7 @@
 #include <string>
 #include <cmath>
 
-#define MAXCOUNT 15
+#define MAXCOUNT 10
 
 #define PLAYERTEXTURES 40
 #define PLAYERSCALE 1.0f
@@ -145,43 +145,48 @@ Game::Direction Game::rotationControl(Config &c) {
 }
 
 void Game::drawPlayer(Config &c, Game::Action a, Game::Direction d) {
-    if (a != NONE && counter_code_image >= MAXCOUNT) {
-        counter_code_image = 0;
+    if (a != NONE) {
+        if (counter_code_image >= MAXCOUNT) {
+            counter_code_image = 0;
 
-        if (speed > 0.0f)
-            actual_code_image++;
+            if (speed > 0.0f)
+                actual_code_image++;
 
-        if (a == ACCELERATE) {
-            if (d == TURNLEFT) {
-                if (actual_code_image < 5 || actual_code_image > 12)
-                    actual_code_image = 5;
+            if (a == ACCELERATE) {
+                if (d == TURNLEFT) {
+                    if (actual_code_image < 10 || actual_code_image > 11)
+                        actual_code_image = 10;
+                }
+                else if (d == TURNRIGHT) {
+                    if (actual_code_image < 14 || actual_code_image > 15)
+                        actual_code_image = 14;
+                }
+                else {
+                    if (actual_code_image < 1 || actual_code_image > 4)
+                        actual_code_image = 1;
+                }
             }
-            else if (d == TURNRIGHT) {
-                if (actual_code_image < 13 || actual_code_image > 20)
-                    actual_code_image = 13;
-            }
-            else {
-                if (actual_code_image < 1 || actual_code_image > 4)
-                    actual_code_image = 1;
+            else if (a == BRAKE) {
+                if (d == TURNLEFT) {
+                    if (actual_code_image < 25 || actual_code_image > 28)
+                        actual_code_image = 25;
+                }
+                else if (d == TURNRIGHT) {
+                    if (actual_code_image < 33 || actual_code_image > 36)
+                        actual_code_image = 33;
+                }
+                else {
+                    if (actual_code_image < 21 || actual_code_image > 24)
+                        actual_code_image = 21;
+                }
             }
         }
-        else if (a == BRAKE) {
-            if (d == TURNLEFT) {
-                if (actual_code_image < 25 || actual_code_image > 32)
-                    actual_code_image = 25;
-            }
-            else if (d == TURNRIGHT) {
-                if (actual_code_image < 33 || actual_code_image > 40)
-                    actual_code_image = 33;
-            }
-            else {
-                if (actual_code_image < 21 || actual_code_image > 24)
-                    actual_code_image = 21;
-            }
+        else {
+            counter_code_image++;
         }
     }
     else {
-        counter_code_image++;
+        actual_code_image = 1;
     }
 
     sPlayer.setTexture(playerTextures[actual_code_image - 1]);
