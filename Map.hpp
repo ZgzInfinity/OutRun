@@ -23,25 +23,25 @@ class Map {
     struct Line
     {
         float x,y,z; //3d center of line
-        float X,Y,W; //screen coord
-        float curve,spriteX,clip,scale,offset;
-        int spriteNum;
-        bool left;
+        float X{},Y{},W{}; //screen coord
+        float curve,spriteX,clip{},scale{},offset{};
+        int spriteNum{};
+        bool left{};
 
         Line();
 
-        void project(int camX,int camY,int camZ, float camD, int width, int height, int rW);
+        void project(float camX,float camY,float camZ, float camD, float width, float height, float rW);
 
-        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objects);
+        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs);
     };
     std::vector<Line> lines;
 
-    int posY;
+    float posY;
 
 public:
     Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::string> &objectNames);
 
-    void draw(Config &c, float camD,  int posX, float speed); // Relative position
+    void draw(Config &c, float camD,  float posX, float speed); // Relative position
 };
 
 

@@ -15,10 +15,9 @@
 #define PLAYERTEXTURES 40
 #define PLAYERSCALE 1.0f
 
-#define ACC 1.075f
-#define BRC 1.85f
-#define SPM 200
-#define ACM 500
+#define SPEEDMUL 100.0f
+const float MAXACC = pow(300.0f / SPEEDMUL, 2.0f);
+#define ACCINC 0.01f
 
 using namespace sf;
 using namespace std;
@@ -91,37 +90,34 @@ void Game::mapControl(Config &c) {
 Game::Action Game::accelerationControl(Config &c) {
     Action a = NONE;
 
-    //TODO Ejemplo de aceleración y frenado, dibujar y adaptar al coche
-    if (Keyboard::isKeyPressed(c.brakeKey)) {
-        speed -= pow(2.0f, 1.0f / (BRC * BRC)) - 1.0f;
-        acceleration -= pow(2.0f, (ACC * ACC)) - 1.0f;
-
+    if (Keyboard::isKeyPressed(c.brakeKey))
         a = BRAKE;
-    }
-    else if (Keyboard::isKeyPressed(c.accelerateKey)) {
-        acceleration += pow(2.0f, 1.0f / (ACC * ACC)) - 1.0f;
 
-        speed += pow(2.0f, 1.0f / (acceleration * acceleration)) - 1.0f;
+    if (a != BRAKE && Keyboard::isKeyPressed(c.accelerateKey)) {
+        if (acceleration < MAXACC)
+            acceleration += ACCINC;
+
+        if (acceleration > MAXACC)
+            acceleration = MAXACC;
     }
     else {
-        speed -= pow(2.0f, 1.0f / (BRC * BRC * BRC)) - 1.0f;
-        acceleration -= pow(2.0f, (ACC * ACC)) - 1.0f;
+        float mul = 2.0f;
+        if (a == BRAKE)
+            mul = 4.0f;
+
+        if (acceleration > 0.0f)
+            acceleration -= ACCINC * mul;
+
+        if (acceleration < 0.0f)
+            acceleration = 0.0f;
     }
 
-    if (speed <= 0.0f)
-        speed = 0.0f;
-    else if (a == NONE)
+    if (a == NONE && acceleration > 0.0f)
         a = ACCELERATE;
 
-    if (acceleration < 0.0f || speed < 0.5f)
-        acceleration = 0.0f;
-    if (speed > SPM)
-        speed = SPM;
-    if (acceleration > ACM)
-        acceleration = ACM;
-    //TODO END
+    speed = sqrt(acceleration);
 
-    string strSpeed = to_string(speed * 100);
+    string strSpeed = to_string(speed * SPEEDMUL);
     sText.setString(strSpeed.substr(0, strSpeed.find('.')));
     c.w.draw(sText);
 

@@ -52,7 +52,7 @@ Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::
     lines.reserve(MAXLINES);
     for(unsigned int i = 0; i < MAXLINES; i++) {
         Line line;
-        line.z = i * SEGL;
+        line.z = (float) i * SEGL;
 
         // Curves in the first half of the map
         if (i > fh1 && i < fh2) line.curve = c1;
@@ -74,7 +74,7 @@ Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::
         if (i >= ele && i <= MAXLINES - 180) // The last line will have the same Y as the first
             maxEle = i + 180;
         if (i >= ele && i <= maxEle)
-            line.y = sin((i - ele) * M_PI / 180) * 1500;
+            line.y = float(sin((i - ele) * M_PI / 180.0) * 1500.0);
 
         lines.push_back(line);
     }
@@ -90,7 +90,7 @@ void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, 
     w.draw(shape);
 }
 
-void Map::draw(Config &c, const float camD, int posX, float speed) {
+void Map::draw(Config &c, const float camD, float posX, float speed) {
     Sprite sbg;
     sbg.setTexture(bg);
     sbg.setScale(Vector2f((float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
@@ -104,17 +104,17 @@ void Map::draw(Config &c, const float camD, int posX, float speed) {
     posY += speed;
     int N = lines.size();
     float playerX = posX * 0.05f;
-    int startPos = posY % N;
-    int camH = lines[startPos].y + 1500;
+    int startPos = int(posY) % N;
+    float camH = lines[startPos].y + 1500.0f;
 
-    int maxy = c.w.getSize().y;
+    float maxy = c.w.getSize().y;
     float x=0, dx=0;
 
     ///////draw road////////
     for(int n = startPos; n<startPos + c.renderLen; n++)
     {
         Line &l = lines[n%N];
-        l.project(playerX*ROADW-x, camH, startPos*SEGL - (n>=N?N*SEGL:0), camD, c.w.getSize().x, c.w.getSize().y, ROADW);
+        l.project(playerX*ROADW-x, camH, float(startPos*SEGL - (n>=N?N*SEGL:0)), camD, c.w.getSize().x, c.w.getSize().y, ROADW);
         x += dx;
         dx += l.curve;
 
@@ -130,9 +130,9 @@ void Map::draw(Config &c, const float camD, int posX, float speed) {
 
         Line p = lines[(n-1)%N]; //previous line
 
-        drawQuad(c.w, grass, 0, p.Y, c.w.getSize().x, 0, l.Y, c.w.getSize().x);
-        drawQuad(c.w, rumble,p.X, p.Y, p.W*1.2, l.X, l.Y, l.W*1.2);
-        drawQuad(c.w, road,  p.X, p.Y, p.W, l.X, l.Y, l.W);
+        drawQuad(c.w, grass, 0, int(p.Y), c.w.getSize().x, 0, int(l.Y), c.w.getSize().x);
+        drawQuad(c.w, rumble, int(p.X), int(p.Y), int(p.W*1.2f), int(l.X), int(l.Y), int(l.W*1.2f));
+        drawQuad(c.w, road, int(p.X), int(p.Y), int(p.W), int(l.X), int(l.Y), int(l.W));
     }
 
     ////////draw objects////////
@@ -146,15 +146,15 @@ Map::Line::Line() {
     spriteX = curve = x = y = z = 0;
 }
 
-void Map::Line::project(int camX,int camY,int camZ, float camD, int width, int height, int rW) {
+void Map::Line::project(float camX,float camY,float camZ, float camD, float width, float height, float rW) {
     scale = camD / (z-camZ);
-    X = (1 + scale * (x - camX)) * width / 2;
-    Y = (1 - scale * (y - camY)) * height / 2;
-    W = scale * rW  * width / 2;
+    X = (1.0f + scale * (x - camX)) * width / 2.0f;
+    Y = (1.0f - scale * (y - camY)) * height / 2.0f;
+    W = scale * rW  * width / 2.0f;
 }
 
-void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objects) {
-    Sprite s(objects[spriteNum]);
+void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs) {
+    Sprite s(objs[spriteNum]);
     if (left) // left
         spriteX = (float) w.getSize().x / (float) ROADW + offset + (float) s.getScale().x / 2.0f;
     else // right
@@ -165,8 +165,8 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objects) {
 
     float destX = X + scale * spriteX * w.getSize().x / 2;
     float destY = Y + 4;
-    float destW = width * W / 266;
-    float destH = h * W / 266;
+    float destW = float(width) * W / 266.0f;
+    float destH = float(h) * W / 266.0f;
 
     destX += destW * spriteX; //offsetX
     destY += destH * (-1);    //offsetY
@@ -175,8 +175,8 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objects) {
     if (clipH < 0) clipH = 0;
 
     if (clipH >= destH) return;
-    s.setTextureRect(IntRect(0, 0, width, h - h * clipH / destH));
-    s.setScale(destW / width, destH / h);
+    s.setTextureRect(IntRect(0, 0, width, float(h) - float(h) * clipH / destH));
+    s.setScale(destW / float(width), destH / float(h));
     s.setPosition(destX, destY);
     w.draw(s);
 }
