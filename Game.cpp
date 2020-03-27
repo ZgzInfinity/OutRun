@@ -187,7 +187,7 @@ void Game::drawPlayer(Config &c, Game::Action a, Game::Direction d) {
 
     sPlayer.setTexture(playerTextures[actual_code_image - 1]);
     sPlayer.setScale(PLAYERSCALE, PLAYERSCALE);
-    sPlayer.setPosition(((float)c.w.getSize().x)/2.0f - sPlayer.getGlobalBounds().width / 2.0f,
+    sPlayer.setPosition(((float)c.w.getSize().x) / 2.0f - sPlayer.getGlobalBounds().width / 2.0f,
                         ((float)c.w.getSize().y) * c.camD - sPlayer.getGlobalBounds().height / 2.0f);
     c.w.draw(sPlayer);
 }

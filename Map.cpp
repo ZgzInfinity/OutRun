@@ -50,7 +50,7 @@ Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::
     ele = uniform_int_distribution<unsigned int>(0, MAXLINES - 180)(generator);
 
     lines.reserve(MAXLINES);
-    for(unsigned int i = 0; i < MAXLINES; i++) {
+    for (unsigned int i = 0; i < MAXLINES; i++) {
         Line line;
         line.z = (float) i * SEGL;
 
@@ -111,32 +111,33 @@ void Map::draw(Config &c, const float camD, float posX, float speed) {
     float x=0, dx=0;
 
     ///////draw road////////
-    for(int n = startPos; n<startPos + c.renderLen; n++)
-    {
-        Line &l = lines[n%N];
-        l.project(playerX*ROADW-x, camH, float(startPos*SEGL - (n>=N?N*SEGL:0)), camD, c.w.getSize().x, c.w.getSize().y, ROADW);
+    for (int n = startPos; n<startPos + c.renderLen; n++) {
+        Line &l = lines[n % N];
+        l.project(playerX * ROADW - x, camH, float(startPos * SEGL - (n >= N ? N * SEGL : 0)), camD,
+                c.w.getSize().x, c.w.getSize().y, ROADW);
         x += dx;
         dx += l.curve;
 
         l.clip = maxy;
-        if (l.Y >= maxy) continue;
-        maxy = l.Y;
+        if (l.Y < maxy) {
+            maxy = l.Y;
 
-        Color grass = (n/3)%2?Color(16,200,16):Color(0,154,0);
-        Color road = (n/3)%2?Color(107,107,107):Color(105,105,105);
-        if (n%N == 0)
-            road = Color::Red;
-        Color rumble = (n/3)%2?Color(255,255,255):road;
+            Color grass = (n / 3) % 2 ? Color(16, 200, 16) : Color(0, 154, 0);
+            Color road = (n / 3) % 2 ? Color(107, 107, 107) : Color(105, 105, 105);
+            if (n % N == 0)
+                road = Color::Red;
+            Color rumble = (n / 3) % 2 ? Color(255, 255, 255) : road;
 
-        Line p = lines[(n-1)%N]; //previous line
+            Line p = lines[(n - 1) % N]; //previous line
 
-        drawQuad(c.w, grass, 0, int(p.Y), c.w.getSize().x, 0, int(l.Y), c.w.getSize().x);
-        drawQuad(c.w, rumble, int(p.X), int(p.Y), int(p.W*1.2f), int(l.X), int(l.Y), int(l.W*1.2f));
-        drawQuad(c.w, road, int(p.X), int(p.Y), int(p.W), int(l.X), int(l.Y), int(l.W));
+            drawQuad(c.w, grass, 0, int(p.Y), c.w.getSize().x, 0, int(l.Y), c.w.getSize().x);
+            drawQuad(c.w, rumble, int(p.X), int(p.Y), int(p.W * 1.2f), int(l.X), int(l.Y), int(l.W * 1.2f));
+            drawQuad(c.w, road, int(p.X), int(p.Y), int(p.W), int(l.X), int(l.Y), int(l.W));
+        }
     }
 
     ////////draw objects////////
-    for(int n = startPos + c.renderLen; n > startPos; n--)
+    for (int n = startPos + c.renderLen; n > startPos; n--)
         if (lines[n%N].spriteNum > -1)
             lines[n%N].drawSprite(c.w, objects);
 
@@ -146,8 +147,8 @@ Map::Line::Line() {
     spriteX = curve = x = y = z = 0;
 }
 
-void Map::Line::project(float camX,float camY,float camZ, float camD, float width, float height, float rW) {
-    scale = camD / (z-camZ);
+void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW) {
+    scale = camD / (z - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
     Y = (1.0f - scale * (y - camY)) * height / 2.0f;
     W = scale * rW  * width / 2.0f;
@@ -163,16 +164,17 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs) {
     int width = s.getTextureRect().width;
     int h = s.getTextureRect().height;
 
-    float destX = X + scale * spriteX * w.getSize().x / 2;
-    float destY = Y + 4;
+    float destX = X + scale * spriteX * w.getSize().x / 2.0f;
+    float destY = Y + 4.0f;
     float destW = float(width) * W / 266.0f;
     float destH = float(h) * W / 266.0f;
 
     destX += destW * spriteX; //offsetX
-    destY += destH * (-1);    //offsetY
+    destY += destH * (-1.0f);    //offsetY
 
-    float clipH = destY+destH-clip;
-    if (clipH < 0) clipH = 0;
+    float clipH = destY + destH - clip;
+    if (clipH < 0)
+        clipH = 0;
 
     if (clipH >= destH) return;
     s.setTextureRect(IntRect(0, 0, width, float(h) - float(h) * clipH / destH));
