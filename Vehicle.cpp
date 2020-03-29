@@ -12,10 +12,10 @@
 using namespace std;
 using namespace sf;
 
-Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures,
-                 int maxCounterToChange, const string &vehicle) : speedMul(speedMul), maxAcc(pow(maxSpeed / speedMul, 2.0f)),
-                 accInc(accInc), scale(scale), maxCounterToChange(maxCounterToChange), speed(0), acceleration(0),
-                 posX(0), posY(0), actual_code_image(1), counter_code_image(0) {
+Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures, int maxCounterToChange,
+        const string &vehicle) : speedMul(speedMul), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
+        scale(scale), maxCounterToChange(maxCounterToChange), speed(0), acceleration(0), posX(0), posY(0), previousY(0),
+        minScreenX(0), maxScreenX(0), actual_code_image(1), counter_code_image(0) {
     for (int i = 1; i <= numTextures; i++) {
         Texture t;
         t.loadFromFile("resources/" + vehicle + "/c" + to_string(i) + ".png");
@@ -25,11 +25,18 @@ Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int 
     }
 }
 
-std::pair<float, float> Vehicle::getPosition() {
+void Vehicle::resetPosition(float pX, float pY) {
+    posX = pX;
+    posY = pY;
+    speed = 0.0f;
+    acceleration = 0.0f;
+}
+
+std::pair<float, float> Vehicle::getPosition() const {
     return make_pair(posX, posY);
 }
 
-float Vehicle::getRealSpeed() {
+float Vehicle::getRealSpeed() const {
     return speed * speedMul;
 }
 
@@ -62,7 +69,10 @@ Vehicle::Action Vehicle::accelerationControl(Config &c) {
         a = ACCELERATE;
 
     speed = sqrt(acceleration);
-    posY += speed;
+    if (speed > 0.0f) {
+        previousY = posY;
+        posY += speed;
+    }
 
     return a;
 }
@@ -130,7 +140,24 @@ void Vehicle::draw(Config &c, Vehicle::Action a, Vehicle::Direction d) {
 
     sprite.setTexture(textures[actual_code_image - 1]);
     sprite.setScale(scale, scale);
-    sprite.setPosition(((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f,
-                        ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
+    minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
+    maxScreenX = ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f;
+    sprite.setPosition(minScreenX, maxScreenX);
     c.w.draw(sprite);
+}
+
+float Vehicle::getPosY() const {
+    return posY;
+}
+
+float Vehicle::getPreviousY() const {
+    return previousY;
+}
+
+float Vehicle::getMinScreenX() const {
+    return minScreenX;
+}
+
+float Vehicle::getMaxScreenX() const {
+    return maxScreenX;
 }

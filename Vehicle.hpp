@@ -29,7 +29,7 @@ class Vehicle {
 
     float speed;
     float acceleration;
-    float posX, posY;
+    float posX, posY, previousY, minScreenX, maxScreenX;
 
     std::vector<sf::Texture> textures;
     sf::Sprite sprite;
@@ -61,16 +61,23 @@ public:
             const std::string &vehicle);
 
     /**
+     * Establece la posición actual del vehículo y resetea la velocidad y la aceleración.
+     * @param pX
+     * @param pY
+     */
+    void resetPosition(float pX, float pY);
+
+    /**
      * Devuelve la posición actual del vehículo.
      * @return {posX, posY}
      */
-    std::pair<float, float> getPosition();
+    std::pair<float, float> getPosition() const;
 
     /**
      * Devuelve la velocidad real del vehículo.
      * @return
      */
-    float getRealSpeed();
+    float getRealSpeed() const;
 
     /**
      * Actualiza la lógica de la aceleración y frenado del vehículo.
@@ -93,6 +100,18 @@ public:
      * @param d
      */
     void draw(Config &c, Action a, Direction d);
+
+    /**
+     *
+     * @return
+     */
+    float getPosY() const;
+
+    float getPreviousY() const;
+
+    float getMinScreenX() const;
+
+    float getMaxScreenX() const;
 };
 
 

@@ -32,13 +32,13 @@ class Map {
      * Rectángulo horizontal cuyo centro está ubicado en las coordenadas (x, y, z), es decir, puede tener elevación (z).
      * En el centro del rectángulo estará la carretera que puede tener una curvatura dependiendo del coeficiente de
      * curvatura (curve) que tenga.
-     * Además, puede contener un objeto en el lateral de la carretera (left or not left) con un offset en x. Este objeto
-     * corresponde a objects[spriteNum].
+     * Además, puede contener un objeto en el lateral de la carretera (left or not left) si spriteNum != -1 con un
+     * offset en x. Este objeto corresponde a objects[spriteNum].
      */
     struct Line {
         float x, y, z; // 3d center of line
         float X{}, Y{}, W{}; // screen coord
-        float curve, spriteX, clip{}, scale{}, offset{};
+        float curve, spriteX, clip{}, scale{}, offset{}, spriteMinX, spriteMaxX;
         int spriteNum{};
         bool left{};
 
@@ -94,6 +94,17 @@ public:
      * @param c
      */
     void draw(Config &c);
+
+    /**
+     * Devuelve true si pos corresponde a algún objeto del fragmento del mapa actual.
+     * @param c
+     * @param actualY
+     * @param prevY
+     * @param minX
+     * @param maxX
+     * @return
+     */
+    bool hasCrashed(const Config &c, float prevY, float actualY, float minX, float maxX) const;
 };
 
 

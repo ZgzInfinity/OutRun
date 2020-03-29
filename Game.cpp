@@ -55,6 +55,7 @@ State Game::play(Config &c) {
         if (Keyboard::isKeyPressed(c.menuKey))
             return PAUSE;
 
+        // Player update and draw
         player.draw(c, player.accelerationControl(c), player.rotationControl(c));
 
         // Draw speed
@@ -63,13 +64,26 @@ State Game::play(Config &c) {
         c.w.draw(sText);
 
         c.w.display();
+
+        hitControl(c);
     }
 
     return EXIT;
 }
 
 void Game::mapControl(Config &c) {
+    // Update camera
     maps[mapId.first][mapId.second].updateView(player.getPosition());
+
+    // Draw map
     maps[mapId.first][mapId.second].draw(c);
+
     //TODO: Añadir bifurcaciones
+}
+
+void Game::hitControl(Config &c) {
+    // Player hits with map object
+    if (maps[mapId.first][mapId.second].hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(), player.getMaxScreenX())) {
+        player.resetPosition(0.0f, player.getPosition().second - 1.0f);
+    }
 }

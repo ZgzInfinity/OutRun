@@ -35,6 +35,12 @@ class Game {
      */
     void mapControl(Config &c);
 
+    /**
+     * Comprueba si los vehículos se han chocado.
+     * @param c
+     */
+    void hitControl(Config &c);
+
 public:
     /**
      * Inicializa la lógica del juego y carga los vehículos y los mapas.
