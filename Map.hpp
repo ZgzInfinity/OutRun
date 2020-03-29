@@ -1,5 +1,5 @@
 /******************************************************************************
- * @file    Map.cpp
+ * @file    Map.hpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
  * @date    Marzo 2020
@@ -19,8 +19,8 @@
  * largo del mapa (objects).
  * El suelo está formado por un número limitado de rectángulos horizontales (lines) que tendrán dibujado el trozo de
  * carretera que les corresponda y objetos en los laterales.
- * Dependiendo de la posición en el mapa (posY) el primer rectángulo visible será uno u otro y los objetos se verán
- * más grandes si están más cerca de la pantalla o más pequeños si están más lejos.
+ * Dependiendo de la posición de la cámara (posX, posY) el primer rectángulo visible será uno u otro y los objetos se
+ * verán más grandes si están más cerca de la pantalla o más pequeños si están más lejos.
  */
 class Map {
     sf::Texture bg; // Background
@@ -71,7 +71,7 @@ class Map {
     };
     std::vector<Line> lines;
 
-    float posY;
+    float posX, posY;
 
 public:
     /**
@@ -84,14 +84,16 @@ public:
     Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::string> &objectNames);
 
     /**
-     * Dibuja el fragmento del mapa actual en la pantalla dadas la configuración, la profundidad de la cámara, la
-     * posición x del mapa y la velocidad actual de movimiento. Esta velocidad actualizará la posición Y global del mapa.
-     * @param c
-     * @param camD
-     * @param posX
-     * @param speed
+     * Establece la posición de la cámara.
+     * @param pos = {x, y}, donde x = 0 es el medio de la carretera, y >= 0 AND y <= MAXLINES
      */
-    void draw(Config &c, float camD,  float posX, float speed); // Relative position
+    void updateView(std::pair<float, float> pos);
+
+    /**
+     * Dibuja el fragmento del mapa actual dada la posición de la cámara establecida con la función updateView().
+     * @param c
+     */
+    void draw(Config &c);
 };
 
 

@@ -1,5 +1,5 @@
 /******************************************************************************
- * @file    Map.hpp
+ * @file    Map.cpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
  * @date    Marzo 2020
@@ -22,7 +22,7 @@ using namespace sf;
 #define ROADW 2000 // Road Width
 #define MAXLINES 4000
 
-Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::string> &objectNames) : posY(0) {
+Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::string> &objectNames) : posX(0), posY(0) {
     bg.loadFromFile(bgName);
     bg.setRepeated(true);
 
@@ -80,6 +80,11 @@ Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::
     }
 }
 
+void Map::updateView(pair<float, float> pos) {
+    this->posX = pos.first;
+    this->posY = pos.second;
+}
+
 void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, int w2) {
     ConvexShape shape(4);
     shape.setFillColor(c);
@@ -90,7 +95,7 @@ void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, 
     w.draw(shape);
 }
 
-void Map::draw(Config &c, const float camD, float posX, float speed) {
+void Map::draw(Config &c) {
     Sprite sbg;
     sbg.setTexture(bg);
     sbg.setScale(Vector2f((float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
@@ -101,9 +106,7 @@ void Map::draw(Config &c, const float camD, float posX, float speed) {
     /*Color road = (posY/3)%2?Color(107,107,107):Color(105,105,105);
     drawQuad(w, road, w.getSize().x/2 - posX, w.getSize().y, w.getSize().x/1.2, w.getSize().x/2 + posX * 0.2, w.getSize().y * BGS, w.getSize().x/20);*/
 
-    posY += speed;
     int N = lines.size();
-    float playerX = posX * 0.05f;
     int startPos = int(posY) % N;
     float camH = lines[startPos].y + 1500.0f;
 
@@ -113,7 +116,7 @@ void Map::draw(Config &c, const float camD, float posX, float speed) {
     ///////draw road////////
     for (int n = startPos; n<startPos + c.renderLen; n++) {
         Line &l = lines[n % N];
-        l.project(playerX * ROADW - x, camH, float(startPos * SEGL - (n >= N ? N * SEGL : 0)), camD,
+        l.project(posX * ROADW - x, camH, float(startPos * SEGL - (n >= N ? N * SEGL : 0)), c.camD,
                 c.w.getSize().x, c.w.getSize().y, ROADW);
         x += dx;
         dx += l.curve;

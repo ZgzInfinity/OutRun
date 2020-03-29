@@ -1,5 +1,5 @@
 /******************************************************************************
- * @file    Engine.cpp
+ * @file    Game.cpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
  * @date    Marzo 2020
@@ -8,22 +8,12 @@
 
 #include "Game.hpp"
 #include <string>
-#include <cmath>
-
-#define MAXCOUNT 10
-
-#define PLAYERTEXTURES 40
-#define PLAYERSCALE 1.0f
-
-#define SPEEDMUL 100.0f
-const float MAXACC = pow(300.0f / SPEEDMUL, 2.0f);
-#define ACCINC 0.01f
 
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : speed(0), acceleration(0), posX(0), mapId(make_pair(0, 0)), actual_code_image(1),
-counter_code_image(0) {
+Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.0f,
+        40, 10, "Ferrari") {
     int nm = 0;
     int nobjects[] = {6}; // TODO: Más mapas
     //for (int i = 0; i < 5; i++) {
@@ -42,15 +32,6 @@ counter_code_image(0) {
         }
 
         maps.push_back(vm);
-    }
-
-    // Player
-    for (int i = 1; i <= PLAYERTEXTURES; i++) {
-        Texture t;
-        t.loadFromFile("resources/Ferrari/c" + to_string(i) + ".png");
-        t.setSmooth(true);
-        t.setRepeated(false);
-        playerTextures.push_back(t);
     }
 
     // Text
@@ -74,7 +55,12 @@ State Game::play(Config &c) {
         if (Keyboard::isKeyPressed(c.menuKey))
             return PAUSE;
 
-        drawPlayer(c, accelerationControl(c), rotationControl(c));
+        player.draw(c, player.accelerationControl(c), player.rotationControl(c));
+
+        // Draw speed
+        string strSpeed = to_string(player.getRealSpeed());
+        sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+        c.w.draw(sText);
 
         c.w.display();
     }
@@ -83,111 +69,7 @@ State Game::play(Config &c) {
 }
 
 void Game::mapControl(Config &c) {
-    maps[mapId.first][mapId.second].draw(c, c.camD, posX, speed);
+    maps[mapId.first][mapId.second].updateView(player.getPosition());
+    maps[mapId.first][mapId.second].draw(c);
     //TODO: Añadir bifurcaciones
-}
-
-Game::Action Game::accelerationControl(Config &c) {
-    Action a = NONE;
-
-    if (Keyboard::isKeyPressed(c.brakeKey))
-        a = BRAKE;
-
-    if (a != BRAKE && Keyboard::isKeyPressed(c.accelerateKey)) {
-        if (acceleration < MAXACC)
-            acceleration += ACCINC;
-
-        if (acceleration > MAXACC)
-            acceleration = MAXACC;
-    }
-    else {
-        float mul = 2.0f;
-        if (a == BRAKE)
-            mul = 4.0f;
-
-        if (acceleration > 0.0f)
-            acceleration -= ACCINC * mul;
-
-        if (acceleration < 0.0f)
-            acceleration = 0.0f;
-    }
-
-    if (a == NONE && acceleration > 0.0f)
-        a = ACCELERATE;
-
-    speed = sqrt(acceleration);
-
-    string strSpeed = to_string(speed * SPEEDMUL);
-    sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-    c.w.draw(sText);
-
-    return a;
-}
-
-Game::Direction Game::rotationControl(Config &c) {
-    if (speed > 0.0f) {
-        if (Keyboard::isKeyPressed(c.leftKey)) {
-            posX--;
-            return TURNLEFT;
-        }
-
-        if (Keyboard::isKeyPressed(c.rightKey)) {
-            posX++;
-            return TURNRIGHT;
-        }
-    }
-
-    return RIGHT;
-}
-
-void Game::drawPlayer(Config &c, Game::Action a, Game::Direction d) {
-    if (a != NONE) {
-        if (counter_code_image >= MAXCOUNT) {
-            counter_code_image = 0;
-
-            if (speed > 0.0f)
-                actual_code_image++;
-
-            if (a == ACCELERATE) {
-                if (d == TURNLEFT) {
-                    if (actual_code_image < 10 || actual_code_image > 11)
-                        actual_code_image = 10;
-                }
-                else if (d == TURNRIGHT) {
-                    if (actual_code_image < 14 || actual_code_image > 15)
-                        actual_code_image = 14;
-                }
-                else {
-                    if (actual_code_image < 1 || actual_code_image > 4)
-                        actual_code_image = 1;
-                }
-            }
-            else if (a == BRAKE) {
-                if (d == TURNLEFT) {
-                    if (actual_code_image < 25 || actual_code_image > 28)
-                        actual_code_image = 25;
-                }
-                else if (d == TURNRIGHT) {
-                    if (actual_code_image < 33 || actual_code_image > 36)
-                        actual_code_image = 33;
-                }
-                else {
-                    if (actual_code_image < 21 || actual_code_image > 24)
-                        actual_code_image = 21;
-                }
-            }
-        }
-        else {
-            counter_code_image++;
-        }
-    }
-    else {
-        actual_code_image = 1;
-    }
-
-    sPlayer.setTexture(playerTextures[actual_code_image - 1]);
-    sPlayer.setScale(PLAYERSCALE, PLAYERSCALE);
-    sPlayer.setPosition(((float)c.w.getSize().x) / 2.0f - sPlayer.getGlobalBounds().width / 2.0f,
-                        ((float)c.w.getSize().y) * c.camD - sPlayer.getGlobalBounds().height / 2.0f);
-    c.w.draw(sPlayer);
 }
