@@ -16,7 +16,8 @@
 
 /**
  * Mapa que contiene la textura del paisaje (bg) y la textura de los objetos que se generarán de manera aleatoria a lo
- * largo del mapa (objects).
+ * largo del mapa (objects). Además cada objeto tendrá un coeficiente que indicará el porcentaje total del objeto con
+ * el que se puede chocar empezando desde el centro [0, 1]. Esto es útil para objetos cuya base es menor a la copa.
  * El suelo está formado por un número limitado de rectángulos horizontales (lines) que tendrán dibujado el trozo de
  * carretera que les corresponda y objetos en los laterales.
  * Dependiendo de la posición de la cámara (posX, posY) el primer rectángulo visible será uno u otro y los objetos se
@@ -27,6 +28,7 @@ class Map {
 
     // Objects
     std::vector<sf::Texture> objects;
+    std::vector<float> hitCoeff;
 
     /**
      * Rectángulo horizontal cuyo centro está ubicado en las coordenadas (x, y, z), es decir, puede tener elevación (z).
@@ -38,7 +40,7 @@ class Map {
     struct Line {
         float x, y, z; // 3d center of line
         float X{}, Y{}, W{}; // screen coord
-        float curve, spriteX, clip{}, scale{}, offset{}, spriteMinX, spriteMaxX;
+        float curve, spriteX, clip{}, scale{}, offset{}, spriteMinX{}, spriteMaxX{};
         int spriteNum{};
         bool left{};
 
@@ -66,8 +68,9 @@ class Map {
          * Dibuja el rectángulo en la pantalla. Esta función debe ser llamada después de project().
          * @param w
          * @param objs
+         * @param coeff
          */
-        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs);
+        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &coeff);
     };
     std::vector<Line> lines;
 

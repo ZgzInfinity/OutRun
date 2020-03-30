@@ -12,6 +12,7 @@
 #endif
 
 #include <random>
+#include <fstream>
 #include "Map.hpp"
 
 using namespace std;
@@ -27,11 +28,22 @@ Map::Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::
     bg.setRepeated(true);
 
     objects.reserve(objectNames.size());
+    hitCoeff.reserve(objectNames.size());
     for (const string &s : objectNames) {
+        // Load textures
         Texture t;
         t.loadFromFile(s);
         t.setSmooth(true);
         objects.push_back(t);
+
+        // Load hit percentage from center
+        ifstream fin(s + ".info");
+        float coeff = 1.0f;
+        if (fin.is_open()) {
+            fin >> coeff;
+            fin.close();
+        }
+        hitCoeff.push_back(coeff);
     }
 
     random_device rd;
@@ -142,7 +154,7 @@ void Map::draw(Config &c) {
     ////////draw objects////////
     for (int n = startPos + c.renderLen; n > startPos; n--)
         if (lines[n%N].spriteNum > -1)
-            lines[n%N].drawSprite(c.w, objects);
+            lines[n%N].drawSprite(c.w, objects, hitCoeff);
 
 }
 
@@ -157,7 +169,7 @@ void Map::Line::project(float camX, float camY, float camZ, float camD, float wi
     W = scale * rW  * width / 2.0f;
 }
 
-void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs) {
+void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const vector<float> &coeff) {
     Sprite s(objs[spriteNum]);
     if (left) // left
         spriteX = (float) w.getSize().x / (float) ROADW + offset + (float) s.getScale().x / 2.0f;
@@ -185,17 +197,17 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs) {
     s.setPosition(destX, destY);
     w.draw(s);
 
-    spriteMinX = destX;
-    spriteMaxX = destX + s.getGlobalBounds().width;
+    spriteMinX = destX + (s.getGlobalBounds().width - s.getGlobalBounds().width * coeff[spriteNum]) / 2.0f;
+    spriteMaxX = spriteMinX + s.getGlobalBounds().width * coeff[spriteNum];
 }
 
 bool Map::hasCrashed(const Config &c, float prevY, float actualY, float minX, float maxX) const {
     int N = lines.size();
     for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
         const Line &l = lines[n % N];
-        if (l.spriteNum != -1 &&
-                prevY <= float(n) && actualY >= float(n) &&
-                ((minX >= l.spriteMinX && minX <= l.spriteMaxX) || (maxX >= l.spriteMinX && maxX <= l.spriteMaxX)))
+        if (l.spriteNum != -1 && // l has an object
+                prevY <= float(n) && actualY >= float(n) && // y matches
+                ((minX >= l.spriteMinX && minX <= l.spriteMaxX) || (maxX >= l.spriteMinX && maxX <= l.spriteMaxX))) // x matches
             return true;
     }
     return false;
