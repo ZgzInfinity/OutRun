@@ -191,10 +191,10 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs) {
 
 bool Map::hasCrashed(const Config &c, float prevY, float actualY, float minX, float maxX) const {
     int N = lines.size();
-    int startPos = int(posY) % N;
-    for (int n = startPos; n<startPos + c.renderLen; n++) {
+    for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
         const Line &l = lines[n % N];
-        if (l.spriteNum != -1 && prevY <= float(n) && actualY >= float(n) &&
+        if (l.spriteNum != -1 &&
+                prevY <= float(n) && actualY >= float(n) &&
                 ((minX >= l.spriteMinX && minX <= l.spriteMaxX) || (maxX >= l.spriteMinX && maxX <= l.spriteMaxX)))
             return true;
     }
