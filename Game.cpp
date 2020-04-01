@@ -12,8 +12,7 @@
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.0f,
-        40, 10, "Ferrari") {
+Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.0f, 40, 10, "Ferrari") {
     int nm = 0;
     int nobjects[] = {6}; // TODO: Más mapas
     //for (int i = 0; i < 5; i++) {
@@ -42,6 +41,12 @@ Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.
 }
 
 State Game::play(Config &c) {
+
+    c.soundtrackList.setLoop(true);
+    c.soundtrackList.play();
+
+    c.w.setKeyRepeatEnabled(false);
+
     while (c.w.isOpen()) {
         c.w.clear();
         mapControl(c);

@@ -16,12 +16,20 @@ using namespace std;
 int main() {
     Config c;
     Game engine(c);
-    State state = START;
+    State state = ANIMATION;
 
     while (c.w.isOpen()) {
         switch (state) {
+            case ANIMATION: {
+                state = introAnimation(c);
+                break;
+            }
             case START: {
                 state = startMenu(c);
+                break;
+            }
+            case MUSIC: {
+                state = selectMusicSoundtrack(c);
                 break;
             }
             case GAME: {
