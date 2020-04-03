@@ -32,6 +32,10 @@ int main() {
                 state = selectMusicSoundtrack(c);
                 break;
             }
+            case OPTIONS: {
+                state = optionsMenu(c);
+                break;
+            }
             case GAME: {
                 state = engine.play(c);
                 break;

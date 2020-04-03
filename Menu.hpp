@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <iostream>
+#include "KeywordMapper.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
@@ -22,6 +23,16 @@ using namespace sf;
 
 const int NUM_SEGA_ICONS = 39;
 const int NUM_SOUNDTRACKS = 3;
+const int NUM_OPTIONS = 5;
+const int NUM_CONTROLLERS = 4;
+
+
+enum Difficult {
+    EASY = 0,
+    MEDIUM,
+    HARD
+};
+
 
 struct Config {
     Config();
@@ -48,6 +59,18 @@ struct Config {
     float camD; // Camera depth
     int renderLen; // Length rendered
 
+    // Control the volume of the effects and the music
+    int volumeEffects = 100, volumeMusic = 100;
+
+    // Difficult level
+    Difficult level = EASY;
+
+    // Control of the traffic
+    bool trafficControl = true;
+
+    // Control if the configuration has been changed correctly
+    bool modifiedConfig = false;
+
 };
 
 enum State {
@@ -63,6 +86,10 @@ enum State {
 
 
 State introAnimation(Config& c);
+
+State optionsMenu(Config& c);
+
+void changeCarControllers(Config& c);
 
 State selectMusicSoundtrack(Config& c);
 
