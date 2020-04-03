@@ -12,6 +12,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "Menu.hpp"
+#include "Map.hpp"
 
 /**
  * La información del vehículo está compuesta por su velocidad, aceleración, posición x, conjunto de texturas del
@@ -98,8 +99,9 @@ public:
      * @param c
      * @param a
      * @param d
+     * @param e
      */
-    void draw(Config &c, Action a, Direction d);
+    void draw(Config &c, const Action &a, const Direction &d, const Map::Elevation &e);
 
     /**
      *

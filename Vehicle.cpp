@@ -93,7 +93,7 @@ Vehicle::Direction Vehicle::rotationControl(Config &c) {
     return RIGHT;
 }
 
-void Vehicle::draw(Config &c, Vehicle::Action a, Vehicle::Direction d) {
+void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::Elevation &e) {
     if (a != NONE) {
         if (counter_code_image >= maxCounterToChange) {
             counter_code_image = 0;
@@ -102,31 +102,91 @@ void Vehicle::draw(Config &c, Vehicle::Action a, Vehicle::Direction d) {
                 actual_code_image++;
 
             if (a == ACCELERATE) {
-                if (d == TURNLEFT) {
-                    if (actual_code_image < 10 || actual_code_image > 11)
-                        actual_code_image = 10;
+                if (e == Map::UP) {
+                    if (d == TURNLEFT) {
+                        if (actual_code_image < 26 || actual_code_image > 27)
+                            actual_code_image = 26;
+                    }
+                    else if (d == TURNRIGHT) {
+                        if (actual_code_image < 34 || actual_code_image > 35)
+                            actual_code_image = 34;
+                    }
+                    else {
+                        if (actual_code_image < 21 || actual_code_image > 24)
+                            actual_code_image = 21;
+                    }
                 }
-                else if (d == TURNRIGHT) {
-                    if (actual_code_image < 14 || actual_code_image > 15)
-                        actual_code_image = 14;
+                else if (e == Map::DOWN) {
+                    if (d == TURNLEFT) {
+                        if (actual_code_image < 46 || actual_code_image > 47)
+                            actual_code_image = 46;
+                    }
+                    else if (d == TURNRIGHT) {
+                        if (actual_code_image < 54 || actual_code_image > 55)
+                            actual_code_image = 54;
+                    }
+                    else {
+                        if (actual_code_image < 41 || actual_code_image > 44)
+                            actual_code_image = 41;
+                    }
                 }
                 else {
-                    if (actual_code_image < 1 || actual_code_image > 4)
-                        actual_code_image = 1;
+                    if (d == TURNLEFT) {
+                        if (actual_code_image < 6 || actual_code_image > 7)
+                            actual_code_image = 6;
+                    }
+                    else if (d == TURNRIGHT) {
+                        if (actual_code_image < 14 || actual_code_image > 15)
+                            actual_code_image = 14;
+                    }
+                    else {
+                        if (actual_code_image < 1 || actual_code_image > 4)
+                            actual_code_image = 1;
+                    }
                 }
             }
             else if (a == BRAKE) {
-                if (d == TURNLEFT) {
-                    if (actual_code_image < 25 || actual_code_image > 28)
-                        actual_code_image = 25;
+                if (e == Map::UP) {
+                    if (d == TURNLEFT) {
+                        if (actual_code_image < 86 || actual_code_image > 87)
+                            actual_code_image = 86;
+                    }
+                    else if (d == TURNRIGHT) {
+                        if (actual_code_image < 94 || actual_code_image > 95)
+                            actual_code_image = 94;
+                    }
+                    else {
+                        if (actual_code_image < 81 || actual_code_image > 84)
+                            actual_code_image = 81;
+                    }
                 }
-                else if (d == TURNRIGHT) {
-                    if (actual_code_image < 33 || actual_code_image > 36)
-                        actual_code_image = 33;
+                else if (e == Map::DOWN) {
+                    if (d == TURNLEFT) {
+                        if (actual_code_image < 106 || actual_code_image > 107)
+                            actual_code_image = 106;
+                    }
+                    else if (d == TURNRIGHT) {
+                        if (actual_code_image < 114 || actual_code_image > 115)
+                            actual_code_image = 114;
+                    }
+                    else {
+                        if (actual_code_image < 101 || actual_code_image > 104)
+                            actual_code_image = 101;
+                    }
                 }
                 else {
-                    if (actual_code_image < 21 || actual_code_image > 24)
-                        actual_code_image = 21;
+                    if (d == TURNLEFT) {
+                        if (actual_code_image < 66 || actual_code_image > 67)
+                            actual_code_image = 66;
+                    }
+                    else if (d == TURNRIGHT) {
+                        if (actual_code_image < 74 || actual_code_image > 75)
+                            actual_code_image = 74;
+                    }
+                    else {
+                        if (actual_code_image < 61 || actual_code_image > 64)
+                            actual_code_image = 61;
+                    }
                 }
             }
         }

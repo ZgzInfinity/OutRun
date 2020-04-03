@@ -201,14 +201,27 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     spriteMaxX = spriteMinX + s.getGlobalBounds().width * coeff[spriteNum];
 }
 
-bool Map::hasCrashed(const Config &c, float prevY, float actualY, float minX, float maxX) const {
-    int N = lines.size();
+bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX) const {
+    const int N = lines.size();
     for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
         const Line &l = lines[n % N];
         if (l.spriteNum != -1 && // l has an object
-                prevY <= float(n) && actualY >= float(n) && // y matches
+                prevY <= float(n) && currentY >= float(n) && // y matches
                 ((minX >= l.spriteMinX && minX <= l.spriteMaxX) || (maxX >= l.spriteMinX && maxX <= l.spriteMaxX))) // x matches
             return true;
     }
     return false;
+}
+
+Map::Elevation Map::getElevation(float currentY) const {
+    const int N = lines.size();
+    const int n = int(currentY);
+    const Line &currentLine = lines[n % N];
+    const Line &prevLine = lines[(n - 1) % N];
+    if (n % N != 0 && abs(currentLine.y) > 1000 && currentLine.y > prevLine.y + 1.0f)
+        return UP;
+    else if (n % N != 0 && abs(currentLine.y) > 1000 && currentLine.y < prevLine.y - 1.0f)
+        return DOWN;
+    else
+        return STRAIGHT;
 }

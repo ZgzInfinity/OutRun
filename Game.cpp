@@ -12,7 +12,7 @@
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.0f, 40, 10, "Ferrari") {
+Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") {
     int nm = 0;
     int nobjects[] = {6}; // TODO: Más mapas
     //for (int i = 0; i < 5; i++) {
@@ -61,7 +61,8 @@ State Game::play(Config &c) {
             return PAUSE;
 
         // Player update and draw
-        player.draw(c, player.accelerationControl(c), player.rotationControl(c));
+        player.draw(c, player.accelerationControl(c), player.rotationControl(c),
+                maps[mapId.first][mapId.second].getElevation(player.getPosY()));
 
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());

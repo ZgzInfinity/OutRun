@@ -77,6 +77,13 @@ class Map {
     float posX, posY;
 
 public:
+    // Current elevation type
+    enum Elevation {
+        UP,
+        STRAIGHT,
+        DOWN
+    };
+
     /**
      * Crea un mapa con un paisaje dado el nombre del fichero de la imagen y con unos objetos dados los nombres de los
      * ficheros de las imágenes.
@@ -101,13 +108,20 @@ public:
     /**
      * Devuelve true si pos corresponde a algún objeto del fragmento del mapa actual.
      * @param c
-     * @param actualY
+     * @param currentY
      * @param prevY
      * @param minX
      * @param maxX
      * @return
      */
-    bool hasCrashed(const Config &c, float prevY, float actualY, float minX, float maxX) const;
+    bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX) const;
+
+    /**
+     * Devuelve la elevación correspondiente al rectángulo currentY en base al rectángulo previo.
+     * @param currentY
+     * @return
+     */
+    Elevation getElevation(float currentY) const;
 };
 
 
