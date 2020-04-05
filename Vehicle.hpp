@@ -99,16 +99,18 @@ public:
     /**
      * Actualiza la lógica de la aceleración y frenado del vehículo.
      * @param c
+     * @param hasGotOut indica si se ha salido del camino
      * @return
      */
-    Action accelerationControl(Config &c);
+    Action accelerationControl(Config &c, bool hasGotOut);
 
     /**
      * Actualiza la lógica de giro del vehículo.
      * @param c
+     * @param curveCoefficient pertenece [-0.9, 0.9]
      * @return
      */
-    Direction rotationControl(Config &c);
+    Direction rotationControl(Config &c, float curveCoefficient);
 
     /**
      * Actualiza el sprite del vehículo y lo dibuja en la pantalla.

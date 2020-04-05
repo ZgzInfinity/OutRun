@@ -214,6 +214,14 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, f
     return false;
 }
 
+bool Map::hasGotOut(float currentX) const {
+    return abs(currentX) > 1.0f;
+}
+
+float Map::getCurveCoefficient(float currentY) const {
+    return lines[int(currentY) % lines.size()].curve;
+}
+
 Map::Elevation Map::getElevation(float currentY) const {
     const int N = lines.size();
     const int n = int(currentY);

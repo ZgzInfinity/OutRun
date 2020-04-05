@@ -74,15 +74,23 @@ float Vehicle::getRealSpeed() const {
     return speed * speedMul;
 }
 
-Vehicle::Action Vehicle::accelerationControl(Config &c) {
+Vehicle::Action Vehicle::accelerationControl(Config &c, bool hasGotOut) {
     Action a = NONE;
 
     if (Keyboard::isKeyPressed(c.brakeKey))
         a = BRAKE;
 
     if (a != BRAKE && Keyboard::isKeyPressed(c.accelerateKey)) {
-        if (acceleration < maxAcc)
-            acceleration += accInc;
+        if (hasGotOut) {
+            if (acceleration < maxAcc / 2.0f)
+                acceleration += accInc / 2.0f;
+            else
+                acceleration -= accInc;
+        }
+        else {
+            if (acceleration < maxAcc)
+                acceleration += accInc;
+        }
 
         if (acceleration > maxAcc)
             acceleration = maxAcc;
@@ -90,7 +98,9 @@ Vehicle::Action Vehicle::accelerationControl(Config &c) {
     else {
         float mul = 2.0f;
         if (a == BRAKE)
-            mul = 4.0f;
+            mul *= 2.0f;
+        if (hasGotOut)
+            mul *= 1.5f;
 
         if (acceleration > 0.0f)
             acceleration -= accInc * mul;
@@ -111,13 +121,17 @@ Vehicle::Action Vehicle::accelerationControl(Config &c) {
     return a;
 }
 
-Vehicle::Direction Vehicle::rotationControl(Config &c) {
+Vehicle::Direction Vehicle::rotationControl(Config &c, float curveCoefficient) {
     if (speed > 0.0f) {
+        if (curveCoefficient > 0.0f)
+            posX -= XINC * speed / (maxSpeed * 2.0f);
+        else if (curveCoefficient < 0.0f)
+            posX += XINC * speed / (maxSpeed * 2.0f);
+
         if (Keyboard::isKeyPressed(c.leftKey)) {
             posX -= XINC * speed / maxSpeed;
             return TURNLEFT;
         }
-
         if (Keyboard::isKeyPressed(c.rightKey)) {
             posX += XINC * speed / maxSpeed;
             return TURNRIGHT;

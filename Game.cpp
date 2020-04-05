@@ -60,15 +60,17 @@ State Game::play(Config &c) {
         if (Keyboard::isKeyPressed(c.menuKey))
             return PAUSE;
 
+        const Map &currentMap = maps[mapId.first][mapId.second];
+
         // Player update and draw
         Vehicle::Action action = Vehicle::CRASH;
         Vehicle::Direction direction = Vehicle::RIGHT;
         if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c);
-            direction = player.rotationControl(c);
+            action = player.accelerationControl(c, currentMap.hasGotOut(player.getPosition().first));
+            direction = player.rotationControl(c, currentMap.getCurveCoefficient(player.getPosY()));
         }
 
-        player.draw(c, action, direction, maps[mapId.first][mapId.second].getElevation(player.getPosY()));
+        player.draw(c, action, direction, currentMap.getElevation(player.getPosY()));
 
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
@@ -77,8 +79,8 @@ State Game::play(Config &c) {
 
         c.w.display();
 
-        if (maps[mapId.first][mapId.second].hasCrashed(c, player.getPreviousY(), player.getPosY(),
-                player.getMinScreenX(), player.getMaxScreenX()) || player.isCrashing())
+        if (currentMap.hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
+                player.getMaxScreenX()) || player.isCrashing())
             player.hitControl();
     }
 

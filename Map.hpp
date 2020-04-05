@@ -117,6 +117,21 @@ public:
     bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX) const;
 
     /**
+     * Devuelve true si currentX está fuera de la carretera.
+     * @param currentX
+     * @return
+     */
+    bool hasGotOut(float currentX) const;
+
+    /**
+     * Devuelve el coeficiente de curvatura correspondiente al rectángulo currentY. El coeficiente es positivo si la
+     * curva es hacia la derecha, negativo si es hacia la izquierda y 0 si es una recta.
+     * @param currentY
+     * @return coeff pertenece [-0.9, 0.9]
+     */
+    float getCurveCoefficient(float currentY) const;
+
+    /**
      * Devuelve la elevación correspondiente al rectángulo currentY en base al rectángulo previo.
      * @param currentY
      * @return
