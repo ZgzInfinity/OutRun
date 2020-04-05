@@ -61,8 +61,18 @@ State Game::play(Config &c) {
             return PAUSE;
 
         // Player update and draw
-        player.draw(c, player.accelerationControl(c), player.rotationControl(c),
-                maps[mapId.first][mapId.second].getElevation(player.getPosY()));
+        Vehicle::Action action = Vehicle::CRASH;
+        Vehicle::Direction direction = Vehicle::RIGHT;
+        if (maps[mapId.first][mapId.second].hasCrashed(c, player.getPreviousY(), player.getPosY(),
+                player.getMinScreenX(), player.getMaxScreenX()) || player.isCrashing()) {
+            player.hitControl();
+        }
+        else { // If not has crashed
+            action = player.accelerationControl(c);
+            direction = player.rotationControl(c);
+        }
+
+        player.draw(c, action, direction, maps[mapId.first][mapId.second].getElevation(player.getPosY()));
 
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
@@ -70,8 +80,6 @@ State Game::play(Config &c) {
         c.w.draw(sText);
 
         c.w.display();
-
-        hitControl(c);
     }
 
     return EXIT;
@@ -85,11 +93,4 @@ void Game::mapControl(Config &c) {
     maps[mapId.first][mapId.second].draw(c);
 
     //TODO: Añadir bifurcaciones
-}
-
-void Game::hitControl(Config &c) {
-    // Player hits with map object
-    if (maps[mapId.first][mapId.second].hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(), player.getMaxScreenX())) {
-        player.resetPosition(0.0f, player.getPosition().second - 1.0f);
-    }
 }

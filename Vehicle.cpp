@@ -25,15 +25,42 @@ Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int 
     }
 }
 
-void Vehicle::resetPosition(float pX, float pY) {
+void Vehicle::setPosition(float pX, float pY) {
     posX = pX;
     posY = pY;
-    speed = 0.0f;
-    acceleration = 0.0f;
 }
 
 std::pair<float, float> Vehicle::getPosition() const {
     return make_pair(posX, posY);
+}
+
+void Vehicle::hitControl() {
+    crashing = true;
+
+    if (posX > 0.05f)
+        posX -= 0.05f;
+    else if (posX < -0.05f)
+        posX += 0.05f;
+
+    acceleration -= accInc * 2.5f;
+    if (this->getRealSpeed() > 150.0f)
+        acceleration -= accInc * 2.5f;
+    if (acceleration < 0.0f)
+        acceleration = 0.0f;
+
+    speed = sqrt(acceleration);
+    if (speed <= 0.0f) {
+        speed = 0.0f;
+        acceleration = 0.0f;
+        crashing = false;
+
+        posX = 0.0f;
+        posY = previousY;
+    }
+}
+
+bool Vehicle::isCrashing() const {
+    return crashing;
 }
 
 float Vehicle::getRealSpeed() const {
@@ -189,6 +216,29 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
                     }
                 }
             }
+            else {
+                // Crash
+                if (posX > 0.0f) {
+                    if (posX > 0.05f) {
+                        if (actual_code_image < 121 || actual_code_image > 124)
+                            actual_code_image = 121;
+                    }
+                    else {
+                        if (actual_code_image < 129 || actual_code_image > 130)
+                            actual_code_image = 129;
+                    }
+                }
+                else {
+                    if (posX < -0.05f) {
+                        if (actual_code_image < 125 || actual_code_image > 128)
+                            actual_code_image = 125;
+                    }
+                    else {
+                        if (actual_code_image < 131 || actual_code_image > 132)
+                            actual_code_image = 131;
+                    }
+                }
+            }
         }
         else {
             counter_code_image++;
@@ -198,7 +248,7 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
         actual_code_image = 1;
     }
 
-    sprite.setTexture(textures[actual_code_image - 1]);
+    sprite.setTexture(textures[actual_code_image - 1], true);
     sprite.setScale(scale, scale);
     minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
     maxScreenX = ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f;

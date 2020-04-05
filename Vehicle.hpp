@@ -36,10 +36,14 @@ class Vehicle {
     sf::Sprite sprite;
     int actual_code_image;
     int counter_code_image; // Counter to change actual_code_image
+    bool crashing; // True if crashing state is on
+
+public:
     enum Action {
         NONE,
         BRAKE,
-        ACCELERATE
+        ACCELERATE,
+        CRASH
     };
     enum Direction {
         RIGHT,
@@ -47,7 +51,6 @@ class Vehicle {
         TURNRIGHT
     };
 
-public:
     /**
      * Inicializa el vehículo.
      * @param maxSpeed
@@ -62,17 +65,28 @@ public:
             const std::string &vehicle);
 
     /**
-     * Establece la posición actual del vehículo y resetea la velocidad y la aceleración.
+     * Establece la posición actual del vehículo.
      * @param pX
      * @param pY
      */
-    void resetPosition(float pX, float pY);
+    void setPosition(float pX, float pY);
 
     /**
      * Devuelve la posición actual del vehículo.
      * @return {posX, posY}
      */
     std::pair<float, float> getPosition() const;
+
+    /**
+     * Actualiza la lógica del choque y restablece la velocidad y aceleración.
+     */
+    void hitControl();
+
+    /**
+     * Devuelve true si la lógica de choque está en ejecución.
+     * @return
+     */
+    bool isCrashing() const;
 
     /**
      * Devuelve la velocidad real del vehículo.
