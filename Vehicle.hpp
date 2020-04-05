@@ -19,13 +19,14 @@
  * vehículo, sprite actual y acción actual y dirección actual.
  * Además, se incluyen las siguientes constantes para la lógica del vehículo:
  *      speedMul: multiplicador de la velocidad que multiplicado por speed obtiene la velocidad real
+ *      maxSpeed: velocidad máxima
  *      maxAcc: aceleración máxima
  *      accInc: incremento de la aceleración
  *      scale: escalado del sprite del vehículo
  *      maxCounterToChange: cuando counter_code_image llega a maxCounterToChange se actualiza el sprite
  */
 class Vehicle {
-    const float speedMul, maxAcc, accInc, scale;
+    const float speedMul, maxSpeed, maxAcc, accInc, scale;
     const int maxCounterToChange;
 
     float speed;

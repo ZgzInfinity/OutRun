@@ -207,7 +207,8 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, f
         const Line &l = lines[n % N];
         if (l.spriteNum != -1 && // l has an object
                 prevY <= float(n) && currentY >= float(n) && // y matches
-                ((minX >= l.spriteMinX && minX <= l.spriteMaxX) || (maxX >= l.spriteMinX && maxX <= l.spriteMaxX))) // x matches
+                ((minX >= l.spriteMinX && minX <= l.spriteMaxX) || (maxX >= l.spriteMinX && maxX <= l.spriteMaxX) ||
+                 (l.spriteMinX >= minX && l.spriteMinX <= maxX) || (l.spriteMaxX >= minX && l.spriteMaxX <= maxX))) // x matches
             return true;
     }
     return false;

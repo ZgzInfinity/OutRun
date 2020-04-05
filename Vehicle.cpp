@@ -12,10 +12,13 @@
 using namespace std;
 using namespace sf;
 
+#define XINC 0.05f // x increment
+
 Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures, int maxCounterToChange,
-        const string &vehicle) : speedMul(speedMul), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-        scale(scale), maxCounterToChange(maxCounterToChange), speed(0), acceleration(0), posX(0), posY(0), previousY(0),
-        minScreenX(0), maxScreenX(0), actual_code_image(1), counter_code_image(0) {
+        const string &vehicle) : speedMul(speedMul), maxSpeed(maxSpeed / speedMul),
+        maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scale(scale),
+        maxCounterToChange(maxCounterToChange), speed(0), acceleration(0), posX(0), posY(0), previousY(0),
+        minScreenX(0), maxScreenX(0), actual_code_image(1), counter_code_image(0), crashing(false) {
     for (int i = 1; i <= numTextures; i++) {
         Texture t;
         t.loadFromFile("resources/" + vehicle + "/c" + to_string(i) + ".png");
@@ -37,14 +40,17 @@ std::pair<float, float> Vehicle::getPosition() const {
 void Vehicle::hitControl() {
     crashing = true;
 
-    if (posX > 0.05f)
-        posX -= 0.05f;
-    else if (posX < -0.05f)
-        posX += 0.05f;
+    if (posX > XINC)
+        posX -= XINC;
+    else if (posX < -XINC)
+        posX += XINC;
 
     acceleration -= accInc * 2.5f;
-    if (this->getRealSpeed() > 150.0f)
+    if (speed > 2.0f * maxSpeed / 3.0f) // Reduces hit time
+        acceleration -= accInc * 5.0f;
+    else if (speed > maxSpeed / 2.0f)
         acceleration -= accInc * 2.5f;
+
     if (acceleration < 0.0f)
         acceleration = 0.0f;
 
@@ -107,12 +113,12 @@ Vehicle::Action Vehicle::accelerationControl(Config &c) {
 Vehicle::Direction Vehicle::rotationControl(Config &c) {
     if (speed > 0.0f) {
         if (Keyboard::isKeyPressed(c.leftKey)) {
-            posX -= 0.05f;
+            posX -= XINC * speed / maxSpeed;
             return TURNLEFT;
         }
 
         if (Keyboard::isKeyPressed(c.rightKey)) {
-            posX += 0.05f;
+            posX += XINC * speed / maxSpeed;
             return TURNRIGHT;
         }
     }
@@ -219,7 +225,7 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
             else {
                 // Crash
                 if (posX > 0.0f) {
-                    if (posX > 0.05f) {
+                    if (posX > XINC) {
                         if (actual_code_image < 121 || actual_code_image > 124)
                             actual_code_image = 121;
                     }
@@ -229,7 +235,7 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
                     }
                 }
                 else {
-                    if (posX < -0.05f) {
+                    if (posX < -XINC) {
                         if (actual_code_image < 125 || actual_code_image > 128)
                             actual_code_image = 125;
                     }
@@ -251,8 +257,8 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
     sprite.setTexture(textures[actual_code_image - 1], true);
     sprite.setScale(scale, scale);
     minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
-    maxScreenX = ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f;
-    sprite.setPosition(minScreenX, maxScreenX);
+    maxScreenX = minScreenX + sprite.getGlobalBounds().width;
+    sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
     c.w.draw(sprite);
 }
 

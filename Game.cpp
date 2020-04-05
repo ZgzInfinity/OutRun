@@ -63,11 +63,7 @@ State Game::play(Config &c) {
         // Player update and draw
         Vehicle::Action action = Vehicle::CRASH;
         Vehicle::Direction direction = Vehicle::RIGHT;
-        if (maps[mapId.first][mapId.second].hasCrashed(c, player.getPreviousY(), player.getPosY(),
-                player.getMinScreenX(), player.getMaxScreenX()) || player.isCrashing()) {
-            player.hitControl();
-        }
-        else { // If not has crashed
+        if (!player.isCrashing()) { // If not has crashed
             action = player.accelerationControl(c);
             direction = player.rotationControl(c);
         }
@@ -80,6 +76,10 @@ State Game::play(Config &c) {
         c.w.draw(sText);
 
         c.w.display();
+
+        if (maps[mapId.first][mapId.second].hasCrashed(c, player.getPreviousY(), player.getPosY(),
+                player.getMinScreenX(), player.getMaxScreenX()) || player.isCrashing())
+            player.hitControl();
     }
 
     return EXIT;
