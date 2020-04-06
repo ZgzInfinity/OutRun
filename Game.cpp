@@ -24,7 +24,7 @@ Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.
             for (int no = 1; no <= nobjects[nm]; no++)
                 objectNames.push_back(to_string(no) + ".png");
 
-            Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
+            Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames);
             vm.push_back(m);
 
             nm++;
@@ -38,11 +38,9 @@ Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.
     sText.setCharacterSize(50);
     sText.setPosition((float) sText.getCharacterSize(), (float) c.w.getSize().y - (float) sText.getCharacterSize());
     sText.setFont(c.font);
-
 }
 
 State Game::play(Config &c) {
-
     c.themes[c.currentSoundtrack]->play();
 
     c.w.setKeyRepeatEnabled(false);
