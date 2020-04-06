@@ -31,22 +31,35 @@ class Map {
     std::vector<float> hitCoeff;
 
     /**
+     * Información de un objeto correspondiente a objects[spriteNum] si spriteNum != -1, con un offset en x.
+     * Si repetitive es true el objeto se repetirá hasta el borde de la pantalla.
+     */
+    struct SpriteInfo {
+        int spriteNum;
+        float offset, spriteMinX, spriteMaxX;
+        bool repetitive;
+
+        /**
+         * Inicializa el sprite.
+         */
+        SpriteInfo();
+    };
+
+    /**
      * Rectángulo horizontal cuyo centro está ubicado en las coordenadas (x, y, z), es decir, puede tener elevación (z).
      * En el centro del rectángulo estará la carretera que puede tener una curvatura dependiendo del coeficiente de
      * curvatura (curve) que tenga.
-     * Además, puede contener un objeto en el lateral de la carretera (left or not left) si spriteNum != -1 con un
-     * offset en x. Este objeto corresponde a objects[spriteNum].
+     * Además, puede contener un objeto en cada lateral de la carretera (spriteLeft, spriteRight).
      */
     struct Line {
         float x, y, z; // 3d center of line
         float X{}, Y{}, W{}; // screen coord
-        float curve, spriteX, clip{}, scale{}, offset{}, spriteMinX{}, spriteMaxX{};
-        int spriteNum{};
-        bool left{};
+        float curve, clip{}, scale{};
+        Color road, grass;
+        SpriteInfo spriteLeft, spriteRight;
 
         /**
-         * Construye un rectángulo horizontal con una carretera con curvatura y altura aleatorias, y puede contener un
-         * objeto aleatorio.
+         * Inicializa el rectángulo.
          */
         Line();
 
@@ -65,12 +78,15 @@ class Map {
 
 
         /**
-         * Dibuja el rectángulo en la pantalla. Esta función debe ser llamada después de project().
+         * Dibuja el objeto en la pantalla. Esta función debe ser llamada después de project().
          * @param w
          * @param objs
          * @param coeff
+         * @param object
+         * @param left indica si el objeto está a la izquierda de la pantalla
          */
-        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &coeff);
+        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &coeff,
+                SpriteInfo &object, bool left);
     };
     std::vector<Line> lines;
 
@@ -80,18 +96,66 @@ public:
     // Current elevation type
     enum Elevation {
         UP,
-        STRAIGHT,
+        FLAT,
         DOWN
     };
 
+    // Crea un mapa con un paisaje dado el nombre del fichero de la imagen y con unos objetos dados los nombres de los
+    // ficheros de las imágenes. El contenido del mapa debe encontrarse en la ruta path. Si random es true se crea el
+    // mapa de manera aleatoria, en cambio si random es false se crea el mapa a partir del fichero map.info, que se
+    // describe a continuación:
+    //      - Se pueden incluir comentarios en cualquier parte, comenzando por /* y terminando por */
+    //      - En primer lugar se deben indicar los dos colores de la carretera y los dos del suelo, en RGB y separados
+    //        por espacios.
+    //      - En segundo lugar se indica el recorrido con objetos, curvas y elevaciones. Y finalmente END.
+    //      - Ejemplo de fichero:
+    //
+    //          /* Mapa 1 */
+    //
+    //          107 107 107  /* Road RGB color 1 */
+    //          105 105 105  /* Road RGB color 2 */
+    //           16 200  16  /* Grass RGB color 1 */
+    //            0 154   0  /* Grass RGB color 2 */
+    //
+    //          /*
+    //           * ROAD:
+    //           *   1º Opcional: +   ;Indica que es un objeto repetido infinitamente hacia la izquierda. Por defecto no se repite.
+    //           *   2º Opcional: #   ;Indica el índice del objeto colocado a la izquierda de la carretera (#.png). Por defecto no hay objeto.
+    //           *   3º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
+    //           *   4º Obligado: -   ;Representa la carretera
+    //           *   5º Opcional: +   ;Indica que es un objeto repetido infinitamente hacia la derecha. Por defecto no se repite.
+    //           *   6º Opcional: #   ;Indica el índice del objeto colocado a la derecha de la carretera (#.png). Por defecto no hay objeto.
+    //           *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
+    //           */
+    //          ROAD           -
+    //          ROAD     5     -
+    //          CURVE 0.5  /* Curva con índice comprendido entre -0.9 y 0.9, negativo si es hacia la izquierda y positivo si es hacia la derecha */
+    //          ROAD           -   5
+    //          ROAD     5 0.0 -   5 2.0
+    //          STRAIGHT  /* Recta */
+    //          ROAD   + 5     -
+    //          CLIMB 1.0  /* Subida con índice comprendido entre 0.0 y MAX_FLOAT */
+    //          ROAD           - + 5 -1.0
+    //          FLAT  /* Llano, sin subidas ni bajadas */
+    //          ROAD       -
+    //          ROAD       -
+    //          ROAD       -
+    //          ROAD       -
+    //          ROAD       -
+    //          DROP 1.0  /* Bajada con índice comprendido entre 0.0 y MAX_FLOAT */
+    //          ROAD       -
+    //          ROAD       -
+    //          END  /* Obligatorio */
+    //
     /**
-     * Crea un mapa con un paisaje dado el nombre del fichero de la imagen y con unos objetos dados los nombres de los
-     * ficheros de las imágenes.
-     * @param w
+     * @param c
+     * @param path
      * @param bgName
      * @param objectNames
+     * @param random
      */
-    Map(sf::RenderWindow &w, const std::string &bgName, const std::vector<std::string> &objectNames);
+    Map(Config &c, const std::string &path, const std::string &bgName,
+            const std::vector<std::string> &objectNames, bool random=true);
 
     /**
      * Establece la posición de la cámara.

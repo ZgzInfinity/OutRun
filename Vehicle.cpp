@@ -151,7 +151,7 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
 
             if (textures.size() == 132) {
                 if (a == ACCELERATE) {
-                    if (e == Map::STRAIGHT) {
+                    if (e == Map::FLAT) {
                         if (d == RIGHT) {
                             if (actual_code_image < 1 || actual_code_image > 4)
                                 actual_code_image = 1;
@@ -231,7 +231,7 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
                     }
                 }
                 else if (a == BRAKE) {
-                    if (e == Map::STRAIGHT) {
+                    if (e == Map::FLAT) {
                         if (d == RIGHT) {
                             if (actual_code_image < 61 || actual_code_image > 64)
                                 actual_code_image = 61;

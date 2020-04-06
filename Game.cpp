@@ -22,9 +22,9 @@ Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.
             vector<string> objectNames;
             objectNames.reserve(nobjects[nm]);
             for (int no = 1; no <= nobjects[nm]; no++)
-                objectNames.push_back("resources/map" + to_string(nm) + "/" + to_string(no) + ".png");
+                objectNames.push_back(to_string(no) + ".png");
 
-            Map m(c.w, "resources/map" + to_string(nm) + "/bg.png", objectNames);
+            Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
             nm++;
