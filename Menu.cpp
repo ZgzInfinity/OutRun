@@ -29,6 +29,25 @@ Config::Config() {
 
     camD = 0.84; // Camera depth
     renderLen = 300;
+
+
+    for (int i = 0; i < 3; i++){
+        // Load the music soundtracks of the game
+        unique_ptr<Music> music = unique_ptr<Music>(new Music());
+        switch(i){
+            case 0:
+                music->openFromFile("resources/Audio/MagicalSoundShower.wav");
+                break;
+            case 1:
+                music->openFromFile("resources/Audio/PassingBreeze.wav");
+                break;
+            case 2:
+                music->openFromFile("resources/Audio/SplashWave.wav");
+        }
+        music->setVolume(100);
+        music->setLoop(true);
+        themes.push_back(std::move(music));
+    }
 }
 
 void changeConfig(Config &c) {
@@ -932,29 +951,10 @@ State selectMusicSoundtrack(Config &c){
         textures.push_back(t);
     }
 
-    // Load the soundtracks in the buffer to reproduce them
-    for (int i = 0; i < NUM_SOUNDTRACKS; i++){
-        // Loading the dial movements of the hand's driver
-        switch(i){
-            case 0:
-                sound.loadFromFile("resources/Audio/MagicalSoundShower.wav");
-                break;
-            case 1:
-                sound.loadFromFile("resources/Audio/PassingBreeze.wav");
-                break;
-            case 2:
-                sound.loadFromFile("resources/Audio/SplashWave.wav");
-        }
-        c.reproductor.push_back(sound);
-    }
-
     // Control if the Enter key is pressed
     bool startPressed = false;
-    // Identifier of soundtrack to reproduce
-    int currentSoundtrack = 0;
 
-    c.soundtrackList.setBuffer(c.reproductor[currentSoundtrack]);
-    c.soundtrackList.play();
+    c.themes[c.currentSoundtrack]->play();
 
     // Control until the Enter key is pressed
     while (!startPressed){
@@ -970,35 +970,33 @@ State selectMusicSoundtrack(Config &c){
         // Control if the left or right cursor keys are pressed or not
         if (Keyboard::isKeyPressed(c.leftKey)){
             // Up cursor pressed and change the soundtrack selected in the list
-            if (currentSoundtrack != 0){
-                currentSoundtrack--;
-                c.soundtrackList.stop();
-                c.soundtrackList.setBuffer(c.reproductor[currentSoundtrack]);
-                c.soundtrackList.play();
+            if (c.currentSoundtrack != 0){
+                c.themes[c.currentSoundtrack]->stop();
+                c.currentSoundtrack--;
+                c.themes[c.currentSoundtrack]->play();
             }
         }
         else if (Keyboard::isKeyPressed(c.rightKey)){
             // Down cursor pressed and change the soundtrack selected in the list
-            if (currentSoundtrack != NUM_SOUNDTRACKS - 1){
-                currentSoundtrack++;
-                c.soundtrackList.stop();
-                c.soundtrackList.setBuffer(c.reproductor[currentSoundtrack]);
-                c.soundtrackList.play();
+            if (c.currentSoundtrack != NUM_SOUNDTRACKS - 1){
+                c.themes[c.currentSoundtrack]->stop();
+                c.currentSoundtrack++;
+                c.themes[c.currentSoundtrack]->play();
             }
 
         }
 
         // Load the texture of the soundtrack to display in the radio panel
-        music.setTexture(textures[currentSoundtrack], true);
+        music.setTexture(textures[c.currentSoundtrack], true);
 
         // Get the dial movement to reproduce
-        radio.setTexture(textures[currentSoundtrack + 3], true);
+        radio.setTexture(textures[c.currentSoundtrack + 3], true);
 
         // Get the hand movement of the driver
-        hand.setTexture(textures[currentSoundtrack + 6], true);
+        hand.setTexture(textures[c.currentSoundtrack + 6], true);
 
         // Control the coordinates X and Y where display the title
-        switch(currentSoundtrack){
+        switch(c.currentSoundtrack){
             case 0:
                 // First soundtrack
                 music.setPosition((c.w.getSize().x / 2.f) - 300, c.w.getSize().y / 2.f - 70);
@@ -1032,7 +1030,7 @@ State selectMusicSoundtrack(Config &c){
             startPressed = true;
         }
     }
-    c.soundtrackList.stop();
+    c.themes[c.currentSoundtrack]->stop();
     return GAME;
 }
 

@@ -50,11 +50,8 @@ struct Config {
 
     sf::Font font;
 
-    // Buffer to reproduce the soundtracks
-    vector<sf::SoundBuffer> reproductor;
-
-    // Vector with the soundtracks to reproduce
-    sf::Sound soundtrackList;
+    // Vector with all the soundtracks to reproduce
+    vector<unique_ptr<Music>> themes;
 
     float camD; // Camera depth
     int renderLen; // Length rendered
@@ -70,6 +67,9 @@ struct Config {
 
     // Control if the configuration has been changed correctly
     bool modifiedConfig = false;
+
+    // Identifier of soundtrack to reproduce
+    int currentSoundtrack = 0;
 
 };
 

@@ -38,12 +38,12 @@ Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.
     sText.setCharacterSize(50);
     sText.setPosition((float) sText.getCharacterSize(), (float) c.w.getSize().y - (float) sText.getCharacterSize());
     sText.setFont(c.font);
+
 }
 
 State Game::play(Config &c) {
 
-    c.soundtrackList.setLoop(true);
-    c.soundtrackList.play();
+    c.themes[c.currentSoundtrack]->play();
 
     c.w.setKeyRepeatEnabled(false);
 
