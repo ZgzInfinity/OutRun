@@ -313,7 +313,7 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random, float y) : posX(0), posY(0), next(nullptr) {
+        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -352,10 +352,10 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     // Line generation
     float z = 0; // Line position
     if (random) { // Random generation
-        addRandomLines(0, y, z, 1000, objectIndexes);
+        addRandomLines(0, 0, z, 1000, objectIndexes);
     }
     else { // Predefined map
-        addLinesFromFile(0, y, z, path + "map.info");
+        addLinesFromFile(0, 0, z, path + "map.info");
     }
 
     if (lines.empty())
@@ -364,6 +364,13 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 
 void Map::addNextMap(Map *map) {
     this->next = map;
+    this->next->setOffset(lines[lines.size() - 1].y);
+}
+
+void Map::setOffset(float yOffset) {
+    for (Line &l : lines) {
+        l.y += yOffset;
+    }
 }
 
 void Map::updateView(pair<float, float> pos) {
@@ -557,6 +564,6 @@ Map::Elevation Map::getElevation(float currentY) const {
         return FLAT;
 }
 
-float Map::getLastY() const {
-    return lines[lines.size() - 1].y;
+bool Map::isOver() const {
+    return posY >= lines.size();
 }

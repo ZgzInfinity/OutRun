@@ -231,16 +231,21 @@ public:
      * @param bgName
      * @param objectNames
      * @param random
-     * @param y inicial
      */
     Map(Config &c, const std::string &path, const std::string &bgName,
-            const std::vector<std::string> &objectNames, bool random=true, float y=0.0f);
+            const std::vector<std::string> &objectNames, bool random);
 
     /**
      * Añade un mapa a continuación del actual.
      * @param map
      */
     void addNextMap(Map *map);
+
+    /**
+     * Añade el offset al mapa.
+     * @param yOffset
+     */
+    void setOffset(float yOffset);
 
     /**
      * Establece la posición de la cámara.
@@ -288,10 +293,10 @@ public:
     Elevation getElevation(float currentY) const;
 
     /**
-     * Devuelve la y final del mapa.
+     * Devuelve cierto si se ha alcanzado el final del mapa
      * @return
      */
-    float getLastY() const;
+    bool isOver() const;
 };
 
 

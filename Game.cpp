@@ -12,11 +12,10 @@
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") {
+Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") {
     int nm = 1;
     int nobjects[] = {6, 15}; // TODO: Más mapas
-    //for (int i = 0; i < 5; i++) {
-    for (int i = 0; i < 1; i++) { // TODO: Borrar línea y descomentar la de arriba
+    for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
             vector<string> objectNames;
@@ -27,10 +26,13 @@ Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.
             Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
-            nm++;
+            //nm++; // TODO: Añadir más mapas y descomentar
         }
-        maps.push_back(vm);
+        maps.emplace_back(vm);
     }
+    mapId = make_pair(0, 0);
+    currentMap = &maps[mapId.first][mapId.second];
+    currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]); // TODO: Añadir bifurcación
 
     Texture t;
     Sprite s;
@@ -170,17 +172,15 @@ State Game::play(Config &c) {
         if (Keyboard::isKeyPressed(c.menuKey))
             return PAUSE;
 
-        const Map &currentMap = maps[mapId.first][mapId.second];
-
         // Player update and draw
         Vehicle::Action action = Vehicle::CRASH;
         Vehicle::Direction direction = Vehicle::RIGHT;
         if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c, currentMap.hasGotOut(player.getPosition().first));
-            direction = player.rotationControl(c, currentMap.getCurveCoefficient(player.getPosY()));
+            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosition().first));
+            direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
         }
 
-        player.draw(c, action, direction, currentMap.getElevation(player.getPosY()));
+        player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
 
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
@@ -243,7 +243,7 @@ State Game::play(Config &c) {
         c.w.draw(textLevel);
         c.w.display();
 
-        if (currentMap.hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
+        if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
                 player.getMaxScreenX()) || player.isCrashing())
             player.hitControl();
 
@@ -263,10 +263,26 @@ State Game::play(Config &c) {
 
 void Game::mapControl(Config &c) {
     // Update camera
-    maps[mapId.first][mapId.second].updateView(player.getPosition());
+    currentMap->updateView(player.getPosition());
+
+    if (currentMap->isOver()) {
+        // TODO: Añadir bifurcación
+        mapId.first++;
+        if (mapId.first < maps.size()) {
+            currentMap = &maps[mapId.first][mapId.second];
+
+            if (mapId.first < maps.size() - 1)
+                currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
+
+            player.setPosition(player.getPosition().first, 0);
+            currentMap->updateView(player.getPosition());
+        }
+        else {
+            finalGame = true;
+        }
+    }
 
     // Draw map
-    maps[mapId.first][mapId.second].draw(c);
-
-    //TODO: Añadir bifurcaciones
+    if (!finalGame)
+        currentMap->draw(c);
 }
