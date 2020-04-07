@@ -81,6 +81,12 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
             line.grass = i % 2 ? Color(16, 200, 16) : Color(0, 154, 0);
             line.drawDash = i % 2;
 
+            // Elevation
+            if (i >= ele && i <= maxLines - 180) // The last line will have the same Y as the first
+                maxEle = i + 180;
+            if (i >= ele && i <= maxEle)
+                line.y = float(sin((i - ele) * M_PI / 180.0) * 1500.0);
+
             lineAux = line; // without objects
 
             // Curves in the first half of the map
@@ -88,12 +94,6 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 
             // Curves in the second half of the map
             if (i > sh1 && i < sh2) line.curve = c2;
-
-            // Elevation
-            if (i >= ele && i <= maxLines - 180) // The last line will have the same Y as the first
-                maxEle = i + 180;
-            if (i >= ele && i <= maxEle)
-                line.y = float(sin((i - ele) * M_PI / 180.0) * 1500.0);
 
             // Random objects
             if (dist(generator) > 0.66f) {
@@ -181,12 +181,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
                             line.grass = grassRGB[lineIndex % 2];
                             line.drawDash = lineIndex % 2;
 
-                            lineAux = line; // without objects
-
                             // Indexes and positions
-                            line.curve = curveCoeff;
-                            lineIndex++;
-
                             line.y = sqrt(abs(elevationIndex * elevationCoeff));
                             if (elevationIndex < 0.0f)
                                 line.y *= 1.0f;
@@ -195,6 +190,11 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
                                 elevationIndex++;
                             else if (elevationCoeff < 0.0f)
                                 elevationIndex--;
+
+                            lineAux = line; // without objects
+
+                            line.curve = curveCoeff;
+                            lineIndex++;
 
                             // Objects
                             int i = 1; // Buffer index
