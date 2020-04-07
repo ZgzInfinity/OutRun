@@ -17,6 +17,9 @@
 
 sf::Font arial();
 
+sf::Font initializeFontTimePlay();
+
+sf::Font initializeFontSpeed();
 
 using namespace std;
 using namespace sf;
@@ -49,6 +52,10 @@ struct Config {
     sf::Keyboard::Key rightKey;
 
     sf::Font font;
+
+    sf::Font timeToPlay;
+
+    sf:: Font speedVehicle;
 
     // Vector with all the soundtracks to reproduce
     vector<unique_ptr<Music>> themes;

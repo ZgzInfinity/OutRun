@@ -15,6 +15,10 @@
 #include "Map.hpp"
 #include "Vehicle.hpp"
 
+
+const int MAX_TIME = 75;
+const unsigned long MAX_SCORE = 4294967295;
+
 /**
  * Lógica del juego que contiene la información del jugador, la información de los mapas y el HUD.
  * La información de los mapas está compuesta por un conjunto de objetos Map y su jerarquía de conexión entre ellos.
@@ -28,6 +32,54 @@ class Game {
 
     // HUD
     sf::Text sText;
+
+    // Vector of textures for represent the game panel
+    vector<Texture> textures;
+
+    // Vector of sprites for represent the game panel
+    vector<Sprite> sprites;
+
+    // Time to play
+    int time;
+
+    // Score of the player
+    unsigned long score;
+
+    // Minutes of game played
+    int minutes = 0;
+
+    // Seconds of game played
+    int secs = 0;
+
+    // decs of game played
+    int decs_second = 0;
+
+    // Available time to arrive to the next checkpoint
+    Text timeToPlay;
+
+    // Score of the player displayed in the panel
+    Text textScore;
+
+    // Time of lap consumed
+    Text textLap;
+
+    // Level indicator
+    Text textLevel;
+
+    // Game over text
+    Text gameOver;
+
+    // Clock counter of time
+    Clock gameClockTime;
+
+    // Clock counter of time
+    Clock gameClockLap;
+
+    // Actual level
+    int level;
+
+    // End of game
+    bool finalGame;
 
     /**
      * Actualiza la lógica de los mapas y dibuja el fragmento de mapa actual en la pantalla.

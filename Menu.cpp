@@ -27,6 +27,10 @@ Config::Config() {
 
     font = arial();
 
+    timeToPlay = initializeFontTimePlay();
+
+    speedVehicle = initializeFontSpeed();
+
     camD = 0.84; // Camera depth
     renderLen = 300;
 
@@ -95,17 +99,28 @@ State startMenu(Config &c) {
     Texture backgroundMenu, gameIcon, rowSelector;
     Sprite mainMenu, nameGame, row;
 
+    vector<Texture> gameIcons;
+    vector<Sprite> nameGames;
+
     // Loading the background texture
     backgroundMenu.loadFromFile("resources/MainMenu/LogoMain1.png");
     mainMenu.setTexture(backgroundMenu);
     mainMenu.setPosition(0 , 0);
     mainMenu.setScale(2.9, 3.1);
 
-    // Loading the texture of the game's name
-    gameIcon.loadFromFile("resources/MainMenu/LogoMain2.png");
-    nameGame.setTexture(gameIcon);
-    nameGame.setPosition((c.w.getSize().x / 2.f) - 180, c.w.getSize().y / 2.f - 200);
-    nameGame.setScale(2.0, 2.0);
+    for (int i = 2; i <= 7; i++){
+        // Loading the texture of the game's name
+        gameIcon.loadFromFile("resources/MainMenu/LogoMain" + to_string(i) + ".png");
+        gameIcons.push_back(gameIcon);
+    }
+
+    for (int i = 0; i < 6; i++){
+        // Loading the texture of the game's name
+        nameGame.setTexture(gameIcons[i], true);
+        nameGame.setPosition((c.w.getSize().x / 2.f) - 180, c.w.getSize().y / 2.f - 200);
+        nameGame.setScale(2.0, 2.0);
+        nameGames.push_back(nameGame);
+    }
 
 
     // Loading the texture of the game's name
@@ -150,6 +165,9 @@ State startMenu(Config &c) {
     // Control for press the enter key
     bool startPressed = false;
 
+    // Code of sprite to display
+    int j = 0;
+
     // While the console window is opened
     while (c.w.isOpen()) {
         // Detect the possible events
@@ -176,7 +194,7 @@ State startMenu(Config &c) {
             }
             // Show the press start title in the menu
             c.w.draw(mainMenu);
-            c.w.draw(nameGame);
+            c.w.draw(nameGames[j]);
             c.w.draw(textElements[0]);
             c.w.display();
             sleep(milliseconds(180));
@@ -186,6 +204,9 @@ State startMenu(Config &c) {
                 // Pass to the second menu
                 startPressed = true;
             }
+
+            j = ( j < (int)nameGames.size() - 1) ? j + 1 : 0;
+
         }
 
         // Control the second menu
@@ -209,7 +230,8 @@ State startMenu(Config &c) {
 
             // Show the menu with the starting and options indicators
             c.w.draw(mainMenu);
-            c.w.draw(nameGame);
+
+            c.w.draw(nameGames[j]);
             c.w.draw(textElements[1]);
             c.w.draw(textElements[2]);
             c.w.draw(row);
@@ -221,6 +243,8 @@ State startMenu(Config &c) {
                 // Pass to the second menu
                 startPressed = true;
             }
+
+            j = ( j < (int)nameGames.size() - 1) ? j + 1 : 0;
         }
         // Return the state of the game
         return state;
@@ -1049,3 +1073,19 @@ sf::Font arial() {
     if (!f.loadFromFile("resources/fonts/arial.ttf")) exit(1);
     return f;
 }
+
+
+sf::Font initializeFontTimePlay() {
+    Font f;
+    if (!f.loadFromFile("resources/fonts/DisposableDroid.ttf")) exit(1);
+    return f;
+}
+
+
+
+sf::Font initializeFontSpeed() {
+    Font f;
+    if (!f.loadFromFile("resources/fonts/digital.ttf")) exit(1);
+    return f;
+}
+
