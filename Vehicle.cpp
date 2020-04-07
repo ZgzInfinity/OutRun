@@ -12,8 +12,6 @@
 using namespace std;
 using namespace sf;
 
-#define XINC 0.05f // x increment
-
 Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures, int maxCounterToChange,
         const string &vehicle) : speedMul(speedMul), maxSpeed(maxSpeed / speedMul), halfMaxSpeed(this->maxSpeed / 2.0f),
         maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scale(scale),

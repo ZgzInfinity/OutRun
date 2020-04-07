@@ -14,6 +14,8 @@
 #include <vector>
 #include "Menu.hpp"
 
+#define XINC 0.05f // x increment
+
 /**
  * Mapa que contiene la textura del paisaje (bg) y la textura de los objetos que se generarán de manera aleatoria a lo
  * largo del mapa (objects). Además cada objeto tendrá un coeficiente que indicará el porcentaje total del objeto con
@@ -56,6 +58,7 @@ class Map {
         float X{}, Y{}, W{}; // screen coord
         float curve, clip{}, scale{};
         Color road, grass;
+        bool drawDash;
         SpriteInfo spriteLeft, spriteRight;
 
         /**

@@ -19,8 +19,9 @@ using namespace std;
 using namespace sf;
 
 #define BGS 0.525F // Background size
-#define SEGL 200 // Segment length
+#define SEGL 100 // Segment length
 #define ROADW 2000 // Road Width
+#define RUMBLECOEFF 0.1f // Ruble size = Road size * Rumble coeff
 
 void fileError() {
     cerr << "Error: Formato de fichero incorrecto." << endl;
@@ -51,6 +52,8 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
         hitCoeff.push_back(coeff);
     }
 
+    float z = 0; // Line position
+
     if (random) { // Random generation
         random_device rd;
         mt19937 generator(rd());
@@ -71,8 +74,14 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 
         lines.reserve(maxLines);
         for (unsigned int i = 0; i < maxLines; i++) {
-            Line line;
-            line.z = (float) i * SEGL;
+            Line line, lineAux;
+
+            // Colors
+            line.road = i % 2 ? Color(107, 107, 107) : Color(105, 105, 105);
+            line.grass = i % 2 ? Color(16, 200, 16) : Color(0, 154, 0);
+            line.drawDash = i % 2;
+
+            lineAux = line; // without objects
 
             // Curves in the first half of the map
             if (i > fh1 && i < fh2) line.curve = c1;
@@ -80,8 +89,14 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
             // Curves in the second half of the map
             if (i > sh1 && i < sh2) line.curve = c2;
 
+            // Elevation
+            if (i >= ele && i <= maxLines - 180) // The last line will have the same Y as the first
+                maxEle = i + 180;
+            if (i >= ele && i <= maxEle)
+                line.y = float(sin((i - ele) * M_PI / 180.0) * 1500.0);
+
             // Random objects
-            if (dist(generator) > 0.875f) {
+            if (dist(generator) > 0.66f) {
                 if (distBool(generator) == 0) { // Left
                     line.spriteLeft.spriteNum = distObj(generator);
                     line.spriteLeft.offset = dist(generator);
@@ -92,19 +107,26 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
                 }
             }
 
-            // Elevation
-            if (i >= ele && i <= maxLines - 180) // The last line will have the same Y as the first
-                maxEle = i + 180;
-            if (i >= ele && i <= maxEle)
-                line.y = float(sin((i - ele) * M_PI / 180.0) * 1500.0);
+            // For each normal line, 4 extras without objects for better visualization
+            lineAux.z = z;
+            z += SEGL;
+            lines.push_back(lineAux);
 
-            // Colors
-            line.road = (i / 3) % 2 ? Color(107, 107, 107) : Color(105, 105, 105);
-            if (i == 0)
-                line.road = Color::Red;
-            line.grass = (i / 3) % 2 ? Color(16, 200, 16) : Color(0, 154, 0);
+            lineAux.z = z;
+            z += SEGL;
+            lines.push_back(lineAux);
 
+            line.z = z;
+            z += SEGL;
             lines.push_back(line);
+
+            lineAux.z = z;
+            z += SEGL;
+            lines.push_back(lineAux);
+
+            lineAux.z = z;
+            z += SEGL;
+            lines.push_back(lineAux);
         }
     }
     else { // Predefined map
@@ -152,16 +174,17 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
                             if (buffer.size() < 3) // Checkpoint
                                 fileError();
 
-                            Line line;
+                            Line line, lineAux;
 
                             // Colors
-                            line.road = roadRGB[(lineIndex / 3) % 2];
-                            line.grass = grassRGB[(lineIndex / 3) % 2];
+                            line.road = roadRGB[lineIndex % 2];
+                            line.grass = grassRGB[lineIndex % 2];
+                            line.drawDash = lineIndex % 2;
+
+                            lineAux = line; // without objects
 
                             // Indexes and positions
                             line.curve = curveCoeff;
-
-                            line.z = (float) lineIndex * SEGL;
                             lineIndex++;
 
                             line.y = sqrt(abs(elevationIndex * elevationCoeff));
@@ -207,7 +230,26 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
                                 fileError();
                             }
 
+                            // For each normal line, 4 extras without objects for better visualization
+                            lineAux.z = z;
+                            z += SEGL;
+                            lines.push_back(lineAux);
+
+                            lineAux.z = z;
+                            z += SEGL;
+                            lines.push_back(lineAux);
+
+                            line.z = z;
+                            z += SEGL;
                             lines.push_back(line);
+
+                            lineAux.z = z;
+                            z += SEGL;
+                            lines.push_back(lineAux);
+
+                            lineAux.z = z;
+                            z += SEGL;
+                            lines.push_back(lineAux);
                         }
                         else if (buffer[0] == "CURVE") {
                             if (buffer.size() < 3)
@@ -252,7 +294,6 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
         // This is in case there are too few lines
         const unsigned long moreLines = c.renderLen - lines.size();
         const unsigned long N = lines.size();
-        float z = lines[N - 1].z;
         for (unsigned long i = 1; i <= moreLines; i++) {
             z += SEGL;
             Line l = lines[(N - i) % N];
@@ -270,21 +311,29 @@ void Map::updateView(pair<float, float> pos) {
 void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, int w2) {
     ConvexShape shape(4);
     shape.setFillColor(c);
-    shape.setPoint(0, Vector2f(x1 - w1, y1));
-    shape.setPoint(1, Vector2f(x2 - w2, y2));
+    shape.setPoint(0, Vector2f(x1, y1));
+    shape.setPoint(1, Vector2f(x2, y2));
     shape.setPoint(2, Vector2f(x2 + w2, y2));
     shape.setPoint(3, Vector2f(x1 + w1, y1));
     w.draw(shape);
 }
 
 void Map::draw(Config &c) {
+    int N = lines.size();
+
+    // Background
+    drawQuad(c.w, lines[0].grass, 0, 0, c.w.getSize().x, 0, c.w.getSize().y, c.w.getSize().x);
     Sprite sbg;
     sbg.setTexture(bg);
-    sbg.setScale(Vector2f((float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
+    sbg.setScale(Vector2f(2.0f * (float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
     sbg.setPosition(0, 0);
+    sbg.move(-sbg.getGlobalBounds().width / 3.0f - posX, 0);
+    if (lines[int(posY) % N].curve > 0.0f)
+        sbg.move(XINC / 2.0f, 0);
+    else if (lines[int(posY) % N].curve < 0.0f)
+        sbg.move(-XINC / 2.0f, 0);
     c.w.draw(sbg);
 
-    int N = lines.size();
     int startPos = int(posY) % N;
     float camH = lines[startPos].y + 1500.0f;
 
@@ -303,13 +352,26 @@ void Map::draw(Config &c) {
         if (l.Y < maxy) {
             maxy = l.Y;
 
-            Color rumble = (n / 3) % 2 ? Color(255, 255, 255) : l.road;
+            Color rumble = l.drawDash ? l.road : Color::White;
+            Color dash = l.drawDash ? Color::White : l.road;
 
             Line p = lines[(n - 1) % N]; //previous line
 
+            // Draw grass
             drawQuad(c.w, l.grass, 0, int(p.Y), c.w.getSize().x, 0, int(l.Y), c.w.getSize().x);
-            drawQuad(c.w, rumble, int(p.X), int(p.Y), int(p.W * 1.2f), int(l.X), int(l.Y), int(l.W * 1.2f));
-            drawQuad(c.w, l.road, int(p.X), int(p.Y), int(p.W), int(l.X), int(l.Y), int(l.W));
+
+            // Draw road
+            const int x1 = int(p.X - p.W), y1 = int(p.Y), w1 = int(2.0f * p.W),
+                      x2 = int(l.X - l.W), y2 = int(l.Y), w2 = int(2.0f * l.W),
+                      rw1 = int(p.W * RUMBLECOEFF), rw2 = int(l.W * RUMBLECOEFF),
+                      dw1 = rw1 / 2, dw2 = rw2 / 2;
+            drawQuad(c.w, l.road, x1, y1, w1, x2, y2, w2);
+            drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
+            drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
+            drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
+            drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.333f), y1, dw1, x2 + int(float(w2) * 0.333f), y2, dw2); // Second left dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.666f), y1, dw1, x2 + int(float(w2) * 0.666f), y2, dw2); // Second right dash
         }
     }
 
@@ -331,10 +393,11 @@ Map::SpriteInfo::SpriteInfo() {
 
 Map::Line::Line() {
     curve = x = y = z = 0;
+    drawDash = false;
 }
 
 void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW) {
-    scale = camD / (z - camZ);
+    scale = camD / (1.0f + z - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
     Y = (1.0f - scale * (y - camY)) * height / 2.0f;
     W = scale * rW  * width / 2.0f;
@@ -346,7 +409,6 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     const int width = s.getTextureRect().width;
     const int h = s.getTextureRect().height;
 
-    float destX = X + scale * ((float) w.getSize().x / (float) ROADW) * w.getSize().x / 2.0f; // Right road side
     float destY = Y + 4.0f;
     float destW = float(width) * W / 266.0f;
     float destH = float(h) * W / 266.0f;
@@ -360,10 +422,10 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     if (clipH >= destH) return;
     s.setTextureRect(IntRect(0, 0, width, float(h) - float(h) * clipH / destH));
     s.setScale(destW / float(width), destH / float(h));
+
+    float destX = X + W + object.offset * s.getGlobalBounds().width; // Right road side
     if (left)
-        destX -= s.getGlobalBounds().width + object.offset * s.getGlobalBounds().width / 2.0f;
-    else
-        destX += s.getGlobalBounds().width + object.offset * s.getGlobalBounds().width / 2.0f;
+        destX = X - W - s.getGlobalBounds().width - object.offset * s.getGlobalBounds().width; // Left road side
     s.setPosition(destX, destY);
     w.draw(s);
 

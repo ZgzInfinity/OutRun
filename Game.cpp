@@ -13,8 +13,8 @@ using namespace sf;
 using namespace std;
 
 Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") {
-    int nm = 0;
-    int nobjects[] = {6}; // TODO: Más mapas
+    int nm = 1;
+    int nobjects[] = {6, 15}; // TODO: Más mapas
     //for (int i = 0; i < 5; i++) {
     for (int i = 0; i < 1; i++) { // TODO: Borrar línea y descomentar la de arriba
         vector<Map> vm;
@@ -24,7 +24,7 @@ Game::Game(Config &c) : mapId(make_pair(0, 0)), player(300.0f, 100.0f, 0.01f, 1.
             for (int no = 1; no <= nobjects[nm]; no++)
                 objectNames.push_back(to_string(no) + ".png");
 
-            Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames);
+            Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
             nm++;

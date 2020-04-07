@@ -1,0 +1,40 @@
+/* Mapa 1 */
+
+107 107 107  /* Road RGB color 1 */
+105 105 105  /* Road RGB color 2 */
+246 226 160  /* Grass RGB color 1 */
+246 223 147  /* Grass RGB color 2 */
+
+/* 
+ * ROAD:
+ *   1º Opcional: +   ;Indica que es un objeto repetido infinitamente hacia la izquierda. Por defecto no se repite.
+ *   2º Opcional: #   ;Indica el índice del objeto colocado a la izquierda de la carretera (#.png). Por defecto no hay objeto.
+ *   3º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
+ *   4º Obligado: -   ;Representa la carretera
+ *   5º Opcional: +   ;Indica que es un objeto repetido infinitamente hacia la derecha. Por defecto no se repite.
+ *   6º Opcional: #   ;Indica el índice del objeto colocado a la derecha de la carretera (#.png). Por defecto no hay objeto.
+ *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
+ */
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+
+END  /* Obligatorio */
