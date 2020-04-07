@@ -17,7 +17,7 @@
 #define XINC 0.05f // x increment
 
 /**
- * Mapa que contiene la textura del paisaje (bg) y la textura de los objetos que se generarán de manera aleatoria a lo
+ * Mapa que contiene la textura del paisaje (bg) y la textura de los objetos que se irán mostrando a lo
  * largo del mapa (objects). Además cada objeto tendrá un coeficiente que indicará el porcentaje total del objeto con
  * el que se puede chocar empezando desde el centro [0, 1]. Esto es útil para objetos cuya base es menor a la copa.
  * El suelo está formado por un número limitado de rectángulos horizontales (lines) que tendrán dibujado el trozo de
@@ -26,12 +26,6 @@
  * verán más grandes si están más cerca de la pantalla o más pequeños si están más lejos.
  */
 class Map {
-    sf::Texture bg; // Background
-
-    // Objects
-    std::vector<sf::Texture> objects;
-    std::vector<float> hitCoeff;
-
     /**
      * Información de un objeto correspondiente a objects[spriteNum] si spriteNum != -1, con un offset en x.
      * Si repetitive es true el objeto se repetirá hasta el borde de la pantalla.
@@ -57,8 +51,7 @@ class Map {
         float x, y, z; // 3d center of line
         float X{}, Y{}, W{}; // screen coord
         float curve, clip{}, scale{};
-        Color road, grass;
-        bool drawDash;
+        bool mainColor;
         SpriteInfo spriteLeft, spriteRight;
 
         /**
@@ -91,9 +84,51 @@ class Map {
         void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &coeff,
                 SpriteInfo &object, bool left);
     };
+
+    // Background
+    sf::Texture bg;
+
+    // Objects
+    std::vector<sf::Texture> objects;
+    std::vector<float> hitCoeff;
     std::vector<Line> lines;
 
+    // Colors
+    Color roadColor[2], grassColor[2];
+
+    // Camera
     float posX, posY;
+
+    /**
+     * Añade un rectángulo al mapa. Actualiza z para una nueva línea.
+     * @param x
+     * @param y
+     * @param z
+     * @param curve
+     * @param mainColor
+     * @param spriteLeft
+     * @param spriteRight
+     */
+    void addLine(float x, float y, float &z, float curve, bool mainColor, const SpriteInfo &spriteLeft,
+            const SpriteInfo &spriteRight);
+
+    /**
+     * Añade numLines rectángulos aleatorios al mapa desde (x, y, z). Actualiza z para una nueva línea.
+     * @param x
+     * @param y
+     * @param z
+     * @param numLines
+     */
+    void addRandomLines(float x, float y, float &z, int numLines);
+
+    /**
+     * Añade rectángulos del fichero file al mapa desde (x, y, z). Actualiza z para una nueva línea.
+     * @param x
+     * @param y
+     * @param z
+     * @param file
+     */
+    void addLinesFromFile(float x, float y, float &z, const std::string &file);
 
 public:
     // Current elevation type

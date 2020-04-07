@@ -23,9 +23,247 @@ using namespace sf;
 #define ROADW 2000 // Road Width
 #define RUMBLECOEFF 0.1f // Ruble size = Road size * Rumble coeff
 
+Map::SpriteInfo::SpriteInfo() {
+    spriteNum = -1;
+    offset = spriteMinX = spriteMaxX = 0.0f;
+    repetitive = false;
+}
+
+Map::Line::Line() {
+    curve = x = y = z = 0;
+    mainColor = false;
+}
+
+void Map::addLine(float x, float y, float &z, float curve, bool mainColor, const Map::SpriteInfo &spriteLeft,
+                  const Map::SpriteInfo &spriteRight) {
+    float prevY = 0;
+    if (!lines.empty())
+        prevY = lines[lines.size() - 1].y;
+    float yInc = (y - prevY) / 5.0f; // 5 is total lines number will be added
+
+    Line line, lineAux;
+    line.x = x;
+    line.y = prevY;
+    line.mainColor = mainColor;
+
+    lineAux = line; // without objects
+
+    line.curve = curve;
+    line.spriteLeft = spriteLeft;
+    line.spriteRight = spriteRight;
+
+    // For each normal line, 4 extras without objects for better visualization
+    lineAux.z = z;
+    z += SEGL;
+    lineAux.y += yInc;
+    lines.push_back(lineAux);
+
+    lineAux.z = z;
+    z += SEGL;
+    lineAux.y += yInc;
+    lines.push_back(lineAux);
+
+    line.z = z;
+    z += SEGL;
+    lineAux.y += yInc;
+    line.y = lineAux.y;
+    lines.push_back(line);
+
+    lineAux.z = z;
+    z += SEGL;
+    lineAux.y += yInc;
+    lines.push_back(lineAux);
+
+    lineAux.z = z;
+    z += SEGL;
+    lineAux.y += yInc;
+    lines.push_back(lineAux);
+}
+
+void Map::addRandomLines(const float x, const float y, float &z, const int numLines) {
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_real_distribution<float> dist(0.1f, 0.9f);
+    uniform_int_distribution<unsigned int> distObj(0, objects.size() - 1);
+    uniform_int_distribution<int> distBool(0, 1);
+
+    // Random elements in the map
+    float c1 = dist(generator), c2 = -dist(generator);
+    unsigned int fh1, fh2, sh1, sh2, ele, maxEle = 0;
+    fh1 = uniform_int_distribution<unsigned int>(0, numLines / 2 - 1)(generator);
+    fh2 = uniform_int_distribution<unsigned int>(fh1, numLines / 2)(generator);
+    sh1 = uniform_int_distribution<unsigned int>(numLines / 2, numLines - 1)(generator);
+    sh2 = uniform_int_distribution<unsigned int>(sh1, numLines)(generator);
+    ele = uniform_int_distribution<unsigned int>(0, numLines - 180)(generator);
+
+    lines.reserve(lines.size() + numLines);
+    for (unsigned int i = 0; i < numLines; i++) {
+        float yAux = y, curve = 0.0f;
+        SpriteInfo spriteLeft, spriteRight;
+
+        // Elevation
+        if (i >= ele && i <= numLines - 180) // The last line will have the same Y as the first
+            maxEle = i + 180;
+        if (i >= ele && i <= maxEle)
+            yAux += 5.0f * float(sin((i - ele) * M_PI / 180.0) * 1500.0);
+
+        // Curves in the first half of the map
+        if (i > fh1 && i < fh2) curve = c1;
+
+        // Curves in the second half of the map
+        if (i > sh1 && i < sh2) curve = c2;
+
+        // Random objects
+        if (dist(generator) > 0.66f) {
+            if (distBool(generator) == 0) { // Left
+                spriteLeft.spriteNum = distObj(generator);
+                spriteLeft.offset = dist(generator);
+            } else { // Right
+                spriteRight.spriteNum = distObj(generator);
+                spriteRight.offset = dist(generator);
+            }
+        }
+
+        addLine(x, yAux, z, curve, i % 2, spriteLeft, spriteRight);
+    }
+}
+
 void fileError() {
     cerr << "Error: Formato de fichero incorrecto." << endl;
     exit(1);
+}
+
+void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) {
+    ifstream fin(file);
+    if (fin.is_open()) {
+        bool comment = false, road = false, grass = false, end = false;
+        float curveCoeff = 0.0f, elevationCoeff = 0.0f, elevationIndex = 0.0f;
+        unsigned int lineIndex = 0;
+
+        vector<string> buffer;
+        string s;
+        while (!end && !fin.eof()) {
+            fin >> s;
+
+            if (s.size() >= 2 && s[0] == '/' && s[1] == '*')
+                comment = true;
+            if (comment) {
+                if (s.size() >= 2 && s[s.size() - 1] == '/' && s[s.size() - 2] == '*')
+                    comment = false;
+            }
+            else {
+                buffer.push_back(s);
+
+                if (!road) {
+                    if (buffer.size() == 6) {
+                        roadColor[0] = Color(stoi(buffer[0]), stoi(buffer[1]), stoi(buffer[2]));
+                        roadColor[1] = Color(stoi(buffer[3]), stoi(buffer[4]), stoi(buffer[5]));
+                        buffer.clear();
+                        road = true;
+                    }
+                }
+                else if (!grass) {
+                    if (buffer.size() == 6) {
+                        grassColor[0] = Color(stoi(buffer[0]), stoi(buffer[1]), stoi(buffer[2]));
+                        grassColor[1] = Color(stoi(buffer[3]), stoi(buffer[4]), stoi(buffer[5]));
+                        buffer.clear();
+                        grass = true;
+                    }
+                }
+                else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
+                                               s == "FLAT" || s == "DROP" || s == "END")) {
+                    if (buffer[0] == "ROAD") {
+                        if (buffer.size() < 3) // Checkpoint
+                            fileError();
+
+                        float yAux;
+                        SpriteInfo spriteLeft, spriteRight;
+
+                        // Indexes and positions
+                        yAux = sqrt(abs(elevationIndex * elevationCoeff));
+                        if (elevationIndex < 0.0f)
+                            yAux *= -1.0f;
+                        yAux += y;
+
+                        if (elevationCoeff > 0.0f)
+                            elevationIndex++;
+                        else if (elevationCoeff < 0.0f)
+                            elevationIndex--;
+
+                        lineIndex++;
+
+                        // Objects
+                        int i = 1; // Buffer index
+                        if (buffer[i] != "-") { // Left object
+                            if (buffer[i] == "+") {
+                                spriteLeft.repetitive = true;
+                                i++;
+                            }
+                            spriteLeft.spriteNum = stoi(buffer[i]) - 1;
+                            i++;
+                            if (buffer[i] != "-") {
+                                spriteLeft.offset = stof(buffer[i]);
+                                i++;
+                            }
+                        }
+                        if (i >= buffer.size() || buffer[i] != "-") { // Checkpoint
+                            fileError();
+                        }
+                        i++;
+                        if (i < buffer.size() - 1) { // Right object
+                            if (buffer[i] == "+") {
+                                spriteRight.repetitive = true;
+                                i++;
+                            }
+                            spriteRight.spriteNum = stoi(buffer[i]) - 1;
+                            i++;
+                            if (i < buffer.size() - 1) {
+                                spriteRight.offset = stof(buffer[i]);
+                                i++;
+                            }
+                        }
+                        if (i != buffer.size() - 1) { // Checkpoint
+                            fileError();
+                        }
+
+                        addLine(x, yAux, z, curveCoeff, lineIndex % 2, spriteLeft, spriteRight);
+                    }
+                    else if (buffer[0] == "CURVE") {
+                        if (buffer.size() < 3)
+                            fileError();
+                        curveCoeff = stof(buffer[1]);
+                    }
+                    else if (buffer[0] == "STRAIGHT") {
+                        if (buffer.size() < 2)
+                            fileError();
+                        curveCoeff = 0.0f;
+                    }
+                    else if (buffer[0] == "CLIMB") {
+                        if (buffer.size() < 3)
+                            fileError();
+                        elevationCoeff = stof(buffer[1]);
+                    }
+                    else if (buffer[0] == "FLAT") {
+                        if (buffer.size() < 2)
+                            fileError();
+                        elevationCoeff = 0.0f;
+                    }
+                    else if (buffer[0] == "DROP") {
+                        if (buffer.size() < 3)
+                            fileError();
+                        elevationCoeff = -stof(buffer[1]);
+                    }
+                    else if (buffer[0] == "END") {
+                        end = true;
+                    }
+
+                    buffer.clear();
+                    buffer.push_back(s);
+                }
+            }
+        }
+        fin.close();
+    }
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
@@ -52,251 +290,31 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
         hitCoeff.push_back(coeff);
     }
 
+    // Colors
+    roadColor[0] = Color(107, 107, 107);
+    roadColor[1] = Color(105, 105, 105);
+    grassColor[0] = Color(16, 200, 16);
+    grassColor[1] = Color(0, 154, 0);
+
+    // Line generation
     float z = 0; // Line position
-
     if (random) { // Random generation
-        random_device rd;
-        mt19937 generator(rd());
-        uniform_real_distribution<float> dist(0.1f, 0.9f);
-        uniform_int_distribution<unsigned int> distObj(0, objects.size() - 1);
-        uniform_int_distribution<int> distBool(0, 1);
-
-        const int maxLines = 4000;
-
-        // Random elements in the map
-        float c1 = dist(generator), c2 = -dist(generator);
-        unsigned int fh1, fh2, sh1, sh2, ele, maxEle = 0;
-        fh1 = uniform_int_distribution<unsigned int>(0, maxLines / 2 - 1)(generator);
-        fh2 = uniform_int_distribution<unsigned int>(fh1, maxLines / 2)(generator);
-        sh1 = uniform_int_distribution<unsigned int>(maxLines / 2, maxLines - 1)(generator);
-        sh2 = uniform_int_distribution<unsigned int>(sh1, maxLines)(generator);
-        ele = uniform_int_distribution<unsigned int>(0, maxLines - 180)(generator);
-
-        lines.reserve(maxLines);
-        for (unsigned int i = 0; i < maxLines; i++) {
-            Line line, lineAux;
-
-            // Colors
-            line.road = i % 2 ? Color(107, 107, 107) : Color(105, 105, 105);
-            line.grass = i % 2 ? Color(16, 200, 16) : Color(0, 154, 0);
-            line.drawDash = i % 2;
-
-            // Elevation
-            if (i >= ele && i <= maxLines - 180) // The last line will have the same Y as the first
-                maxEle = i + 180;
-            if (i >= ele && i <= maxEle)
-                line.y = float(sin((i - ele) * M_PI / 180.0) * 1500.0);
-
-            lineAux = line; // without objects
-
-            // Curves in the first half of the map
-            if (i > fh1 && i < fh2) line.curve = c1;
-
-            // Curves in the second half of the map
-            if (i > sh1 && i < sh2) line.curve = c2;
-
-            // Random objects
-            if (dist(generator) > 0.66f) {
-                if (distBool(generator) == 0) { // Left
-                    line.spriteLeft.spriteNum = distObj(generator);
-                    line.spriteLeft.offset = dist(generator);
-                }
-                else { // Right
-                    line.spriteRight.spriteNum  = distObj(generator);
-                    line.spriteRight.offset = dist(generator);
-                }
-            }
-
-            // For each normal line, 4 extras without objects for better visualization
-            lineAux.z = z;
-            z += SEGL;
-            lines.push_back(lineAux);
-
-            lineAux.z = z;
-            z += SEGL;
-            lines.push_back(lineAux);
-
-            line.z = z;
-            z += SEGL;
-            lines.push_back(line);
-
-            lineAux.z = z;
-            z += SEGL;
-            lines.push_back(lineAux);
-
-            lineAux.z = z;
-            z += SEGL;
-            lines.push_back(lineAux);
-        }
+        addRandomLines(0, 0, z, 4000);
     }
     else { // Predefined map
-        ifstream fin(path + "map.info");
-        if (fin.is_open()) {
-            bool comment = false, road = false, grass = false, end = false;
+        addLinesFromFile(0, 0, z, path + "map.info");
+    }
 
-            Color roadRGB[2], grassRGB[2];
-            float curveCoeff = 0.0f, elevationCoeff = 0.0f, elevationIndex = 0.0f;
-            unsigned int lineIndex = 0;
+    // This is in case there are too few lines
+    if (lines.empty())
+        fileError();
 
-            vector<string> buffer;
-            string s;
-            while (!end && !fin.eof()) {
-                fin >> s;
-
-                if (s.size() >= 2 && s[0] == '/' && s[1] == '*')
-                    comment = true;
-                if (comment) {
-                    if (s.size() >= 2 && s[s.size() - 1] == '/' && s[s.size() - 2] == '*')
-                        comment = false;
-                }
-                else {
-                    buffer.push_back(s);
-
-                    if (!road) {
-                        if (buffer.size() == 6) {
-                            roadRGB[0] = Color(stoi(buffer[0]), stoi(buffer[1]), stoi(buffer[2]));
-                            roadRGB[1] = Color(stoi(buffer[3]), stoi(buffer[4]), stoi(buffer[5]));
-                            buffer.clear();
-                            road = true;
-                        }
-                    }
-                    else if (!grass) {
-                        if (buffer.size() == 6) {
-                            grassRGB[0] = Color(stoi(buffer[0]), stoi(buffer[1]), stoi(buffer[2]));
-                            grassRGB[1] = Color(stoi(buffer[3]), stoi(buffer[4]), stoi(buffer[5]));
-                            buffer.clear();
-                            grass = true;
-                        }
-                    }
-                    else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
-                             s == "FLAT" || s == "DROP" || s == "END")) {
-                        if (buffer[0] == "ROAD") {
-                            if (buffer.size() < 3) // Checkpoint
-                                fileError();
-
-                            Line line, lineAux;
-
-                            // Colors
-                            line.road = roadRGB[lineIndex % 2];
-                            line.grass = grassRGB[lineIndex % 2];
-                            line.drawDash = lineIndex % 2;
-
-                            // Indexes and positions
-                            line.y = sqrt(abs(elevationIndex * elevationCoeff));
-                            if (elevationIndex < 0.0f)
-                                line.y *= 1.0f;
-
-                            if (elevationCoeff > 0.0f)
-                                elevationIndex++;
-                            else if (elevationCoeff < 0.0f)
-                                elevationIndex--;
-
-                            lineAux = line; // without objects
-
-                            line.curve = curveCoeff;
-                            lineIndex++;
-
-                            // Objects
-                            int i = 1; // Buffer index
-                            if (buffer[i] != "-") { // Left object
-                                if (buffer[i] == "+") {
-                                    line.spriteLeft.repetitive = true;
-                                    i++;
-                                }
-                                line.spriteLeft.spriteNum = stoi(buffer[i]) - 1;
-                                i++;
-                                if (buffer[i] != "-") {
-                                    line.spriteLeft.offset = stof(buffer[i]);
-                                    i++;
-                                }
-                            }
-                            if (i >= buffer.size() || buffer[i] != "-") { // Checkpoint
-                                fileError();
-                            }
-                            i++;
-                            if (i < buffer.size() - 1) { // Right object
-                                if (buffer[i] == "+") {
-                                    line.spriteRight.repetitive = true;
-                                    i++;
-                                }
-                                line.spriteRight.spriteNum = stoi(buffer[i]) - 1;
-                                i++;
-                                if (i < buffer.size() - 1) {
-                                    line.spriteRight.offset = stof(buffer[i]);
-                                    i++;
-                                }
-                            }
-                            if (i != buffer.size() - 1) { // Checkpoint
-                                fileError();
-                            }
-
-                            // For each normal line, 4 extras without objects for better visualization
-                            lineAux.z = z;
-                            z += SEGL;
-                            lines.push_back(lineAux);
-
-                            lineAux.z = z;
-                            z += SEGL;
-                            lines.push_back(lineAux);
-
-                            line.z = z;
-                            z += SEGL;
-                            lines.push_back(line);
-
-                            lineAux.z = z;
-                            z += SEGL;
-                            lines.push_back(lineAux);
-
-                            lineAux.z = z;
-                            z += SEGL;
-                            lines.push_back(lineAux);
-                        }
-                        else if (buffer[0] == "CURVE") {
-                            if (buffer.size() < 3)
-                                fileError();
-                            curveCoeff = stof(buffer[1]);
-                        }
-                        else if (buffer[0] == "STRAIGHT") {
-                            if (buffer.size() < 2)
-                                fileError();
-                            curveCoeff = 0.0f;
-                        }
-                        else if (buffer[0] == "CLIMB") {
-                            if (buffer.size() < 3)
-                                fileError();
-                            elevationCoeff = stof(buffer[1]);
-                        }
-                        else if (buffer[0] == "FLAT") {
-                            if (buffer.size() < 2)
-                                fileError();
-                            elevationCoeff = 0.0f;
-                        }
-                        else if (buffer[0] == "DROP") {
-                            if (buffer.size() < 3)
-                                fileError();
-                            elevationCoeff = -stof(buffer[1]);
-                        }
-                        else if (buffer[0] == "END") {
-                            end = true;
-                        }
-
-                        buffer.clear();
-                        buffer.push_back(s);
-                    }
-                }
-            }
-            fin.close();
-        }
-
-        if (lines.empty())
-            fileError();
-
-        // This is in case there are too few lines
-        const unsigned long moreLines = c.renderLen - lines.size();
-        const unsigned long N = lines.size();
-        for (unsigned long i = 1; i <= moreLines; i++) {
+    if (c.renderLen > lines.size()) {
+        int moreLines = c.renderLen - lines.size();
+        const int N = lines.size();
+        for (int i = 1; i <= moreLines; i++) {
             z += SEGL;
-            Line l = lines[(N - i) % N];
+            Line l = lines[(abs(N - i)) % N];
             l.z = z;
             lines.push_back(l);
         }
@@ -308,94 +326,6 @@ void Map::updateView(pair<float, float> pos) {
     this->posY = pos.second;
 }
 
-void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, int w2) {
-    ConvexShape shape(4);
-    shape.setFillColor(c);
-    shape.setPoint(0, Vector2f(x1, y1));
-    shape.setPoint(1, Vector2f(x2, y2));
-    shape.setPoint(2, Vector2f(x2 + w2, y2));
-    shape.setPoint(3, Vector2f(x1 + w1, y1));
-    w.draw(shape);
-}
-
-void Map::draw(Config &c) {
-    int N = lines.size();
-
-    // Background
-    drawQuad(c.w, lines[0].grass, 0, 0, c.w.getSize().x, 0, c.w.getSize().y, c.w.getSize().x);
-    Sprite sbg;
-    sbg.setTexture(bg);
-    sbg.setScale(Vector2f(2.0f * (float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
-    sbg.setPosition(0, 0);
-    sbg.move(-sbg.getGlobalBounds().width / 3.0f - posX, 0);
-    if (lines[int(posY) % N].curve > 0.0f)
-        sbg.move(XINC / 2.0f, 0);
-    else if (lines[int(posY) % N].curve < 0.0f)
-        sbg.move(-XINC / 2.0f, 0);
-    c.w.draw(sbg);
-
-    int startPos = int(posY) % N;
-    float camH = lines[startPos].y + 1500.0f;
-
-    float maxy = c.w.getSize().y;
-    float x = 0, dx = 0;
-
-    ///////draw road////////
-    for (int n = startPos; n < startPos + c.renderLen; n++) {
-        Line &l = lines[n % N];
-        l.project(posX * ROADW - x, camH, float(startPos * SEGL - (n >= N ? N * SEGL : 0)), c.camD,
-                  c.w.getSize().x, c.w.getSize().y, ROADW);
-        x += dx;
-        dx += l.curve;
-
-        l.clip = maxy;
-        if (l.Y < maxy) {
-            maxy = l.Y;
-
-            Color rumble = l.drawDash ? l.road : Color::White;
-            Color dash = l.drawDash ? Color::White : l.road;
-
-            Line p = lines[(n - 1) % N]; //previous line
-
-            // Draw grass
-            drawQuad(c.w, l.grass, 0, int(p.Y), c.w.getSize().x, 0, int(l.Y), c.w.getSize().x);
-
-            // Draw road
-            const int x1 = int(p.X - p.W), y1 = int(p.Y), w1 = int(2.0f * p.W),
-                      x2 = int(l.X - l.W), y2 = int(l.Y), w2 = int(2.0f * l.W),
-                      rw1 = int(p.W * RUMBLECOEFF), rw2 = int(l.W * RUMBLECOEFF),
-                      dw1 = rw1 / 2, dw2 = rw2 / 2;
-            drawQuad(c.w, l.road, x1, y1, w1, x2, y2, w2);
-            drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
-            drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
-            drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
-            drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.333f), y1, dw1, x2 + int(float(w2) * 0.333f), y2, dw2); // Second left dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.666f), y1, dw1, x2 + int(float(w2) * 0.666f), y2, dw2); // Second right dash
-        }
-    }
-
-    ////////draw objects////////
-    for (int n = startPos + c.renderLen; n > startPos; n--) {
-        if (lines[n % N].spriteLeft.spriteNum > -1)
-            lines[n % N].drawSprite(c.w, objects, hitCoeff, lines[n % N].spriteLeft, true);
-        if (lines[n % N].spriteRight.spriteNum > -1)
-            lines[n % N].drawSprite(c.w, objects, hitCoeff, lines[n % N].spriteRight, false);
-    }
-
-}
-
-Map::SpriteInfo::SpriteInfo() {
-    spriteNum = -1;
-    offset = spriteMinX = spriteMaxX = 0.0f;
-    repetitive = false;
-}
-
-Map::Line::Line() {
-    curve = x = y = z = 0;
-    drawDash = false;
-}
-
 void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW) {
     scale = camD / (1.0f + z - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
@@ -404,7 +334,7 @@ void Map::Line::project(float camX, float camY, float camZ, float camD, float wi
 }
 
 void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const vector<float> &coeff, SpriteInfo &object,
-        bool left) {
+                           bool left) {
     Sprite s(objs[object.spriteNum]);
     const int width = s.getTextureRect().width;
     const int h = s.getTextureRect().height;
@@ -441,7 +371,7 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     }
     else {
         object.spriteMinX = destX +
-                (s.getGlobalBounds().width - s.getGlobalBounds().width * coeff[object.spriteNum]) / 2.0f;
+                            (s.getGlobalBounds().width - s.getGlobalBounds().width * coeff[object.spriteNum]) / 2.0f;
     }
 
     if (!left && object.repetitive) {
@@ -456,6 +386,83 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     else {
         object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * coeff[object.spriteNum];
     }
+}
+
+void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, int w2) {
+    ConvexShape shape(4);
+    shape.setFillColor(c);
+    shape.setPoint(0, Vector2f(x1, y1));
+    shape.setPoint(1, Vector2f(x2, y2));
+    shape.setPoint(2, Vector2f(x2 + w2, y2));
+    shape.setPoint(3, Vector2f(x1 + w1, y1));
+    w.draw(shape);
+}
+
+void Map::draw(Config &c) {
+    int N = lines.size();
+
+    // Background
+    drawQuad(c.w, grassColor[0], 0, 0, c.w.getSize().x, 0, c.w.getSize().y, c.w.getSize().x);
+    Sprite sbg;
+    sbg.setTexture(bg);
+    sbg.setScale(Vector2f(2.0f * (float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
+    sbg.setPosition(0, 0);
+    sbg.move(-sbg.getGlobalBounds().width / 3.0f - posX, 0);
+    if (lines[int(posY) % N].curve > 0.0f)
+        sbg.move(XINC / 2.0f, 0);
+    else if (lines[int(posY) % N].curve < 0.0f)
+        sbg.move(-XINC / 2.0f, 0);
+    c.w.draw(sbg);
+
+    int startPos = int(posY) % N;
+    float camH = lines[startPos].y + 1500.0f;
+
+    float maxy = c.w.getSize().y;
+    float x = 0, dx = 0;
+
+    ///////draw road////////
+    for (int n = startPos; n < startPos + c.renderLen; n++) {
+        Line &l = lines[n % N];
+        l.project(posX * ROADW - x, camH, float(startPos * SEGL - (n >= N ? N * SEGL : 0)), c.camD,
+                  c.w.getSize().x, c.w.getSize().y, ROADW);
+        x += dx;
+        dx += l.curve;
+
+        l.clip = maxy;
+        if (l.Y < maxy) {
+            maxy = l.Y;
+
+            Color rumble = l.mainColor ? roadColor[l.mainColor] : Color::White;
+            Color dash = l.mainColor ? Color::White : roadColor[l.mainColor];
+
+            Line p = lines[(n - 1) % N]; //previous line
+
+            // Draw grass
+            drawQuad(c.w, grassColor[l.mainColor], 0, int(p.Y), c.w.getSize().x, 0, int(l.Y), c.w.getSize().x);
+
+            // Draw road
+            const int x1 = int(p.X - p.W), y1 = int(p.Y), w1 = int(2.0f * p.W),
+                      x2 = int(l.X - l.W), y2 = int(l.Y), w2 = int(2.0f * l.W),
+                      rw1 = int(p.W * RUMBLECOEFF), rw2 = int(l.W * RUMBLECOEFF),
+                      dw1 = rw1 / 2, dw2 = rw2 / 2;
+            drawQuad(c.w, roadColor[l.mainColor], x1, y1, w1, x2, y2, w2);
+            drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
+            drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
+            drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
+            drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.333f), y1, dw1, x2 + int(float(w2) * 0.333f), y2, dw2); // Second left dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.666f), y1, dw1, x2 + int(float(w2) * 0.666f), y2, dw2); // Second right dash
+        }
+    }
+
+    ////////draw objects////////
+    for (int n = startPos + c.renderLen; n > startPos; n--) {
+        if (lines[n % N].spriteLeft.spriteNum > -1)
+            lines[n % N].drawSprite(c.w, objects, hitCoeff, lines[n % N].spriteLeft, true);
+        if (lines[n % N].spriteRight.spriteNum > -1)
+            lines[n % N].drawSprite(c.w, objects, hitCoeff, lines[n % N].spriteRight, false);
+    }
+
 }
 
 bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX) const {
