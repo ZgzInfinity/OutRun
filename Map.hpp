@@ -113,13 +113,15 @@ class Map {
             const SpriteInfo &spriteRight);
 
     /**
-     * Añade numLines rectángulos aleatorios al mapa desde (x, y, z). Actualiza z para una nueva línea.
+     * Añade numLines rectángulos aleatorios al mapa desde (x, y, z). Actualiza z para una nueva línea. Cada rectángulo
+     * puede contener objetos cuyo ínidce pertenece a objectIndexes.
      * @param x
      * @param y
      * @param z
      * @param numLines
+     * @param objectIndexes
      */
-    void addRandomLines(float x, float y, float &z, int numLines);
+    void addRandomLines(float x, float y, float &z, int numLines, const std::vector<int> &objectIndexes);
 
     /**
      * Añade rectángulos del fichero file al mapa desde (x, y, z). Actualiza z para una nueva línea.
@@ -145,7 +147,12 @@ public:
     //      - Se pueden incluir comentarios en cualquier parte, comenzando por /* y terminando por */
     //      - En primer lugar se deben indicar los dos colores de la carretera y los dos del suelo, en RGB y separados
     //        por espacios.
-    //      - En segundo lugar se indica el recorrido con objetos, curvas y elevaciones. Y finalmente END.
+    //      - En segundo lugar se indica el recorrido con objetos, curvas y elevaciones.
+    //      - Se pueden incluir fragmentos aleatorios de la iguiente manera:
+    //          RANDOM n o_1 o_2 ... o_x
+    //        Donde n indica el número de fragmentos y o_i indica el índice del objeto que puede contener(#.png). Por
+    //        defecto no hay objeto.
+    //      - Finalmente para indicar el final del mapa se debe incluir END.
     //      - Ejemplo de fichero:
     //
     //          /* Mapa 1 */
@@ -177,6 +184,7 @@ public:
     //          FLAT  /* Llano, sin subidas ni bajadas */
     //          ROAD       -
     //          ROAD       -
+    //          RANDOM 10 5 4  /* Añade 10 fragmentos aleatorios que pueden contenrr los objetos 5 y 4 */
     //          ROAD       -
     //          ROAD       -
     //          ROAD       -

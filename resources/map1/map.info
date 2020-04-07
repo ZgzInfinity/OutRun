@@ -36,5 +36,13 @@ ROAD           -
 ROAD     4     -   3
 ROAD           -
 ROAD           -
+RANDOM 10
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+RANDOM 30 9 11
+ROAD     4     -   3
+ROAD           -
+ROAD           -
 
 END  /* Obligatorio */

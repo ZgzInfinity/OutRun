@@ -45,10 +45,10 @@ void Map::addLine(float x, float y, float &z, float curve, bool mainColor, const
     line.x = x;
     line.y = prevY;
     line.mainColor = mainColor;
+    line.curve = curve;
 
     lineAux = line; // without objects
 
-    line.curve = curve;
     line.spriteLeft = spriteLeft;
     line.spriteRight = spriteRight;
 
@@ -80,21 +80,23 @@ void Map::addLine(float x, float y, float &z, float curve, bool mainColor, const
     lines.push_back(lineAux);
 }
 
-void Map::addRandomLines(const float x, const float y, float &z, const int numLines) {
+void Map::addRandomLines(const float x, const float y, float &z, const int numLines, const vector<int> &objectIndexes) {
     random_device rd;
     mt19937 generator(rd());
     uniform_real_distribution<float> dist(0.1f, 0.9f);
-    uniform_int_distribution<unsigned int> distObj(0, objects.size() - 1);
+    uniform_int_distribution<unsigned int> distObj(0, objectIndexes.size() - 1);
     uniform_int_distribution<int> distBool(0, 1);
 
     // Random elements in the map
     float c1 = dist(generator), c2 = -dist(generator);
-    unsigned int fh1, fh2, sh1, sh2, ele, maxEle = 0;
-    fh1 = uniform_int_distribution<unsigned int>(0, numLines / 2 - 1)(generator);
-    fh2 = uniform_int_distribution<unsigned int>(fh1, numLines / 2)(generator);
-    sh1 = uniform_int_distribution<unsigned int>(numLines / 2, numLines - 1)(generator);
-    sh2 = uniform_int_distribution<unsigned int>(sh1, numLines)(generator);
-    ele = uniform_int_distribution<unsigned int>(0, numLines - 180)(generator);
+    unsigned int fh1 = 0, fh2 = 0, sh1 = 0, sh2 = 0, ele = 0, maxEle = 0;
+    if (numLines > 200) {
+        fh1 = uniform_int_distribution<unsigned int>(0, numLines / 2 - 1)(generator);
+        fh2 = uniform_int_distribution<unsigned int>(fh1, numLines / 2)(generator);
+        sh1 = uniform_int_distribution<unsigned int>(numLines / 2, numLines - 1)(generator);
+        sh2 = uniform_int_distribution<unsigned int>(sh1, numLines)(generator);
+        ele = uniform_int_distribution<unsigned int>(0, numLines - 180)(generator);
+    }
 
     lines.reserve(lines.size() + numLines);
     for (unsigned int i = 0; i < numLines; i++) {
@@ -114,12 +116,12 @@ void Map::addRandomLines(const float x, const float y, float &z, const int numLi
         if (i > sh1 && i < sh2) curve = c2;
 
         // Random objects
-        if (dist(generator) > 0.66f) {
+        if (!objectIndexes.empty() && dist(generator) > 0.66f) {
             if (distBool(generator) == 0) { // Left
-                spriteLeft.spriteNum = distObj(generator);
+                spriteLeft.spriteNum = objectIndexes[distObj(generator)];
                 spriteLeft.offset = dist(generator);
             } else { // Right
-                spriteRight.spriteNum = distObj(generator);
+                spriteRight.spriteNum = objectIndexes[distObj(generator)];
                 spriteRight.offset = dist(generator);
             }
         }
@@ -171,7 +173,7 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                     }
                 }
                 else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
-                                               s == "FLAT" || s == "DROP" || s == "END")) {
+                                               s == "FLAT" || s == "DROP" || s == "RANDOM" || s == "END")) {
                     if (buffer[0] == "ROAD") {
                         if (buffer.size() < 3) // Checkpoint
                             fileError();
@@ -253,6 +255,22 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                             fileError();
                         elevationCoeff = -stof(buffer[1]);
                     }
+                    else if (buffer[0] == "RANDOM") {
+                        if (buffer.size() < 3)
+                            fileError();
+
+                        vector<int> objectIndexes;
+                        for (int i = 2; i < buffer.size() - 1; i++)
+                            objectIndexes.push_back(stoi(buffer[i]));
+
+                        float currentY = y;
+                        if (!lines.empty())
+                            currentY = lines[lines.size() - 1].y;
+
+                        addRandomLines(x, currentY, z, stoi(buffer[1]), objectIndexes);
+
+                        y = lines[lines.size() - 1].y - currentY;
+                    }
                     else if (buffer[0] == "END") {
                         end = true;
                     }
@@ -271,9 +289,16 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
+    int k = 0;
+    vector<int> objectIndexes;
+    objectIndexes.reserve(objectNames.size());
     objects.reserve(objectNames.size());
     hitCoeff.reserve(objectNames.size());
     for (const string &s : objectNames) {
+        // Load indexes
+        objectIndexes.push_back(k);
+        k++;
+
         // Load textures
         Texture t;
         t.loadFromFile(path + s);
@@ -299,7 +324,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     // Line generation
     float z = 0; // Line position
     if (random) { // Random generation
-        addRandomLines(0, 0, z, 4000);
+        addRandomLines(0, 0, z, 1000, objectIndexes);
     }
     else { // Predefined map
         addLinesFromFile(0, 0, z, path + "map.info");
