@@ -69,8 +69,9 @@ class Map {
          * @param width
          * @param height
          * @param rW
+         * @param zOffset
          */
-        void project(float camX, float camY, float camZ, float camD, float width, float height, float rW);
+        void project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset);
 
 
         /**
@@ -99,6 +100,37 @@ class Map {
     // Camera
     float posX, posY;
 
+    // Next map
+    Map *next;
+
+    /**
+     * Devuelve Line n
+     * @param n
+     * @return
+     */
+    Line* getLine(int n);
+
+    /**
+     * Devuelve Line n
+     * @param n
+     * @return
+     */
+    Line getLine(int n) const;
+
+    /**
+     * Devuelve Line anterior a n
+     * @param n
+     * @return
+     */
+    Line* getPreviousLine(int n);
+
+    /**
+     * Devuelve Line anterior a n
+     * @param n
+     * @return
+     */
+    Line getPreviousLine(int n) const;
+
     /**
      * Añade un rectángulo al mapa. Actualiza z para una nueva línea.
      * @param x
@@ -109,7 +141,7 @@ class Map {
      * @param spriteLeft
      * @param spriteRight
      */
-    void addLine(float x, float y, float &z, float curve, bool mainColor, const SpriteInfo &spriteLeft,
+    void addLine(float x, float y, float &z, float prevY, float curve, bool mainColor, const SpriteInfo &spriteLeft,
             const SpriteInfo &spriteRight);
 
     /**
@@ -199,9 +231,16 @@ public:
      * @param bgName
      * @param objectNames
      * @param random
+     * @param y inicial
      */
     Map(Config &c, const std::string &path, const std::string &bgName,
-            const std::vector<std::string> &objectNames, bool random=true);
+            const std::vector<std::string> &objectNames, bool random=true, float y=0.0f);
+
+    /**
+     * Añade un mapa a continuación del actual.
+     * @param map
+     */
+    void addNextMap(Map *map);
 
     /**
      * Establece la posición de la cámara.
@@ -247,6 +286,12 @@ public:
      * @return
      */
     Elevation getElevation(float currentY) const;
+
+    /**
+     * Devuelve la y final del mapa.
+     * @return
+     */
+    float getLastY() const;
 };
 
 

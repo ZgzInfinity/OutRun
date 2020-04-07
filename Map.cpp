@@ -34,11 +34,8 @@ Map::Line::Line() {
     mainColor = false;
 }
 
-void Map::addLine(float x, float y, float &z, float curve, bool mainColor, const Map::SpriteInfo &spriteLeft,
-                  const Map::SpriteInfo &spriteRight) {
-    float prevY = 0;
-    if (!lines.empty())
-        prevY = lines[lines.size() - 1].y;
+void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
+        const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight) {
     float yInc = (y - prevY) / 5.0f; // 5 is total lines number will be added
 
     Line line, lineAux;
@@ -78,6 +75,36 @@ void Map::addLine(float x, float y, float &z, float curve, bool mainColor, const
     z += SEGL;
     lineAux.y += yInc;
     lines.push_back(lineAux);
+}
+
+Map::Line *Map::getLine(const int n) {
+    if (n < lines.size() || next == nullptr)
+        return &lines[n % lines.size()];
+    else
+        return &next->lines[n % next->lines.size()];
+}
+
+Map::Line Map::getLine(const int n) const {
+    if (n < lines.size() || next == nullptr)
+        return lines[n % lines.size()];
+    else
+        return next->lines[n % next->lines.size()];
+}
+
+Map::Line *Map::getPreviousLine(const int n) {
+    if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
+        return &lines[(n - 1) % lines.size()];
+    else
+        return &next->lines[(n - 1) % next->lines.size()];
+}
+
+Map::Line Map::getPreviousLine(const int n) const {
+    if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
+        return lines[(n - 1) % lines.size()];
+    else if (n > 0)
+        return next->lines[(n - 1) % next->lines.size()];
+    else
+        return next->lines[next->lines.size() - 1];
 }
 
 void Map::addRandomLines(const float x, const float y, float &z, const int numLines, const vector<int> &objectIndexes) {
@@ -126,7 +153,7 @@ void Map::addRandomLines(const float x, const float y, float &z, const int numLi
             }
         }
 
-        addLine(x, yAux, z, curve, i % 2, spriteLeft, spriteRight);
+        addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curve, i % 2, spriteLeft, spriteRight);
     }
 }
 
@@ -228,7 +255,8 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                             fileError();
                         }
 
-                        addLine(x, yAux, z, curveCoeff, lineIndex % 2, spriteLeft, spriteRight);
+                        addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curveCoeff, lineIndex % 2,
+                                spriteLeft, spriteRight);
                     }
                     else if (buffer[0] == "CURVE") {
                         if (buffer.size() < 3)
@@ -285,7 +313,7 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0) {
+        const std::vector<std::string> &objectNames, bool random, float y) : posX(0), posY(0), next(nullptr) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -324,26 +352,18 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     // Line generation
     float z = 0; // Line position
     if (random) { // Random generation
-        addRandomLines(0, 0, z, 1000, objectIndexes);
+        addRandomLines(0, y, z, 1000, objectIndexes);
     }
     else { // Predefined map
-        addLinesFromFile(0, 0, z, path + "map.info");
+        addLinesFromFile(0, y, z, path + "map.info");
     }
 
-    // This is in case there are too few lines
     if (lines.empty())
         fileError();
+}
 
-    if (c.renderLen > lines.size()) {
-        int moreLines = c.renderLen - lines.size();
-        const int N = lines.size();
-        for (int i = 1; i <= moreLines; i++) {
-            z += SEGL;
-            Line l = lines[(abs(N - i)) % N];
-            l.z = z;
-            lines.push_back(l);
-        }
-    }
+void Map::addNextMap(Map *map) {
+    this->next = map;
 }
 
 void Map::updateView(pair<float, float> pos) {
@@ -351,8 +371,8 @@ void Map::updateView(pair<float, float> pos) {
     this->posY = pos.second;
 }
 
-void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW) {
-    scale = camD / (1.0f + z - camZ);
+void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
+    scale = camD / (1.0f + z + zOffset - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
     Y = (1.0f - scale * (y - camY)) * height / 2.0f;
     W = scale * rW  * width / 2.0f;
@@ -424,6 +444,7 @@ void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, 
 }
 
 void Map::draw(Config &c) {
+    Line *l = getLine(int(posY)), *p;
     int N = lines.size();
 
     // Background
@@ -433,44 +454,45 @@ void Map::draw(Config &c) {
     sbg.setScale(Vector2f(2.0f * (float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
     sbg.setPosition(0, 0);
     sbg.move(-sbg.getGlobalBounds().width / 3.0f - posX, 0);
-    if (lines[int(posY) % N].curve > 0.0f)
+    if (l->curve > 0.0f)
         sbg.move(XINC / 2.0f, 0);
-    else if (lines[int(posY) % N].curve < 0.0f)
+    else if (l->curve < 0.0f)
         sbg.move(-XINC / 2.0f, 0);
     c.w.draw(sbg);
 
     int startPos = int(posY) % N;
-    float camH = lines[startPos].y + 1500.0f;
+    float camH = l->y + 1500.0f;
 
     float maxy = c.w.getSize().y;
     float x = 0, dx = 0;
 
     ///////draw road////////
     for (int n = startPos; n < startPos + c.renderLen; n++) {
-        Line &l = lines[n % N];
-        l.project(posX * ROADW - x, camH, float(startPos * SEGL - (n >= N ? N * SEGL : 0)), c.camD,
-                  c.w.getSize().x, c.w.getSize().y, ROADW);
+        l = getLine(n);
+
+        l->project(posX * ROADW - x, camH, float(startPos * SEGL), c.camD,
+                  c.w.getSize().x, c.w.getSize().y, ROADW, n < N ? 0.0f : lines[lines.size() - 1].z);
         x += dx;
-        dx += l.curve;
+        dx += l->curve;
 
-        l.clip = maxy;
-        if (l.Y < maxy) {
-            maxy = l.Y;
+        l->clip = maxy;
+        if (l->Y < maxy) {
+            maxy = l->Y;
 
-            Color rumble = l.mainColor ? roadColor[l.mainColor] : Color::White;
-            Color dash = l.mainColor ? Color::White : roadColor[l.mainColor];
+            Color rumble = l->mainColor ? roadColor[l->mainColor] : Color::White;
+            Color dash = l->mainColor ? Color::White : roadColor[l->mainColor];
 
-            Line p = lines[(n - 1) % N]; //previous line
+            p = getPreviousLine(n);
 
             // Draw grass
-            drawQuad(c.w, grassColor[l.mainColor], 0, int(p.Y), c.w.getSize().x, 0, int(l.Y), c.w.getSize().x);
+            drawQuad(c.w, grassColor[l->mainColor], 0, int(p->Y), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
 
             // Draw road
-            const int x1 = int(p.X - p.W), y1 = int(p.Y), w1 = int(2.0f * p.W),
-                      x2 = int(l.X - l.W), y2 = int(l.Y), w2 = int(2.0f * l.W),
-                      rw1 = int(p.W * RUMBLECOEFF), rw2 = int(l.W * RUMBLECOEFF),
+            const int x1 = int(p->X - p->W), y1 = int(p->Y), w1 = int(2.0f * p->W),
+                      x2 = int(l->X - l->W), y2 = int(l->Y), w2 = int(2.0f * l->W),
+                      rw1 = int(p->W * RUMBLECOEFF), rw2 = int(l->W * RUMBLECOEFF),
                       dw1 = rw1 / 2, dw2 = rw2 / 2;
-            drawQuad(c.w, roadColor[l.mainColor], x1, y1, w1, x2, y2, w2);
+            drawQuad(c.w, roadColor[l->mainColor], x1, y1, w1, x2, y2, w2);
             drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
             drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
             drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
@@ -482,18 +504,21 @@ void Map::draw(Config &c) {
 
     ////////draw objects////////
     for (int n = startPos + c.renderLen; n > startPos; n--) {
-        if (lines[n % N].spriteLeft.spriteNum > -1)
-            lines[n % N].drawSprite(c.w, objects, hitCoeff, lines[n % N].spriteLeft, true);
-        if (lines[n % N].spriteRight.spriteNum > -1)
-            lines[n % N].drawSprite(c.w, objects, hitCoeff, lines[n % N].spriteRight, false);
+        l = getLine(n);
+
+        if (l->spriteLeft.spriteNum > -1)
+            l->drawSprite(c.w, objects, hitCoeff, l->spriteLeft, true);
+        if (l->spriteRight.spriteNum > -1)
+            l->drawSprite(c.w, objects, hitCoeff, l->spriteRight, false);
     }
 
 }
 
 bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX) const {
-    const int N = lines.size();
+    Line l;
     for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
-        const Line &l = lines[n % N];
+        l = getLine(n);
+
         if (l.spriteLeft.spriteNum != -1 && l.spriteLeft.spriteMinX != l.spriteLeft.spriteMaxX && // l has an object that can crash
                 prevY <= float(n) && currentY >= float(n) && // y matches
                 ((minX >= l.spriteLeft.spriteMinX && minX <= l.spriteLeft.spriteMaxX) ||
@@ -517,18 +542,21 @@ bool Map::hasGotOut(float currentX) const {
 }
 
 float Map::getCurveCoefficient(float currentY) const {
-    return lines[int(currentY) % lines.size()].curve;
+    return getLine(int(currentY)).curve;
 }
 
 Map::Elevation Map::getElevation(float currentY) const {
-    const int N = lines.size();
     const int n = int(currentY);
-    const Line &currentLine = lines[n % N];
-    const Line &prevLine = lines[(n - 1) % N];
-    if (n % N != 0 && abs(currentLine.y) > 1000 && currentLine.y > prevLine.y + 1.0f)
+    const Line currentLine = getLine(n);
+    const Line prevLine = getPreviousLine(n);
+    if (n != 0 && abs(currentLine.y) > 1000 && currentLine.y > prevLine.y + 1.0f)
         return UP;
-    else if (n % N != 0 && abs(currentLine.y) > 1000 && currentLine.y < prevLine.y - 1.0f)
+    else if (n != 0 && abs(currentLine.y) > 1000 && currentLine.y < prevLine.y - 1.0f)
         return DOWN;
     else
         return FLAT;
+}
+
+float Map::getLastY() const {
+    return lines[lines.size() - 1].y;
 }
