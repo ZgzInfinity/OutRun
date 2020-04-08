@@ -295,7 +295,7 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
 
                         addRandomLines(x, currentY, z, stoi(buffer[1]), objectIndexes);
 
-                        y = lines[lines.size() - 1].y - currentY;
+                        y += lines[lines.size() - 1].y - currentY;
                     }
                     else if (buffer[0] == "END") {
                         end = true;
