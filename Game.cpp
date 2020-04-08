@@ -26,7 +26,8 @@ Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") 
             Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
-            //nm++; // TODO: Añadir más mapas y descomentar
+            nm++;
+            nm = nm % 2; // TODO: Añadir más mapas y borrar línea
         }
         maps.emplace_back(vm);
     }

@@ -81,30 +81,28 @@ Map::Line *Map::getLine(const int n) {
     if (n < lines.size() || next == nullptr)
         return &lines[n % lines.size()];
     else
-        return &next->lines[n % next->lines.size()];
+        return &next->lines[(n - lines.size()) % next->lines.size()];
 }
 
 Map::Line Map::getLine(const int n) const {
     if (n < lines.size() || next == nullptr)
         return lines[n % lines.size()];
     else
-        return next->lines[n % next->lines.size()];
+        return next->lines[(n - lines.size()) % next->lines.size()];
 }
 
 Map::Line *Map::getPreviousLine(const int n) {
     if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
         return &lines[(n - 1) % lines.size()];
     else
-        return &next->lines[(n - 1) % next->lines.size()];
+        return &next->lines[(n - 1 - lines.size()) % next->lines.size()];
 }
 
 Map::Line Map::getPreviousLine(const int n) const {
     if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
         return lines[(n - 1) % lines.size()];
-    else if (n > 0)
-        return next->lines[(n - 1) % next->lines.size()];
     else
-        return next->lines[next->lines.size() - 1];
+        return next->lines[(n - 1 - lines.size()) % next->lines.size()];
 }
 
 void Map::addRandomLines(const float x, const float y, float &z, const int numLines, const vector<int> &objectIndexes) {
@@ -364,7 +362,11 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 
 void Map::addNextMap(Map *map) {
     this->next = map;
-    this->next->setOffset(lines[lines.size() - 1].y);
+    float yOffset = 0.0f;
+    for (Line &l : lines)
+        if (l.y > yOffset)
+            yOffset = l.y;
+    this->next->setOffset(yOffset);
 }
 
 void Map::setOffset(float yOffset) {
@@ -412,6 +414,7 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     w.draw(s);
 
     // Repetitive drawing
+    object.spriteMinX = destX + (s.getGlobalBounds().width - s.getGlobalBounds().width * coeff[object.spriteNum]) / 2.0f;
     if (left && object.repetitive) {
         while (destX >= 0.0f) {
             destX -= s.getGlobalBounds().width;
@@ -421,11 +424,8 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
 
         object.spriteMinX = 0;
     }
-    else {
-        object.spriteMinX = destX +
-                            (s.getGlobalBounds().width - s.getGlobalBounds().width * coeff[object.spriteNum]) / 2.0f;
-    }
 
+    object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * coeff[object.spriteNum];
     if (!left && object.repetitive) {
         while (destX <= w.getSize().x) {
             destX += s.getGlobalBounds().width;
@@ -433,10 +433,8 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
             w.draw(s);
         }
 
-        object.spriteMaxX = w.getSize().x;
-    }
-    else {
-        object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * coeff[object.spriteNum];
+        if (coeff[object.spriteNum] != 0)
+            object.spriteMaxX = w.getSize().x;
     }
 }
 
@@ -486,20 +484,29 @@ void Map::draw(Config &c) {
         if (l->Y < maxy) {
             maxy = l->Y;
 
-            Color rumble = l->mainColor ? roadColor[l->mainColor] : Color::White;
-            Color dash = l->mainColor ? Color::White : roadColor[l->mainColor];
+            Color grass, road;
+            if (n < N || next == nullptr) {
+                grass = grassColor[l->mainColor];
+                road = roadColor[l->mainColor];
+            }
+            else {
+                grass = next->grassColor[l->mainColor];
+                road = next->roadColor[l->mainColor];
+            }
+            Color rumble = l->mainColor ? road : Color::White;
+            Color dash = l->mainColor ? Color::White : road;
 
             p = getPreviousLine(n);
 
             // Draw grass
-            drawQuad(c.w, grassColor[l->mainColor], 0, int(p->Y), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
+            drawQuad(c.w, grass, 0, int(p->Y), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
 
             // Draw road
             const int x1 = int(p->X - p->W), y1 = int(p->Y), w1 = int(2.0f * p->W),
                       x2 = int(l->X - l->W), y2 = int(l->Y), w2 = int(2.0f * l->W),
                       rw1 = int(p->W * RUMBLECOEFF), rw2 = int(l->W * RUMBLECOEFF),
                       dw1 = rw1 / 2, dw2 = rw2 / 2;
-            drawQuad(c.w, roadColor[l->mainColor], x1, y1, w1, x2, y2, w2);
+            drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
             drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
             drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
             drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
@@ -513,10 +520,18 @@ void Map::draw(Config &c) {
     for (int n = startPos + c.renderLen; n > startPos; n--) {
         l = getLine(n);
 
-        if (l->spriteLeft.spriteNum > -1)
-            l->drawSprite(c.w, objects, hitCoeff, l->spriteLeft, true);
-        if (l->spriteRight.spriteNum > -1)
-            l->drawSprite(c.w, objects, hitCoeff, l->spriteRight, false);
+        if (l->spriteLeft.spriteNum > -1) {
+            if (n < N || next == nullptr)
+                l->drawSprite(c.w, objects, hitCoeff, l->spriteLeft, true);
+            else
+                l->drawSprite(c.w, next->objects, next->hitCoeff, l->spriteLeft, true);
+        }
+        if (l->spriteRight.spriteNum > -1) {
+            if (n < N || next == nullptr)
+                l->drawSprite(c.w, objects, hitCoeff, l->spriteRight, false);
+            else
+                l->drawSprite(c.w, next->objects, next->hitCoeff, l->spriteRight, false);
+        }
     }
 
 }
