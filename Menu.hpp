@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <iostream>
+#include "Button.hpp"
 #include "KeywordMapper.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -21,11 +22,13 @@ sf::Font initializeFontTimePlay();
 
 sf::Font initializeFontSpeed();
 
+sf::Font initializeFontOptions();
+
 using namespace std;
 using namespace sf;
 
 const int NUM_SEGA_ICONS = 39;
-const int NUM_SOUNDTRACKS = 3;
+const int NUM_SOUNDTRACKS = 4;
 const int NUM_OPTIONS = 5;
 const int NUM_CONTROLLERS = 4;
 
@@ -55,10 +58,15 @@ struct Config {
 
     sf::Font timeToPlay;
 
-    sf:: Font speedVehicle;
+    sf::Font speedVehicle;
+
+    sf::Font options;
 
     // Vector with all the soundtracks to reproduce
     vector<unique_ptr<Music>> themes;
+
+     // Vector with all the sound effects to reproduce
+    vector<unique_ptr<Music>> effects;
 
     float camD; // Camera depth
     int renderLen; // Length rendered

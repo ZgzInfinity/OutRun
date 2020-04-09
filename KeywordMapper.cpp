@@ -25,12 +25,12 @@ KeywordMapper::KeywordMapper(){
     mapperIdKeyWord[44] = "RSYSTEM";    mapperIdKeyWord[45] = "MENU";   mapperIdKeyWord[46] = "LBRACKET";  mapperIdKeyWord[47] = "RBRACKET";
     mapperIdKeyWord[48] = "SEMICOLOM";  mapperIdKeyWord[49] = "COMMA";  mapperIdKeyWord[50] = "PERIOD";    mapperIdKeyWord[51] = "QUOTE";
 
-    mapperIdKeyWord[52] = "SLASH";      mapperIdKeyWord[53] = "BACKLASH";  mapperIdKeyWord[54] = "TILDE";   mapperIdKeyWord[55] = "EQUAL";
-    mapperIdKeyWord[56] = "HYPHEN";     mapperIdKeyWord[57] = "SPACE";     mapperIdKeyWord[58] = "ENTER";   mapperIdKeyWord[59] = "BACKSPACE";
-    mapperIdKeyWord[60] = "TAB";        mapperIdKeyWord[61] = "REPAG";     mapperIdKeyWord[62] = "AVPAG";   mapperIdKeyWord[63] = "END";
-    mapperIdKeyWord[64] = "HOME";       mapperIdKeyWord[65] = "INSERT";    mapperIdKeyWord[66] = "DELETE";  mapperIdKeyWord[67] = "ADD";
-    mapperIdKeyWord[68] = "SUB";        mapperIdKeyWord[69] = "MUL";       mapperIdKeyWord[70] = "DIV";     mapperIdKeyWord[71] = "LEFT";
-    mapperIdKeyWord[72] = "RIGHT";      mapperIdKeyWord[73] = "UP";        mapperIdKeyWord[74] = "DOWN";
+    mapperIdKeyWord[52] = "SLASH";        mapperIdKeyWord[53] = "BACKLASH";    mapperIdKeyWord[54] = "TILDE";   mapperIdKeyWord[55] = "EQUAL";
+    mapperIdKeyWord[56] = "HYPHEN";       mapperIdKeyWord[57] = "SPACE";       mapperIdKeyWord[58] = "ENTER";   mapperIdKeyWord[59] = "BACKSPACE";
+    mapperIdKeyWord[60] = "TAB";          mapperIdKeyWord[61] = "REPAG";       mapperIdKeyWord[62] = "AVPAG";   mapperIdKeyWord[63] = "END";
+    mapperIdKeyWord[64] = "HOME";         mapperIdKeyWord[65] = "INSERT";      mapperIdKeyWord[66] = "DELETE";  mapperIdKeyWord[67] = "ADD";
+    mapperIdKeyWord[68] = "SUB";          mapperIdKeyWord[69] = "MUL";         mapperIdKeyWord[70] = "DIV";     mapperIdKeyWord[71] = "LEFT CURSOR";
+    mapperIdKeyWord[72] = "RIGHT CURSOR"; mapperIdKeyWord[73] = "UP CURSOR";  mapperIdKeyWord[74] = "DOWN CURSOR";
 
     // Map the code of the keys
     mapperCodeKeyWord[0] = Keyboard::A;  mapperCodeKeyWord[1] =  Keyboard::B;  mapperCodeKeyWord[2] = Keyboard::C;
