@@ -155,16 +155,20 @@ void Map::addRandomLines(const float x, const float y, float &z, const int numLi
     }
 }
 
-void fileError() {
+void fileError(const string &error="") {
     cerr << "Error: Formato de fichero incorrecto." << endl;
+    if (!error.empty())
+        cerr << "\t" + error << endl;
     exit(1);
 }
 
 void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) {
     ifstream fin(file);
     if (fin.is_open()) {
-        bool comment = false, road = false, grass = false, end = false;
-        float curveCoeff = 0.0f, elevationCoeff = 0.0f, elevationIndex = 0.0f;
+        bool comment = false, road = false, grass = false, end = false, flat = false;
+        float curveCoeff = 0.0f, elevationCoeff = 0.0f, originX = 0.0f, currentX = 0.0f, changeX = 0.0f,
+                finalX = 0.0f, b = 0.0f, offsetY = 0.0f, offsetX = 0.0f;
+        const float scale = 1500.0f;
         unsigned int lineIndex = 0;
 
         vector<string> buffer;
@@ -198,24 +202,40 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                     }
                 }
                 else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
-                                               s == "FLAT" || s == "DROP" || s == "RANDOM" || s == "END")) {
+                                               s == "FLAT" || s == "DROP" || s == "RANDOM" || s  == "END")) {
                     if (buffer[0] == "ROAD") {
                         if (buffer.size() < 3) // Checkpoint
-                            fileError();
+                            fileError(buffer[0] + " necesita argumentos.");
 
-                        float yAux;
                         SpriteInfo spriteLeft, spriteRight;
 
-                        // Indexes and positions
-                        yAux = sqrt(abs(elevationIndex * elevationCoeff));
-                        if (elevationIndex < 0.0f)
-                            yAux *= -1.0f;
-                        yAux += y;
-
-                        if (elevationCoeff > 0.0f)
-                            elevationIndex++;
-                        else if (elevationCoeff < 0.0f)
-                            elevationIndex--;
+                        // Elevation
+                        float yAux = y;
+                        if (elevationCoeff != 0.0f) {
+                            currentX = (z - originX) / (3.0f * scale); // From 0 to final changeX2
+                            if (!flat) { // From flat to elevation
+                                if (currentX < changeX) { // From 0 to changeX1 elevation is obtained from the cosine function
+                                    yAux += scale * (offsetY + cos(offsetX + elevationCoeff * currentX));
+                                }
+                                else { // From changeX1 to changeX2 elevation is obtained from the linear function
+                                    yAux += scale * (elevationCoeff * currentX + b);
+                                }
+                            }
+                            else { // From elevation to flat
+                                currentX += changeX;
+                                if (currentX < finalX) { // From changeX2 to changeX3 elevation is obtained from the cosine function
+                                    yAux += scale * (offsetY + cos(offsetX + elevationCoeff * currentX));
+                                }
+                                else { // At this point the elevation is 0
+                                    flat = false;
+                                    elevationCoeff = 0.0f;
+                                    if (!lines.empty()) {
+                                        y = lines[lines.size() - 1].y;
+                                        yAux = y;
+                                    }
+                                }
+                            }
+                        }
 
                         lineIndex++;
 
@@ -234,7 +254,7 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                             }
                         }
                         if (i >= buffer.size() || buffer[i] != "-") { // Checkpoint
-                            fileError();
+                            fileError(buffer[0] + " tiene argumentos incorrectos.");
                         }
                         i++;
                         if (i < buffer.size() - 1) { // Right object
@@ -250,7 +270,7 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                             }
                         }
                         if (i != buffer.size() - 1) { // Checkpoint
-                            fileError();
+                            fileError(buffer[0] + " tiene argumentos incorrectos.");
                         }
 
                         addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curveCoeff, lineIndex % 2,
@@ -258,7 +278,7 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                     }
                     else if (buffer[0] == "CURVE") {
                         if (buffer.size() < 3)
-                            fileError();
+                            fileError(buffer[0] + " necesita argumentos.");
                         curveCoeff = stof(buffer[1]);
                     }
                     else if (buffer[0] == "STRAIGHT") {
@@ -266,45 +286,93 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                             fileError();
                         curveCoeff = 0.0f;
                     }
-                    else if (buffer[0] == "CLIMB") {
+                    else if (buffer[0] == "CLIMB" || buffer[0] == "DROP") {
                         if (buffer.size() < 3)
-                            fileError();
+                            fileError(buffer[0] + " necesita argumentos.");
+                        if (elevationCoeff != 0.0f && !flat)
+                            fileError("Después de un desnivel tiene que haber un llano.");
+                        else if (elevationCoeff != 0.0f && flat)
+                            fileError("No se ha completado el desnivel, se necesitan poner al menos " +
+                                      to_string(lround((finalX - currentX) * (3.0f * scale) / (5 * SEGL) +
+                                                       0.5f)) + " líneas más de llano.");
+
                         elevationCoeff = stof(buffer[1]);
+                        if (elevationCoeff < 0.0f || elevationCoeff > 1.0f)
+                            fileError(buffer[0] + " necesita un coeficiente entre 0.0 y 1.0.");
+                        if (buffer[0] == "DROP")
+                            elevationCoeff *= -1.0f;
+
+                        if (elevationCoeff < 0.0f) {
+                            // Complete cos - 1 drop from 0 to PI
+                            offsetX = 0.0f;
+                            changeX = asinf(-elevationCoeff); // At this point cos function and linear function have
+                            // the same inclination
+                            finalX = M_PI;
+                            offsetY = -1.0f;
+                        }
+                        else {
+                            // Complete cos + 1 climb from PI to 2PI
+                            offsetX = M_PI;
+                            changeX = asinf(-elevationCoeff) + (float) M_PI; // At this point cos function and linear
+                            // function have the same inclination
+                            finalX = M_PI;
+                            offsetY = 1.0f;
+                        }
+                        // Linear function is y = ax + b, where a is inclination (elevationCoeff) and b is:
+                        b = offsetY + cosf(offsetX + elevationCoeff * changeX) - elevationCoeff * changeX;
+                        originX = z;
+                        currentX = -0.1f;
+
+                        if (!lines.empty())
+                            y = lines[lines.size() - 1].y;
                     }
                     else if (buffer[0] == "FLAT") {
                         if (buffer.size() < 2)
                             fileError();
-                        elevationCoeff = 0.0f;
-                    }
-                    else if (buffer[0] == "DROP") {
-                        if (buffer.size() < 3)
-                            fileError();
-                        elevationCoeff = -stof(buffer[1]);
+                        if (elevationCoeff == 0.0f)
+                            fileError("Ya era llano.");
+                        else if (currentX < changeX)
+                            fileError("No se ha completado el desnivel, se necesitan poner al menos " +
+                                      to_string(lround((changeX - currentX) * (3.0f * scale) / (5 * SEGL) + 0.5f)) +
+                                      " líneas más de subida/bajada.");
+                        flat = true;
+                        originX = z;
+                        currentX = changeX - 0.1f;
+                        if (!lines.empty())
+                            y = lines[lines.size() - 1].y - scale * (offsetY + cos(offsetX + elevationCoeff * changeX));
                     }
                     else if (buffer[0] == "RANDOM") {
                         if (buffer.size() < 3)
-                            fileError();
+                            fileError(buffer[0] + " necesita argumentos.");
 
                         vector<int> objectIndexes;
                         for (int i = 2; i < buffer.size() - 1; i++)
                             objectIndexes.push_back(stoi(buffer[i]));
 
-                        float currentY = y;
                         if (!lines.empty())
-                            currentY = lines[lines.size() - 1].y;
+                            y = lines[lines.size() - 1].y;
 
-                        addRandomLines(x, currentY, z, stoi(buffer[1]), objectIndexes);
+                        addRandomLines(x, y, z, stoi(buffer[1]), objectIndexes);
 
-                        y += lines[lines.size() - 1].y - currentY;
-                    }
-                    else if (buffer[0] == "END") {
-                        end = true;
+                        if (!lines.empty())
+                            y = lines[lines.size() - 1].y;
                     }
 
                     buffer.clear();
                     buffer.push_back(s);
                 }
             }
+            if (!buffer.empty() && buffer[0] == "END") {
+                end = true;
+                if (elevationCoeff != 0.0f && flat)
+                    fileError("No se ha completado el desnivel, se necesitan poner al menos " +
+                              to_string(lround((finalX - currentX) * (3.0f * scale) / (5 * SEGL) +
+                                               0.5f)) + " líneas más de llano.");
+                if (elevationCoeff != 0.0f)
+                    fileError("El mapa tiene que acabar en llano para que las uniones queden bien.");
+            }
+            else if (fin.eof())
+                fileError("El fichero debe terminar en END.");
         }
         fin.close();
     }
@@ -363,9 +431,8 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 void Map::addNextMap(Map *map) {
     this->next = map;
     float yOffset = 0.0f;
-    for (Line &l : lines)
-        if (l.y > yOffset)
-            yOffset = l.y;
+    if (!lines.empty())
+        yOffset = lines[lines.size() - 1].y;
     this->next->setOffset(yOffset);
 }
 

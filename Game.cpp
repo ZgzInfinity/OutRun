@@ -26,10 +26,12 @@ Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") 
             Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
-            nm++;
-            nm = nm % 2; // TODO: Añadir más mapas y borrar línea
+            // nm++; // TODO: Añadir más mapas y descomentar
         }
         maps.emplace_back(vm);
+
+        nm++; // TODO: Añadir más mapas y borrar línea
+        nm = nm % 2; // TODO: Añadir más mapas y borrar línea
     }
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
