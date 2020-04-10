@@ -31,31 +31,37 @@ Config::Config() {
 
     speedVehicle = initializeFontSpeed();
 
+    options = initializeFontOptions();
+
     camD = 0.84; // Camera depth
     renderLen = 300;
 
 
-    for (int i = 0; i < 3; i++){
+    for (int i = 0; i < 4; i++){
         // Load the music soundtracks of the game
         unique_ptr<Music> music = unique_ptr<Music>(new Music());
         switch(i){
             case 0:
-                music->openFromFile("resources/Audio/MagicalSoundShower.wav");
+                music->openFromFile("resources/Soundtrack/Options.wav");
                 break;
-            case 1:
-                music->openFromFile("resources/Audio/PassingBreeze.wav");
+             case 1:
+                music->openFromFile("resources/Soundtrack/MagicalSoundShower.wav");
                 break;
             case 2:
-                music->openFromFile("resources/Audio/SplashWave.wav");
+                music->openFromFile("resources/Soundtrack/PassingBreeze.wav");
+                break;
+            case 3:
+                music->openFromFile("resources/Soundtrack/SplashWave.wav");
         }
         music->setVolume(100);
         music->setLoop(true);
-        themes.push_back(std::move(music));
+        themes.push_back(move(music));
+
+        unique_ptr<Music> effect = unique_ptr<Music>(new Music());
+        effect->openFromFile("resources/SoundEffects/" + to_string(i + 1) + ".wav");
+        effect->setVolume(100);
+        effects.push_back(move(effect));
     }
-}
-
-void changeConfig(Config &c) {
-
 }
 
 
@@ -90,7 +96,7 @@ State introAnimation(Config& c){
 
 State startMenu(Config &c) {
 
-    const int ELEMENTS = 4;
+    const int ELEMENTS = 5;
 
     // Clean the console window
     c.w.clear();
@@ -132,9 +138,9 @@ State startMenu(Config &c) {
     // Options of the main menu
     Text textElements[ELEMENTS];
     textElements[0].setString("PRESS START BUTTON");
-    textElements[0].setPosition((c.w.getSize().x / 2.f) - 150, c.w.getSize().y / 2.f + 100);
+    textElements[0].setPosition((c.w.getSize().x / 2.f) - 120, c.w.getSize().y / 2.f + 100);
     textElements[0].setCharacterSize(30);
-    textElements[0].setFont(c.font);
+    textElements[0].setFont(c.timeToPlay);
     textElements[0].setFillColor(Color::Green);
     textElements[0].setOutlineColor(Color::Black);
     textElements[0].setOutlineThickness(3);
@@ -142,18 +148,34 @@ State startMenu(Config &c) {
     textElements[1].setString("START");
     textElements[1].setPosition((c.w.getSize().x / 2.f) - 50, c.w.getSize().y / 2.f + 70);
     textElements[1].setCharacterSize(30);
-    textElements[1].setFont(c.font);
+    textElements[1].setFont(c.timeToPlay);
     textElements[1].setFillColor(Color::Green);
     textElements[1].setOutlineColor(Color::Black);
     textElements[1].setOutlineThickness(3);
 
     textElements[2].setString("OPTIONS");
-    textElements[2].setPosition((c.w.getSize().x / 2.f) - 50, c.w.getSize().y / 2.f + 120);
+    textElements[2].setPosition(c.w.getSize().x / 2.f - 50, c.w.getSize().y / 2.f + 120);
     textElements[2].setCharacterSize(30);
-    textElements[2].setFont(c.font);
+    textElements[2].setFont(c.timeToPlay);
     textElements[2].setFillColor(Color::Green);
     textElements[2].setOutlineColor(Color::Black);
     textElements[2].setOutlineThickness(3);
+
+    textElements[3].setString("1986");
+    textElements[3].setPosition(c.w.getSize().x / 2.f + 270, c.w.getSize().y / 2.f + 290);
+    textElements[3].setCharacterSize(30);
+    textElements[3].setFont(c.timeToPlay);
+    textElements[3].setFillColor(Color::Green);
+    textElements[3].setOutlineColor(Color::Black);
+    textElements[3].setOutlineThickness(3);
+
+    textElements[4].setString("©SEGA");
+    textElements[4].setPosition(c.w.getSize().x / 2.f + 350, c.w.getSize().y / 2.f +290);
+    textElements[4].setCharacterSize(30);
+    textElements[4].setFont(c.timeToPlay);
+    textElements[4].setFillColor(Color::Green);
+    textElements[4].setOutlineColor(Color::Black);
+    textElements[4].setOutlineThickness(3);
 
 
     // Partial state of the game
@@ -196,6 +218,8 @@ State startMenu(Config &c) {
             c.w.draw(mainMenu);
             c.w.draw(nameGames[j]);
             c.w.draw(textElements[0]);
+            c.w.draw(textElements[3]);
+            c.w.draw(textElements[4]);
             c.w.display();
             sleep(milliseconds(180));
 
@@ -203,6 +227,8 @@ State startMenu(Config &c) {
             if (Keyboard::isKeyPressed(c.menuEnterKey)){
                 // Pass to the second menu
                 startPressed = true;
+                c.effects[1]->play();
+                sleep(milliseconds(50));
             }
 
             j = ( j < (int)nameGames.size() - 1) ? j + 1 : 0;
@@ -211,7 +237,7 @@ State startMenu(Config &c) {
 
         // Control the second menu
         startPressed = false;
-        sleep(milliseconds(50));
+        sleep(milliseconds(200));
         state = MUSIC;
 
         // While the ENTER keyword is not pressed
@@ -219,11 +245,13 @@ State startMenu(Config &c) {
             // Control if the up or down cursor keys are pressed or not
             if (Keyboard::isKeyPressed(c.menuUpKey)){
                 // Up cursor pressed
+                c.effects[0]->play();
                 row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 75);
                 state = MUSIC;
             }
             else if (Keyboard::isKeyPressed(c.menuDownKey)){
                 // Down cursor pressed7
+                c.effects[0]->play();
                 row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 125);
                 state = OPTIONS;
             }
@@ -234,19 +262,25 @@ State startMenu(Config &c) {
             c.w.draw(nameGames[j]);
             c.w.draw(textElements[1]);
             c.w.draw(textElements[2]);
+            c.w.draw(textElements[3]);
+            c.w.draw(textElements[4]);
             c.w.draw(row);
             c.w.display();
             sleep(milliseconds(180));
+            c.effects[0]->stop();
 
             // Check if the start keyword has been pressed
             if (Keyboard::isKeyPressed(c.menuEnterKey)){
                 // Pass to the second menu
                 startPressed = true;
+                c.effects[1]->stop();
+                c.effects[1]->play();
             }
 
             j = ( j < (int)nameGames.size() - 1) ? j + 1 : 0;
         }
         // Return the state of the game
+        c.effects[0]->stop();
         return state;
     }
     return EXIT;
@@ -262,342 +296,222 @@ void changeCarControllers(Config& c){
 
     KeywordMapper kM = KeywordMapper();
 
+    // Clean the console window
+    c.w.clear(Color(0, 0, 0));
+    c.w.display();
+
     // Loading the background texture
-    Texture segaBackground;
-    segaBackground.loadFromFile("resources/MenuOptions/background.png");
+    Texture segaBackground, textureShape;
+    segaBackground.loadFromFile("resources/MenuOptions/segaIcon.png");
     segaBackground.setRepeated(true);
+    textureShape.loadFromFile("resources/MenuOptions/outrun.png");
+    textureShape.setRepeated(true);
 
     IntRect background(0, 0, c.w.getSize().x,  c.w.getSize().y);
     Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
-    shape.setPosition((c.w.getSize().x / 2.f) - 330, c.w.getSize().y / 2.f - 180);
-    shape.setSize(sf::Vector2f(670, 375));
+    shape.setPosition((c.w.getSize().x / 2.f) - 300, c.w.getSize().y / 2.f - 250);
+    shape.setSize(sf::Vector2f(610, 500));
     shape.setOutlineColor(Color( 19, 186, 251 ));
     shape.setOutlineThickness(5);
-    shape.setFillColor(Color(10, 10, 12));
+    shape.setTexture(&textureShape, true);
+
+    vector<Button> menuButtons;
 
     // Main Text of the menu
     Text optionsText;
     optionsText.setString("CONTROLLERS");
-    optionsText.setPosition((c.w.getSize().x / 2.f) - 90, c.w.getSize().y / 2.f - 170);
-    optionsText.setCharacterSize(25);
-    optionsText.setFont(c.font);
+    optionsText.setPosition(c.w.getSize().x / 2.f - 160, c.w.getSize().y / 2.f - 220);
+    optionsText.setCharacterSize(35);
+    optionsText.setFont(c.options);
+    optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
+
+    Text info1;
+    info1.setString("Press Space to select a controller");
+    info1.setFillColor(Color(10, 201, 235));
+    info1.setOutlineColor(Color(3, 39, 8));
+    info1.setOutlineThickness(3);
+    info1.setCharacterSize(15);
+    info1.setStyle(Text::Bold);
+    info1.setPosition(c.w.getSize().x / 2.f - 200, c.w.getSize().y / 2.f - 160);
+    info1.setFont(c.options);
+    c.w.draw(info1);
+
+    Text info2;
+    info2.setString("Then a key twice to change its configuration");
+    info2.setFillColor(Color(10, 201, 235));
+    info2.setOutlineColor(Color(3, 39, 8));
+    info2.setCharacterSize(15);
+    info2.setOutlineThickness(3);
+    info2.setStyle(Text::Bold);
+    info2.setPosition(c.w.getSize().x / 2.f - 265, c.w.getSize().y / 2.f - 120);
+    info2.setFont(c.options);
+    c.w.draw(info2);
 
     // Option indicators
 
-    // Main Text of the menu
-    Text controlLeft;
-    controlLeft.setString("Turning left");
-    controlLeft.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f - 120);
-    controlLeft.setCharacterSize(25);
-    controlLeft.setFont(c.font);
-    controlLeft.setFillColor(Color::Yellow);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f - 70, 200, 30, c.options,
+                                 "Turning left", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
 
-    // Main Text of the menu
-    Text controlRight;
-    controlRight.setString("Turning right");
-    controlRight.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f - 40);
-    controlRight.setCharacterSize(20);
-    controlRight.setFont(c.font);
-    controlRight.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f, 200, 30, c.options,
+                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    // Main Text of the menu
-    Text controlAccelerate;
-    controlAccelerate.setString("Acceleration");
-    controlAccelerate.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f + 40);
-    controlAccelerate.setCharacterSize(20);
-    controlAccelerate.setFont(c.font);
-    controlAccelerate.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 70, 200, 30, c.options,
+                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    // Main Text of the menu
-    Text controlBrake;
-    controlBrake.setString("Brake");
-    controlBrake.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f + 120);
-    controlBrake.setCharacterSize(20);
-    controlBrake.setFont(c.font);
-    controlBrake.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 140, 200, 30, c.options,
+                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    // Default keyword configuration
-    Text leftOption;
-    leftOption.setString("LCRTL");
-    leftOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f - 120);
-    leftOption.setCharacterSize(25);
-    leftOption.setFont(c.font);
-    leftOption.setFillColor(Color::Yellow);
+    // Option configurations
 
-    Text rightOption;
-    rightOption.setString("LALT");
-    rightOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f - 40);
-    rightOption.setCharacterSize(20);
-    rightOption.setFont(c.font);
-    rightOption.setFillColor(Color::White);
+    int code;
+    code = kM.mapperCodeKeyWord[c.leftKey];
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 70, 200, 30, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
 
-    Text accelerateOption;
-    accelerateOption.setString("UP");
-    accelerateOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f + 40);
-    accelerateOption.setCharacterSize(20);
-    accelerateOption.setFont(c.font);
-    accelerateOption.setFillColor(Color::White);
+    code = kM.mapperCodeKeyWord[c.rightKey];
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f, 200, 30, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    Text brakeOption;
-    brakeOption.setString("DOWN");
-    brakeOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f + 120);
-    brakeOption.setCharacterSize(20);
-    brakeOption.setFont(c.font);
-    brakeOption.setFillColor(Color::White);
+    code = kM.mapperCodeKeyWord[c.accelerateKey];
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 70, 200, 30, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+
+    code = kM.mapperCodeKeyWord[c.brakeKey];
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 140, 200, 30, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+
 
     // Control if the start key is pressed or not
     bool startPressed = false;
 
     // Control the option selected by the user
-    int optionSelected = 1;
+    int optionSelected = 0;
 
     // Until the start keyword is not pressed
     while (!startPressed){
-
-        // Check if the up or down cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != NUM_CONTROLLERS){
+            if (optionSelected != int(menuButtons.size() - 1) / 2){
+                // Change the color appearance of both buttons
+                c.effects[0]->play();
                 optionSelected++;
+                menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 4].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 3].setButtonState(BUTTON_IDLE);
             }
         }
         else if (Keyboard::isKeyPressed(c.menuUpKey)){
             // Down cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != 1){
+            if (optionSelected != 0){
+                // Change the color appearance of both buttons
+                c.effects[0]->play();
                 optionSelected--;
+                menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 4].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 5].setButtonState(BUTTON_IDLE);
             }
         }
-
-        // Modify the option parameter if it's necessary
         Event e;
-        switch (optionSelected){
-            case 1:
-                // Left control
-                controlLeft.setCharacterSize(25);
-                leftOption.setCharacterSize(25);
-                controlLeft.setFillColor(Color::Yellow);
-                leftOption.setFillColor(Color::Yellow);
-                controlRight.setCharacterSize(20);
-                rightOption.setCharacterSize(20);
-                controlRight.setFillColor(Color::White);
-                rightOption.setFillColor(Color::White);
-
-                while (c.w.pollEvent(e)) {
-                    // Check if any keyword has been pressed or not
-                    if (e.type == Event::KeyPressed && e.key.code != Keyboard::Up && e.key.code != Keyboard::Down){
-                        // Get the code of the keyword if it's not the up pr down cursor keys
-                        if (e.key.code != -1){
-                            if (kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
-                            {
-                                int indexCode = kM.lookForIdKeyWord(c.leftKey);
-                                leftOption.setString("SELECTED!");
-                                c.w.draw(sprite);
-                                c.w.draw(shape);
-                                c.w.draw(optionsText);
-                                c.w.draw(controlLeft);
-                                c.w.draw(controlRight);
-                                c.w.draw(controlAccelerate);
-                                c.w.draw(controlBrake);
-
-                                c.w.draw(leftOption);
-                                c.w.draw(rightOption);
-                                c.w.draw(accelerateOption);
-                                c.w.draw(brakeOption);
-                                c.w.display();
-                                sleep(milliseconds(200));
-                                leftOption.setString(kM.mapperIdKeyWord[indexCode]);
-                            }
-                            else {
-                                leftOption.setString(kM.mapperIdKeyWord[e.key.code]);
-                                c.leftKey = kM.mapperCodeKeyWord[e.key.code];
-                            }
+        c.w.waitEvent(e);
+        if (Keyboard::isKeyPressed(Keyboard::Space)){
+            // Check if any keyword has been pressed or not
+            Event e;
+            c.w.waitEvent(e);
+            if (e.type == Event::KeyPressed && e.key.code != -1 && e.key.code != Keyboard::Enter){
+                // Modify the option parameter if it's necessary
+                switch (optionSelected){
+                    case 0:
+                        if (kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
+                        {
+                            c.effects[3]->stop();
+                            c.effects[3]->play();
                         }
                         else {
-                            leftOption.setString("UNKNOWN!");
+                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            c.leftKey = kM.mapperCodeKeyWord[e.key.code];
+                            c.effects[1]->stop();
+                            c.effects[1]->play();
                         }
-                    }
-                }
-                break;
-            case 2:
-                // Right control
-                controlLeft.setCharacterSize(20);
-                leftOption.setCharacterSize(20);
-                controlLeft.setFillColor(Color::White);
-                leftOption.setFillColor(Color::White);
-                controlRight.setCharacterSize(25);
-                rightOption.setCharacterSize(25);
-                controlRight.setFillColor(Color::Yellow);
-                rightOption.setFillColor(Color::Yellow);
-                controlAccelerate.setCharacterSize(20);
-                accelerateOption.setCharacterSize(20);
-                controlAccelerate.setFillColor(Color::White);
-                accelerateOption.setFillColor(Color::White);
-
-                while (c.w.pollEvent(e)) {
-                    if (e.type == Event::KeyPressed && e.key.code != Keyboard::Up && e.key.code != Keyboard::Down){
+                        break;
+                    case 1:
                         // Get the code of the keyword if it's not the up pr down cursor keys
-                        if (e.key.code != -1){
-                            if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
-                            {
-                                int indexCode = kM.lookForIdKeyWord(c.rightKey);
-                                rightOption.setString("SELECTED!");
-                                c.w.draw(sprite);
-                                c.w.draw(shape);
-                                c.w.draw(optionsText);
-                                c.w.draw(controlLeft);
-                                c.w.draw(controlRight);
-                                c.w.draw(controlAccelerate);
-                                c.w.draw(controlBrake);
-
-                                c.w.draw(leftOption);
-                                c.w.draw(rightOption);
-                                c.w.draw(accelerateOption);
-                                c.w.draw(brakeOption);
-                                c.w.display();
-                                sleep(milliseconds(200));
-                                rightOption.setString(kM.mapperIdKeyWord[indexCode]);
-                            }
-                            else {
-                                rightOption.setString(kM.mapperIdKeyWord[e.key.code]);
-                                c.rightKey = kM.mapperCodeKeyWord[e.key.code];
-                            }
+                        if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
+                        {
+                            c.effects[3]->stop();
+                            c.effects[3]->play();
                         }
                         else {
-                            rightOption.setString("UNKNOWN!");
+                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            c.rightKey = kM.mapperCodeKeyWord[e.key.code];
+                            c.effects[1]->stop();
+                            c.effects[1]->play();
                         }
-                    }
-                }
-                break;
-            case 3:
-                // Volume music
-                controlRight.setCharacterSize(20);
-                rightOption.setCharacterSize(20);
-                controlRight.setFillColor(Color::White);
-                rightOption.setFillColor(Color::White);
-                controlAccelerate.setCharacterSize(25);
-                accelerateOption.setCharacterSize(25);
-                controlAccelerate.setFillColor(Color::Yellow);
-                accelerateOption.setFillColor(Color::Yellow);
-                controlBrake.setCharacterSize(20);
-                brakeOption.setCharacterSize(20);
-                controlBrake.setFillColor(Color::White);
-                brakeOption.setFillColor(Color::White);
-
-                while (c.w.pollEvent(e)) {
-                    if (e.type == Event::KeyPressed && e.key.code != Keyboard::Left && e.key.code != Keyboard::Right &&
-                        e.key.code != Keyboard::Up && e.key.code != Keyboard::Down){
+                        break;
+                    case 2:
                         // Get the code of the keyword if it's not the up pr down cursor keys
-                        if (e.key.code != -1){
-                            if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
-                            {
-                                int indexCode = kM.lookForIdKeyWord(c.accelerateKey);
-                                accelerateOption.setString("SELECTED!");
-                                c.w.draw(sprite);
-                                c.w.draw(shape);
-                                c.w.draw(optionsText);
-                                c.w.draw(controlLeft);
-                                c.w.draw(controlRight);
-                                c.w.draw(controlAccelerate);
-                                c.w.draw(controlBrake);
-
-                                c.w.draw(leftOption);
-                                c.w.draw(rightOption);
-                                c.w.draw(accelerateOption);
-                                c.w.draw(brakeOption);
-                                c.w.display();
-                                sleep(milliseconds(200));
-                                accelerateOption.setString(kM.mapperIdKeyWord[indexCode]);
-                            }
-                            else {
-                                accelerateOption.setString(kM.mapperIdKeyWord[e.key.code]);
-                                c.accelerateKey = kM.mapperCodeKeyWord[e.key.code];
-                            }
+                        if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
+                        {
+                            c.effects[3]->stop();
+                            c.effects[3]->play();
                         }
                         else {
-                            accelerateOption.setString("UNKNOWN!");
+                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            c.accelerateKey = kM.mapperCodeKeyWord[e.key.code];
+                            c.effects[1]->stop();
+                            c.effects[1]->play();
                         }
-                    }
-                }
-                break;
-            case 4:
-                // Effect music
-                controlAccelerate.setCharacterSize(20);
-                accelerateOption.setCharacterSize(20);
-                controlAccelerate.setFillColor(Color::White);
-                accelerateOption.setFillColor(Color::White);
-                controlBrake.setCharacterSize(25);
-                brakeOption.setCharacterSize(25);
-                controlBrake.setFillColor(Color::Yellow);
-                brakeOption.setFillColor(Color::Yellow);
-
-                while (c.w.pollEvent(e)) {
-                    if (e.type == Event::KeyPressed && e.key.code != Keyboard::Left && e.key.code != Keyboard::Right &&
-                        e.key.code != Keyboard::Up && e.key.code != Keyboard::Down){
+                        break;
+                    case 3:
                         // Get the code of the keyword if it's not the up pr down cursor keys
-                        if (e.key.code != -1){
-                            if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
-                                kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey)
-                            {
-                                int indexCode = kM.lookForIdKeyWord(c.brakeKey);
-                                brakeOption.setString("SELECTED!");
-                                c.w.draw(sprite);
-                                c.w.draw(shape);
-                                c.w.draw(optionsText);
-                                c.w.draw(controlLeft);
-                                c.w.draw(controlRight);
-                                c.w.draw(controlAccelerate);
-                                c.w.draw(controlBrake);
-
-                                c.w.draw(leftOption);
-                                c.w.draw(rightOption);
-                                c.w.draw(accelerateOption);
-                                c.w.draw(brakeOption);
-                                c.w.display();
-                                sleep(milliseconds(200));
-                                brakeOption.setString(kM.mapperIdKeyWord[indexCode]);
-                            }
-                            else {
-                                brakeOption.setString(kM.mapperIdKeyWord[e.key.code]);
-                                c.brakeKey = kM.mapperCodeKeyWord[e.key.code];
-                            }
+                        if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey)
+                        {
+                            c.effects[3]->stop();
+                            c.effects[3]->play();
                         }
                         else {
-                            brakeOption.setString("UNKNOWN!");
+                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            c.brakeKey = kM.mapperCodeKeyWord[e.key.code];
+                            c.effects[1]->stop();
+                            c.effects[1]->play();
                         }
                     }
-                }
+            }
         }
         c.w.draw(sprite);
         c.w.draw(shape);
         c.w.draw(optionsText);
-        c.w.draw(controlLeft);
-        c.w.draw(controlRight);
-        c.w.draw(controlAccelerate);
-        c.w.draw(controlBrake);
+        c.w.draw(info1);
+        c.w.draw(info2);
 
-        c.w.draw(leftOption);
-        c.w.draw(rightOption);
-        c.w.draw(accelerateOption);
-        c.w.draw(brakeOption);
+        // Show the buttons of the menu
+        for (int i = 0; i < (int)menuButtons.size(); i++){
+            menuButtons.at(i).render(&c.w);
+        }
 
         c.w.display();
         sleep(milliseconds(120));
+        c.effects[0]->stop();
 
         // Check if left or right cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuEnterKey)){
             // Change the controllers of the car
             startPressed = true;
             c.modifiedConfig = true;
+            c.effects[2]->stop();
+            c.effects[2]->play();
         }
     }
 }
@@ -610,155 +524,121 @@ State optionsMenu(Config& c){
     c.w.clear(Color(0, 0, 0));
     c.w.display();
 
+    c.currentSoundtrack = 0;
+    c.themes[c.currentSoundtrack]->play();
+
     // Loading the background texture
-    Texture segaBackground;
-    segaBackground.loadFromFile("resources/MenuOptions/background.png");
+    Texture segaBackground, textureShape;
+    segaBackground.loadFromFile("resources/MenuOptions/segaIcon.png");
     segaBackground.setRepeated(true);
+    textureShape.loadFromFile("resources/MenuOptions/outrun.png");
+    textureShape.setRepeated(true);
 
     IntRect background(0, 0, c.w.getSize().x,  c.w.getSize().y);
     Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
-    shape.setPosition((c.w.getSize().x / 2.f) - 330, c.w.getSize().y / 2.f - 180);
-    shape.setSize(sf::Vector2f(670, 375));
+    shape.setPosition((c.w.getSize().x / 2.f) - 350, c.w.getSize().y / 2.f - 250);
+    shape.setSize(sf::Vector2f(710, 535));
     shape.setOutlineColor(Color( 19, 186, 251 ));
     shape.setOutlineThickness(5);
-    shape.setFillColor(Color(10, 10, 12));
+    shape.setTexture(&textureShape, true);
+
+    vector<Button> menuButtons;
 
     // Main Text of the menu
     Text optionsText;
     optionsText.setString("OPTIONS");
-    optionsText.setPosition((c.w.getSize().x / 2.f) - 60, c.w.getSize().y / 2.f - 170);
-    optionsText.setCharacterSize(25);
-    optionsText.setFont(c.font);
+    optionsText.setPosition((c.w.getSize().x / 2.f) - 90, c.w.getSize().y / 2.f - 230);
+    optionsText.setCharacterSize(35);
+    optionsText.setFont(c.options);
+    optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
 
     // Option indicators
 
-    // Main Text of the menu
-    Text difficultText;
-    difficultText.setString("Difficulty");
-    difficultText.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f - 130);
-    difficultText.setCharacterSize(25);
-    difficultText.setFont(c.font);
-    difficultText.setFillColor(Color::Yellow);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f - 130, 200, 30, c.options,
+                                 "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
 
-    // Main Text of the menu
-    Text trafficText;
-    trafficText.setString("Traffic");
-    trafficText.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f - 60);
-    trafficText.setCharacterSize(20);
-    trafficText.setFont(c.font);
-    trafficText.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
+                                 "Traffic", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    // Main Text of the menu
-    Text volumeText;
-    volumeText.setString("Music volume");
-    volumeText.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f + 10);
-    volumeText.setCharacterSize(20);
-    volumeText.setFont(c.font);
-    volumeText.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
+                                 "Music volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    // Main Text of the menu
-    Text effectText;
-    effectText.setString("Volume effect");
-    effectText.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f + 80);
-    effectText.setCharacterSize(20);
-    effectText.setFont(c.font);
-    effectText.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
+                                 "Volume effect", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    // Main Text of the menu
-    Text controllers;
-    controllers.setString("Controllers");
-    controllers.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f + 150);
-    controllers.setCharacterSize(20);
-    controllers.setFont(c.font);
-    controllers.setFillColor(Color::White);
+     menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 150, 200, 30, c.options,
+                                 "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
     // Option configurations
 
-    Text difficultOption;
-    difficultOption.setString("Easy");
-    difficultOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f - 130);
-    difficultOption.setCharacterSize(25);
-    difficultOption.setFont(c.font);
-    difficultOption.setFillColor(Color::Yellow);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 130, 200, 30, c.options,
+                                 "Easy", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
 
-    Text trafficOption;
-    trafficOption.setString("Yes");
-    trafficOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f - 60);
-    trafficOption.setCharacterSize(20);
-    trafficOption.setFont(c.font);
-    trafficOption.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
+                                 "Yes", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    Text volumeOption;
-    volumeOption.setString("100%");
-    volumeOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f + 10);
-    volumeOption.setCharacterSize(20);
-    volumeOption.setFont(c.font);
-    volumeOption.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
+                                 to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    Text effectOption;
-    effectOption.setString("100%");
-    effectOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f + 80);
-    effectOption.setCharacterSize(20);
-    effectOption.setFont(c.font);
-    effectOption.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
+                                 to_string(c.volumeEffects), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-    Text controllerOption;
-    controllerOption.setString("Default");
-    controllerOption.setPosition((c.w.getSize().x / 2.f) + 130, c.w.getSize().y / 2.f + 150);
-    controllerOption.setCharacterSize(20);
-    controllerOption.setFont(c.font);
-    controllerOption.setFillColor(Color::White);
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 150, 200, 30, c.options,
+                                 "Default", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+
 
     // Control if the start key is pressed or not
     bool startPressed = false;
 
     // Control the option selected by the user
-    int optionSelected = 1;
+    int optionSelected = 0;
 
     // Until the start keyword is not pressed
     while (!startPressed){
-
         // Check if the up or down cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != NUM_OPTIONS){
+            if (optionSelected != int(menuButtons.size() - 1) / 2){
+                // Change the color appearance of both buttons
+                c.effects[0]->play();
                 optionSelected++;
+                menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 5].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 4].setButtonState(BUTTON_IDLE);
             }
         }
         else if (Keyboard::isKeyPressed(c.menuUpKey)){
             // Down cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != 1){
+            if (optionSelected != 0){
+                c.effects[0]->play();
                 optionSelected--;
+                // Change the color appearance of both buttons
+                menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 5].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 6].setButtonState(BUTTON_IDLE);
             }
         }
 
+
         // Modify the option parameter if it's necessary
         switch (optionSelected){
-            case 1:
-                // Difficult level
-                difficultText.setCharacterSize(25);
-                difficultOption.setCharacterSize(25);
-                difficultText.setFillColor(Color::Yellow);
-                difficultOption.setFillColor(Color::Yellow);
-                trafficText.setCharacterSize(20);
-                trafficOption.setCharacterSize(20);
-                trafficText.setFillColor(Color::White);
-                trafficOption.setFillColor(Color::White);
-
+            case 0:
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(c.leftKey)){
                     if (c.level != EASY){
                         // Change the difficult level to medium or easy
                         if (c.level == MEDIUM){
                             c.level = EASY;
-                            difficultOption.setString("Easy");
+                             menuButtons[optionSelected + 5].setTextButton("Easy");
                         }
                         else if (c.level == HARD){
                             c.level = MEDIUM;
-                            difficultOption.setString("Medium");
+                            menuButtons[optionSelected + 5].setTextButton("Medium");
                         }
                     }
                 }
@@ -767,129 +647,80 @@ State optionsMenu(Config& c){
                         // Change the difficult level to medium or easy
                         if (c.level == EASY){
                             c.level = MEDIUM;
-                            difficultOption.setString("Medium");
+                            menuButtons[optionSelected + 5].setTextButton("Medium");
                         }
                         else if (c.level == MEDIUM){
                             c.level = HARD;
-                            difficultOption.setString("Hard");
+                            menuButtons[optionSelected + 5].setTextButton("Hard");
                         }
                     }
                 }
                 break;
-            case 2:
-                // Traffic control
-                difficultText.setCharacterSize(20);
-                difficultOption.setCharacterSize(20);
-                difficultText.setFillColor(Color::White);
-                difficultOption.setFillColor(Color::White);
-                trafficText.setCharacterSize(25);
-                trafficOption.setCharacterSize(25);
-                trafficText.setFillColor(Color::Yellow);
-                trafficOption.setFillColor(Color::Yellow);
-                volumeText.setCharacterSize(20);
-                volumeOption.setCharacterSize(20);
-                volumeText.setFillColor(Color::White);
-                volumeOption.setFillColor(Color::White);
-
+            case 1:
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(c.leftKey)){
                     if (!c.trafficControl){
                        c.trafficControl = true;
-                       trafficOption.setString("Yes");
+                       menuButtons[optionSelected + 5].setTextButton("Yes");
                     }
                 }
                 else if (Keyboard::isKeyPressed(c.rightKey)){
                     if (c.trafficControl){
                        c.trafficControl = false;
-                       trafficOption.setString("No");
+                       menuButtons[optionSelected + 5].setTextButton("No");
                     }
                 }
                 break;
-            case 3:
+            case 2:
                 // Volume music
-                trafficText.setCharacterSize(20);
-                trafficOption.setCharacterSize(20);
-                trafficText.setFillColor(Color::White);
-                trafficOption.setFillColor(Color::White);
-                volumeText.setCharacterSize(25);
-                volumeOption.setCharacterSize(25);
-                volumeText.setFillColor(Color::Yellow);
-                volumeOption.setFillColor(Color::Yellow);
-                effectText.setCharacterSize(20);
-                effectOption.setCharacterSize(20);
-                effectText.setFillColor(Color::White);
-                effectOption.setFillColor(Color::White);
-
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(c.leftKey)){
                     if (c.volumeMusic != 0){
                        c.volumeMusic--;
-                       volumeOption.setString(to_string(c.volumeMusic) + "%");
+                       menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeMusic)));
                     }
                 }
                 else if (Keyboard::isKeyPressed(c.rightKey)){
                     if (c.volumeMusic != 100){
                         c.volumeMusic++;
-                        volumeOption.setString(to_string(c.volumeMusic) + "%");
+                        menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeMusic)));
                     }
                 }
                 break;
-            case 4:
-                // Effect music
-                volumeText.setCharacterSize(20);
-                volumeOption.setCharacterSize(20);
-                volumeText.setFillColor(Color::White);
-                volumeOption.setFillColor(Color::White);
-                effectText.setCharacterSize(25);
-                effectOption.setCharacterSize(25);
-                effectText.setFillColor(Color::Yellow);
-                effectOption.setFillColor(Color::Yellow);
-                controllers.setCharacterSize(20);
-                controllerOption.setCharacterSize(20);
-                controllers.setFillColor(Color::White);
-                controllerOption.setFillColor(Color::White);
-                if (c.modifiedConfig){
-                    controllerOption.setString("Saved!");
-                }
-                else {
-                    controllerOption.setString("Default");
-                }
-
+            case 3:
+                // Volume music
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(c.leftKey)){
                     if (c.volumeEffects != 0){
                        c.volumeEffects--;
-                       effectOption.setString(to_string(c.volumeEffects) + "%");
+                       menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeEffects)));
                     }
                 }
                 else if (Keyboard::isKeyPressed(c.rightKey)){
                     if (c.volumeEffects != 100){
                         c.volumeEffects++;
-                        effectOption.setString(to_string(c.volumeEffects) + "%");
+                        menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeEffects)));
                     }
                 }
+                if (c.modifiedConfig){
+                    menuButtons[optionSelected + 6].setTextButton("Saved!");
+                }
+                else {
+                    menuButtons[optionSelected + 6].setTextButton("Default");
+                }
                 break;
-            case 5:
-                // Controllers of the car
-                effectText.setCharacterSize(20);
-                effectOption.setCharacterSize(20);
-                effectText.setFillColor(Color::White);
-                effectOption.setFillColor(Color::White);
-                controllers.setCharacterSize(25);
-                controllerOption.setCharacterSize(25);
-                controllers.setFillColor(Color::Yellow);
-                controllerOption.setFillColor(Color::Yellow);
-
+            case 4:
                 // Change the controllers of the game
-                controllerOption.setString("Press C!");
+                menuButtons[optionSelected + 5].setTextButton("Press C!");
 
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(Keyboard::C)){
                     // Change the controllers of the car
+                    c.effects[1]->stop();
+                    c.effects[1]->play();
                     changeCarControllers(c);
-
                     if (c.modifiedConfig){
-                        controllerOption.setString("Saved!");
+                         menuButtons[optionSelected + 5].setTextButton("Saved!");
                     }
                 }
         }
@@ -897,29 +728,26 @@ State optionsMenu(Config& c){
         c.w.draw(sprite);
         c.w.draw(shape);
         c.w.draw(optionsText);
-        c.w.draw(difficultText);
-        c.w.draw(trafficText);
-        c.w.draw(volumeText);
-        c.w.draw(effectText);
-        c.w.draw(controllers);
 
-        c.w.draw(difficultOption);
-        c.w.draw(trafficOption);
-        c.w.draw(volumeOption);
-        c.w.draw(effectOption);
-        c.w.draw(controllerOption);
+        // Show the buttons of the menu
+        for (int i = 0; i < (int)menuButtons.size(); i++){
+            menuButtons.at(i).render(&c.w);
+        }
 
         c.w.display();
         sleep(milliseconds(120));
-
+        c.effects[0]->stop();
 
         // Check if left or right cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuEnterKey)){
             // Change the controllers of the car
             startPressed = true;
+            c.effects[1]->stop();
+            c.effects[1]->play();
         }
     }
-    return GAME;
+    c.themes[c.currentSoundtrack]->stop();
+    return MUSIC;
 }
 
 
@@ -955,21 +783,21 @@ State selectMusicSoundtrack(Config &c){
     radioMenu.setScale(2.9, 3.1);
 
     // Load the titles of the soundtracks
-    for (int i = 0; i < NUM_SOUNDTRACKS; i++){
+    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++){
         // Loading the icon texture
         t.loadFromFile("resources/MusicMenu/soundtrack" + to_string(i + 1) + ".png");
         textures.push_back(t);
     }
 
     // Load the titles of the soundtracks
-    for (int i = 0; i < NUM_SOUNDTRACKS; i++){
+    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++){
         // Loading the icon texture
         t.loadFromFile("resources/MusicMenu/radio" + to_string(i + 1) + ".png");
         textures.push_back(t);
     }
 
     // Load the titles of the soundtracks
-    for (int i = 0; i < NUM_SOUNDTRACKS; i++){
+    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++){
         // Loading the icon texture
         t.loadFromFile("resources/MusicMenu/hand" + to_string(i + 1) + ".png");
         textures.push_back(t);
@@ -978,6 +806,7 @@ State selectMusicSoundtrack(Config &c){
     // Control if the Enter key is pressed
     bool startPressed = false;
 
+    c.currentSoundtrack = 1;
     c.themes[c.currentSoundtrack]->play();
 
     // Control until the Enter key is pressed
@@ -994,7 +823,9 @@ State selectMusicSoundtrack(Config &c){
         // Control if the left or right cursor keys are pressed or not
         if (Keyboard::isKeyPressed(c.leftKey)){
             // Up cursor pressed and change the soundtrack selected in the list
-            if (c.currentSoundtrack != 0){
+            if (c.currentSoundtrack != 1){
+                c.effects[1]->stop();
+                c.effects[1]->play();
                 c.themes[c.currentSoundtrack]->stop();
                 c.currentSoundtrack--;
                 c.themes[c.currentSoundtrack]->play();
@@ -1003,37 +834,38 @@ State selectMusicSoundtrack(Config &c){
         else if (Keyboard::isKeyPressed(c.rightKey)){
             // Down cursor pressed and change the soundtrack selected in the list
             if (c.currentSoundtrack != NUM_SOUNDTRACKS - 1){
+                c.effects[1]->stop();
+                c.effects[1]->play();
                 c.themes[c.currentSoundtrack]->stop();
                 c.currentSoundtrack++;
                 c.themes[c.currentSoundtrack]->play();
             }
-
         }
 
         // Load the texture of the soundtrack to display in the radio panel
-        music.setTexture(textures[c.currentSoundtrack], true);
+        music.setTexture(textures[c.currentSoundtrack - 1], true);
 
         // Get the dial movement to reproduce
-        radio.setTexture(textures[c.currentSoundtrack + 3], true);
+        radio.setTexture(textures[c.currentSoundtrack + 2], true);
 
         // Get the hand movement of the driver
-        hand.setTexture(textures[c.currentSoundtrack + 6], true);
+        hand.setTexture(textures[c.currentSoundtrack + 5], true);
 
         // Control the coordinates X and Y where display the title
         switch(c.currentSoundtrack){
-            case 0:
+            case 1:
                 // First soundtrack
                 music.setPosition((c.w.getSize().x / 2.f) - 300, c.w.getSize().y / 2.f - 70);
                 radio.setPosition((c.w.getSize().x / 2.f) - 88, c.w.getSize().y / 2.f + 170);
                 hand.setPosition((c.w.getSize().x / 2.f) - 120, c.w.getSize().y / 2.f + 170);
                 break;
-            case 1:
+            case 2:
                 // Second soundtrack
                 music.setPosition((c.w.getSize().x / 2.f) - 230, c.w.getSize().y / 2.f - 70);
                 radio.setPosition((c.w.getSize().x / 2.f) - 88, c.w.getSize().y / 2.f + 170);
                 hand.setPosition((c.w.getSize().x / 2.f) - 120, c.w.getSize().y / 2.f + 170);
                 break;
-            case 2:
+            case 3:
                 // Third soundtrack
                 music.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f - 70);
                 radio.setPosition((c.w.getSize().x / 2.f) - 88, c.w.getSize().y / 2.f + 170);
@@ -1052,6 +884,7 @@ State selectMusicSoundtrack(Config &c){
         // Check if the keyword Enter has been pressed or not
         if (Keyboard::isKeyPressed(c.menuEnterKey)){
             startPressed = true;
+            c.effects[2]->play();
         }
     }
     c.themes[c.currentSoundtrack]->stop();
@@ -1088,4 +921,12 @@ sf::Font initializeFontSpeed() {
     if (!f.loadFromFile("resources/fonts/digital.ttf")) exit(1);
     return f;
 }
+
+
+sf::Font initializeFontOptions(){
+    Font f;
+    if (!f.loadFromFile("resources/fonts/needForSpeed.ttf")) exit(1);
+    return f;
+}
+
 
