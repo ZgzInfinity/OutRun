@@ -105,56 +105,6 @@ Map::Line Map::getPreviousLine(const int n) const {
         return next->lines[(n - 1 - lines.size()) % next->lines.size()];
 }
 
-void Map::addRandomLines(const float x, const float y, float &z, const int numLines, const vector<int> &objectIndexes) {
-    random_device rd;
-    mt19937 generator(rd());
-    uniform_real_distribution<float> dist(0.1f, 0.9f);
-    uniform_int_distribution<unsigned int> distObj(0, objectIndexes.size() - 1);
-    uniform_int_distribution<int> distBool(0, 1);
-
-    // Random elements in the map
-    float c1 = dist(generator), c2 = -dist(generator);
-    unsigned int fh1 = 0, fh2 = 0, sh1 = 0, sh2 = 0, ele = 0, maxEle = 0;
-    if (numLines > 200) {
-        fh1 = uniform_int_distribution<unsigned int>(0, numLines / 2 - 1)(generator);
-        fh2 = uniform_int_distribution<unsigned int>(fh1, numLines / 2)(generator);
-        sh1 = uniform_int_distribution<unsigned int>(numLines / 2, numLines - 1)(generator);
-        sh2 = uniform_int_distribution<unsigned int>(sh1, numLines)(generator);
-        ele = uniform_int_distribution<unsigned int>(0, numLines - 180)(generator);
-    }
-
-    lines.reserve(lines.size() + numLines);
-    for (unsigned int i = 0; i < numLines; i++) {
-        float yAux = y, curve = 0.0f;
-        SpriteInfo spriteLeft, spriteRight;
-
-        // Elevation
-        if (i >= ele && i <= numLines - 180) // The last line will have the same Y as the first
-            maxEle = i + 180;
-        if (i >= ele && i <= maxEle)
-            yAux += 5.0f * float(sin((i - ele) * M_PI / 180.0) * 1500.0);
-
-        // Curves in the first half of the map
-        if (i > fh1 && i < fh2) curve = c1;
-
-        // Curves in the second half of the map
-        if (i > sh1 && i < sh2) curve = c2;
-
-        // Random objects
-        if (!objectIndexes.empty() && dist(generator) > 0.66f) {
-            if (distBool(generator) == 0) { // Left
-                spriteLeft.spriteNum = objectIndexes[distObj(generator)];
-                spriteLeft.offset = dist(generator);
-            } else { // Right
-                spriteRight.spriteNum = objectIndexes[distObj(generator)];
-                spriteRight.offset = dist(generator);
-            }
-        }
-
-        addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curve, i % 2, spriteLeft, spriteRight);
-    }
-}
-
 void fileError(const string &error="") {
     cerr << "Error: Formato de fichero incorrecto." << endl;
     if (!error.empty())
@@ -162,18 +112,118 @@ void fileError(const string &error="") {
     exit(1);
 }
 
-void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) {
+vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIndexes) {
+    vector<vector<string>> instructions;
+
+    // Random
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_real_distribution<float> dist(0.0f, 1.0f);
+    uniform_int_distribution<int> distRB(0, 20), distG(0, 255);
+
+    // Colors
+    instructions.push_back({"107", "107", "107"});
+    instructions.push_back({"105", "105", "105"});
+    instructions.push_back({to_string(distRB(generator)), to_string(distG(generator)), to_string(distRB(generator))});
+    instructions.push_back({to_string(distRB(generator)), to_string(distG(generator)), to_string(distRB(generator))});
+
+    // Instructions
+    float prob;
+    int line = 0, untilLine = 0;
+    while (line < numLines) {
+        vector<string> inst;
+
+        prob = dist(generator);
+        if (line < untilLine || prob < 0.90f) {
+            // Line
+            inst.emplace_back("ROAD");
+
+            if (!objectIndexes.empty() && dist(generator) > 0.75f) {
+                // Left object
+                if (dist(generator) > 0.75f) {
+                    // Repetitive
+                    inst.emplace_back("+");
+                }
+
+                uniform_int_distribution<int> distObj(0, objectIndexes.size() - 1);
+                inst.push_back(to_string(objectIndexes[distObj(generator)]));
+                if (dist(generator) > 0.75f) {
+                    // Offset
+                    inst.push_back(to_string(dist(generator)));
+                }
+            }
+
+            inst.emplace_back("-");
+
+            if (!objectIndexes.empty() && dist(generator) > 0.75f) {
+                // Right object
+                if (dist(generator) > 0.75f) {
+                    // Repetitive
+                    inst.emplace_back("+");
+                }
+
+                uniform_int_distribution<int> distObj(0, objectIndexes.size() - 1);
+                inst.push_back(to_string(objectIndexes[distObj(generator)]));
+                if (dist(generator) > 0.75f) {
+                    // Offset
+                    inst.push_back(to_string(dist(generator)));
+                }
+            }
+
+            line++;
+        }
+        else if (prob < 0.92f) {
+            // Curve
+            inst.emplace_back("CURVE");
+            inst.push_back(to_string(dist(generator) / 2.0f));
+        }
+        else if (prob < 0.94f) {
+            // Curve
+            inst.emplace_back("CURVE");
+            inst.push_back(to_string(-dist(generator) / 2.0f));
+        }
+        else if (prob < 0.96f) {
+            // Straight
+            inst.emplace_back("STRAIGHT");
+        }
+        else if (prob < 0.98f) {
+            // Climb
+            inst.emplace_back("CLIMB");
+
+            uniform_int_distribution<int> distLines(1 + line, numLines);
+            untilLine = distLines(generator);
+
+            inst.push_back(to_string(dist(generator) * float(untilLine - line) * 100.0f));
+            inst.push_back(to_string(untilLine - line));
+        }
+        else {
+            // Drop
+            inst.emplace_back("DROP");
+
+            uniform_int_distribution<int> distLines(1 + line, numLines);
+            untilLine = distLines(generator);
+
+            inst.push_back(to_string(dist(generator) * float(untilLine - line) * 100.0f));
+            inst.push_back(to_string(untilLine - line));
+        }
+
+        instructions.push_back(inst);
+    }
+
+    return instructions;
+}
+
+vector<vector<string>> readMapFile(const std::string &file) {
+    vector<vector<string>> instructions;
+
     ifstream fin(file);
     if (fin.is_open()) {
-        bool comment = false, road = false, grass = false, end = false, flat = false;
-        float curveCoeff = 0.0f, elevationCoeff = 0.0f, originX = 0.0f, currentX = 0.0f, changeX = 0.0f,
-                finalX = 0.0f, b = 0.0f, offsetY = 0.0f, offsetX = 0.0f;
-        const float scale = 1500.0f;
-        unsigned int lineIndex = 0;
+        bool road = false, grass = false, comment = false;
+        int lines = 0, lastInclinationIndex = -1;
 
         vector<string> buffer;
         string s;
-        while (!end && !fin.eof()) {
+        while (!fin.eof()) {
             fin >> s;
 
             if (s.size() >= 2 && s[0] == '/' && s[1] == '*')
@@ -187,159 +237,36 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
 
                 if (!road) {
                     if (buffer.size() == 6) {
-                        roadColor[0] = Color(stoi(buffer[0]), stoi(buffer[1]), stoi(buffer[2]));
-                        roadColor[1] = Color(stoi(buffer[3]), stoi(buffer[4]), stoi(buffer[5]));
+                        instructions.push_back({buffer[0], buffer[1], buffer[2]});
+                        instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
                         road = true;
                     }
                 }
                 else if (!grass) {
                     if (buffer.size() == 6) {
-                        grassColor[0] = Color(stoi(buffer[0]), stoi(buffer[1]), stoi(buffer[2]));
-                        grassColor[1] = Color(stoi(buffer[3]), stoi(buffer[4]), stoi(buffer[5]));
+                        instructions.push_back({buffer[0], buffer[1], buffer[2]});
+                        instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
                         grass = true;
                     }
                 }
                 else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
                                                s == "FLAT" || s == "DROP" || s == "RANDOM" || s  == "END")) {
-                    if (buffer[0] == "ROAD") {
-                        if (buffer.size() < 3) // Checkpoint
-                            fileError(buffer[0] + " necesita argumentos.");
-
-                        SpriteInfo spriteLeft, spriteRight;
-
-                        // Elevation
-                        float yAux = y;
-                        if (elevationCoeff != 0.0f) {
-                            currentX = (z - originX) / (3.0f * scale); // From 0 to final changeX2
-                            if (!flat) { // From flat to elevation
-                                if (currentX < changeX) { // From 0 to changeX1 elevation is obtained from the cosine function
-                                    yAux += scale * (offsetY + cos(offsetX + elevationCoeff * currentX));
-                                }
-                                else { // From changeX1 to changeX2 elevation is obtained from the linear function
-                                    yAux += scale * (elevationCoeff * currentX + b);
-                                }
-                            }
-                            else { // From elevation to flat
-                                currentX += changeX;
-                                if (currentX < finalX) { // From changeX2 to changeX3 elevation is obtained from the cosine function
-                                    yAux += scale * (offsetY + cos(offsetX + elevationCoeff * currentX));
-                                }
-                                else { // At this point the elevation is 0
-                                    flat = false;
-                                    elevationCoeff = 0.0f;
-                                    if (!lines.empty()) {
-                                        y = lines[lines.size() - 1].y;
-                                        yAux = y;
-                                    }
-                                }
-                            }
+                    if (buffer[0] == "CLIMB" || buffer[0] == "DROP" || buffer[0] == "FLAT") {
+                        if (lastInclinationIndex > -1 && (instructions[lastInclinationIndex][0] == "CLIMB" ||
+                                instructions[lastInclinationIndex][0] == "DROP")) {
+                            instructions[lastInclinationIndex].push_back(to_string(lines));
+                            lastInclinationIndex = -1;
                         }
 
-                        lineIndex++;
+                        if (buffer[0] == "CLIMB" || buffer[0] == "DROP") {
+                            lines = 0;
+                            lastInclinationIndex = instructions.size();
 
-                        // Objects
-                        int i = 1; // Buffer index
-                        if (buffer[i] != "-") { // Left object
-                            if (buffer[i] == "+") {
-                                spriteLeft.repetitive = true;
-                                i++;
-                            }
-                            spriteLeft.spriteNum = stoi(buffer[i]) - 1;
-                            i++;
-                            if (buffer[i] != "-") {
-                                spriteLeft.offset = stof(buffer[i]);
-                                i++;
-                            }
+                            buffer.pop_back();
+                            instructions.push_back(buffer);
                         }
-                        if (i >= buffer.size() || buffer[i] != "-") { // Checkpoint
-                            fileError(buffer[0] + " tiene argumentos incorrectos.");
-                        }
-                        i++;
-                        if (i < buffer.size() - 1) { // Right object
-                            if (buffer[i] == "+") {
-                                spriteRight.repetitive = true;
-                                i++;
-                            }
-                            spriteRight.spriteNum = stoi(buffer[i]) - 1;
-                            i++;
-                            if (i < buffer.size() - 1) {
-                                spriteRight.offset = stof(buffer[i]);
-                                i++;
-                            }
-                        }
-                        if (i != buffer.size() - 1) { // Checkpoint
-                            fileError(buffer[0] + " tiene argumentos incorrectos.");
-                        }
-
-                        addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curveCoeff, lineIndex % 2,
-                                spriteLeft, spriteRight);
-                    }
-                    else if (buffer[0] == "CURVE") {
-                        if (buffer.size() < 3)
-                            fileError(buffer[0] + " necesita argumentos.");
-                        curveCoeff = stof(buffer[1]);
-                    }
-                    else if (buffer[0] == "STRAIGHT") {
-                        if (buffer.size() < 2)
-                            fileError();
-                        curveCoeff = 0.0f;
-                    }
-                    else if (buffer[0] == "CLIMB" || buffer[0] == "DROP") {
-                        if (buffer.size() < 3)
-                            fileError(buffer[0] + " necesita argumentos.");
-                        if (elevationCoeff != 0.0f && !flat)
-                            fileError("Después de un desnivel tiene que haber un llano.");
-                        else if (elevationCoeff != 0.0f && flat)
-                            fileError("No se ha completado el desnivel, se necesitan poner al menos " +
-                                      to_string(lround((finalX - currentX) * (3.0f * scale) / (5 * SEGL) +
-                                                       0.5f)) + " líneas más de llano.");
-
-                        elevationCoeff = stof(buffer[1]);
-                        if (elevationCoeff < 0.0f || elevationCoeff > 1.0f)
-                            fileError(buffer[0] + " necesita un coeficiente entre 0.0 y 1.0.");
-                        if (buffer[0] == "DROP")
-                            elevationCoeff *= -1.0f;
-
-                        if (elevationCoeff < 0.0f) {
-                            // Complete cos - 1 drop from 0 to PI
-                            offsetX = 0.0f;
-                            changeX = asinf(-elevationCoeff); // At this point cos function and linear function have
-                            // the same inclination
-                            finalX = M_PI;
-                            offsetY = -1.0f;
-                        }
-                        else {
-                            // Complete cos + 1 climb from PI to 2PI
-                            offsetX = M_PI;
-                            changeX = asinf(-elevationCoeff) + (float) M_PI; // At this point cos function and linear
-                            // function have the same inclination
-                            finalX = M_PI;
-                            offsetY = 1.0f;
-                        }
-                        // Linear function is y = ax + b, where a is inclination (elevationCoeff) and b is:
-                        b = offsetY + cosf(offsetX + elevationCoeff * changeX) - elevationCoeff * changeX;
-                        originX = z;
-                        currentX = -0.1f;
-
-                        if (!lines.empty())
-                            y = lines[lines.size() - 1].y;
-                    }
-                    else if (buffer[0] == "FLAT") {
-                        if (buffer.size() < 2)
-                            fileError();
-                        if (elevationCoeff == 0.0f)
-                            fileError("Ya era llano.");
-                        else if (currentX < changeX)
-                            fileError("No se ha completado el desnivel, se necesitan poner al menos " +
-                                      to_string(lround((changeX - currentX) * (3.0f * scale) / (5 * SEGL) + 0.5f)) +
-                                      " líneas más de subida/bajada.");
-                        flat = true;
-                        originX = z;
-                        currentX = changeX - 0.1f;
-                        if (!lines.empty())
-                            y = lines[lines.size() - 1].y - scale * (offsetY + cos(offsetX + elevationCoeff * changeX));
                     }
                     else if (buffer[0] == "RANDOM") {
                         if (buffer.size() < 3)
@@ -349,32 +276,125 @@ void Map::addLinesFromFile(float x, float y, float &z, const std::string &file) 
                         for (int i = 2; i < buffer.size() - 1; i++)
                             objectIndexes.push_back(stoi(buffer[i]));
 
-                        if (!lines.empty())
-                            y = lines[lines.size() - 1].y;
+                        const vector<vector<string>> randomInstructions = randomMap(stoi(buffer[1]), objectIndexes);
+                        for (int i = 4; i < randomInstructions.size(); i++) {
+                            instructions.push_back(randomInstructions[i]);
+                        }
+                    }
+                    else {
+                        if (s == "ROAD")
+                            lines++;
 
-                        addRandomLines(x, y, z, stoi(buffer[1]), objectIndexes);
-
-                        if (!lines.empty())
-                            y = lines[lines.size() - 1].y;
+                        buffer.pop_back();
+                        instructions.push_back(buffer);
                     }
 
                     buffer.clear();
                     buffer.push_back(s);
                 }
             }
-            if (!buffer.empty() && buffer[0] == "END") {
-                end = true;
-                if (elevationCoeff != 0.0f && flat)
-                    fileError("No se ha completado el desnivel, se necesitan poner al menos " +
-                              to_string(lround((finalX - currentX) * (3.0f * scale) / (5 * SEGL) +
-                                               0.5f)) + " líneas más de llano.");
-                if (elevationCoeff != 0.0f)
-                    fileError("El mapa tiene que acabar en llano para que las uniones queden bien.");
-            }
-            else if (fin.eof())
-                fileError("El fichero debe terminar en END.");
         }
         fin.close();
+
+        if (buffer[0] != "END")
+            fileError("El fichero debe terminar en END.");
+        if (instructions.size() < 4)
+            fileError();
+    }
+
+    return instructions;
+}
+
+void Map::addLines(float x, float y, float &z, const vector<vector<string>> &instructions) {
+    float curveCoeff = 0.0f, elevation = 0.0f;
+    int elevationIndex = 0, elevationLines = -1;
+    bool mainColor = true;
+
+    // Colors
+    roadColor[0] = Color(stoi(instructions[0][0]), stoi(instructions[0][1]), stoi(instructions[0][2]));
+    roadColor[1] = Color(stoi(instructions[1][0]), stoi(instructions[1][1]), stoi(instructions[1][2]));
+    grassColor[0] = Color(stoi(instructions[2][0]), stoi(instructions[2][1]), stoi(instructions[2][2]));
+    grassColor[1] = Color(stoi(instructions[3][0]), stoi(instructions[3][1]), stoi(instructions[3][2]));
+
+    for (int i = 4; i < instructions.size(); i++) {
+        const vector<string> &inst = instructions[i];
+
+        if (inst[0] == "CURVE") {
+            if (inst.size() < 2)
+                fileError(inst[0] + " necesita argumentos.");
+            curveCoeff = stof(inst[1]);
+        }
+        else if (inst[0] == "STRAIGHT") {
+            curveCoeff = 0.0f;
+        }
+        else if (inst[0] == "CLIMB") {
+            if (inst.size() < 3)
+                fileError(inst[0] + " necesita argumentos.");
+            elevation = stof(inst[1]);
+            elevationLines = stoi(inst[2]);
+            elevationIndex = 0;
+        }
+        else if (inst[0] == "DROP") {
+            if (inst.size() < 3)
+                fileError(inst[0] + " necesita argumentos.");
+            elevation = -stof(inst[1]);
+            elevationLines = stoi(inst[2]);
+            elevationIndex = 0;
+        }
+        else if (inst[0] == "ROAD") {
+            SpriteInfo spriteLeft, spriteRight;
+
+            // Elevation
+            float yAux = y;
+            if (elevationIndex < elevationLines) {
+                yAux += float(elevation) / 2.0f +
+                        (float(elevation) / 2.0f) * cosf(M_PI + (M_PI / float(elevationLines)) * float(elevationIndex));
+                elevationIndex++;
+            }
+            if (!lines.empty() && elevationIndex == elevationLines) {
+                y = lines[lines.size() - 1].y;
+                yAux = y;
+                elevationLines = -1;
+            }
+
+            // Objects
+            int j = 1; // inst index
+            if (inst[j] != "-") { // Left object
+                if (inst[j] == "+") {
+                    spriteLeft.repetitive = true;
+                    j++;
+                }
+                spriteLeft.spriteNum = stoi(inst[j]) - 1;
+                j++;
+                if (inst[j] != "-") {
+                    spriteLeft.offset = stof(inst[j]);
+                    j++;
+                }
+            }
+            if (j >= inst.size() || inst[j] != "-") { // Checkpoint
+                fileError(inst[0] + " tiene argumentos incorrectos.");
+            }
+            j++;
+            if (j < inst.size()) { // Right object
+                if (inst[j] == "+") {
+                    spriteRight.repetitive = true;
+                    j++;
+                }
+                spriteRight.spriteNum = stoi(inst[j]) - 1;
+                j++;
+                if (j < inst.size()) {
+                    spriteRight.offset = stof(inst[j]);
+                    j++;
+                }
+            }
+            if (j != inst.size()) { // Checkpoint
+                fileError(inst[0] + " tiene argumentos incorrectos.");
+            }
+
+            addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curveCoeff, mainColor,
+                    spriteLeft, spriteRight);
+            mainColor = !mainColor;
+        }
     }
 }
 
@@ -418,10 +438,10 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     // Line generation
     float z = 0; // Line position
     if (random) { // Random generation
-        addRandomLines(0, 0, z, 1000, objectIndexes);
+        addLines(0, 0, z, randomMap(1000, objectIndexes));
     }
     else { // Predefined map
-        addLinesFromFile(0, 0, z, path + "map.info");
+        addLines(0, 0, z, readMapFile(path + "map.info"));
     }
 
     if (lines.empty())
@@ -488,8 +508,6 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
             s.setPosition(destX, destY);
             w.draw(s);
         }
-
-        object.spriteMinX = 0;
     }
 
     object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * coeff[object.spriteNum];
@@ -499,9 +517,6 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
             s.setPosition(destX, destY);
             w.draw(s);
         }
-
-        if (coeff[object.spriteNum] != 0)
-            object.spriteMaxX = w.getSize().x;
     }
 }
 
@@ -584,6 +599,13 @@ void Map::draw(Config &c) {
     }
 
     ////////draw objects////////
+    for (int n = int(posY); n < int(posY) + c.renderLen; n++) { // Reset draw info
+        l = getLine(n);
+        l->spriteLeft.spriteMinX = 0;
+        l->spriteLeft.spriteMaxX = 0;
+        l->spriteRight.spriteMinX = 0;
+        l->spriteRight.spriteMaxX = 0;
+    }
     for (int n = startPos + c.renderLen; n > startPos; n--) {
         l = getLine(n);
 

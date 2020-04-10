@@ -145,24 +145,13 @@ class Map {
             const SpriteInfo &spriteRight);
 
     /**
-     * Añade numLines rectángulos aleatorios al mapa desde (x, y, z). Actualiza z para una nueva línea. Cada rectángulo
-     * puede contener objetos cuyo ínidce pertenece a objectIndexes.
+     * Añade rectángulos desde las instrucciones al mapa desde (x, y, z). Actualiza z para una nueva línea.
      * @param x
      * @param y
      * @param z
-     * @param numLines
-     * @param objectIndexes
+     * @param instructions
      */
-    void addRandomLines(float x, float y, float &z, int numLines, const std::vector<int> &objectIndexes);
-
-    /**
-     * Añade rectángulos del fichero file al mapa desde (x, y, z). Actualiza z para una nueva línea.
-     * @param x
-     * @param y
-     * @param z
-     * @param file
-     */
-    void addLinesFromFile(float x, float y, float &z, const std::string &file);
+    void addLines(float x, float y, float &z, const std::vector<std::vector<std::string>> &instructions);
 
 public:
     // Current elevation type

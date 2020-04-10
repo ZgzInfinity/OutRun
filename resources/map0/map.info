@@ -60,7 +60,22 @@ ROAD       -
 ROAD       -
 ROAD       -
 
-CLIMB 0.5  /* Subida con índice de desnivel (porcentaje) comprendido entre 0.0 y 1.0 */
+CLIMB 1000  /* Subida con desnivel comprendido entre 0.0 y MAX_FLOAT */
+
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+ROAD       -
+
+DROP 5000  /* Bajada con desnivel comprendido entre 0.0 y MAX_FLOAT */
 
 ROAD       -
 ROAD       -
@@ -85,55 +100,8 @@ ROAD       -
 ROAD       -
 ROAD       -
 ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
 
-FLAT  /* Llano, sin subidas ni bajadas */
+FLAT
 
 ROAD       -
 ROAD       -
@@ -155,58 +123,8 @@ ROAD       -
 ROAD       -
 ROAD       -
 ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
 
-DROP 0.3  /* Subida con índice de desnivel (porcentaje) comprendido entre 0.0 y 1.0 */
+DROP 500
 
 ROAD       -
 ROAD       -
@@ -224,27 +142,9 @@ ROAD       -
 ROAD       -
 ROAD       -
 ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
-ROAD       -
+
+FLAT
+
 ROAD       -
 ROAD       -
 ROAD       -
