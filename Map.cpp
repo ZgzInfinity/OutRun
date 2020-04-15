@@ -407,26 +407,36 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     vector<int> objectIndexes;
     objectIndexes.reserve(objectNames.size());
     objects.reserve(objectNames.size());
-    hitCoeff.reserve(objectNames.size());
-    for (const string &s : objectNames) {
+    hitCoeffs.reserve(objectNames.size());
+    for (const string &objName : objectNames) {
         // Load indexes
         objectIndexes.push_back(k);
         k++;
 
         // Load textures
         Texture t;
-        t.loadFromFile(path + s);
+        t.loadFromFile(path + objName);
         t.setSmooth(true);
         objects.push_back(t);
 
-        // Load hit percentage from center
-        ifstream fin(path + s + ".info");
-        float coeff = 1.0f;
+        // Load hit percentage from center and scale coeff
+        ifstream fin(path + objName + ".info");
+        float hitC = 1.0f, scaleC = 1.0f;
         if (fin.is_open()) {
-            fin >> coeff;
+            string s;
+            while (!fin.eof()) {
+                fin >> s;
+                if (s == "HIT:" && !fin.eof()) {
+                    fin >> hitC;
+                }
+                else if (s == "SCALE:" && !fin.eof()) {
+                    fin >> scaleC;
+                }
+            }
             fin.close();
         }
-        hitCoeff.push_back(coeff);
+        hitCoeffs.push_back(hitC);
+        scaleCoeffs.push_back(scaleC);
     }
 
     // Colors
@@ -474,15 +484,17 @@ void Map::Line::project(float camX, float camY, float camZ, float camD, float wi
     W = scale * rW  * width / 2.0f;
 }
 
-void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const vector<float> &coeff, SpriteInfo &object,
-                           bool left) {
+void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const vector<float> &hitCoeff,
+        const vector<float> &scaleCoeff, SpriteInfo &object, bool left) {
     Sprite s(objs[object.spriteNum]);
-    const int width = s.getTextureRect().width;
-    const int h = s.getTextureRect().height;
+    const float width = scaleCoeff[object.spriteNum] * s.getTextureRect().width;
+    const float widthOri = s.getTextureRect().width;
+    const float height = scaleCoeff[object.spriteNum] * s.getTextureRect().height;
+    const float heightOri = s.getTextureRect().height;
 
     float destY = Y + 4.0f;
-    float destW = float(width) * W / 266.0f;
-    float destH = float(h) * W / 266.0f;
+    float destW = width * W / 266.0f;
+    float destH = height * W / 266.0f;
 
     destY += destH * (-1.0f); //offsetY
 
@@ -490,32 +502,37 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     if (clipH < 0)
         clipH = 0;
 
-    if (clipH >= destH) return;
-    s.setTextureRect(IntRect(0, 0, width, float(h) - float(h) * clipH / destH));
-    s.setScale(destW / float(width), destH / float(h));
+    if (clipH < destH) {
+        s.setScale(destW / widthOri, destH / heightOri);
 
-    float destX = X + W + object.offset * s.getGlobalBounds().width; // Right road side
-    if (left)
-        destX = X - W - s.getGlobalBounds().width - object.offset * s.getGlobalBounds().width; // Left road side
-    s.setPosition(destX, destY);
-    w.draw(s);
+        float destX = X + W + object.offset * s.getGlobalBounds().width; // Right road side
+        if (left)
+            destX = X - W - s.getGlobalBounds().width - object.offset * s.getGlobalBounds().width; // Left road side
+        s.setPosition(destX, destY);
+        w.draw(s);
 
-    // Repetitive drawing
-    object.spriteMinX = destX + (s.getGlobalBounds().width - s.getGlobalBounds().width * coeff[object.spriteNum]) / 2.0f;
-    if (left && object.repetitive) {
-        while (destX >= 0.0f) {
-            destX -= s.getGlobalBounds().width;
-            s.setPosition(destX, destY);
-            w.draw(s);
+        object.spriteMinX =
+                destX + (s.getGlobalBounds().width - s.getGlobalBounds().width * hitCoeff[object.spriteNum]) / 2.0f;
+        object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * hitCoeff[object.spriteNum];
+
+        // Repetitive drawing
+        if (left && object.repetitive) {
+            while (destX >= 0.0f) {
+                destX -= s.getGlobalBounds().width;
+                s.setPosition(destX, destY);
+                w.draw(s);
+            }
+            if (hitCoeff[object.spriteNum] > 0.0f)
+                object.spriteMinX = 0.0f;
         }
-    }
-
-    object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * coeff[object.spriteNum];
-    if (!left && object.repetitive) {
-        while (destX <= w.getSize().x) {
-            destX += s.getGlobalBounds().width;
-            s.setPosition(destX, destY);
-            w.draw(s);
+        else if (!left && object.repetitive) {
+            while (destX <= w.getSize().x) {
+                destX += s.getGlobalBounds().width;
+                s.setPosition(destX, destY);
+                w.draw(s);
+            }
+            if (hitCoeff[object.spriteNum] > 0.0f)
+                object.spriteMaxX = w.getSize().x;
         }
     }
 }
@@ -611,15 +628,15 @@ void Map::draw(Config &c) {
 
         if (l->spriteLeft.spriteNum > -1) {
             if (n < N || next == nullptr)
-                l->drawSprite(c.w, objects, hitCoeff, l->spriteLeft, true);
+                l->drawSprite(c.w, objects, hitCoeffs, scaleCoeffs, l->spriteLeft, true);
             else
-                l->drawSprite(c.w, next->objects, next->hitCoeff, l->spriteLeft, true);
+                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->scaleCoeffs, l->spriteLeft, true);
         }
         if (l->spriteRight.spriteNum > -1) {
             if (n < N || next == nullptr)
-                l->drawSprite(c.w, objects, hitCoeff, l->spriteRight, false);
+                l->drawSprite(c.w, objects, hitCoeffs, scaleCoeffs, l->spriteRight, false);
             else
-                l->drawSprite(c.w, next->objects, next->hitCoeff, l->spriteRight, false);
+                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->scaleCoeffs, l->spriteRight, false);
         }
     }
 

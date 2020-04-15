@@ -78,12 +78,13 @@ class Map {
          * Dibuja el objeto en la pantalla. Esta función debe ser llamada después de project().
          * @param w
          * @param objs
-         * @param coeff
+         * @param hitCoeff
+         * @param scaleCoeff
          * @param object
          * @param left indica si el objeto está a la izquierda de la pantalla
          */
-        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &coeff,
-                SpriteInfo &object, bool left);
+        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &hitCoeff,
+                const std::vector<float> &scaleCoeff, SpriteInfo &object, bool left);
     };
 
     // Background
@@ -91,7 +92,8 @@ class Map {
 
     // Objects
     std::vector<sf::Texture> objects;
-    std::vector<float> hitCoeff;
+    std::vector<float> hitCoeffs;
+    std::vector<float> scaleCoeffs;
     std::vector<Line> lines;
 
     // Colors

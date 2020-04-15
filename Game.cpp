@@ -13,8 +13,8 @@ using namespace sf;
 using namespace std;
 
 Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") {
-    int nm = 1;
-    int nobjects[] = {6, 15}; // TODO: Más mapas
+    int nm = 0;
+    int nobjects[] = {6, 15, 15}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -31,7 +31,7 @@ Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") 
         maps.emplace_back(vm);
 
         nm++; // TODO: Añadir más mapas y borrar línea
-        nm = nm % 2; // TODO: Añadir más mapas y borrar línea
+        nm = nm % 3; // TODO: Añadir más mapas y borrar línea
     }
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
@@ -132,7 +132,7 @@ State Game::play(Config &c) {
     // Assign positions in the game console for the game panel indicators
     for (int i = 0; i < 7; i++){
         switch(i){
-            case 0:
+            case 0: // TODO: Usar porcentajes, no restas y sumas, para así permitir distintas resoluciones de pantalla
                 sprites[i].setPosition(c.w.getSize().x / 2.f - 430, c.w.getSize().y / 2.f - 330);
                 sprites[i].scale(1.5f, 1.5f);
                 break;
@@ -159,6 +159,9 @@ State Game::play(Config &c) {
             case 6:
                 sprites[i].setPosition(c.w.getSize().x / 2.f + 160 , c.w.getSize().y / 2.f + 284);
                 sprites[i].scale(1.5f, 1.5f);
+                break;
+            default:
+                break;
         }
     }
 
@@ -184,6 +187,10 @@ State Game::play(Config &c) {
         }
 
         player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+
+        if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
+                                   player.getMaxScreenX()) || player.isCrashing())
+            player.hitControl();
 
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
@@ -229,7 +236,6 @@ State Game::play(Config &c) {
         lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
         lap = (decs_second < 10) ? lap + "0" + to_string(decs_second) : lap + to_string(decs_second);
 
-
         timeToPlay.setString(to_string(time));
         textScore.setString(to_string(score));
         textLap.setString(lap);
@@ -246,10 +252,6 @@ State Game::play(Config &c) {
         c.w.draw(textLevel);
         c.w.display();
 
-        if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
-                player.getMaxScreenX()) || player.isCrashing())
-            player.hitControl();
-
         // Check if the player has time to continue
         if (time == 0){
             // Final game
@@ -260,7 +262,11 @@ State Game::play(Config &c) {
     c.w.draw(gameOver);
     c.w.display();
 
-    system("pause");
+    //system("pause"); // TODO: No usar system(), "pause" puede no existir. Se ha cambiado por el siguiente bucle:
+    bool startPressed = false;
+    while (!startPressed)
+        startPressed = Keyboard::isKeyPressed(c.menuEnterKey);
+
     return EXIT;
 }
 
