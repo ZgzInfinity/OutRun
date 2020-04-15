@@ -12,7 +12,7 @@
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari") {
+Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari", 0.0f, RECTANGLE) {
     int nm = 0;
     int nobjects[] = {6, 15, 15}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
@@ -181,16 +181,24 @@ State Game::play(Config &c) {
         // Player update and draw
         Vehicle::Action action = Vehicle::CRASH;
         Vehicle::Direction direction = Vehicle::RIGHT;
+
         if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosition().first));
+            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
         }
 
         player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
 
+        int crashPos;
         if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
-                                   player.getMaxScreenX()) || player.isCrashing())
+                                   player.getMaxScreenX(), crashPos) || player.isCrashing()) {
+            player.setPosition(player.getPosX(), float(crashPos));
             player.hitControl();
+            action = Vehicle::CRASH;
+            direction = Vehicle::RIGHT;
+
+            player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+        }
 
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
@@ -272,7 +280,7 @@ State Game::play(Config &c) {
 
 void Game::mapControl(Config &c) {
     // Update camera
-    currentMap->updateView(player.getPosition());
+    currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
     if (currentMap->isOver()) {
         // TODO: Añadir bifurcación
@@ -283,8 +291,8 @@ void Game::mapControl(Config &c) {
             if (mapId.first < maps.size() - 1)
                 currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
 
-            player.setPosition(player.getPosition().first, 0);
-            currentMap->updateView(player.getPosition());
+            player.setPosition(player.getPosX(), 0);
+            currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
         }
         else {
             finalGame = true;

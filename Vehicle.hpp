@@ -62,9 +62,11 @@ public:
      * @param numTextures
      * @param maxCounterToChange cuando counter_code_image llega a maxCounterToChange se actualiza el sprite
      * @param vehicle nombre del vehículo
+     * @param pX
+     * @param pY
      */
     Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures, int maxCounterToChange,
-            const std::string &vehicle);
+            const std::string &vehicle, float pX, float pY);
 
     /**
      * Establece la posición actual del vehículo.
@@ -74,10 +76,22 @@ public:
     void setPosition(float pX, float pY);
 
     /**
-     * Devuelve la posición actual del vehículo.
-     * @return {posX, posY}
+     * Devuelve la posición actual X.
+     * @return
      */
-    std::pair<float, float> getPosition() const;
+    float getPosX() const;
+
+    /**
+     * Devuelve la posición actual Y.
+     * @return
+     */
+    float getPosY() const;
+
+    /**
+     * Devuelve la posición previa Y.
+     * @return
+     */
+    float getPreviousY() const;
 
     /**
      * Actualiza la lógica del choque y restablece la velocidad y aceleración.
@@ -120,14 +134,6 @@ public:
      * @param e
      */
     void draw(Config &c, const Action &a, const Direction &d, const Map::Elevation &e);
-
-    /**
-     *
-     * @return
-     */
-    float getPosY() const;
-
-    float getPreviousY() const;
 
     float getMinScreenX() const;
 

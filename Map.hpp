@@ -15,6 +15,8 @@
 #include "Menu.hpp"
 
 #define XINC 0.05f // x increment
+#define PRE_POS 2
+const int RECTANGLE = PRE_POS * 2 + 1; // the number of lines that form a rectangle
 
 /**
  * Mapa que contiene la textura del paisaje (bg) y la textura de los objetos que se irán mostrando a lo
@@ -49,7 +51,7 @@ class Map {
      */
     struct Line {
         float x, y, z; // 3d center of line
-        float X{}, Y{}, W{}; // screen coord
+        float X{}, Y{}, W{}; // screen coord (X: road center, Y: road top, W: road width / 2)
         float curve, clip{}, scale{};
         bool mainColor;
         SpriteInfo spriteLeft, spriteRight;
@@ -240,9 +242,10 @@ public:
 
     /**
      * Establece la posición de la cámara.
-     * @param pos = {x, y}, donde x = 0 es el medio de la carretera, y >= 0 AND y <= MAXLINES
+     * @param pX, donde pX = 0 es el medio de la carretera
+     * @param pY, donde pY >= 0 AND pY <= MAXLINES
      */
-    void updateView(std::pair<float, float> pos);
+    void updateView(float pX, float pY);
 
     /**
      * Dibuja el fragmento del mapa actual dada la posición de la cámara establecida con la función updateView().
@@ -251,15 +254,17 @@ public:
     void draw(Config &c);
 
     /**
-     * Devuelve true si pos corresponde a algún objeto del fragmento del mapa actual.
+     * Devuelve true si pos corresponde a algún objeto del fragmento del mapa actual. En caso de que sea true, también
+     * devuelve la posición Y del objeto con el que ha colisionado.
      * @param c
      * @param currentY
      * @param prevY
      * @param minX
      * @param maxX
+     * @param crashPos
      * @return
      */
-    bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX) const;
+    bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, int &crashPos) const;
 
     /**
      * Devuelve true si currentX está fuera de la carretera.

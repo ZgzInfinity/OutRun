@@ -13,9 +13,9 @@ using namespace std;
 using namespace sf;
 
 Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures, int maxCounterToChange,
-        const string &vehicle) : speedMul(speedMul), maxSpeed(maxSpeed / speedMul), halfMaxSpeed(this->maxSpeed / 2.0f),
-        maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scale(scale),
-        maxCounterToChange(maxCounterToChange), speed(0), acceleration(0), posX(0), posY(0), previousY(0),
+        const string &vehicle, float pX, float pY) : speedMul(speedMul), maxSpeed(maxSpeed / speedMul),
+        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scale(scale),
+        maxCounterToChange(maxCounterToChange), speed(0), acceleration(0), posX(pX), posY(pY), previousY(pY),
         minScreenX(0), maxScreenX(0), actual_code_image(1), counter_code_image(0), crashing(false) {
     textures.reserve(numTextures);
     for (int i = 1; i <= numTextures; i++) {
@@ -32,8 +32,16 @@ void Vehicle::setPosition(float pX, float pY) {
     posY = pY;
 }
 
-std::pair<float, float> Vehicle::getPosition() const {
-    return make_pair(posX, posY);
+float Vehicle::getPosX() const {
+    return posX;
+}
+
+float Vehicle::getPosY() const {
+    return posY;
+}
+
+float Vehicle::getPreviousY() const {
+    return previousY;
 }
 
 void Vehicle::hitControl() {
@@ -60,7 +68,7 @@ void Vehicle::hitControl() {
         crashing = false;
 
         posX = 0.0f;
-        posY = previousY;
+        previousY = posY;
     }
 }
 
@@ -347,14 +355,6 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
     maxScreenX = minScreenX + sprite.getGlobalBounds().width;
     sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
     c.w.draw(sprite);
-}
-
-float Vehicle::getPosY() const {
-    return posY;
-}
-
-float Vehicle::getPreviousY() const {
-    return previousY;
 }
 
 float Vehicle::getMinScreenX() const {

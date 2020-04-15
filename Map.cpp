@@ -20,7 +20,7 @@ using namespace sf;
 
 #define BGS 0.525F // Background size
 #define SEGL 100 // Segment length
-#define ROADW 2000 // Road Width
+#define ROADW 2000 // Road Width / 2
 #define RUMBLECOEFF 0.1f // Ruble size = Road size * Rumble coeff
 
 Map::SpriteInfo::SpriteInfo() {
@@ -36,7 +36,7 @@ Map::Line::Line() {
 
 void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
         const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight) {
-    float yInc = (y - prevY) / 5.0f; // 5 is total lines number will be added
+    float yInc = (y - prevY) / float(RECTANGLE); // RECTANGLE is total lines number will be added
 
     Line line, lineAux;
     line.x = x;
@@ -49,16 +49,13 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
     line.spriteLeft = spriteLeft;
     line.spriteRight = spriteRight;
 
-    // For each normal line, 4 extras without objects for better visualization
-    lineAux.z = z;
-    z += SEGL;
-    lineAux.y += yInc;
-    lines.push_back(lineAux);
-
-    lineAux.z = z;
-    z += SEGL;
-    lineAux.y += yInc;
-    lines.push_back(lineAux);
+    // For each normal line, extra lines without objects for better visualization
+    for (int i = 0; i < PRE_POS; i++) {
+        lineAux.z = z;
+        z += SEGL;
+        lineAux.y += yInc;
+        lines.push_back(lineAux);
+    }
 
     line.z = z;
     z += SEGL;
@@ -66,15 +63,12 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
     line.y = lineAux.y;
     lines.push_back(line);
 
-    lineAux.z = z;
-    z += SEGL;
-    lineAux.y += yInc;
-    lines.push_back(lineAux);
-
-    lineAux.z = z;
-    z += SEGL;
-    lineAux.y += yInc;
-    lines.push_back(lineAux);
+    for (int i = 0; i < PRE_POS; i++) {
+        lineAux.z = z;
+        z += SEGL;
+        lineAux.y += yInc;
+        lines.push_back(lineAux);
+    }
 }
 
 Map::Line *Map::getLine(const int n) {
@@ -472,9 +466,11 @@ void Map::setOffset(float yOffset) {
     }
 }
 
-void Map::updateView(pair<float, float> pos) {
-    this->posX = pos.first;
-    this->posY = pos.second;
+void Map::updateView(float pX, float pY) {
+    if (pY < 0.0f)
+        pY = 0.0f;
+    this->posX = pX;
+    this->posY = pY;
 }
 
 void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
@@ -548,8 +544,9 @@ void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, 
 }
 
 void Map::draw(Config &c) {
-    Line *l = getLine(int(posY)), *p;
     int N = lines.size();
+    int startPos = int(posY) % N;
+    Line *l = getLine(startPos), *p;
 
     // Background
     drawQuad(c.w, grassColor[0], 0, 0, c.w.getSize().x, 0, c.w.getSize().y, c.w.getSize().x);
@@ -564,24 +561,49 @@ void Map::draw(Config &c) {
         sbg.move(-XINC / 2.0f, 0);
     c.w.draw(sbg);
 
-    int startPos = int(posY) % N;
+    // Initialize lines
     float camH = l->y + 1500.0f;
-
     float maxy = c.w.getSize().y;
     float x = 0, dx = 0;
+    vector<int> visibleLines;
 
-    ///////draw road////////
+    l->spriteLeft.spriteMinX = 0;
+    l->spriteLeft.spriteMaxX = 0;
+    l->spriteRight.spriteMinX = 0;
+    l->spriteRight.spriteMaxX = 0;
     for (int n = startPos; n < startPos + c.renderLen; n++) {
         l = getLine(n);
+        l->spriteLeft.spriteMinX = 0;
+        l->spriteLeft.spriteMaxX = 0;
+        l->spriteRight.spriteMinX = 0;
+        l->spriteRight.spriteMaxX = 0;
 
         l->project(posX * ROADW - x, camH, float(startPos * SEGL), c.camD,
-                  c.w.getSize().x, c.w.getSize().y, ROADW, n < N ? 0.0f : lines[lines.size() - 1].z);
+                   c.w.getSize().x, c.w.getSize().y, ROADW, n < N ? 0.0f : lines[lines.size() - 1].z);
+
         x += dx;
         dx += l->curve;
 
         l->clip = maxy;
-        if (l->Y < maxy) {
+        if (l->Y < maxy) { // This line is visible and will be drawn
+            visibleLines.push_back(n);
             maxy = l->Y;
+        }
+    }
+
+    // Draw road and objects
+    for (int n = startPos + c.renderLen - 1; n >= startPos; n--) {
+        l = getLine(n);
+        dx -= l->curve;
+        x -= dx;
+
+        // Prepare current line
+        l->project(posX * ROADW - x, camH, float(startPos * SEGL), c.camD,
+                   c.w.getSize().x, c.w.getSize().y, ROADW, n < N ? 0.0f : lines[lines.size() - 1].z);
+
+        // Draw road
+        if (visibleLines.back() == n) {
+            visibleLines.pop_back();
 
             Color grass, road;
             if (n < N || next == nullptr) {
@@ -595,37 +617,34 @@ void Map::draw(Config &c) {
             Color rumble = l->mainColor ? road : Color::White;
             Color dash = l->mainColor ? Color::White : road;
 
-            p = getPreviousLine(n);
+            float prevX = l->X, prevY = c.w.getSize().y, prevW = l->W;
+            if (n > 0) {
+                p = getPreviousLine(n);
+                prevX = p->X;
+                prevY = p->Y;
+                prevW = p->W;
+            }
 
             // Draw grass
-            drawQuad(c.w, grass, 0, int(p->Y), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
+            drawQuad(c.w, grass, 0, int(prevY), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
 
             // Draw road
-            const int x1 = int(p->X - p->W), y1 = int(p->Y), w1 = int(2.0f * p->W),
-                      x2 = int(l->X - l->W), y2 = int(l->Y), w2 = int(2.0f * l->W),
-                      rw1 = int(p->W * RUMBLECOEFF), rw2 = int(l->W * RUMBLECOEFF),
-                      dw1 = rw1 / 2, dw2 = rw2 / 2;
+            const int x1 = int(prevX - prevW), y1 = int(prevY), w1 = int(2.0f * prevW),
+                    x2 = int(l->X - l->W), y2 = int(l->Y), w2 = int(2.0f * l->W),
+                    rw1 = int(prevW * RUMBLECOEFF), rw2 = int(l->W * RUMBLECOEFF),
+                    dw1 = rw1 / 2, dw2 = rw2 / 2;
             drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
             drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
             drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
             drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
             drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.333f), y1, dw1, x2 + int(float(w2) * 0.333f), y2, dw2); // Second left dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.666f), y1, dw1, x2 + int(float(w2) * 0.666f), y2, dw2); // Second right dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.333f), y1, dw1, x2 + int(float(w2) * 0.333f), y2,
+                     dw2); // Second left dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.666f), y1, dw1, x2 + int(float(w2) * 0.666f), y2,
+                     dw2); // Second right dash
         }
-    }
 
-    ////////draw objects////////
-    for (int n = int(posY); n < int(posY) + c.renderLen; n++) { // Reset draw info
-        l = getLine(n);
-        l->spriteLeft.spriteMinX = 0;
-        l->spriteLeft.spriteMaxX = 0;
-        l->spriteRight.spriteMinX = 0;
-        l->spriteRight.spriteMaxX = 0;
-    }
-    for (int n = startPos + c.renderLen; n > startPos; n--) {
-        l = getLine(n);
-
+        // Draw object
         if (l->spriteLeft.spriteNum > -1) {
             if (n < N || next == nullptr)
                 l->drawSprite(c.w, objects, hitCoeffs, scaleCoeffs, l->spriteLeft, true);
@@ -639,10 +658,9 @@ void Map::draw(Config &c) {
                 l->drawSprite(c.w, next->objects, next->hitCoeffs, next->scaleCoeffs, l->spriteRight, false);
         }
     }
-
 }
 
-bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX) const {
+bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, int &crashPos) const {
     Line l;
     for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
         l = getLine(n);
@@ -652,15 +670,19 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, f
                 ((minX >= l.spriteLeft.spriteMinX && minX <= l.spriteLeft.spriteMaxX) ||
                  (maxX >= l.spriteLeft.spriteMinX && maxX <= l.spriteLeft.spriteMaxX) ||
                  (l.spriteLeft.spriteMinX >= minX && l.spriteLeft.spriteMinX <= maxX) ||
-                 (l.spriteLeft.spriteMaxX >= minX && l.spriteLeft.spriteMaxX <= maxX))) // x matches
+                 (l.spriteLeft.spriteMaxX >= minX && l.spriteLeft.spriteMaxX <= maxX))) { // x matches
+            crashPos = n;
             return true;
+        }
         if (l.spriteRight.spriteNum != -1 && l.spriteRight.spriteMinX != l.spriteRight.spriteMaxX && // l has an object that can crash
                 prevY <= float(n) && currentY >= float(n) && // y matches
                 ((minX >= l.spriteRight.spriteMinX && minX <= l.spriteRight.spriteMaxX) ||
                  (maxX >= l.spriteRight.spriteMinX && maxX <= l.spriteRight.spriteMaxX) ||
                  (l.spriteRight.spriteMinX >= minX && l.spriteRight.spriteMinX <= maxX) ||
-                 (l.spriteRight.spriteMaxX >= minX && l.spriteRight.spriteMaxX <= maxX))) // x matches
+                 (l.spriteRight.spriteMaxX >= minX && l.spriteRight.spriteMaxX <= maxX))) { // x matches
+            crashPos = n;
             return true;
+        }
     }
     return false;
 }
