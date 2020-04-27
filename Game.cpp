@@ -40,14 +40,13 @@ Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari", 
     Texture t;
     Sprite s;
     // Load the textures of the panel and assign them to their sprites
-    for (int i = 1; i <= 7; i++){
+    for (int i = 1; i <= 6; i++){
         // Load the texture from the file
         t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
         textures.push_back(t);
     }
 
     for (int i = 0; i < 7; i++){
-        // Load the texture from the file
         s.setTexture(textures[i], true);
         sprites.push_back(s);
     }
@@ -57,7 +56,6 @@ Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari", 
     sText.setOutlineColor(Color::Black);
     sText.setOutlineThickness(3);
     sText.setCharacterSize(70);
-    sText.setPosition((float) sText.getLocalBounds().width + 50, (float) c.w.getSize().y / 2.f + 240);
     sText.setFont(c.speedVehicle);
 
     // Initialize the HUD indicator of time
@@ -153,15 +151,12 @@ State Game::play(Config &c) {
                 sprites[i].scale(2.f, 2.f);
                 break;
             case 5:
-                sprites[i].setPosition(c.w.getSize().x / 2.f - 440 , c.w.getSize().y / 2.f + 320);
-                sprites[i].scale(2.f, 1.5f);
-                break;
-            case 6:
                 sprites[i].setPosition(c.w.getSize().x / 2.f + 160 , c.w.getSize().y / 2.f + 284);
                 sprites[i].scale(1.5f, 1.5f);
                 break;
-            default:
-                break;
+            case 6:
+                sprites[i].setPosition(c.w.getSize().x / 2.f - 420 , c.w.getSize().y / 2.f + 320);
+                sprites[i].scale(2.f, 1.5f);
         }
     }
 
@@ -203,6 +198,11 @@ State Game::play(Config &c) {
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
         sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+        sText.setPosition((float)(c.w.getSize().x / 2.f) - 310 - sText.getLocalBounds().width, (float) c.w.getSize().y / 2.f + 240);
+
+        textures[6].loadFromFile("resources/GamePanel/7.png", IntRect(0, 0, ((int)player.getRealSpeed() * 117 / player.getMaxSpeed()), 20));
+        sprites[6].setTexture(textures[6], true);
+
         c.w.draw(sText);
 
         // Update the score of the player if the player is not stopped
@@ -250,8 +250,12 @@ State Game::play(Config &c) {
         textLevel.setString(to_string(level));
 
         // Draw the panel indicators
-        for (int i = 0; i < 7; i++){
+        for (int i = 0; i < 6; i++){
             c.w.draw(sprites[i]);
+        }
+
+        if (player.getRealSpeed() > 0){
+            c.w.draw(sprites[6]);
         }
 
         c.w.draw(timeToPlay);
