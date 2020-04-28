@@ -173,7 +173,7 @@ State Game::play(Config &c) {
 
     while (!finalGame && c.w.isOpen()) {
         c.w.clear();
-        mapControl(c);
+        updateAndDraw(c);
 
         Event e{};
         while (c.w.pollEvent(e)) {
@@ -183,35 +183,6 @@ State Game::play(Config &c) {
 
         if (Keyboard::isKeyPressed(c.menuKey))
             return PAUSE;
-
-        // Player update and draw
-        Vehicle::Action action = Vehicle::CRASH;
-        Vehicle::Direction direction = Vehicle::RIGHT;
-
-        if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
-            direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
-        }
-
-        player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
-
-        int crashPos;
-        if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
-                                   player.getMaxScreenX(), crashPos) || player.isCrashing()) {
-            player.setPosition(player.getPosX(), float(crashPos));
-            player.hitControl();
-            action = Vehicle::CRASH;
-            direction = Vehicle::RIGHT;
-
-            player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
-        }
-
-        // Update and draw cars
-        for (Vehicle &v : cars) {
-            v.autoControl(player.getPosX(), player.getPosY(), action, direction);
-            float posY = v.getPosY();
-            v.drawEnemy(c, action, direction, currentMap->getElevation(posY), currentMap->getCamX());
-        }
 
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
@@ -300,7 +271,7 @@ State Game::play(Config &c) {
     return EXIT;
 }
 
-void Game::mapControl(Config &c) {
+void Game::updateAndDraw(Config &c) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -321,7 +292,38 @@ void Game::mapControl(Config &c) {
         }
     }
 
-    // Draw map
+    // Update and prepare cars to draw
+    Vehicle::Action action;
+    Vehicle::Direction direction;
+    for (Vehicle &v : cars) {
+        v.autoControl(player.getPosX(), player.getPosY(), action, direction);
+        float posY = v.getPosY();
+        v.drawEnemy(c, action, direction, currentMap->getElevation(posY), currentMap->getCamX());
+    }
+
+    // Draw map with cars
     if (!finalGame)
         currentMap->draw(c, cars);
+
+    // Player update and draw
+    action = Vehicle::CRASH;
+    direction = Vehicle::RIGHT;
+
+    if (!player.isCrashing()) { // If not has crashed
+        action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
+        direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
+    }
+
+    player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
+
+    int crashPos;
+    if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
+                               player.getMaxScreenX(), crashPos) || player.isCrashing()) {
+        player.setPosition(player.getPosX(), float(crashPos));
+        player.hitControl();
+        action = Vehicle::CRASH;
+        direction = Vehicle::RIGHT;
+
+        player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
+    }
 }
