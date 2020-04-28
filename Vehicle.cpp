@@ -136,10 +136,8 @@ Vehicle::Action Vehicle::accelerationControl(Config &c, bool hasGotOut) {
 
 Vehicle::Direction Vehicle::rotationControl(Config &c, float curveCoefficient) {
     if (speed > 0.0f) {
-        if (curveCoefficient > 0.0f)
-            posX -= XINC * speed / (maxSpeed * 2.0f);
-        else if (curveCoefficient < 0.0f)
-            posX += XINC * speed / (maxSpeed * 2.0f);
+        if (curveCoefficient != 0.0f)
+            posX -= curveCoefficient * XINC * speed / (maxSpeed * 1.5f);
 
         if (Keyboard::isKeyPressed(c.leftKey)) {
             posX -= XINC * speed / maxSpeed;
