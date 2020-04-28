@@ -85,10 +85,10 @@ class Game {
     bool finalGame;
 
     /**
-     * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
+     * Actualiza la lógica de los mapas y dibuja el fragmento de mapa actual en la pantalla.
      * @param c
      */
-    void updateAndDraw(Config &c);
+    void mapControl(Config &c);
 
 public:
     /**

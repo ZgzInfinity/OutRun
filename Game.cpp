@@ -18,8 +18,8 @@ using namespace std;
 #define MAX_COUNTER 10
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, true, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE) {
-    int nm = 0;
-    int nobjects[] = {6, 15, 15}; // TODO: Más mapas
+    int nm = 3;
+    int nobjects[] = {6, 15, 15, 25}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -35,8 +35,8 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, true, MAX_CO
         }
         maps.emplace_back(vm);
 
-        nm++; // TODO: Añadir más mapas y borrar línea
-        nm = nm % 3; // TODO: Añadir más mapas y borrar línea
+        // nm++; // TODO: Añadir más mapas y borrar línea
+        // nm = nm % 3; // TODO: Añadir más mapas y borrar línea
     }
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
@@ -51,10 +51,11 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, true, MAX_CO
 
     Texture t;
     Sprite s;
+    textures.clear();
     // Load the textures of the panel and assign them to their sprites
-    for (int i = 1; i <= 6; i++){
+    for (int i = 0; i <= 6; i++){
         // Load the texture from the file
-        t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
+        t.loadFromFile("resources/GamePanel/" + to_string(i + 1) + ".png");
         textures.push_back(t);
     }
 
@@ -172,94 +173,120 @@ State Game::play(Config &c) {
     }
 
     while (!finalGame && c.w.isOpen()) {
-        updateAndDraw(c);
+        c.w.clear();
+        mapControl(c);
 
-        if (!finalGame) {
-            Event e{};
-            while (c.w.pollEvent(e)) {
-                if (e.type == Event::Closed)
-                    c.w.close();
-            }
+        Event e{};
+        while (c.w.pollEvent(e)) {
+            if (e.type == Event::Closed)
+                c.w.close();
+        }
 
-            if (Keyboard::isKeyPressed(c.menuKey))
-                return PAUSE;
+        if (Keyboard::isKeyPressed(c.menuKey))
+            return PAUSE;
 
-            // Draw speed
-            string strSpeed = to_string(player.getRealSpeed());
-            sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-            sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - sText.getLocalBounds().width,
-                              (float) c.w.getSize().y / 2.f + 240);
+        // Player update and draw
+        Vehicle::Action action = Vehicle::CRASH;
+        Vehicle::Direction direction = Vehicle::RIGHT;
 
-            textures[6].loadFromFile("resources/GamePanel/7.png",
-                                     IntRect(0, 0, ((int) player.getRealSpeed() * 117 / MAX_SPEED), 20));
-            sprites[6].setTexture(textures[6], true);
+        if (!player.isCrashing()) { // If not has crashed
+            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
+            direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
+        }
 
-            c.w.draw(sText);
+        player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
 
-            // Update the score of the player if the player is not stopped
-            if (player.getRealSpeed() > 0.f) {
-                // Add score
-                score++;
-            }
+        int crashPos;
+        if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
+                                   player.getMaxScreenX(), crashPos) || player.isCrashing()) {
+            player.setPosition(player.getPosX(), float(crashPos));
+            player.hitControl();
+            action = Vehicle::CRASH;
+            direction = Vehicle::RIGHT;
 
-            // Get the actual time
-            elapsed2 = gameClockTime.getElapsedTime().asSeconds();
+            player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
+        }
 
-            // Check if a second has passed between both timestamps
-            if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
-                // Draw time
-                time--;
-                gameClockTime.restart();
-            }
+        // Update and draw cars
+        for (Vehicle &v : cars) {
+            v.autoControl(player.getPosX(), player.getPosY(), action, direction);
+            float posY = v.getPosY();
+            v.drawEnemy(c, action, direction, currentMap->getElevation(posY), currentMap->getCamX());
+        }
 
-            // Get the actual time
-            elapsed4 = gameClockLap.getElapsedTime().asSeconds();
+        // Draw speed
+        string strSpeed = to_string(player.getRealSpeed());
+        sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+        sText.setPosition((float)(c.w.getSize().x / 2.f) - 310 - sText.getLocalBounds().width, (float) c.w.getSize().y / 2.f + 240);
 
-            // Check if a tenth of second has passed between both timestamps
-            if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
-                decs_second++;
-                gameClockLap.restart();
-                if (decs_second == 100) {
-                    decs_second = 0;
-                    secs++;
-                    if (secs == 60) {
-                        secs = 0;
-                        minutes++;
-                    }
-                }
-            }
+        textures[6].loadFromFile("resources/GamePanel/7.png", IntRect(0, 0, ((int)player.getRealSpeed() * 117 / MAX_SPEED), 20));
+        sprites[6].setTexture(textures[6], true);
 
-            // Update the indicators
-            string lap = "";
-            lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
-            lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
-            lap = (decs_second < 10) ? lap + "0" + to_string(decs_second) : lap + to_string(decs_second);
+        c.w.draw(sText);
 
-            timeToPlay.setString(to_string(time));
-            textScore.setString(to_string(score));
-            textLap.setString(lap);
-            textLevel.setString(to_string(level));
+        // Update the score of the player if the player is not stopped
+        if (player.getRealSpeed() > 0.f){
+            // Add score
+            score++;
+        }
 
-            // Draw the panel indicators
-            for (int i = 0; i < 6; i++) {
-                c.w.draw(sprites[i]);
-            }
+        // Get the actual time
+        elapsed2 = gameClockTime.getElapsedTime().asSeconds();
 
-            if (player.getRealSpeed() > 0) {
-                c.w.draw(sprites[6]);
-            }
+        // Check if a second has passed between both timestamps
+        if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()){
+            // Draw time
+            time--;
+            gameClockTime.restart();
+        }
 
-            c.w.draw(timeToPlay);
-            c.w.draw(textScore);
-            c.w.draw(textLap);
-            c.w.draw(textLevel);
-            c.w.display();
+        // Get the actual time
+        elapsed4 = gameClockLap.getElapsedTime().asSeconds();
 
-            // Check if the player has time to continue
-            if (time == 0) {
-                // Final game
-                finalGame = true;
-            }
+        // Check if a tenth of second has passed between both timestamps
+        if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()){
+             decs_second++;
+             gameClockLap.restart();
+             if (decs_second == 100){
+                 decs_second = 0;
+                 secs++;
+                 if (secs == 60){
+                     secs = 0;
+                     minutes++;
+                 }
+             }
+        }
+
+        // Update the indicators
+        string lap = "";
+        lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
+        lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
+        lap = (decs_second < 10) ? lap + "0" + to_string(decs_second) : lap + to_string(decs_second);
+
+        timeToPlay.setString(to_string(time));
+        textScore.setString(to_string(score));
+        textLap.setString(lap);
+        textLevel.setString(to_string(level));
+
+        // Draw the panel indicators
+        for (int i = 0; i < 6; i++){
+            c.w.draw(sprites[i]);
+        }
+
+        if (player.getRealSpeed() > 0){
+            c.w.draw(sprites[6]);
+        }
+
+        c.w.draw(timeToPlay);
+        c.w.draw(textScore);
+        c.w.draw(textLap);
+        c.w.draw(textLevel);
+        c.w.display();
+
+        // Check if the player has time to continue
+        if (time == 0){
+            // Final game
+            finalGame = true;
         }
     }
     // Draw the game over text in the console window
@@ -274,7 +301,7 @@ State Game::play(Config &c) {
     return EXIT;
 }
 
-void Game::updateAndDraw(Config &c) {
+void Game::mapControl(Config &c) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -287,7 +314,7 @@ void Game::updateAndDraw(Config &c) {
             if (mapId.first < maps.size() - 1)
                 currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
 
-            player.setPosition(player.getPosX(), RECTANGLE);
+            player.setPosition(player.getPosX(), 0);
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
         }
         else {
@@ -295,44 +322,7 @@ void Game::updateAndDraw(Config &c) {
         }
     }
 
-    if (!finalGame) {
-        c.w.clear();
-
-        // Update and prepare cars to draw
-        Vehicle::Action action;
-        Vehicle::Direction direction;
-        for (Vehicle &v : cars) {
-            v.autoControl(player.getPosX(), player.getPosY(), action, direction);
-            float posY = v.getPosY();
-            v.drawEnemy(c, action, direction, currentMap->getElevation(posY), currentMap->getCamX());
-        }
-
-        // Draw map with cars
+    // Draw map
+    if (!finalGame)
         currentMap->draw(c, cars);
-
-        // Player update and draw
-        action = Vehicle::CRASH;
-        direction = Vehicle::RIGHT;
-
-        if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
-            direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
-        }
-        else {
-            player.hitControl();
-        }
-
-        player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
-
-        int crashPos;
-        if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
-                                   player.getMaxScreenX(), crashPos)) {
-            player.setPosition(player.getPosX(), float(crashPos));
-            player.hitControl();
-            action = Vehicle::CRASH;
-            direction = Vehicle::RIGHT;
-
-            player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
-        }
-    }
 }
