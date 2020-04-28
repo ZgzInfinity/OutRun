@@ -12,7 +12,12 @@
 using namespace sf;
 using namespace std;
 
-Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari", 0.0f, RECTANGLE) {
+#define MAX_SPEED 300.0f
+#define SPEED_MUL 100.0f
+#define ACC_INC 0.01f
+#define MAX_COUNTER 10
+
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, true, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE) {
     int nm = 0;
     int nobjects[] = {6, 15, 15}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
@@ -36,6 +41,13 @@ Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari", 
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
     currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]); // TODO: Añadir bifurcación
+
+    // Vehicles
+    const int maxVehicles = 1, maxSprites = 1; // TODO: Añadir más vehículos
+    for (int i = 1; i <= maxVehicles; i++) {
+        Vehicle v(MAX_SPEED * 1.5f, SPEED_MUL, ACC_INC, 2.0f, false, MAX_COUNTER, "car" + to_string(i), 0.0f, -5000 * RECTANGLE);
+        cars.push_back(v);
+    }
 
     Texture t;
     Sprite s;
@@ -107,7 +119,6 @@ Game::Game(Config &c) : player(300.0f, 100.0f, 0.01f, 1.0f, 132, 10, "Ferrari", 
     // Control if the player is still playing
     finalGame = false;
 }
-
 
 State Game::play(Config &c) {
     c.themes[c.currentSoundtrack]->play();
@@ -182,7 +193,7 @@ State Game::play(Config &c) {
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
         }
 
-        player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+        player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
 
         int crashPos;
         if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
@@ -192,7 +203,14 @@ State Game::play(Config &c) {
             action = Vehicle::CRASH;
             direction = Vehicle::RIGHT;
 
-            player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+            player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
+        }
+
+        // Update and draw cars
+        for (Vehicle &v : cars) {
+            v.autoControl(player.getPosX(), player.getPosY(), action, direction);
+            float posY = v.getPosY();
+            v.drawEnemy(c, action, direction, currentMap->getElevation(posY), currentMap->getCamX());
         }
 
         // Draw speed
@@ -200,7 +218,7 @@ State Game::play(Config &c) {
         sText.setString(strSpeed.substr(0, strSpeed.find('.')));
         sText.setPosition((float)(c.w.getSize().x / 2.f) - 310 - sText.getLocalBounds().width, (float) c.w.getSize().y / 2.f + 240);
 
-        textures[6].loadFromFile("resources/GamePanel/7.png", IntRect(0, 0, ((int)player.getRealSpeed() * 117 / player.getMaxSpeed()), 20));
+        textures[6].loadFromFile("resources/GamePanel/7.png", IntRect(0, 0, ((int)player.getRealSpeed() * 117 / MAX_SPEED), 20));
         sprites[6].setTexture(textures[6], true);
 
         c.w.draw(sText);
@@ -305,5 +323,5 @@ void Game::mapControl(Config &c) {
 
     // Draw map
     if (!finalGame)
-        currentMap->draw(c);
+        currentMap->draw(c, cars);
 }

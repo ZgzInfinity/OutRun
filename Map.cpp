@@ -22,6 +22,7 @@ using namespace sf;
 #define SEGL 100 // Segment length
 #define ROADW 2000 // Road Width / 2
 #define RUMBLECOEFF 0.1f // Ruble size = Road size * Rumble coeff
+#define SCREEN_SCALE 266.0f
 
 Map::SpriteInfo::SpriteInfo() {
     spriteNum = -1;
@@ -473,6 +474,10 @@ void Map::updateView(float pX, float pY) {
     this->posY = pY;
 }
 
+float Map::getCamX() const {
+    return this->posX;
+}
+
 void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
     scale = camD / (1.0f + z + zOffset - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
@@ -489,8 +494,8 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     const float heightOri = s.getTextureRect().height;
 
     float destY = Y + 4.0f;
-    float destW = width * W / 266.0f;
-    float destH = height * W / 266.0f;
+    float destW = width * W / SCREEN_SCALE;
+    float destH = height * W / SCREEN_SCALE;
 
     destY += destH * (-1.0f); //offsetY
 
@@ -543,10 +548,27 @@ void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, 
     w.draw(shape);
 }
 
-void Map::draw(Config &c) {
-    int N = lines.size();
-    int startPos = int(posY) % N;
+bool ascendingSort(const Vehicle *v1, const Vehicle *v2) {
+    return v1->getPosY() < v2->getPosY();
+}
+
+void Map::draw(Config &c, vector<Vehicle> &vehicles) {
+    const int N = lines.size();
+    const int startPos = int(posY) % N;
+    const int lastPos = startPos + c.renderLen - 1;
     Line *l = getLine(startPos), *p;
+
+    // Sort vehicles
+    vector<Vehicle*> sortedVehicles;
+    sortedVehicles.reserve(vehicles.size());
+    for (Vehicle &v : vehicles)
+        sortedVehicles.push_back(&v);
+    sort(sortedVehicles.begin(), sortedVehicles.end(), ascendingSort); // vehicles are sorted in ascending order by posY
+
+    // Discard out of range back vehicles
+    while (!sortedVehicles.empty() && int(sortedVehicles.back()->getPosY()) % N < startPos &&
+            int(sortedVehicles.back()->getPosY()) % N > lastPos % N)
+        sortedVehicles.pop_back();
 
     // Background
     drawQuad(c.w, grassColor[0], 0, 0, c.w.getSize().x, 0, c.w.getSize().y, c.w.getSize().x);
@@ -571,7 +593,7 @@ void Map::draw(Config &c) {
     l->spriteLeft.spriteMaxX = 0;
     l->spriteRight.spriteMinX = 0;
     l->spriteRight.spriteMaxX = 0;
-    for (int n = startPos; n < startPos + c.renderLen; n++) {
+    for (int n = startPos; n <= lastPos; n++) {
         l = getLine(n);
         l->spriteLeft.spriteMinX = 0;
         l->spriteLeft.spriteMaxX = 0;
@@ -592,7 +614,7 @@ void Map::draw(Config &c) {
     }
 
     // Draw road and objects
-    for (int n = startPos + c.renderLen - 1; n >= startPos; n--) {
+    for (int n = lastPos; n >= startPos; n--) {
         l = getLine(n);
         dx -= l->curve;
         x -= dx;
@@ -657,6 +679,28 @@ void Map::draw(Config &c) {
             else
                 l->drawSprite(c.w, next->objects, next->hitCoeffs, next->scaleCoeffs, l->spriteRight, false);
         }
+
+        // Draw vehicles
+        while (!sortedVehicles.empty() && int(sortedVehicles.back()->getPosY()) % N == n % N) {
+            Vehicle *v = sortedVehicles.back();
+
+            Sprite sv;
+            sv.setTexture(*v->getCurrentTexture(), true);
+            const float width = v->getScale() * sv.getTextureRect().width;
+            const float widthOri = sv.getTextureRect().width;
+            const float height = v->getScale() * sv.getTextureRect().height;
+            const float heightOri = sv.getTextureRect().height;
+            float destW = width * l->W / SCREEN_SCALE;
+            float destH = height * l->W / SCREEN_SCALE;
+
+            sv.setScale(destW / widthOri, destH / heightOri);
+            v->setMinScreenX(l->X + l->W * v->getPosX() - sv.getGlobalBounds().width / 2.0f);
+            v->setMaxScreenX(v->getMinScreenX() + sv.getGlobalBounds().width);
+            sv.setPosition(v->getMinScreenX(), l->Y - destH);
+            c.w.draw(sv);
+
+            sortedVehicles.pop_back();
+        }
     }
 }
 
@@ -695,16 +739,16 @@ float Map::getCurveCoefficient(float currentY) const {
     return getLine(int(currentY)).curve;
 }
 
-Map::Elevation Map::getElevation(float currentY) const {
+Vehicle::Elevation Map::getElevation(float currentY) const {
     const int n = int(currentY);
     const Line currentLine = getLine(n);
     const Line prevLine = getPreviousLine(n);
     if (n != 0 && abs(currentLine.y) > 1000 && currentLine.y > prevLine.y + 1.0f)
-        return UP;
+        return Vehicle::Elevation::UP;
     else if (n != 0 && abs(currentLine.y) > 1000 && currentLine.y < prevLine.y - 1.0f)
-        return DOWN;
+        return Vehicle::Elevation::DOWN;
     else
-        return FLAT;
+        return Vehicle::Elevation::FLAT;
 }
 
 bool Map::isOver() const {

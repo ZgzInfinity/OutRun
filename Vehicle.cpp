@@ -12,11 +12,17 @@
 using namespace std;
 using namespace sf;
 
-Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures, int maxCounterToChange,
+#define PLAYER_TEXTURES 132
+#define ENEMY_TEXTURES 16
+
+Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, bool isPlayer, int maxCounterToChange,
         const string &vehicle, float pX, float pY) : speedMul(speedMul), maxSpeed(maxSpeed / speedMul),
-        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scale(scale),
-        maxCounterToChange(maxCounterToChange), speed(0), acceleration(0), posX(pX), posY(pY), previousY(pY),
-        minScreenX(0), maxScreenX(0), actual_code_image(1), counter_code_image(0), crashing(false) {
+                                                     halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scale(scale),
+                                                     maxCounterToChange(maxCounterToChange), speed(0), acceleration(0), posX(pX), posY(pY), previousY(pY),
+                                                     minScreenX(0), maxScreenX(0), current_code_image(1), counter_code_image(0), crashing(false) {
+    int numTextures = PLAYER_TEXTURES;
+    if (!isPlayer)
+        numTextures = ENEMY_TEXTURES;
     textures.reserve(numTextures);
     for (int i = 1; i <= numTextures; i++) {
         Texture t;
@@ -147,171 +153,176 @@ Vehicle::Direction Vehicle::rotationControl(Config &c, float curveCoefficient) {
     return RIGHT;
 }
 
-void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::Elevation &e) {
+void Vehicle::autoControl(float playerX, float playerY, Vehicle::Action &a, Vehicle::Direction &d) {
+    posX = playerX;
+    posY = playerY + 150.0f;
+}
+
+void Vehicle::drawPlayer(Config &c, const Action &a, const Direction &d, const Elevation &e) {
     if (a != NONE) {
         if (counter_code_image >= maxCounterToChange) {
             counter_code_image = 0;
 
             if (speed > 0.0f)
-                actual_code_image++;
+                current_code_image++;
 
-            if (textures.size() == 132) {
+            if (textures.size() == PLAYER_TEXTURES) {
                 if (a == ACCELERATE) {
-                    if (e == Map::FLAT) {
+                    if (e == FLAT) {
                         if (d == RIGHT) {
-                            if (actual_code_image < 1 || actual_code_image > 4)
-                                actual_code_image = 1;
+                            if (current_code_image < 1 || current_code_image > 4)
+                                current_code_image = 1;
                         }
                         else if (d == TURNLEFT) {
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 5 || actual_code_image > 8)
-                                    actual_code_image = 5;
+                                if (current_code_image < 5 || current_code_image > 8)
+                                    current_code_image = 5;
                             }
                             else {
-                                if (actual_code_image < 9 || actual_code_image > 12)
-                                    actual_code_image = 9;
+                                if (current_code_image < 9 || current_code_image > 12)
+                                    current_code_image = 9;
                             }
                         }
                         else { // Turn right
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 13 || actual_code_image > 16)
-                                    actual_code_image = 13;
+                                if (current_code_image < 13 || current_code_image > 16)
+                                    current_code_image = 13;
                             }
                             else {
-                                if (actual_code_image < 17 || actual_code_image > 20)
-                                    actual_code_image = 17;
+                                if (current_code_image < 17 || current_code_image > 20)
+                                    current_code_image = 17;
                             }
                         }
                     }
-                    else if (e == Map::UP) {
+                    else if (e == UP) {
                         if (d == RIGHT) {
-                            if (actual_code_image < 21 || actual_code_image > 24)
-                                actual_code_image = 21;
+                            if (current_code_image < 21 || current_code_image > 24)
+                                current_code_image = 21;
                         }
                         else if (d == TURNLEFT) {
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 25 || actual_code_image > 28)
-                                    actual_code_image = 25;
+                                if (current_code_image < 25 || current_code_image > 28)
+                                    current_code_image = 25;
                             }
                             else {
-                                if (actual_code_image < 29 || actual_code_image > 32)
-                                    actual_code_image = 29;
+                                if (current_code_image < 29 || current_code_image > 32)
+                                    current_code_image = 29;
                             }
                         }
                         else { // Turn right
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 33 || actual_code_image > 36)
-                                    actual_code_image = 33;
+                                if (current_code_image < 33 || current_code_image > 36)
+                                    current_code_image = 33;
                             }
                             else {
-                                if (actual_code_image < 37 || actual_code_image > 40)
-                                    actual_code_image = 37;
+                                if (current_code_image < 37 || current_code_image > 40)
+                                    current_code_image = 37;
                             }
                         }
                     }
                     else { // Down
                         if (d == RIGHT) {
-                            if (actual_code_image < 41 || actual_code_image > 44)
-                                actual_code_image = 41;
+                            if (current_code_image < 41 || current_code_image > 44)
+                                current_code_image = 41;
                         }
                         else if (d == TURNLEFT) {
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 45 || actual_code_image > 48)
-                                    actual_code_image = 45;
+                                if (current_code_image < 45 || current_code_image > 48)
+                                    current_code_image = 45;
                             }
                             else {
-                                if (actual_code_image < 49 || actual_code_image > 52)
-                                    actual_code_image = 49;
+                                if (current_code_image < 49 || current_code_image > 52)
+                                    current_code_image = 49;
                             }
                         }
                         else { // Turn right
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 53 || actual_code_image > 56)
-                                    actual_code_image = 53;
+                                if (current_code_image < 53 || current_code_image > 56)
+                                    current_code_image = 53;
                             }
                             else {
-                                if (actual_code_image < 57 || actual_code_image > 60)
-                                    actual_code_image = 57;
+                                if (current_code_image < 57 || current_code_image > 60)
+                                    current_code_image = 57;
                             }
                         }
                     }
                 }
                 else if (a == BRAKE) {
-                    if (e == Map::FLAT) {
+                    if (e == FLAT) {
                         if (d == RIGHT) {
-                            if (actual_code_image < 61 || actual_code_image > 64)
-                                actual_code_image = 61;
+                            if (current_code_image < 61 || current_code_image > 64)
+                                current_code_image = 61;
                         }
                         else if (d == TURNLEFT) {
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 65 || actual_code_image > 68)
-                                    actual_code_image = 65;
+                                if (current_code_image < 65 || current_code_image > 68)
+                                    current_code_image = 65;
                             }
                             else {
-                                if (actual_code_image < 69 || actual_code_image > 72)
-                                    actual_code_image = 69;
+                                if (current_code_image < 69 || current_code_image > 72)
+                                    current_code_image = 69;
                             }
                         }
                         else { // Turn right
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 73 || actual_code_image > 76)
-                                    actual_code_image = 73;
+                                if (current_code_image < 73 || current_code_image > 76)
+                                    current_code_image = 73;
                             }
                             else {
-                                if (actual_code_image < 77 || actual_code_image > 80)
-                                    actual_code_image = 77;
+                                if (current_code_image < 77 || current_code_image > 80)
+                                    current_code_image = 77;
                             }
                         }
                     }
-                    else if (e == Map::UP) {
+                    else if (e == UP) {
                         if (d == RIGHT) {
-                            if (actual_code_image < 81 || actual_code_image > 84)
-                                actual_code_image = 81;
+                            if (current_code_image < 81 || current_code_image > 84)
+                                current_code_image = 81;
                         }
                         else if (d == TURNLEFT) {
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 85 || actual_code_image > 88)
-                                    actual_code_image = 85;
+                                if (current_code_image < 85 || current_code_image > 88)
+                                    current_code_image = 85;
                             }
                             else {
-                                if (actual_code_image < 89 || actual_code_image > 92)
-                                    actual_code_image = 89;
+                                if (current_code_image < 89 || current_code_image > 92)
+                                    current_code_image = 89;
                             }
                         }
                         else { // Turn right
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 93 || actual_code_image > 96)
-                                    actual_code_image = 93;
+                                if (current_code_image < 93 || current_code_image > 96)
+                                    current_code_image = 93;
                             }
                             else {
-                                if (actual_code_image < 97 || actual_code_image > 100)
-                                    actual_code_image = 97;
+                                if (current_code_image < 97 || current_code_image > 100)
+                                    current_code_image = 97;
                             }
                         }
                     }
                     else { // Down
                         if (d == RIGHT) {
-                            if (actual_code_image < 101 || actual_code_image > 104)
-                                actual_code_image = 101;
+                            if (current_code_image < 101 || current_code_image > 104)
+                                current_code_image = 101;
                         }
                         else if (d == TURNLEFT) {
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 105 || actual_code_image > 108)
-                                    actual_code_image = 105;
+                                if (current_code_image < 105 || current_code_image > 108)
+                                    current_code_image = 105;
                             }
                             else {
-                                if (actual_code_image < 109 || actual_code_image > 112)
-                                    actual_code_image = 109;
+                                if (current_code_image < 109 || current_code_image > 112)
+                                    current_code_image = 109;
                             }
                         }
                         else { // Turn right
                             if (speed < halfMaxSpeed) {
-                                if (actual_code_image < 113 || actual_code_image > 116)
-                                    actual_code_image = 113;
+                                if (current_code_image < 113 || current_code_image > 116)
+                                    current_code_image = 113;
                             }
                             else {
-                                if (actual_code_image < 117 || actual_code_image > 120)
-                                    actual_code_image = 117;
+                                if (current_code_image < 117 || current_code_image > 120)
+                                    current_code_image = 117;
                             }
                         }
                     }
@@ -320,22 +331,22 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
                     // Crash
                     if (posX > 0.0f) {
                         if (posX > XINC) {
-                            if (actual_code_image < 121 || actual_code_image > 124)
-                                actual_code_image = 121;
+                            if (current_code_image < 121 || current_code_image > 124)
+                                current_code_image = 121;
                         }
                         else {
-                            if (actual_code_image < 129 || actual_code_image > 130)
-                                actual_code_image = 129;
+                            if (current_code_image < 129 || current_code_image > 130)
+                                current_code_image = 129;
                         }
                     }
                     else {
                         if (posX < -XINC) {
-                            if (actual_code_image < 125 || actual_code_image > 128)
-                                actual_code_image = 125;
+                            if (current_code_image < 125 || current_code_image > 128)
+                                current_code_image = 125;
                         }
                         else {
-                            if (actual_code_image < 131 || actual_code_image > 132)
-                                actual_code_image = 131;
+                            if (current_code_image < 131 || current_code_image > 132)
+                                current_code_image = 131;
                         }
                     }
                 }
@@ -346,15 +357,106 @@ void Vehicle::draw(Config &c, const Action &a, const Direction &d, const Map::El
         }
     }
     else {
-        actual_code_image = 1;
+        current_code_image = 1;
     }
 
-    sprite.setTexture(textures[actual_code_image - 1], true);
+    sprite.setTexture(textures[current_code_image - 1], true);
     sprite.setScale(scale, scale);
     minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
     maxScreenX = minScreenX + sprite.getGlobalBounds().width;
     sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
     c.w.draw(sprite);
+}
+
+void Vehicle::drawEnemy(Config &c, const Action &a, const Direction &d, const Elevation &e, const float camX) {
+    if (a != NONE) {
+        if (counter_code_image >= maxCounterToChange) {
+            counter_code_image = 0;
+
+            if (speed > 0.0f)
+                current_code_image++;
+
+            if (textures.size() == ENEMY_TEXTURES) {
+                if (e == FLAT) {
+                    if (d == RIGHT) {
+                        if (posX <= camX) {
+                            if (current_code_image < 1 || current_code_image > 2)
+                                current_code_image = 1;
+                        }
+                        else {
+                            if (current_code_image < 3 || current_code_image > 4)
+                                current_code_image = 3;
+                        }
+                    }
+                    else if (d == TURNLEFT) {
+                        if (current_code_image < 7 || current_code_image > 8)
+                            current_code_image = 7;
+                    }
+                    else { // Turn right
+                        if (current_code_image < 5 || current_code_image > 6)
+                            current_code_image = 5;
+                    }
+                }
+                else if (e == UP) {
+                    if (d == RIGHT) {
+                        if (posX <= camX) {
+                            if (current_code_image < 13 || current_code_image > 14)
+                                current_code_image = 13;
+                        }
+                        else {
+                            if (current_code_image < 15 || current_code_image > 16)
+                                current_code_image = 15;
+                        }
+                    }
+                    else if (d == TURNLEFT) {
+                        if (current_code_image < 15 || current_code_image > 16)
+                            current_code_image = 15;
+                    }
+                    else { // Turn right
+                        if (current_code_image < 13 || current_code_image > 14)
+                            current_code_image = 13;
+                    }
+                }
+                else { // Down
+                    if (d == RIGHT) {
+                        if (posX <= camX) {
+                            if (current_code_image < 9 || current_code_image > 10)
+                                current_code_image = 9;
+                        }
+                        else {
+                            if (current_code_image < 11 || current_code_image > 12)
+                                current_code_image = 11;
+                        }
+                    }
+                    else if (d == TURNLEFT) {
+                        if (current_code_image < 11 || current_code_image > 12)
+                            current_code_image = 11;
+                    }
+                    else { // Turn right
+                        if (current_code_image < 9 || current_code_image > 10)
+                            current_code_image = 9;
+                    }
+                }
+            }
+        }
+        else {
+            counter_code_image++;
+        }
+    }
+    else {
+        if (posX <= camX)
+            current_code_image = 1;
+        else
+            current_code_image = 3;
+    }
+}
+
+void Vehicle::setMinScreenX(float screenX) {
+    minScreenX = screenX;
+}
+
+void Vehicle::setMaxScreenX(float screenX) {
+    maxScreenX = screenX;
 }
 
 float Vehicle::getMinScreenX() const {
@@ -363,4 +465,12 @@ float Vehicle::getMinScreenX() const {
 
 float Vehicle::getMaxScreenX() const {
     return maxScreenX;
+}
+
+const Texture *Vehicle::getCurrentTexture() const {
+    return &textures[current_code_image - 1];
+}
+
+float Vehicle::getScale() const {
+    return scale;
 }

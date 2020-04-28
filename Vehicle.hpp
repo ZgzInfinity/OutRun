@@ -12,7 +12,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "Menu.hpp"
-#include "Map.hpp"
+
+#define XINC 0.05f // x increment
 
 /**
  * La información del vehículo está compuesta por su velocidad, aceleración, posición x, conjunto de texturas del
@@ -36,11 +37,16 @@ class Vehicle {
 
     std::vector<sf::Texture> textures;
     sf::Sprite sprite;
-    int actual_code_image;
+    int current_code_image;
     int counter_code_image; // Counter to change actual_code_image
     bool crashing; // True if crashing state is on
 
 public:
+    enum Elevation {
+        UP,
+        FLAT,
+        DOWN
+    };
     enum Action {
         NONE,
         BRAKE,
@@ -59,13 +65,13 @@ public:
      * @param speedMul multiplicador de la velocidad que multiplicado por speed obtiene la velocidad real
      * @param accInc incremento de la aceleración
      * @param scale escalado del sprite del vehículo
-     * @param numTextures
+     * @param isPlayer
      * @param maxCounterToChange cuando counter_code_image llega a maxCounterToChange se actualiza el sprite
      * @param vehicle nombre del vehículo
      * @param pX
      * @param pY
      */
-    Vehicle(float maxSpeed, float speedMul, float accInc, float scale, int numTextures, int maxCounterToChange,
+    Vehicle(float maxSpeed, float speedMul, float accInc, float scale, bool isPlayer, int maxCounterToChange,
             const std::string &vehicle, float pX, float pY);
 
     /**
@@ -127,17 +133,44 @@ public:
     Direction rotationControl(Config &c, float curveCoefficient);
 
     /**
-     * Actualiza el sprite del vehículo y lo dibuja en la pantalla.
+     * Actualiza la lógica del vehículo de manera automática.
+     * @param playerX
+     * @param playerY
+     * @param a
+     * @param d
+     */
+    void autoControl(float playerX, float playerY, Action &a, Direction &d);
+
+    /**
+     * Actualiza el sprite del vehículo jugador y lo dibuja en la pantalla.
      * @param c
      * @param a
      * @param d
      * @param e
      */
-    void draw(Config &c, const Action &a, const Direction &d, const Map::Elevation &e);
+    void drawPlayer(Config &c, const Action &a, const Direction &d, const Elevation &e);
+
+    /**
+     * Actualiza el sprite del vehículo enemigo y lo dibuja en la pantalla.
+     * @param c
+     * @param a
+     * @param d
+     * @param e
+     * @param camX actual de la cámara
+     */
+    void drawEnemy(Config &c, const Action &a, const Direction &d, const Elevation &e, float camX);
+
+    void setMinScreenX(float screenX);
+
+    void setMaxScreenX(float screenX);
 
     float getMinScreenX() const;
 
     float getMaxScreenX() const;
+
+    const Texture* getCurrentTexture() const;
+
+    float getScale() const;
 };
 
 

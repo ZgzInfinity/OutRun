@@ -31,6 +31,7 @@ class Game {
     Map *currentMap;
 
     Vehicle player;
+    std::vector<Vehicle> cars;
 
     // HUD
     sf::Text sText;

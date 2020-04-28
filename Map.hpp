@@ -13,8 +13,8 @@
 #include <string>
 #include <vector>
 #include "Menu.hpp"
+#include "Vehicle.hpp"
 
-#define XINC 0.05f // x increment
 #define PRE_POS 2
 const int RECTANGLE = PRE_POS * 2 + 1; // the number of lines that form a rectangle
 
@@ -158,13 +158,6 @@ class Map {
     void addLines(float x, float y, float &z, const std::vector<std::vector<std::string>> &instructions);
 
 public:
-    // Current elevation type
-    enum Elevation {
-        UP,
-        FLAT,
-        DOWN
-    };
-
     // Crea un mapa con un paisaje dado el nombre del fichero de la imagen y con unos objetos dados los nombres de los
     // ficheros de las imágenes. El contenido del mapa debe encontrarse en la ruta path. Si random es true se crea el
     // mapa de manera aleatoria, en cambio si random es false se crea el mapa a partir del fichero map.info, que se
@@ -248,10 +241,18 @@ public:
     void updateView(float pX, float pY);
 
     /**
-     * Dibuja el fragmento del mapa actual dada la posición de la cámara establecida con la función updateView().
-     * @param c
+     * Devuelve la coordenada X de la cámara.
+     * @return
      */
-    void draw(Config &c);
+    float getCamX() const;
+
+    /**
+     * Dibuja el fragmento del mapa actual dada la posición de la cámara establecida con la función updateView() y los
+     * vehículos en él.
+     * @param c
+     * @param vehicles
+     */
+    void draw(Config &c, std::vector<Vehicle> &vehicles);
 
     /**
      * Devuelve true si pos corresponde a algún objeto del fragmento del mapa actual. En caso de que sea true, también
@@ -286,7 +287,7 @@ public:
      * @param currentY
      * @return
      */
-    Elevation getElevation(float currentY) const;
+    Vehicle::Elevation getElevation(float currentY) const;
 
     /**
      * Devuelve cierto si se ha alcanzado el final del mapa
