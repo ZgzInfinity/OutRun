@@ -36,6 +36,7 @@ Vehicle::Vehicle(float maxSpeed, float speedMul, float accInc, float scale, bool
 void Vehicle::setPosition(float pX, float pY) {
     posX = pX;
     posY = pY;
+    previousY = pY;
 }
 
 float Vehicle::getPosX() const {
