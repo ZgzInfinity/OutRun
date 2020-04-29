@@ -548,20 +548,20 @@ void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, 
     w.draw(shape);
 }
 
-bool ascendingSort(const Vehicle *v1, const Vehicle *v2) {
+bool ascendingSort(const Enemy *v1, const Enemy *v2) {
     return v1->getPosY() < v2->getPosY();
 }
 
-void Map::draw(Config &c, vector<Vehicle> &vehicles) {
+void Map::draw(Config &c, vector<Enemy> &vehicles) {
     const int N = lines.size();
     const int startPos = int(posY) % N;
     const int lastPos = startPos + c.renderLen - 1;
     Line *l = getLine(startPos), *p;
 
     // Sort vehicles
-    vector<Vehicle*> sortedVehicles;
+    vector<Enemy*> sortedVehicles;
     sortedVehicles.reserve(vehicles.size());
-    for (Vehicle &v : vehicles)
+    for (Enemy &v : vehicles)
         sortedVehicles.push_back(&v);
     sort(sortedVehicles.begin(), sortedVehicles.end(), ascendingSort); // vehicles are sorted in ascending order by posY
 
@@ -682,7 +682,7 @@ void Map::draw(Config &c, vector<Vehicle> &vehicles) {
 
         // Draw vehicles
         while (!sortedVehicles.empty() && int(sortedVehicles.back()->getPosY()) % N == n % N) {
-            Vehicle *v = sortedVehicles.back();
+            Enemy *v = sortedVehicles.back();
 
             Sprite sv;
             sv.setTexture(*v->getCurrentTexture(), true);
@@ -753,4 +753,8 @@ Vehicle::Elevation Map::getElevation(float currentY) const {
 
 bool Map::isOver() const {
     return posY >= lines.size();
+}
+
+float Map::getMaxY() const {
+    return lines.size();
 }

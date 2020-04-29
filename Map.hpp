@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 #include "Menu.hpp"
-#include "Vehicle.hpp"
+#include "Enemy.hpp"
 
 #define PRE_POS 2
 const int RECTANGLE = PRE_POS * 2 + 1; // the number of lines that form a rectangle
@@ -252,7 +252,7 @@ public:
      * @param c
      * @param vehicles
      */
-    void draw(Config &c, std::vector<Vehicle> &vehicles);
+    void draw(Config &c, std::vector<Enemy> &vehicles);
 
     /**
      * Devuelve true si pos corresponde a algún objeto del fragmento del mapa actual. En caso de que sea true, también
@@ -294,6 +294,12 @@ public:
      * @return
      */
     bool isOver() const;
+
+    /**
+     * Devuelve la longitud máxima del mapa.
+     * @return
+     */
+    float getMaxY() const;
 };
 
 
