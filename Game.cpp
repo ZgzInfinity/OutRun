@@ -22,8 +22,8 @@ using namespace std;
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE), lastY(0) {
-    int nm = 0;
-    int nobjects[] = {6, 15, 15}; // TODO: Más mapas
+    int nm = 7;
+    int nobjects[] = {6, 15, 15, 0, 0, 25, 0, 26}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -39,8 +39,8 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
         }
         maps.emplace_back(vm);
 
-        nm++; // TODO: Añadir más mapas y borrar línea
-        nm = nm % 3; // TODO: Añadir más mapas y borrar línea
+        // nm++; // TODO: Añadir más mapas y borrar línea
+        // nm = nm % 3; // TODO: Añadir más mapas y borrar línea
     }
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
