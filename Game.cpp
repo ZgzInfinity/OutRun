@@ -17,7 +17,7 @@ using namespace std;
 #define ACC_INC 0.01f
 #define MAX_COUNTER 10
 
-Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, true, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE) {
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE) {
     int nm = 0;
     int nobjects[] = {6, 15, 15}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
@@ -45,7 +45,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, true, MAX_CO
     // Vehicles
     const int maxVehicles = 1, maxSprites = 1; // TODO: Añadir más vehículos
     for (int i = 1; i <= maxVehicles; i++) {
-        Vehicle v(MAX_SPEED * 1.5f, SPEED_MUL, ACC_INC, 2.0f, false, MAX_COUNTER, "car" + to_string(i), 0.0f, -5000 * RECTANGLE);
+        Enemy v(MAX_SPEED * 0.5f, SPEED_MUL, 1.75f, MAX_COUNTER, "car" + to_string(i), 0.0f, -RECTANGLE);
         cars.push_back(v);
     }
 
@@ -282,12 +282,14 @@ void Game::updateAndDraw(Config &c) {
         // TODO: Añadir bifurcación
         mapId.first++;
         if (mapId.first < maps.size()) {
-            currentMap = &maps[mapId.first][mapId.second];
+            // Update player and vehicle positions
+            player.setPosition(player.getPosX(), player.getPosY() - currentMap->getMaxY());
+            for (Vehicle &v : cars)
+                v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
+            currentMap = &maps[mapId.first][mapId.second];
             if (mapId.first < maps.size() - 1)
                 currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
-
-            player.setPosition(player.getPosX(), RECTANGLE);
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
         }
         else {
@@ -299,20 +301,18 @@ void Game::updateAndDraw(Config &c) {
         c.w.clear();
 
         // Update and prepare cars to draw
-        Vehicle::Action action;
-        Vehicle::Direction direction;
-        for (Vehicle &v : cars) {
-            v.autoControl(player.getPosX(), player.getPosY(), action, direction);
+        for (Enemy &v : cars) {
+            v.autoControl();
             float posY = v.getPosY();
-            v.drawEnemy(c, action, direction, currentMap->getElevation(posY), currentMap->getCamX());
+            v.draw(c, currentMap->getElevation(posY), currentMap->getCamX());
         }
 
         // Draw map with cars
         currentMap->draw(c, cars);
 
         // Player update and draw
-        action = Vehicle::CRASH;
-        direction = Vehicle::RIGHT;
+        Vehicle::Action action = Vehicle::CRASH;
+        Vehicle::Direction direction = Vehicle::RIGHT;
 
         if (!player.isCrashing()) { // If not has crashed
             action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
@@ -322,7 +322,7 @@ void Game::updateAndDraw(Config &c) {
             player.hitControl();
         }
 
-        player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
+        player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
 
         int crashPos;
         if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
@@ -332,7 +332,7 @@ void Game::updateAndDraw(Config &c) {
             action = Vehicle::CRASH;
             direction = Vehicle::RIGHT;
 
-            player.drawPlayer(c, action, direction, currentMap->getElevation(player.getPosY()));
+            player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
         }
     }
 }

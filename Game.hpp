@@ -13,7 +13,8 @@
 #include <vector>
 #include "Menu.hpp"
 #include "Map.hpp"
-#include "Vehicle.hpp"
+#include "Player.hpp"
+#include "Enemy.hpp"
 
 
 const int MAX_TIME = 75;
@@ -30,8 +31,8 @@ class Game {
     std::pair<int, int> mapId; // (Block, num. map), ex: map0 = (0, 0); map1 = (1, 0); map2 = (1, 1); map14 = (4, 4)
     Map *currentMap;
 
-    Vehicle player;
-    std::vector<Vehicle> cars;
+    Player player;
+    std::vector<Enemy> cars;
 
     // HUD
     sf::Text sText;
