@@ -25,16 +25,21 @@ public:
      * @param scale escalado del sprite del vehículo
      * @param maxCounterToChange cuando counter_code_image llega a maxCounterToChange se actualiza el sprite
      * @param vehicle nombre del vehículo
-     * @param pX
      * @param pY
      */
-    Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const std::string &vehicle, float pX,
-            float pY);
+    Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const std::string &vehicle, float pY);
 
     /**
      * Actualiza la lógica del vehículo de manera automática.
      */
     void autoControl();
+
+    /**
+     * Inicializa el estado del vehículo.
+     * @param iniPos
+     * @param endPos
+     */
+    void update(float iniPos, float endPos);
 
     /**
      * Actualiza el sprite del vehículo enemigo y lo dibuja en la pantalla.

@@ -478,6 +478,10 @@ float Map::getCamX() const {
     return this->posX;
 }
 
+float Map::getCamY() const {
+    return this->posY;
+}
+
 void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
     scale = camD / (1.0f + z + zOffset - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
@@ -566,8 +570,8 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     sort(sortedVehicles.begin(), sortedVehicles.end(), ascendingSort); // vehicles are sorted in ascending order by posY
 
     // Discard out of range back vehicles
-    while (!sortedVehicles.empty() && int(sortedVehicles.back()->getPosY()) % N < startPos &&
-            int(sortedVehicles.back()->getPosY()) % N > lastPos % N)
+    while (!sortedVehicles.empty() && (int(sortedVehicles.back()->getPosY()) < int(posY) ||
+            int(sortedVehicles.back()->getPosY()) > int(posY) + c.renderLen - 1))
         sortedVehicles.pop_back();
 
     // Background
@@ -681,7 +685,7 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
         }
 
         // Draw vehicles
-        while (!sortedVehicles.empty() && int(sortedVehicles.back()->getPosY()) % N == n % N) {
+        while (!sortedVehicles.empty() && int(sortedVehicles.back()->getPosY()) == n - startPos + int(posY)) {
             Enemy *v = sortedVehicles.back();
 
             Sprite sv;

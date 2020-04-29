@@ -247,6 +247,12 @@ public:
     float getCamX() const;
 
     /**
+     * Devuelve la coordenada Y de la cámara.
+     * @return
+     */
+    float getCamY() const;
+
+    /**
      * Dibuja el fragmento del mapa actual dada la posición de la cámara establecida con la función updateView() y los
      * vehículos en él.
      * @param c

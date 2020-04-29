@@ -16,8 +16,12 @@ using namespace std;
 #define SPEED_MUL 100.0f
 #define ACC_INC 0.01f
 #define MAX_COUNTER 10
+#define MAX_VEHICLES 10 // Number of vehicles simultaneously
+#define VEHICLE_DENSITY 3.0f // Greater than 0
+#define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
+#define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
-Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE) {
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE), lastY(0) {
     int nm = 0;
     int nobjects[] = {6, 15, 15}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
@@ -43,9 +47,10 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
     currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]); // TODO: Añadir bifurcación
 
     // Vehicles
-    const int maxVehicles = 1, maxSprites = 1; // TODO: Añadir más vehículos
-    for (int i = 1; i <= maxVehicles; i++) {
-        Enemy v(MAX_SPEED * 0.5f, SPEED_MUL, 1.75f, MAX_COUNTER, "car" + to_string(i), 0.0f, -RECTANGLE);
+    cars.reserve(MAX_VEHICLES);
+    const int maxSprites = 1; // TODO: Añadir más vehículos
+    for (int i = 0; i < MAX_VEHICLES; i++) {
+        Enemy v(MAX_SPEED, SPEED_MUL, 1.75f, MAX_COUNTER, "car" + to_string(1 + i % maxSprites), -RECTANGLE);
         cars.push_back(v);
     }
 
@@ -291,6 +296,8 @@ void Game::updateAndDraw(Config &c) {
             if (mapId.first < maps.size() - 1)
                 currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
+
+            lastY = currentMap->getCamY();
         }
         else {
             finalGame = true;
@@ -298,16 +305,22 @@ void Game::updateAndDraw(Config &c) {
     }
 
     if (!finalGame) {
-        c.w.clear();
-
         // Update and prepare cars to draw
+        if (lastY <= currentMap->getCamY() + float(c.renderLen))
+            lastY = currentMap->getCamY() + float(c.renderLen);
         for (Enemy &v : cars) {
+            if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+                v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY);
+                lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
+            }
+
             v.autoControl();
             float posY = v.getPosY();
             v.draw(c, currentMap->getElevation(posY), currentMap->getCamX());
         }
 
         // Draw map with cars
+        c.w.clear();
         currentMap->draw(c, cars);
 
         // Player update and draw

@@ -33,6 +33,7 @@ class Game {
 
     Player player;
     std::vector<Enemy> cars;
+    float lastY;
 
     // HUD
     sf::Text sText;

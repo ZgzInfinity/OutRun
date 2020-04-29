@@ -15,10 +15,10 @@ using namespace sf;
 #define ENEMY_TEXTURES 16
 #define MAX_AUTO_DIRECTION_COUNTER 1000
 
-Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pX,
-        float pY) : Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, maxSpeed / speedMul, pX, pY, pY, 0, 0,
-                            vehicle, ENEMY_TEXTURES, 1, 0), oriX(pX),
-                            currentDirection(RIGHT), current_direction_counter(0), max_direction_counter(0) {}
+Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY) :
+        Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0, random_float(-0.5f, 0.5f),
+                pY, pY, 0, 0, vehicle, ENEMY_TEXTURES, 1, 0), oriX(this->posX),
+                currentDirection(RIGHT), current_direction_counter(0), max_direction_counter(0) {}
 
 void Enemy::autoControl() {
     if (current_direction_counter < max_direction_counter) {
@@ -32,9 +32,9 @@ void Enemy::autoControl() {
 
     float newX = posX;
     if (currentDirection == TURNRIGHT)
-        newX += XINC * random_zero_one();
+        newX += XINC * random_zero_one() * speed / maxSpeed;
     else if (currentDirection == TURNLEFT)
-        newX -= XINC * random_zero_one();
+        newX -= XINC * random_zero_one() * speed / maxSpeed;
 
     if (newX < oriX - 0.15f || newX > oriX + 0.15f)
         currentDirection = RIGHT;
@@ -43,6 +43,19 @@ void Enemy::autoControl() {
 
     previousY = posY;
     posY += speed;
+}
+
+void Enemy::update(float iniPos, float endPos) {
+    speed = maxSpeed * random_float(0.25f, 1.0f);
+
+    posY = random_float(iniPos, endPos);
+    previousY = posY;
+
+    current_direction_counter = 0;
+    max_direction_counter = 0;
+
+    minScreenX = 0;
+    maxScreenX = 0;
 }
 
 void Enemy::draw(Config &c, const Elevation &e, const float camX) {
