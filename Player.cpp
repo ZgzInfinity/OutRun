@@ -18,13 +18,13 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scale, int ma
                float pX, float pY) : Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                       acceleration(0), crashing(false) {}
+                       acceleration(0), minCrashAcc(0), crashing(false) {}
 
 float Player::getPreviousY() const {
     return previousY;
 }
 
-void Player::hitControl() {
+void Player::hitControl(const bool vehicleCrash) {
     crashing = true;
 
     if (posX > XINC)
@@ -33,21 +33,28 @@ void Player::hitControl() {
         posX += XINC;
 
     acceleration -= accInc * 2.5f;
-    if (speed > 1.333f * halfMaxSpeed) // Reduces hit time
-        acceleration -= accInc * 5.0f;
-    else if (speed > halfMaxSpeed)
-        acceleration -= accInc * 2.5f;
+    if (!vehicleCrash) {
+        if (speed > 1.333f * halfMaxSpeed) // Reduces hit time
+            acceleration -= accInc * 7.5f;
+        else if (speed > halfMaxSpeed)
+            acceleration -= accInc * 5.0f;
+        else if (speed > 0.5f * halfMaxSpeed)
+            acceleration -= accInc * 2.5f;
+    }
+    else if (minCrashAcc <= 0.0f) {
+        minCrashAcc = acceleration * 0.75f; // In case of car crash, acc will be drop 1/4. Otherwise it will be drop to 0.
+    }
 
     if (acceleration < 0.0f)
         acceleration = 0.0f;
 
     speed = sqrt(acceleration);
-    if (speed <= 0.0f) {
-        speed = 0.0f;
-        acceleration = 0.0f;
+    if (acceleration <= minCrashAcc) {
+        acceleration = minCrashAcc;
+        speed = sqrt(acceleration);
         crashing = false;
+        minCrashAcc = 0.0f;
 
-        posX = 0.0f;
         previousY = posY;
     }
 }

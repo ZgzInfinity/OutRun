@@ -56,6 +56,19 @@ public:
     const Texture* getCurrentTexture() const;
 
     float getScale() const;
+
+    /**
+     * Devuelve true si pos corresponde al vehículo actual. En caso de que sea true, también devuelve la posición Y
+     * donde han colisionado.
+     * @param c
+     * @param currentY
+     * @param prevY
+     * @param minX
+     * @param maxX
+     * @param crashPos
+     * @return
+     */
+    bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const;
 };
 
 

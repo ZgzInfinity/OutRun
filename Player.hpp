@@ -13,7 +13,7 @@
 
 class Player : public Vehicle {
     const float speedMul, halfMaxSpeed, maxAcc, accInc;
-    float acceleration;
+    float acceleration, minCrashAcc;
 
     sf::Sprite sprite;
     bool crashing; // True if crashing state is on
@@ -41,8 +41,9 @@ public:
 
     /**
      * Actualiza la lógica del choque y restablece la velocidad y aceleración.
+     * @param vehicleCrash true si es un choque entre vehículos
      */
-    void hitControl();
+    void hitControl(bool vehicleCrash);
 
     /**
      * Devuelve true si la lógica de choque está en ejecución.

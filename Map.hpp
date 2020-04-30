@@ -271,7 +271,7 @@ public:
      * @param crashPos
      * @return
      */
-    bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, int &crashPos) const;
+    bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const;
 
     /**
      * Devuelve true si currentX está fuera de la carretera.

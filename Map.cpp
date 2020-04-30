@@ -708,7 +708,7 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     }
 }
 
-bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, int &crashPos) const {
+bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const {
     Line l;
     for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
         l = getLine(n);
@@ -719,7 +719,7 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, f
                  (maxX >= l.spriteLeft.spriteMinX && maxX <= l.spriteLeft.spriteMaxX) ||
                  (l.spriteLeft.spriteMinX >= minX && l.spriteLeft.spriteMinX <= maxX) ||
                  (l.spriteLeft.spriteMaxX >= minX && l.spriteLeft.spriteMaxX <= maxX))) { // x matches
-            crashPos = n;
+            crashPos = float(n);
             return true;
         }
         if (l.spriteRight.spriteNum != -1 && l.spriteRight.spriteMinX != l.spriteRight.spriteMaxX && // l has an object that can crash
@@ -728,7 +728,7 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, f
                  (maxX >= l.spriteRight.spriteMinX && maxX <= l.spriteRight.spriteMaxX) ||
                  (l.spriteRight.spriteMinX >= minX && l.spriteRight.spriteMinX <= maxX) ||
                  (l.spriteRight.spriteMaxX >= minX && l.spriteRight.spriteMaxX <= maxX))) { // x matches
-            crashPos = n;
+            crashPos = float(n);
             return true;
         }
     }

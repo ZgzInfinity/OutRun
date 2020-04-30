@@ -148,3 +148,15 @@ const Texture *Enemy::getCurrentTexture() const {
 float Enemy::getScale() const {
     return scale;
 }
+
+bool Enemy::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const {
+    if (minScreenX != maxScreenX && prevY <= posY && currentY >= posY && // y matches
+        ((minX >= minScreenX && minX <= maxScreenX) ||
+         (maxX >= minScreenX && maxX <= maxScreenX) ||
+         (minScreenX >= minX && minScreenX <= maxX) ||
+         (maxScreenX >= minX && maxScreenX <= maxX))) { // x matches
+        crashPos = posY;
+        return true;
+    }
+    return false;
+}

@@ -21,7 +21,8 @@ using namespace std;
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
-Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE), lastY(0) {
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
+                        lastY(0), vehicleCrash(false) {
     int nm = 7;
     int nobjects[] = {6, 15, 15, 0, 0, 25, 0, 26}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
@@ -332,20 +333,29 @@ void Game::updateAndDraw(Config &c) {
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
         }
         else {
-            player.hitControl();
+            player.hitControl(vehicleCrash);
         }
 
         player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
 
-        int crashPos;
-        if (currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
-                                   player.getMaxScreenX(), crashPos)) {
-            player.setPosition(player.getPosX(), float(crashPos));
-            player.hitControl();
-            action = Vehicle::CRASH;
-            direction = Vehicle::RIGHT;
+        if (!player.isCrashing()) {
+            vehicleCrash = false;
+            float crashPos;
+            bool crash = currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
+                                                player.getMaxScreenX(), crashPos);
+            if (!crash)
+                for (int i = 0; !vehicleCrash && i < cars.size(); i++)
+                    vehicleCrash = cars[i].hasCrashed(c, player.getPreviousY(), player.getPosY(),
+                                                      player.getMinScreenX(),
+                                                      player.getMaxScreenX(), crashPos);
+            if (crash || vehicleCrash) {
+                player.setPosition(player.getPosX(), crashPos);
+                player.hitControl(vehicleCrash);
+                action = Vehicle::CRASH;
+                direction = Vehicle::RIGHT;
 
-            player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+                player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+            }
         }
     }
 }

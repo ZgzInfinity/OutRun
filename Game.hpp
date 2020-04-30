@@ -34,6 +34,7 @@ class Game {
     Player player;
     std::vector<Enemy> cars;
     float lastY;
+    bool vehicleCrash;
 
     // HUD
     sf::Text sText;
