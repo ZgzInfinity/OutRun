@@ -18,7 +18,7 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scale, int ma
                float pX, float pY) : Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                       acceleration(0), minCrashAcc(0), crashing(false) {}
+                       acceleration(0), minCrashAcc(0), xDest(0), crashing(false) {}
 
 float Player::getPreviousY() const {
     return previousY;
@@ -27,33 +27,55 @@ float Player::getPreviousY() const {
 void Player::hitControl(const bool vehicleCrash) {
     crashing = true;
 
-    if (posX > XINC)
-        posX -= XINC;
-    else if (posX < -XINC)
-        posX += XINC;
-
     acceleration -= accInc * 2.5f;
+    if (speed > 1.333f * halfMaxSpeed) // Reduces hit time
+        acceleration -= accInc * 7.5f;
+    else if (speed > halfMaxSpeed)
+        acceleration -= accInc * 5.0f;
+    else if (speed > 0.5f * halfMaxSpeed)
+        acceleration -= accInc * 2.5f;
+
     if (!vehicleCrash) {
-        if (speed > 1.333f * halfMaxSpeed) // Reduces hit time
-            acceleration -= accInc * 7.5f;
-        else if (speed > halfMaxSpeed)
-            acceleration -= accInc * 5.0f;
-        else if (speed > 0.5f * halfMaxSpeed)
-            acceleration -= accInc * 2.5f;
+        if (posX > XINC)
+            posX -= XINC;
+        else if (posX < -XINC)
+            posX += XINC;
     }
-    else if (minCrashAcc <= 0.0f) {
-        minCrashAcc = acceleration * 0.75f; // In case of car crash, acc will be drop 1/4. Otherwise it will be drop to 0.
+    else {
+        if (minCrashAcc <= 0.0f) { // Only first time
+            minCrashAcc = acceleration * 0.666f; // In case of car crash, acc will be drop 1/3. Otherwise it will be drop to 0.
+
+            if (xDest < 0.0f)
+                xDest = 0.9f;
+            else
+                xDest = -0.9f;
+        }
+
+        if (posX > xDest)
+            posX -= XINC * 2.0f;
+        else if (posX < xDest)
+            posX += XINC * 2.0f;
+
+        if (posX > 0.9f)
+            posX = 0.9f;
+        else if (posX < -0.9f)
+            posX = -0.9f;
     }
 
     if (acceleration < 0.0f)
         acceleration = 0.0f;
 
     speed = sqrt(acceleration);
+    if (vehicleCrash && speed > 0.0f) { // Only it moves in case of car crash
+        previousY = posY;
+        posY += speed;
+    }
     if (acceleration <= minCrashAcc) {
         acceleration = minCrashAcc;
         speed = sqrt(acceleration);
         crashing = false;
         minCrashAcc = 0.0f;
+        xDest = 0.0f;
 
         previousY = posY;
     }

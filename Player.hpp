@@ -13,7 +13,7 @@
 
 class Player : public Vehicle {
     const float speedMul, halfMaxSpeed, maxAcc, accInc;
-    float acceleration, minCrashAcc;
+    float acceleration, minCrashAcc, xDest;
 
     sf::Sprite sprite;
     bool crashing; // True if crashing state is on
