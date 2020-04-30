@@ -4,6 +4,8 @@
 105 105 105  /* Road RGB color 2 */
 246 226 160  /* Grass RGB color 1 */
 246 223 147  /* Grass RGB color 2 */
+255 255 255  /* Rumble RGB color */
+255 255 255  /* Dash RGB color */
 
 /* 
  * ROAD:

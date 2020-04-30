@@ -20,8 +20,8 @@ using namespace sf;
 
 #define BGS 0.525F // Background size
 #define SEGL 100 // Segment length
-#define ROADW 2000 // Road Width / 2
-#define RUMBLECOEFF 0.1f // Ruble size = Road size * Rumble coeff
+#define ROADW 3000 // Road Width / 2
+#define RUMBLECOEFF 0.0666f // Ruble size = Road size * Rumble coeff
 #define SCREEN_SCALE 266.0f
 
 Map::SpriteInfo::SpriteInfo() {
@@ -117,10 +117,16 @@ vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIn
     uniform_int_distribution<int> distRB(0, 20), distG(0, 255);
 
     // Colors
+    // Road
     instructions.push_back({"107", "107", "107"});
     instructions.push_back({"105", "105", "105"});
+    // Grass
     instructions.push_back({to_string(distRB(generator)), to_string(distG(generator)), to_string(distRB(generator))});
     instructions.push_back({to_string(distRB(generator)), to_string(distG(generator)), to_string(distRB(generator))});
+    // Rumble
+    instructions.push_back({"255", "255", "255"});
+    // Dash
+    instructions.push_back({"255", "255", "255"});
 
     // Instructions
     float prob;
@@ -213,7 +219,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
 
     ifstream fin(file);
     if (fin.is_open()) {
-        bool road = false, grass = false, comment = false;
+        bool road = false, grass = false, rumbleAndDash = false, comment = false;
         int lines = 0, lastInclinationIndex = -1;
 
         vector<string> buffer;
@@ -244,6 +250,14 @@ vector<vector<string>> readMapFile(const std::string &file) {
                         instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
                         grass = true;
+                    }
+                }
+                else if (!rumbleAndDash) {
+                    if (buffer.size() == 6) {
+                        instructions.push_back({buffer[0], buffer[1], buffer[2]});
+                        instructions.push_back({buffer[3], buffer[4], buffer[5]});
+                        buffer.clear();
+                        rumbleAndDash = true;
                     }
                 }
                 else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
@@ -306,12 +320,19 @@ void Map::addLines(float x, float y, float &z, const vector<vector<string>> &ins
     bool mainColor = true;
 
     // Colors
-    roadColor[0] = Color(stoi(instructions[0][0]), stoi(instructions[0][1]), stoi(instructions[0][2]));
-    roadColor[1] = Color(stoi(instructions[1][0]), stoi(instructions[1][1]), stoi(instructions[1][2]));
-    grassColor[0] = Color(stoi(instructions[2][0]), stoi(instructions[2][1]), stoi(instructions[2][2]));
-    grassColor[1] = Color(stoi(instructions[3][0]), stoi(instructions[3][1]), stoi(instructions[3][2]));
+    try {
+        roadColor[0] = Color(stoi(instructions[0][0]), stoi(instructions[0][1]), stoi(instructions[0][2]));
+        roadColor[1] = Color(stoi(instructions[1][0]), stoi(instructions[1][1]), stoi(instructions[1][2]));
+        grassColor[0] = Color(stoi(instructions[2][0]), stoi(instructions[2][1]), stoi(instructions[2][2]));
+        grassColor[1] = Color(stoi(instructions[3][0]), stoi(instructions[3][1]), stoi(instructions[3][2]));
+        rumbleColor = Color(stoi(instructions[4][0]), stoi(instructions[4][1]), stoi(instructions[4][2]));
+        dashColor = Color(stoi(instructions[5][0]), stoi(instructions[5][1]), stoi(instructions[5][2]));
+    }
+    catch (const exception &e) {
+        fileError("Faltan colores al declarar el mapa.");
+    }
 
-    for (int i = 4; i < instructions.size(); i++) {
+    for (int i = 6; i < instructions.size(); i++) {
         const vector<string> &inst = instructions[i];
 
         if (inst[0] == "CURVE") {
@@ -435,10 +456,12 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     }
 
     // Colors
-    roadColor[0] = Color(107, 107, 107);
+    /*roadColor[0] = Color(107, 107, 107);
     roadColor[1] = Color(105, 105, 105);
     grassColor[0] = Color(16, 200, 16);
     grassColor[1] = Color(0, 154, 0);
+    rumbleColor = Color::White;
+    dashColor = Color::White;*/
 
     // Line generation
     float z = 0; // Line position
@@ -640,8 +663,8 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                 grass = next->grassColor[l->mainColor];
                 road = next->roadColor[l->mainColor];
             }
-            Color rumble = l->mainColor ? road : Color::White;
-            Color dash = l->mainColor ? Color::White : road;
+            Color rumble = l->mainColor ? road : rumbleColor;
+            Color dash = l->mainColor ? dashColor : road;
 
             float prevX = l->X, prevY = c.w.getSize().y, prevW = l->W;
             if (n > 0) {
@@ -664,10 +687,12 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
             drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
             drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
             drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.333f), y1, dw1, x2 + int(float(w2) * 0.333f), y2,
-                     dw2); // Second left dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.666f), y1, dw1, x2 + int(float(w2) * 0.666f), y2,
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.75f), y1, dw1, x2 + int(float(w2) * 0.75f), y2,
                      dw2); // Second right dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.5f), y1, dw1, x2 + int(float(w2) * 0.5f), y2,
+                     dw2); // Third right dash
+            drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
+                     dw2); // Fourth right dash
         }
 
         // Draw object

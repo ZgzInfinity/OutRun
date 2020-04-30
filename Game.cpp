@@ -51,7 +51,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
     cars.reserve(MAX_VEHICLES);
     const int maxSprites = 1; // TODO: Añadir más vehículos
     for (int i = 0; i < MAX_VEHICLES; i++) {
-        Enemy v(MAX_SPEED, SPEED_MUL, 1.75f, MAX_COUNTER, "car" + to_string(1 + i % maxSprites), -RECTANGLE);
+        Enemy v(MAX_SPEED, SPEED_MUL, 1.25f, MAX_COUNTER, "car" + to_string(1 + i % maxSprites), -RECTANGLE);
         cars.push_back(v);
     }
 

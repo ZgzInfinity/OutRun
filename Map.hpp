@@ -99,7 +99,7 @@ class Map {
     std::vector<Line> lines;
 
     // Colors
-    Color roadColor[2], grassColor[2];
+    Color roadColor[2], grassColor[2], rumbleColor, dashColor;
 
     // Camera
     float posX, posY;
@@ -163,8 +163,8 @@ public:
     // mapa de manera aleatoria, en cambio si random es false se crea el mapa a partir del fichero map.info, que se
     // describe a continuación:
     //      - Se pueden incluir comentarios en cualquier parte, comenzando por /* y terminando por */
-    //      - En primer lugar se deben indicar los dos colores de la carretera y los dos del suelo, en RGB y separados
-    //        por espacios.
+    //      - En primer lugar se deben indicar los dos colores de la carretera, los dos del suelo, el del arcén (rumble)
+    //        y el de las rayas discontinuas (dash), en RGB y separados por espacios.
     //      - En segundo lugar se indica el recorrido con objetos, curvas y elevaciones.
     //      - Se pueden incluir fragmentos aleatorios de la iguiente manera:
     //          RANDOM n o_1 o_2 ... o_x
@@ -179,6 +179,8 @@ public:
     //          105 105 105  /* Road RGB color 2 */
     //           16 200  16  /* Grass RGB color 1 */
     //            0 154   0  /* Grass RGB color 2 */
+    //          255 255 255  /* Rumble RGB color */
+    //          255 255 255  /* Dash RGB color */
     //
     //          /*
     //           * ROAD:
