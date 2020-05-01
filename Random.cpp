@@ -33,6 +33,10 @@ int random_zero_n(int n) {
     return uniform_int_distribution<>(0, n)(generator);
 }
 
+int random_int(int min, int max) {
+    return uniform_int_distribution<int>(min, max)(generator);
+}
+
 float random_float(float min, float max) {
     return uniform_real_distribution<float>(min, max)(generator);
 }

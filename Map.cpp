@@ -414,13 +414,8 @@ void Map::addLines(float x, float y, float &z, const vector<vector<string>> &ins
     }
 }
 
-Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr) {
-    bg.loadFromFile(path + bgName);
-    bg.setRepeated(true);
-
+void Map::loadObjects(const string &path, const vector<string> &objectNames, vector<int> &objectIndexes) {
     int k = 0;
-    vector<int> objectIndexes;
     objectIndexes.reserve(objectNames.size());
     objects.reserve(objectNames.size());
     hitCoeffs.reserve(objectNames.size());
@@ -454,14 +449,16 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
         hitCoeffs.push_back(hitC);
         scaleCoeffs.push_back(scaleC);
     }
+}
 
-    // Colors
-    /*roadColor[0] = Color(107, 107, 107);
-    roadColor[1] = Color(105, 105, 105);
-    grassColor[0] = Color(16, 200, 16);
-    grassColor[1] = Color(0, 154, 0);
-    rumbleColor = Color::White;
-    dashColor = Color::White;*/
+Map::Map(Config &c, const std::string &path, const std::string &bgName,
+        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr) {
+    bg.loadFromFile(path + bgName);
+    bg.setRepeated(true);
+
+    // Load objects
+    vector<int> objectIndexes;
+    loadObjects(path, objectNames, objectIndexes);
 
     // Line generation
     float z = 0; // Line position
@@ -474,6 +471,93 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 
     if (lines.empty())
         fileError();
+}
+
+Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr) {
+    const int rectangles = 50; // Map size
+    const string mapPath = "resources/mapCommon/"; // Folder with common objects
+    const int nobjects = 37;
+
+    // Colors
+    roadColor[0] = map.roadColor[0];
+    roadColor[1] = map.roadColor[1];
+    grassColor[0] = map.grassColor[0];
+    grassColor[1] = map.grassColor[1];
+    rumbleColor = map.rumbleColor;
+    dashColor = map.dashColor;
+
+    // Load objects
+    vector<string> objectNames;
+    objectNames.reserve(nobjects);
+    for (int no = 1; no <= nobjects; no++)
+        objectNames.push_back(to_string(no) + ".png");
+    vector<int> objectIndexes;
+    loadObjects(mapPath, objectNames, objectIndexes);
+
+    // Hardcoded sprites
+    vector<SpriteInfo> leftSprites, rightSprites;
+    leftSprites.reserve(rectangles);
+    rightSprites.reserve(rectangles);
+    for (int i = 0; i < rectangles; i++) {
+        leftSprites.emplace_back();
+        rightSprites.emplace_back();
+    }
+    // People
+    leftSprites[3].spriteNum = 28; // 29 - 1
+    leftSprites[3].offset = -1.75f;
+    rightSprites[3].spriteNum = 29;
+    rightSprites[3].offset = -1.75f;
+    // Signals
+    leftSprites[6].spriteNum = 22;
+    leftSprites[6].offset = -1;
+    rightSprites[6].spriteNum = 27;
+    rightSprites[6].offset = -1;
+    // Flagger
+    leftSprites[5].spriteNum = 17;
+    leftSprites[5].offset = -4;
+    // Start
+    rightSprites[5].spriteNum = 26;
+    rightSprites[5].offset = -0.95f;
+    // Trees
+    leftSprites[4].spriteNum = 36;
+    leftSprites[4].offset = -1.15f;
+    rightSprites[4].spriteNum = 35;
+    rightSprites[4].offset = -1.15f;
+    // Fill
+    for (int i = 7; i < rectangles; i++) {
+        if (i % 4 == 3) {
+            // Trees
+            leftSprites[i].spriteNum = 36;
+            leftSprites[i].offset = -0.15f;
+            rightSprites[i].spriteNum = 35;
+            rightSprites[i].offset = -0.15f;
+        }
+        else if (i % 2 == 0) {
+            // People
+            leftSprites[i].spriteNum = 31;
+        }
+    }
+
+    // Line generation
+    bool mainColor = true;
+    vector<vector<string>> instructions;
+    instructions.reserve(rectangles);
+    float z = 0; // Line position
+    for (int i = 0; i < rectangles; i++) {
+        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i]);
+        mainColor = !mainColor;
+    }
+
+    flagger = RECTANGLE * 5 + PRE_POS;
+    semaphore = RECTANGLE * 6 + PRE_POS;
+}
+
+void Map::incrementSpriteIndex(int line, bool right, int increment) {
+    if (line < lines.size()) {
+        SpriteInfo &sprite = right ? lines[line].spriteRight : lines[line].spriteLeft;
+        if (sprite.spriteNum > -1)
+            sprite.spriteNum += increment;
+    }
 }
 
 void Map::addNextMap(Map *map) {

@@ -157,6 +157,14 @@ class Map {
      */
     void addLines(float x, float y, float &z, const std::vector<std::vector<std::string>> &instructions);
 
+    /**
+     * Carga los objetos en el mapa y devuelve un vector con los índices de los objetos.
+     * @param path
+     * @param objectNames
+     * @param objectIndexes
+     */
+    void loadObjects(const std::string &path, const std::vector<std::string> &objectNames, vector<int> &objectIndexes);
+
 public:
     // Crea un mapa con un paisaje dado el nombre del fichero de la imagen y con unos objetos dados los nombres de los
     // ficheros de las imágenes. El contenido del mapa debe encontrarse en la ruta path. Si random es true se crea el
@@ -222,6 +230,23 @@ public:
      */
     Map(Config &c, const std::string &path, const std::string &bgName,
             const std::vector<std::string> &objectNames, bool random);
+
+    /**
+     * Crea un mapa recto y llano con la configuración de map y partiendo de los objetos comunes de mapCommon para
+     * la animación inicial. Devuelve la posición del abanderado y del semáforo.
+     * @param map
+     * @param flagger
+     * @param semaphore
+     */
+    Map(const Map &map, int &flagger, int &semaphore);
+
+    /**
+     * Incrementa el índice del sprite en la línea line si existe.
+     * @param line
+     * @param right spriteRight o spriteLeft
+     * @param increment
+     */
+    void incrementSpriteIndex(int line, bool right, int increment = 1);
 
     /**
      * Añade un mapa a continuación del actual.

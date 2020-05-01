@@ -46,6 +46,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
     currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]); // TODO: Añadir bifurcación
+    isInitMap = true;
 
     // Vehicles
     cars.reserve(MAX_VEHICLES);
@@ -128,6 +129,8 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
 
 State Game::play(Config &c) {
     c.themes[c.currentSoundtrack]->play();
+
+    initialAnimation(c); // TODO: Aquí es el lugar correcto, o primero se tiene que mostrar la velocidad y tal??
 
     c.w.setKeyRepeatEnabled(false);
 
@@ -280,14 +283,68 @@ State Game::play(Config &c) {
     return EXIT;
 }
 
+void Game::initialAnimation(Config &c) {
+    int flagger, semaphore;
+    Map *initMap = new Map(*currentMap, flagger, semaphore);
+    initMap->addNextMap(currentMap);
+    currentMap = initMap;
+
+    // Prepare car
+    bool end = false;
+    for (int i = (int) c.w.getSize().x / 2; !end; i -= 3) {
+        // Draw map
+        c.w.clear();
+        currentMap->draw(c, cars);
+        player.drawAnimation(c, float(i), end);
+        c.w.display();
+    }
+    sleep(milliseconds(200));
+
+    // Semaphore and flagger
+    currentMap->incrementSpriteIndex(flagger, false, -1);
+    int ms = 1000;
+    for (int i = 0; i < 3; i++) {
+        // Draw map
+        c.w.clear();
+        currentMap->draw(c, cars);
+        player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+        c.w.display();
+
+        // Flagger
+        if (i == 2) {
+            for (; ms > 0; ms -= 200) {
+                sleep(milliseconds(200));
+
+                currentMap->incrementSpriteIndex(flagger, false);
+
+                // Draw map
+                c.w.clear();
+                currentMap->draw(c, cars);
+                player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+                c.w.display();
+            }
+        }
+
+        // Change semaphore state
+        if (ms > 0)
+            sleep(milliseconds(ms));
+        currentMap->incrementSpriteIndex(semaphore, false);
+    }
+    currentMap->incrementSpriteIndex(flagger, false, -1);
+}
+
 void Game::updateAndDraw(Config &c) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
     if (currentMap->isOver()) {
         // TODO: Añadir bifurcación
-        mapId.first++;
-        if (mapId.first < maps.size()) {
+        if (!isInitMap)
+            mapId.first++;
+        if (isInitMap || mapId.first < maps.size()) {
+            if (isInitMap)
+                isInitMap = false;
+
             // Update player and vehicle positions
             player.setPosition(player.getPosX(), player.getPosY() - currentMap->getMaxY());
             for (Vehicle &v : cars)

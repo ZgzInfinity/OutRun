@@ -17,6 +17,7 @@ class Player : public Vehicle {
 
     sf::Sprite sprite;
     bool crashing; // True if crashing state is on
+    bool smoking; // True if player generates smoke
 
 public:
     /**
@@ -81,6 +82,14 @@ public:
      * @param e
      */
     void draw(Config &c, const Action &a, const Direction &d, const Elevation &e);
+
+    /**
+     * Dibuja la animación inicial en la pantalla y devuelve si ha acabado.
+     * @param c
+     * @param x
+     * @param end
+     */
+    void drawAnimation(Config &c, float x, bool &end);
 };
 
 

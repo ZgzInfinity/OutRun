@@ -7,18 +7,19 @@
  ******************************************************************************/
 
 #include "Player.hpp"
+#include "Random.hpp"
 #include <cmath>
 
 using namespace std;
 using namespace sf;
 
-#define PLAYER_TEXTURES 132
+#define PLAYER_TEXTURES 136
 
 Player::Player(float maxSpeed, float speedMul, float accInc, float scale, int maxCounterToChange, const string &vehicle,
                float pX, float pY) : Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                       acceleration(0), minCrashAcc(0), xDest(0), crashing(false) {}
+                       acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false) {}
 
 float Player::getPreviousY() const {
     return previousY;
@@ -26,6 +27,7 @@ float Player::getPreviousY() const {
 
 void Player::hitControl(const bool vehicleCrash) {
     crashing = true;
+    smoking = false;
 
     acceleration -= accInc * 2.5f;
     if (speed > 1.333f * halfMaxSpeed) // Reduces hit time
@@ -91,6 +93,7 @@ float Player::getRealSpeed() const {
 
 Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
     Action a = NONE;
+    smoking = false;
 
     if (Keyboard::isKeyPressed(c.brakeKey))
         a = BRAKE;
@@ -109,6 +112,8 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
 
         if (acceleration > maxAcc)
             acceleration = maxAcc;
+
+        smoking = acceleration < maxAcc * 0.1f;
     }
     else {
         float mul = 2.0f;
@@ -362,4 +367,57 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     maxScreenX = minScreenX + sprite.getGlobalBounds().width;
     sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
     c.w.draw(sprite);
+
+    if (smoking) {
+        const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+        sprite.setTexture(textures[132 + current_code_image % 4], true);
+        sprite.setScale(4, 4);
+        sprite.setPosition(((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width,
+                j - sprite.getGlobalBounds().height);
+        c.w.draw(sprite);
+        sprite.setPosition(((float)c.w.getSize().x) / 2.0f , j - sprite.getGlobalBounds().height);
+        c.w.draw(sprite);
+    }
+}
+
+void Player::drawAnimation(Config &c, float x, bool &end) {
+    if (textures.size() == PLAYER_TEXTURES) {
+        if (counter_code_image >= maxCounterToChange) {
+            current_code_image++;
+            counter_code_image = 0;
+        }
+        if (current_code_image < 132 || current_code_image > 135)
+            current_code_image = 132;
+
+        int index = 125;
+        if (float(x) < ((float)c.w.getSize().x) * 0.45f)
+            index = 124;
+        end = float(x) < ((float)c.w.getSize().x) * 0.4f || x >= c.w.getSize().x;
+
+        // Vehicle
+        sprite.setTexture(textures[index], true);
+        sprite.setScale(scale, scale);
+        sprite.setPosition(x, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
+        c.w.draw(sprite);
+
+        // Smoke
+        float i = x - sprite.getGlobalBounds().width / 3, j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+        while (i < (float)c.w.getSize().x) {
+            index = current_code_image;
+            sprite.setTexture(textures[index], true);
+            sprite.setScale(4, 4);
+            sprite.setPosition(i, j - sprite.getGlobalBounds().height);
+            c.w.draw(sprite);
+
+            i += sprite.getGlobalBounds().width;
+        }
+
+        if (end) {
+            current_code_image = 0;
+            counter_code_image = 0;
+        }
+        else {
+            counter_code_image++;
+        }
+    }
 }
