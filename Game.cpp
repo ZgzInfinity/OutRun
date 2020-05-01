@@ -23,8 +23,8 @@ using namespace std;
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
                         lastY(0), vehicleCrash(false) {
-    int nm = 3;
-    int nobjects[] = {6, 15, 15, 40, 0, 25, 0, 26}; // TODO: Más mapas
+    int nm = 15;
+    int nobjects[] = {6, 15, 15, 40, 0, 25, 0, 26, 0, 0, 0, 0, 0, 0, 0, 33}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
