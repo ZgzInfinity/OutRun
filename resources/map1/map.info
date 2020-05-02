@@ -17,33 +17,2312 @@
  *   6º Opcional: #   ;Indica el índice del objeto colocado a la derecha de la carretera (#.png). Por defecto no hay objeto.
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
-ROAD     4     -   3
+
+DROP 1000
+
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+
+CLIMB 5000
+
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     18    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+
+FLAT
+
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+
+CURVE -0.25
+
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+
+STRAIGHT
+
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+
+CURVE 0.25
+
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+
+CLIMB 2000
+
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+
+STRAIGHT
+DROP 2000
+
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+
+FLAT
+CURVE -0.25
+
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+
+STRAIGHT
+
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   19
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   19
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   19
+
+CURVE -0.75
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+
+STRAIGHT
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD     16    -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD     16    -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD     16    -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+
+CURVE 0.75
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+
+STRAIGHT
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+
+DROP 3000
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   17
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+
+CLIMB 10000
+CURVE -0.75
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD     14 1.0 -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+
+FLAT
+
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD     14 1.0 -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD     13 1.0 -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD     13 1.0 -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD     14 1.0 -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+ROAD   + 7     -
+ROAD   + 7     -
+ROAD   + 7     -   3
+
+STRAIGHT
+
+ROAD   + 7 0.02 -   19
+ROAD   + 7 0.04 -
+ROAD   + 7 0.06 -
+ROAD   + 7 0.08 -
+ROAD   + 7 0.10 -
+ROAD   + 7 0.12 -
+ROAD   + 7 0.14 -
+ROAD   + 7 0.16 -
+ROAD   + 7 0.18 -
+ROAD   + 7 0.20 -
+ROAD   + 7 0.22 -
+ROAD   + 7 0.24 -
+ROAD   + 7 0.26 -   19
+ROAD   + 7 0.28 -
+ROAD   + 7 0.30 -
+ROAD   + 7 0.32 -
+ROAD   + 7 0.34 -
+ROAD   + 7 0.36 -
+ROAD   + 7 0.38 -
+ROAD   + 7 0.40 -
+ROAD   + 7 0.42 -
+ROAD   + 7 0.44 -
+ROAD   + 7 0.46 -
+ROAD   + 7 0.48 -
+ROAD   + 7 0.50 -   19
+ROAD   + 7 0.52 -
+ROAD   + 7 0.54 -
+ROAD   + 7 0.56 -
+ROAD   + 7 0.58 -
+ROAD   + 7 0.60 -
+ROAD   + 7 0.64 -
+ROAD   + 7 0.68 -
+ROAD   + 7 0.72 -
+ROAD   + 7 0.76 -
+ROAD   + 7 0.80 -
+ROAD   + 7 0.84 -
+ROAD   + 7 0.88 -   19
+ROAD   + 7 0.92 -
+ROAD   + 7 0.96 -
+ROAD   + 7 1.00 -
+ROAD   + 7 1.10 -
+ROAD   + 7 1.20 -
+ROAD   + 7 1.30 -
+ROAD   + 7 1.40 -
+ROAD   + 7 1.50 -
+ROAD   + 7 1.60 -
+ROAD   + 7 1.70 -
+ROAD   + 7 1.80 -
+ROAD   + 7 1.90 -   19
+ROAD   + 7 2.00 -
+ROAD   + 7 2.50 -
+ROAD   + 7 3.00 -
+ROAD   + 7 3.50 -
+ROAD   + 7 4.00 -
+ROAD   + 7 5.00 -
+ROAD   + 7 6.00 -
+ROAD   + 7 7.00 -
+ROAD   + 7 8.00 -
+ROAD   + 7 9.00 -
+ROAD           -
+ROAD           -   19
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   17
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
 ROAD           -
 ROAD           -
 ROAD     4     -   3
 ROAD           -
 ROAD           -
-ROAD     4     -   3
+ROAD           -
+ROAD           -   11
 ROAD           -
 ROAD           -
 ROAD     4     -   3
 ROAD           -
 ROAD           -
-ROAD     4     -   3
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+
+CURVE -0.75
+
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -   3
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -   
+ROAD           -
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -   3
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   1
+ROAD           -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+ROAD           -   1
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+ROAD           -   1
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+
+STRAIGHT
+
+ROAD           -   1
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
 ROAD           -
 ROAD           -
 ROAD     4     -   3
 ROAD           -
 ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
 ROAD     4     -   3
 ROAD           -
 ROAD           -
-RANDOM 10
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   17
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
 ROAD     4     -   3
 ROAD           -
 ROAD           -
-RANDOM 30 9 11
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
 ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+
+CURVE -0.75
+
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -   3
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -   
+ROAD           -
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -   3
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+ROAD           -   1
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+
+STRAIGHT
+
+ROAD           -   1
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   17
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   17
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   17
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+
+CURVE -0.75
+
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     16    -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+
+CURVE 0.75
+CLIMB 5000
+
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     20    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+
+CURVE -0.75
+
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+ROAD           -   2
+ROAD           -
+ROAD           -
+ROAD     1     -
+ROAD           -
+ROAD           -
+
+STRAIGHT
+
+ROAD           -   1
+ROAD           -
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   20
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+
+DROP 3000
+
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+
+CLIMB 3000
+
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     9     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     11    -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -   11
+ROAD           -
+ROAD           -
+ROAD     4     -   3
+ROAD           -
+ROAD           -
+ROAD           -   3
+ROAD           -
+ROAD     4     -
+ROAD           -
+ROAD           -
+ROAD           -   9
+ROAD           -
+ROAD           -   3
+ROAD           -
+
+FLAT
+
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
 ROAD           -
 ROAD           -
 
