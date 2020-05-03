@@ -1,3 +1,4 @@
+
 /******************************************************************************
  * @file    Game.cpp
  * @author  Andrés Gavín Murillo, 716358
@@ -23,8 +24,8 @@ using namespace std;
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
                         lastY(0), vehicleCrash(false) {
-    int nm = 11;
-    int nobjects[] = {6, 15, 15, 40, 0, 25, 29, 26, 0, 0, 0, 30, 0, 34, 0, 33}; // TODO: Más mapas
+    int nm = 12;
+    int nobjects[] = {6, 15, 15, 40, 0, 25, 29, 26, 0, 0, 0, 30, 30, 34, 0, 33}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
