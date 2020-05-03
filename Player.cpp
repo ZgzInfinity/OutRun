@@ -100,10 +100,10 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
 
     if (a != BRAKE && Keyboard::isKeyPressed(c.accelerateKey)) {
         if (hasGotOut) {
-            if (acceleration < maxAcc / 2.0f)
-                acceleration += accInc / 2.0f;
+            if (acceleration < maxAcc / 3.0f)
+                acceleration += accInc / 3.0f;
             else
-                acceleration -= accInc;
+                acceleration -= accInc * 1.5f;
         }
         else {
             if (acceleration < maxAcc)

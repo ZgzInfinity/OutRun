@@ -23,8 +23,8 @@ using namespace std;
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
                         lastY(0), vehicleCrash(false) {
-    int nm = 13;
-    int nobjects[] = {6, 15, 15, 40, 0, 25, 29, 26, 0, 0, 0, 0, 0, 34, 0, 33}; // TODO: Más mapas
+    int nm = 1;
+    int nobjects[] = {6, 20, 15, 40, 0, 25, 29, 26, 0, 0, 0, 0, 0, 34, 0, 33}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -344,20 +344,22 @@ void Game::updateAndDraw(Config &c) {
         if (!isInitMap)
             mapId.first++;
         if (isInitMap || mapId.first < maps.size()) {
-            if (isInitMap)
-                isInitMap = false;
-
             // Update player and vehicle positions
             player.setPosition(player.getPosX(), player.getPosY() - currentMap->getMaxY());
             for (Vehicle &v : cars)
                 v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
             currentMap = &maps[mapId.first][mapId.second];
-            if (mapId.first < maps.size() - 1)
+            if (!isInitMap && mapId.first < maps.size() - 1) {
                 currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
+                time = MAX_TIME; // Update time when map changes
+            }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
             lastY = currentMap->getCamY();
+
+            if (isInitMap)
+                isInitMap = false;
         }
         else {
             finalGame = true;
