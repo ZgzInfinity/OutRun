@@ -106,7 +106,7 @@ CURVE -1.5
 
 ROAD        - 25 -0.7
 ROAD        - 
-ROAD + 80.7 - + 10 0.3
+ROAD  8 0.7 - + 10 0.3
 ROAD        -  
 ROAD        -  
 ROAD        - 7
