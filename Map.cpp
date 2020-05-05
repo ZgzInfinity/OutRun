@@ -30,13 +30,14 @@ Map::SpriteInfo::SpriteInfo() {
     repetitive = false;
 }
 
-Map::Line::Line() {
+Map::Line::Line(const bool fork) {
     curve = x = y = z = 0;
     mainColor = false;
+    isFork = fork;
 }
 
 void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
-        const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight) {
+        const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight, const bool fork) {
     float yInc = (y - prevY) / float(RECTANGLE); // RECTANGLE is total lines number will be added
 
     Line line, lineAux;
@@ -44,6 +45,7 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
     line.y = prevY;
     line.mainColor = mainColor;
     line.curve = curve;
+    line.isFork = fork;
 
     lineAux = line; // without objects
 
@@ -452,7 +454,7 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr) {
+        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr), nextSecond(nullptr) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -473,7 +475,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
         fileError();
 }
 
-Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr) {
+Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr), nextSecond(nullptr) {
     const int rectangles = 50; // Map size
     const string mapPath = "resources/mapCommon/"; // Folder with common objects
     const int nobjects = 37;
@@ -566,6 +568,34 @@ void Map::addNextMap(Map *map) {
     if (!lines.empty())
         yOffset = lines[lines.size() - 1].y;
     this->next->setOffset(yOffset);
+}
+
+void Map::addFork(Map *left, Map *right) {
+    if (this->nextSecond == nullptr) {
+        this->next = left;
+        this->nextSecond = right;
+        float yOffset = 0.0f;
+        if (!lines.empty())
+            yOffset = lines[lines.size() - 1].y;
+        this->next->setOffset(yOffset);
+        if (this->next != this->nextSecond)
+            this->nextSecond->setOffset(yOffset);
+
+        // Add fork to current map
+        float x = 0.0f, y = 0.0f;
+        float z = 0.0f;
+        bool mainColor = true;
+        if (!lines.empty()) {
+            x = lines[lines.size() - 1].x;
+            y = lines[lines.size() - 1].y;
+            z = lines[lines.size() - 1].z + SEGL;
+            mainColor = !lines[lines.size() - 1].mainColor;
+        }
+        for (int i = 0; i < 100; i++) { // 20 rectangles to fork
+            addLine(x, y, z, y, 0.75f, mainColor, SpriteInfo(), SpriteInfo(), true);
+            mainColor = !mainColor;
+        }
+    }
 }
 
 void Map::setOffset(float yOffset) {
@@ -700,10 +730,8 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     float x = 0, dx = 0;
     vector<int> visibleLines;
 
-    l->spriteLeft.spriteMinX = 0;
-    l->spriteLeft.spriteMaxX = 0;
-    l->spriteRight.spriteMinX = 0;
-    l->spriteRight.spriteMaxX = 0;
+    bool firstFork = true;
+    int xHorizon;
     for (int n = startPos; n <= lastPos; n++) {
         l = getLine(n);
         l->spriteLeft.spriteMinX = 0;
@@ -713,6 +741,11 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
 
         l->project(posX * ROADW - x, camH, float(startPos * SEGL), c.camD,
                    c.w.getSize().x, c.w.getSize().y, ROADW, n < N ? 0.0f : lines[lines.size() - 1].z);
+
+        if (l->isFork && firstFork) {
+            firstFork = false;
+            xHorizon = int(l->X);
+        }
 
         x += dx;
         dx += l->curve;
@@ -777,6 +810,33 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                      dw2); // Third right dash
             drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
                      dw2); // Fourth right dash
+
+            if (l->isFork) {
+                int x1left = xHorizon - abs(x1 + w1 - xHorizon);
+                int x2left = xHorizon - abs(x2 + w2 - xHorizon);
+                drawQuad(c.w, road, x1left, y1, w1, x2left, y2, w2);
+                drawQuad(c.w, rumble, x1left, y1, rw1, x2left, y2, rw2); // Left rumble
+                if (x1left + w1 < xHorizon) {
+                    drawQuad(c.w, rumble, x1left + w1 - rw1, y1, rw1, x2left + w2 - rw2, y2, rw2); // Right rumble
+                    drawQuad(c.w, dash, x1left + rw1, y1, dw1, x2left + rw2, y2, dw2); // First left dash
+                    drawQuad(c.w, dash, x1left + w1 - rw1 - dw1, y1, dw1, x2left + w2 - rw2 - dw2, y2, dw2); // First right dash
+                }
+                else { // Intersection
+                    // Right road
+                    drawQuad(c.w, dash, x1 + int(float(w1) * 0.75f), y1, dw1, x2 + int(float(w2) * 0.75f), y2,
+                             dw2); // Second right dash
+                    drawQuad(c.w, dash, x1 + int(float(w1) * 0.5f), y1, dw1, x2 + int(float(w2) * 0.5f), y2,
+                             dw2); // Third right dash
+                    drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
+                             dw2); // Fourth right dash
+                }
+                drawQuad(c.w, dash, x1left + int(float(w1) * 0.75f), y1, dw1, x2left + int(float(w2) * 0.75f), y2,
+                         dw2); // Second right dash
+                drawQuad(c.w, dash, x1left + int(float(w1) * 0.5f), y1, dw1, x2left + int(float(w2) * 0.5f), y2,
+                         dw2); // Third right dash
+                drawQuad(c.w, dash, x1left + int(float(w1) * 0.25f), y1, dw1, x2left + int(float(w2) * 0.25f), y2,
+                         dw2); // Fourth right dash
+            }
         }
 
         // Draw object

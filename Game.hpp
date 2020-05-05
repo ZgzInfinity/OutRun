@@ -17,7 +17,7 @@
 #include "Enemy.hpp"
 
 
-const int MAX_TIME = 75;
+const int MAX_TIME = 750;
 const unsigned long MAX_SCORE = 4294967295;
 
 /**

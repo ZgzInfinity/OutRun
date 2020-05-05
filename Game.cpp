@@ -45,7 +45,9 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
     }
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
-    currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]); // TODO: Añadir bifurcación
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j <= i; j++)
+            maps[i][j].addFork(&maps[i + 1][j], &maps[i + 1][j + 1]);
     isInitMap = true;
 
     // Vehicles
@@ -288,7 +290,8 @@ State Game::play(Config &c) {
 void Game::initialAnimation(Config &c) {
     int flagger, semaphore;
     Map *initMap = new Map(*currentMap, flagger, semaphore);
-    initMap->addNextMap(currentMap);
+    //initMap->addNextMap(currentMap);
+    initMap->addFork(currentMap, currentMap);
     currentMap = initMap;
 
     // Prepare car
@@ -351,7 +354,6 @@ void Game::updateAndDraw(Config &c) {
 
             currentMap = &maps[mapId.first][mapId.second];
             if (!isInitMap && mapId.first < maps.size() - 1) {
-                currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
                 time = MAX_TIME; // Update time when map changes
             }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
