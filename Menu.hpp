@@ -12,6 +12,7 @@
 #include <vector>
 #include <iostream>
 #include "Button.hpp"
+#include "Interface.hpp"
 #include "KeywordMapper.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -94,7 +95,6 @@ enum State {
     OPTIONS,
     MUSIC,
     GAME,
-    PAUSE,
     END,
     EXIT
 };
@@ -102,15 +102,13 @@ enum State {
 
 State introAnimation(Config& c);
 
-State optionsMenu(Config& c);
+State optionsMenu(Config& c, const bool& inGame);
 
 void changeCarControllers(Config& c);
 
 State selectMusicSoundtrack(Config& c);
 
 State startMenu(Config &c);
-
-State pauseMenu(Config &c);
 
 State endMenu(Config &c);
 

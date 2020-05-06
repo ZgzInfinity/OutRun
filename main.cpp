@@ -15,7 +15,8 @@ using namespace std;
 
 int main() {
     Config c;
-    Game engine(c);
+    Interface i;
+    Game engine(c, i);
     State state = ANIMATION;
 
     while (c.w.isOpen()) {
@@ -33,15 +34,12 @@ int main() {
                 break;
             }
             case OPTIONS: {
-                state = optionsMenu(c);
+                bool inGame = engine.isInGame();
+                state = optionsMenu(c, inGame);
                 break;
             }
             case GAME: {
-                state = engine.play(c);
-                break;
-            }
-            case PAUSE: {
-                state = pauseMenu(c);
+                state = engine.play(c, i);
                 break;
             }
             case END: {

@@ -177,7 +177,6 @@ State startMenu(Config &c) {
     textElements[4].setOutlineColor(Color::Black);
     textElements[4].setOutlineThickness(3);
 
-
     // Partial state of the game
     State state = START;
 
@@ -192,12 +191,12 @@ State startMenu(Config &c) {
 
     // While the console window is opened
     while (c.w.isOpen()) {
+
         // Detect the possible events
         Event e{};
-        while (c.w.pollEvent(e)) {
-            if (e.type == Event::Closed){
-                c.w.close();
-            }
+        c.w.pollEvent(e);
+        if (e.type == Event::Closed){
+            c.w.close();
         }
 
         // While the ENTER keyword is not pressed
@@ -214,6 +213,7 @@ State startMenu(Config &c) {
                 textElements[0].setFillColor(Color::Green);
                 textElements[0].setOutlineColor(Color::Black);
             }
+
             // Show the press start title in the menu
             c.w.draw(mainMenu);
             c.w.draw(nameGames[j]);
@@ -227,6 +227,7 @@ State startMenu(Config &c) {
             if (Keyboard::isKeyPressed(c.menuEnterKey)){
                 // Pass to the second menu
                 startPressed = true;
+                c.effects[1]->stop();
                 c.effects[1]->play();
                 sleep(milliseconds(50));
             }
@@ -242,18 +243,30 @@ State startMenu(Config &c) {
 
         // While the ENTER keyword is not pressed
         while (!startPressed){
+
+            // Detect the possible events
+            Event e{};
+            c.w.waitEvent(e);
+            if (e.type == Event::Closed){
+                c.w.close();
+            }
+
             // Control if the up or down cursor keys are pressed or not
             if (Keyboard::isKeyPressed(c.menuUpKey)){
                 // Up cursor pressed
-                c.effects[0]->play();
-                row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 75);
-                state = MUSIC;
+                if (state != MUSIC){
+                    c.effects[0]->play();
+                    row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 75);
+                    state = MUSIC;
+                }
             }
             else if (Keyboard::isKeyPressed(c.menuDownKey)){
-                // Down cursor pressed7
-                c.effects[0]->play();
-                row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 125);
-                state = OPTIONS;
+                // Down cursor pressed
+                if (state != OPTIONS){
+                    c.effects[0]->play();
+                    row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 125);
+                    state = OPTIONS;
+                }
             }
 
             // Show the menu with the starting and options indicators
@@ -518,7 +531,7 @@ void changeCarControllers(Config& c){
 
 
 
-State optionsMenu(Config& c){
+State optionsMenu(Config& c, const bool& inGame){
 
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
@@ -747,7 +760,13 @@ State optionsMenu(Config& c){
         }
     }
     c.themes[c.currentSoundtrack]->stop();
-    return MUSIC;
+    if (inGame){
+        return GAME;
+    }
+    else {
+        return MUSIC;
+    }
+
 }
 
 
@@ -805,6 +824,11 @@ State selectMusicSoundtrack(Config &c){
 
     // Control if the Enter key is pressed
     bool startPressed = false;
+
+    // Stop soundsn                                                                            nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+    c.themes[0]->stop();
+    c.themes[1]->stop();
+    c.themes[2]->stop();
 
     c.currentSoundtrack = 1;
     c.themes[c.currentSoundtrack]->play();
@@ -884,6 +908,7 @@ State selectMusicSoundtrack(Config &c){
         // Check if the keyword Enter has been pressed or not
         if (Keyboard::isKeyPressed(c.menuEnterKey)){
             startPressed = true;
+            c.effects[2]->stop();
             c.effects[2]->play();
         }
     }
@@ -891,11 +916,6 @@ State selectMusicSoundtrack(Config &c){
     return GAME;
 }
 
-
-
-State pauseMenu(Config& c) {
-    return EXIT;
-}
 
 State endMenu(Config &c) {
     return EXIT;
