@@ -44,8 +44,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
         // nm++; // TODO: Añadir más mapas y borrar línea
         // nm = nm % 3; // TODO: Añadir más mapas y borrar línea
     }
-    mapId = make_pair(0, 0);
-    currentMap = &maps[mapId.first][mapId.second];
+    currentMap = &maps[0][0];
     for (int i = 0; i < 4; i++)
         for (int j = 0; j <= i; j++)
             maps[i][j].addFork(&maps[i + 1][j], &maps[i + 1][j + 1]);
@@ -343,17 +342,14 @@ void Game::updateAndDraw(Config &c) {
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
     if (currentMap->isOver()) {
-        // TODO: Añadir bifurcación
-        if (!isInitMap)
-            mapId.first++;
-        if (isInitMap || mapId.first < maps.size()) {
+        if (currentMap->getNext() != nullptr) {
             // Update player and vehicle positions
             player.setPosition(player.getPosX() + currentMap->getOffsetX(), player.getPosY() - currentMap->getMaxY());
             for (Vehicle &v : cars)
                 v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
-            currentMap = &maps[mapId.first][mapId.second];
-            if (!isInitMap && mapId.first < maps.size() - 1) {
+            currentMap = currentMap->getNext();
+            if (!isInitMap) {
                 time = MAX_TIME; // Update time when map changes
             }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
@@ -392,7 +388,7 @@ void Game::updateAndDraw(Config &c) {
         Vehicle::Direction direction = Vehicle::RIGHT;
 
         if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
+            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
         }
         else {

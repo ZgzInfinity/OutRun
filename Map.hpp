@@ -106,7 +106,7 @@ class Map {
     float posX, posY;
 
     // Next map
-    Map *next, *nextSecond;
+    Map *next, *nextRight;
 
     bool initMap;
 
@@ -315,9 +315,10 @@ public:
     /**
      * Devuelve true si currentX está fuera de la carretera.
      * @param currentX
+     * @param currentY
      * @return
      */
-    bool hasGotOut(float currentX) const;
+    bool hasGotOut(float currentX, float currentY) const;
 
     /**
      * Devuelve el coeficiente de curvatura correspondiente al rectángulo currentY. El coeficiente es positivo si la
@@ -349,6 +350,8 @@ public:
     float getOffsetX() const;
 
     bool inFork(float currentY) const;
+
+    Map* getNext() const;
 };
 
 

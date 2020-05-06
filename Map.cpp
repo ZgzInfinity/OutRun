@@ -31,7 +31,6 @@ using namespace sf;
 // TODO pi
 const float a = sqrt(2.0f) * FORK_RADIUS;
 const float b = FORK_RADIUS - sqrt(2.0f) * FORK_RADIUS;
-//const float b = FORK_RADIUS * sin(0.75f * M_PI) - FORK_RADIUS - FORK_RADIUS * cos(0.75f * M_PI);
 const float xChange = FORK_RADIUS * sin(0.75f * M_PI);
 
 Map::SpriteInfo::SpriteInfo() {
@@ -492,7 +491,7 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr), nextSecond(nullptr),
+        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr), nextRight(nullptr),
                                                                     initMap(false) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
@@ -515,7 +514,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 }
 
 Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr),
-                                                         nextSecond(nullptr), initMap(true) {
+                                                         nextRight(nullptr), initMap(true) {
     const int rectangles = 50; // Map size
     const string mapPath = "resources/mapCommon/"; // Folder with common objects
     const int nobjects = 37;
@@ -612,15 +611,15 @@ void Map::addNextMap(Map *map) {
 }
 
 void Map::addFork(Map *left, Map *right) {
-    if (this->nextSecond == nullptr) {
+    if (this->nextRight == nullptr) {
         this->next = left;
-        this->nextSecond = right;
+        this->nextRight = right;
         float yOffset = 0.0f;
         if (!lines.empty())
             yOffset = lines[lines.size() - 1].y;
         this->next->setOffset(yOffset);
-        if (this->next != this->nextSecond)
-            this->nextSecond->setOffset(yOffset);
+        if (this->next != this->nextRight)
+            this->nextRight->setOffset(yOffset);
 
         // Add fork to current map
         if (!lines.empty()) {
@@ -672,14 +671,6 @@ void Map::addFork(Map *left, Map *right) {
                 }
                 auxLines.clear();
             }
-
-            /*float curve = lines[lines.size() - 1].yOffsetX;
-            addLine(x, y, z, y, curve, mainColor, SpriteInfo(), SpriteInfo(), xOffset);
-            curve = lines[lines.size() - 1].yOffsetX - curve;
-            for (int i = 0; i < 50; i++) { // 20 rectangles to fork
-                addLine(x, y, z, y, curve, mainColor, SpriteInfo(), SpriteInfo(), xOffset);
-                mainColor = !mainColor;
-            }*/
         }
     }
 }
@@ -785,10 +776,10 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     const int lastPos = startPos + c.renderLen - 1;
     Line *l = getLine(startPos), *p;
 
-    if (l->offsetX >= xChange && nextSecond != nullptr) {
+    if (l->offsetX >= xChange && nextRight != nullptr) {
         if (posX >= 0.0f)
-            next = nextSecond;
-        nextSecond = nullptr;
+            next = nextRight;
+        nextRight = nullptr;
     }
 
     // Sort vehicles
@@ -821,18 +812,6 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     float maxy = c.w.getSize().y;
     float x = 0, dx = 0;
     vector<int> visibleLines;
-
-    /*// TODO Hacer en game
-    if (l->offsetX >= 20.0f * float(RECTANGLE) * FORK_COEFF && l->offsetX < 20.0f * float(RECTANGLE) * FORK_COEFF + FORK_COEFF) {
-        l->curve = l->yOffsetX;
-        for (int n = startPos; n < lines.size(); n++) {
-            l = getLine(n);
-            l->offsetX = 0.0f;
-            l->yOffsetX = 0.0f;
-        }
-        // TODO: Car posx -= l.curve
-        // TODO: No generar coches si currentLine.offsetX != 0
-    }*/
 
     for (int n = startPos; n <= lastPos; n++) {
         l = getLine(n);
@@ -868,17 +847,36 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
         if (visibleLines.back() == n) {
             visibleLines.pop_back();
 
-            Color grass, road;
-            if (n < N || next == nullptr) {
-                grass = grassColor[l->mainColor];
-                road = roadColor[l->mainColor];
+            Color grassRight, grass, roadRight, road, rumbleRight, rumble, dashRight, dash;
+            if ((initMap && n < N) || (!initMap && n < N - (END_RECTANGLES + FORK_RECTANGLES) * RECTANGLE) || next == nullptr) {
+                grassRight = grassColor[l->mainColor];
+                roadRight = roadColor[l->mainColor];
+                rumbleRight = l->mainColor ? roadRight : rumbleColor;
+                dashRight = l->mainColor ? dashColor : roadRight;
+
+                grass = grassRight;
+                road = roadRight;
+                rumble = rumbleRight;
+                dash = dashRight;
             }
             else {
                 grass = next->grassColor[l->mainColor];
                 road = next->roadColor[l->mainColor];
+                rumble = l->mainColor ? road : next->rumbleColor;
+                dash = l->mainColor ? next->dashColor : road;
+                if (nextRight != nullptr) {
+                    grassRight = nextRight->grassColor[l->mainColor];
+                    roadRight = nextRight->roadColor[l->mainColor];
+                    rumbleRight = l->mainColor ? roadRight : nextRight->rumbleColor;
+                    dashRight = l->mainColor ? nextRight->dashColor : roadRight;
+                }
+                else {
+                    grassRight = grass;
+                    roadRight = road;
+                    rumbleRight = rumble;
+                    dashRight = dash;
+                }
             }
-            Color rumble = l->mainColor ? road : rumbleColor;
-            Color dash = l->mainColor ? dashColor : road;
 
             float prevX = l->X, prevY = c.w.getSize().y, prevW = l->W;
             p = l;
@@ -890,43 +888,64 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
             }
 
             // Draw grass
-            drawQuad(c.w, grass, 0, int(prevY), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
+            drawQuad(c.w, grassRight, 0, int(prevY), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
 
             // Draw road
             int x1 = int(prevX - prevW - p->scale * (p->x - p->yOffsetX * ROADW) * c.w.getSize().x / 2.0f),
                     x2 = int(l->X - l->W - l->scale * (l->x - l->yOffsetX * ROADW) * c.w.getSize().x / 2.0f);
             const int y1 = int(prevY), w1 = int(2.0f * prevW), y2 = int(l->Y), w2 = int(2.0f * l->W),
                     rw1 = int(prevW * RUMBLECOEFF), rw2 = int(l->W * RUMBLECOEFF), dw1 = rw1 / 2, dw2 = rw2 / 2;
-            drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
-            drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
-            drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
-            drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
-            drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.75f), y1, dw1, x2 + int(float(w2) * 0.75f), y2,
+            drawQuad(c.w, roadRight, x1, y1, w1, x2, y2, w2);
+            drawQuad(c.w, rumbleRight, x1, y1, rw1, x2, y2, rw2); // Left rumble
+            drawQuad(c.w, rumbleRight, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
+            drawQuad(c.w, dashRight, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
+            drawQuad(c.w, dashRight, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
+            drawQuad(c.w, dashRight, x1 + int(float(w1) * 0.75f), y1, dw1, x2 + int(float(w2) * 0.75f), y2,
                      dw2); // Second right dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.5f), y1, dw1, x2 + int(float(w2) * 0.5f), y2,
+            drawQuad(c.w, dashRight, x1 + int(float(w1) * 0.5f), y1, dw1, x2 + int(float(w2) * 0.5f), y2,
                      dw2); // Third right dash
-            drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
+            drawQuad(c.w, dashRight, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
                      dw2); // Fourth right dash
 
             if (l->yOffsetX > 0.0f) {
                 const int x1right = x1, x2right = x2;
                 x1 = int(prevX - prevW + p->scale * (p->x - p->yOffsetX * ROADW) * c.w.getSize().x / 2.0f);
                 x2 = int(l->X - l->W + l->scale * (l->x - l->yOffsetX * ROADW) * c.w.getSize().x / 2.0f);
-                drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
-                drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
                 if ((x1 + w1) >= x1right) { // Intersection
+                    grassRight = grassColor[l->mainColor];
+                    roadRight = roadColor[l->mainColor];
+                    rumbleRight = l->mainColor ? roadRight : rumbleColor;
+                    dashRight = l->mainColor ? dashColor : roadRight;
+
+                    grass = grassRight;
+                    road = roadRight;
+                    rumble = rumbleRight;
+                    dash = dashRight;
+
+                    // Draw grass
+                    drawQuad(c.w, grassRight, 0, int(prevY), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
+
+                    // Left road
+                    drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
+                    drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
+
                     // Right road
-                    drawQuad(c.w, rumble, x1right + w1 - rw1, y1, rw1, x2right + w2 - rw2, y2, rw2); // Right rumble
-                    drawQuad(c.w, dash, x1right + w1 - rw1 - dw1, y1, dw1, x2right + w2 - rw2 - dw2, y2, dw2); // First right dash
-                    drawQuad(c.w, dash, x1right + int(float(w1) * 0.75f), y1, dw1, x2right + int(float(w2) * 0.75f), y2,
+                    drawQuad(c.w, roadRight, x1right, y1, w1, x2right, y2, w2);
+                    drawQuad(c.w, rumbleRight, x1right + w1 - rw1, y1, rw1, x2right + w2 - rw2, y2, rw2); // Right rumble
+                    drawQuad(c.w, dashRight, x1right + w1 - rw1 - dw1, y1, dw1, x2right + w2 - rw2 - dw2, y2, dw2); // First right dash
+                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.75f), y1, dw1, x2right + int(float(w2) * 0.75f), y2,
                              dw2); // Second right dash
-                    drawQuad(c.w, dash, x1right + int(float(w1) * 0.5f), y1, dw1, x2right + int(float(w2) * 0.5f), y2,
+                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.5f), y1, dw1, x2right + int(float(w2) * 0.5f), y2,
                              dw2); // Third right dash
-                    drawQuad(c.w, dash, x1right + int(float(w1) * 0.25f), y1, dw1, x2right + int(float(w2) * 0.25f), y2,
+                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.25f), y1, dw1, x2right + int(float(w2) * 0.25f), y2,
                              dw2); // Fourth right dash
                 }
                 else {
+                    // Draw grass
+                    drawQuad(c.w, grass, 0, int(prevY), int(prevX), 0, int(l->Y), int(l->X));
+
+                    drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
+                    drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
                     drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
                     drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
                 }
@@ -939,32 +958,6 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                 drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
                          dw2); // Fourth right dash
             }
-            /*if (l->isFork) {
-                int x1left = xHorizon - abs(x1 + w1 - xHorizon);
-                int x2left = xHorizon - abs(x2 + w2 - xHorizon);
-                drawQuad(c.w, road, x1left, y1, w1, x2left, y2, w2);
-                drawQuad(c.w, rumble, x1left, y1, rw1, x2left, y2, rw2); // Left rumble
-                if (x1left + w1 < xHorizon) {
-                    drawQuad(c.w, rumble, x1left + w1 - rw1, y1, rw1, x2left + w2 - rw2, y2, rw2); // Right rumble
-                    drawQuad(c.w, dash, x1left + rw1, y1, dw1, x2left + rw2, y2, dw2); // First left dash
-                    drawQuad(c.w, dash, x1left + w1 - rw1 - dw1, y1, dw1, x2left + w2 - rw2 - dw2, y2, dw2); // First right dash
-                }
-                else { // Intersection
-                    // Right road
-                    drawQuad(c.w, dash, x1 + int(float(w1) * 0.75f), y1, dw1, x2 + int(float(w2) * 0.75f), y2,
-                             dw2); // Second right dash
-                    drawQuad(c.w, dash, x1 + int(float(w1) * 0.5f), y1, dw1, x2 + int(float(w2) * 0.5f), y2,
-                             dw2); // Third right dash
-                    drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
-                             dw2); // Fourth right dash
-                }
-                drawQuad(c.w, dash, x1left + int(float(w1) * 0.75f), y1, dw1, x2left + int(float(w2) * 0.75f), y2,
-                         dw2); // Second right dash
-                drawQuad(c.w, dash, x1left + int(float(w1) * 0.5f), y1, dw1, x2left + int(float(w2) * 0.5f), y2,
-                         dw2); // Third right dash
-                drawQuad(c.w, dash, x1left + int(float(w1) * 0.25f), y1, dw1, x2left + int(float(w2) * 0.25f), y2,
-                         dw2); // Fourth right dash
-            }*/
         }
 
         // Draw object
@@ -1032,8 +1025,14 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, f
     return false;
 }
 
-bool Map::hasGotOut(float currentX) const {
-    return abs(currentX) > 1.0f;
+bool Map::hasGotOut(float currentX, float currentY) const {
+    float offset;
+    if (posX >= 0.0f)
+        offset = -lines[int(currentY) % lines.size()].yOffsetX;
+    else
+        offset = lines[int(currentY) % lines.size()].yOffsetX;
+
+    return abs(currentX + offset) > 1.0f;
 }
 
 float Map::getCurveCoefficient(float currentY) const {
@@ -1078,4 +1077,8 @@ bool Map::inFork(const float currentY) const {
         return false;
     else
         return currentY >= float(lines.size() - (FORK_RECTANGLES + END_RECTANGLES) * RECTANGLE);
+}
+
+Map *Map::getNext() const {
+    return next;
 }
