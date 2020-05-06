@@ -108,6 +108,8 @@ class Map {
     // Next map
     Map *next, *nextSecond;
 
+    bool initMap;
+
     /**
      * Devuelve Line n
      * @param n
@@ -343,6 +345,10 @@ public:
      * @return
      */
     float getMaxY() const;
+
+    float getOffsetX() const;
+
+    bool inFork(float currentY) const;
 };
 
 

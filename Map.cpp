@@ -25,7 +25,8 @@ using namespace sf;
 #define SCREEN_SCALE 266.0f
 #define FORK_COEFF 0.03f
 #define FORK_RADIUS 10.0f
-#define FORK_RECTANGLES 100
+#define FORK_RECTANGLES 100 // Multiple of RECTANGLE
+#define END_RECTANGLES 60 // Multiple of RECTANGLE
 
 // TODO pi
 const float a = sqrt(2.0f) * FORK_RADIUS;
@@ -491,7 +492,8 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr), nextSecond(nullptr) {
+        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr), nextSecond(nullptr),
+                                                                    initMap(false) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -512,7 +514,8 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
         fileError();
 }
 
-Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr), nextSecond(nullptr) {
+Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr),
+                                                         nextSecond(nullptr), initMap(true) {
     const int rectangles = 50; // Map size
     const string mapPath = "resources/mapCommon/"; // Folder with common objects
     const int nobjects = 37;
@@ -627,9 +630,47 @@ void Map::addFork(Map *left, Map *right) {
             bool mainColor = !lines[lines.size() - 1].mainColor;
 
             float xOffset = lines[lines.size() - 1].offsetX + FORK_COEFF;
-            for (int i = 0; i < 100; i++) { // 20 rectangles to fork
+            for (int i = 0; i < FORK_RECTANGLES + END_RECTANGLES; i++) { // 20 rectangles to fork
                 addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), xOffset, FORK_COEFF);
                 mainColor = !mainColor;
+            }
+
+            xOffset = 0.0f;
+            vector<Line> auxLines;
+            swap(left->lines, auxLines);
+            left->lines.clear();
+            left->lines.reserve(auxLines.size() + END_RECTANGLES * RECTANGLE);
+            z = 0.0f;
+            if (!lines[lines.size() - 1].mainColor)
+                left->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), xOffset);
+            mainColor = true;
+            for (int i = 0; i < END_RECTANGLES; i++) {
+                left->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), xOffset);
+                mainColor = !mainColor;
+            }
+            for (const Line &l : auxLines) {
+                left->lines.push_back(l);
+                left->lines.back().z += z;
+            }
+            auxLines.clear();
+
+            if (right != left) {
+                swap(right->lines, auxLines);
+                right->lines.clear();
+                right->lines.reserve(auxLines.size() + END_RECTANGLES * RECTANGLE);
+                z = 0.0f;
+                if (!lines[lines.size() - 1].mainColor)
+                    right->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), xOffset);
+                mainColor = true;
+                for (int i = 0; i < END_RECTANGLES; i++) {
+                    right->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), xOffset);
+                    mainColor = !mainColor;
+                }
+                for (const Line &l : auxLines) {
+                    right->lines.push_back(l);
+                    right->lines.back().z += z;
+                }
+                auxLines.clear();
             }
 
             /*float curve = lines[lines.size() - 1].yOffsetX;
@@ -743,6 +784,12 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     const int startPos = int(posY) % N;
     const int lastPos = startPos + c.renderLen - 1;
     Line *l = getLine(startPos), *p;
+
+    if (l->offsetX >= xChange && nextSecond != nullptr) {
+        if (posX >= 0.0f)
+            next = nextSecond;
+        nextSecond = nullptr;
+    }
 
     // Sort vehicles
     vector<Enemy*> sortedVehicles;
@@ -1006,9 +1053,29 @@ Vehicle::Elevation Map::getElevation(float currentY) const {
 }
 
 bool Map::isOver() const {
-    return posY >= lines.size();
+    if (initMap)
+        return posY >= lines.size();
+    else
+        return posY >= float(lines.size() - END_RECTANGLES * RECTANGLE);
 }
 
 float Map::getMaxY() const {
-    return lines.size();
+    if (initMap)
+        return lines.size();
+    else
+        return float(lines.size() - END_RECTANGLES * RECTANGLE);
+}
+
+float Map::getOffsetX() const {
+    if (posX >= 0.0f)
+        return -lines[lines.size() - 1].yOffsetX;
+    else
+        return lines[lines.size() - 1].yOffsetX;
+}
+
+bool Map::inFork(const float currentY) const {
+    if (initMap)
+        return false;
+    else
+        return currentY >= float(lines.size() - (FORK_RECTANGLES + END_RECTANGLES) * RECTANGLE);
 }

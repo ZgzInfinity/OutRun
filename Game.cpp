@@ -23,7 +23,7 @@ using namespace std;
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
                         lastY(0), vehicleCrash(false) {
-    int nm = 11;
+    int nm = 1;
     int nobjects[] = {6, 15, 15, 40, 0, 25, 29, 26, 0, 0, 0, 30, 0, 34, 0, 33}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
@@ -36,7 +36,8 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
             Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
-            // nm++; // TODO: Añadir más mapas y descomentar
+            nm++; // TODO: Añadir más mapas y descomentar
+            nm = nm % 4 + 1;
         }
         maps.emplace_back(vm);
 
@@ -290,8 +291,7 @@ State Game::play(Config &c) {
 void Game::initialAnimation(Config &c) {
     int flagger, semaphore;
     Map *initMap = new Map(*currentMap, flagger, semaphore);
-    //initMap->addNextMap(currentMap);
-    initMap->addFork(currentMap, currentMap);
+    initMap->addNextMap(currentMap);
     currentMap = initMap;
 
     // Prepare car
@@ -348,7 +348,7 @@ void Game::updateAndDraw(Config &c) {
             mapId.first++;
         if (isInitMap || mapId.first < maps.size()) {
             // Update player and vehicle positions
-            player.setPosition(player.getPosX(), player.getPosY() - currentMap->getMaxY());
+            player.setPosition(player.getPosX() + currentMap->getOffsetX(), player.getPosY() - currentMap->getMaxY());
             for (Vehicle &v : cars)
                 v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
@@ -373,7 +373,7 @@ void Game::updateAndDraw(Config &c) {
         if (lastY <= currentMap->getCamY() + float(c.renderLen))
             lastY = currentMap->getCamY() + float(c.renderLen);
         for (Enemy &v : cars) {
-            if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+            if (currentMap->inFork(v.getPosY()) || v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
                 v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
