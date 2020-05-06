@@ -336,7 +336,7 @@ public:
     Vehicle::Elevation getElevation(float currentY) const;
 
     /**
-     * Devuelve cierto si se ha alcanzado el final del mapa
+     * Devuelve cierto si se ha alcanzado el final del mapa.
      * @return
      */
     bool isOver() const;
@@ -347,10 +347,23 @@ public:
      */
     float getMaxY() const;
 
+    /**
+     * Devuelve el offset de la carretera en x .
+     * @return
+     */
     float getOffsetX() const;
 
+    /**
+     * Devuelve true si está en una bifurcación.
+     * @param currentY
+     * @return
+     */
     bool inFork(float currentY) const;
 
+    /**
+     * Devuelve el siguiente mapa o NULL si es el final.
+     * @return
+     */
     Map* getNext() const;
 };
 

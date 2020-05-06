@@ -24,8 +24,8 @@ using namespace std;
 
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
                                               lastY(0), vehicleCrash(false) {
-    int nm = 2;
-    int nobjects[] = {6, 15, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33}; // TODO: Más mapas
+    int nm = 0;
+    int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -34,19 +34,16 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
             for (int no = 1; no <= nobjects[nm]; no++)
                 objectNames.push_back(to_string(no) + ".png");
 
-            Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
+            Map m(c, "resources/map" + to_string(nm + 1) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
-            // nm++; // TODO: Añadir más mapas y descomentar
+            nm++;
         }
         maps.emplace_back(vm);
-
-        // nm++; // TODO: Añadir más mapas y borrar línea
-        // nm = nm % 3; // TODO: Añadir más mapas y borrar línea
     }
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
-    currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]); // TODO: Añadir bifurcación
+    currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
     isInitMap = true;
 
     // Vehicles
@@ -199,7 +196,6 @@ State Game::play(Config &c, Interface& interface) {
     State status;
 
     while (!finalGame && c.w.isOpen()) {
-
         updateAndDraw(c, action, direction);
 
         if (!finalGame) {
@@ -325,7 +321,6 @@ State Game::play(Config &c, Interface& interface) {
     return status;
 }
 
-
 void Game::initialAnimation(Config &c) {
     int flagger, semaphore;
     Map *initMap = new Map(*currentMap, flagger, semaphore);
@@ -381,19 +376,25 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
     if (currentMap->isOver()) {
-        // TODO: Añadir bifurcación
-        if (!isInitMap)
-            mapId.first++;
-        if (isInitMap || mapId.first < maps.size()) {
+        if (currentMap->getNext() != nullptr) {
             // Update player and vehicle positions
-            player.setPosition(player.getPosX(), player.getPosY() - currentMap->getMaxY());
+            player.setPosition(player.getPosX() + currentMap->getOffsetX(), player.getPosY() - currentMap->getMaxY());
             for (Vehicle &v : cars)
                 v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
-            currentMap = &maps[mapId.first][mapId.second];
-            if (!isInitMap && mapId.first < maps.size() - 1) {
-                currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
+            currentMap = currentMap->getNext();
+            if (!isInitMap) {
                 time = MAX_TIME; // Update time when map changes
+                level++;
+                // TODO: Actualizar esquema del nivel actual
+
+                // Update fork maps
+                if (currentMap == &maps[mapId.first + 1][mapId.second + 1])
+                    mapId.second++;
+                mapId.first++;
+                cout << "Map: " << mapId.first << ", " << mapId.second << endl; // TODO: Borrar
+                if (mapId.first < 4)
+                    currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
             }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -412,7 +413,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         if (lastY <= currentMap->getCamY() + float(c.renderLen))
             lastY = currentMap->getCamY() + float(c.renderLen);
         for (Enemy &v : cars) {
-            if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+            if (currentMap->inFork(v.getPosY()) || v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
                 v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
@@ -431,7 +432,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         direction = Vehicle::RIGHT;
 
         if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
+            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
         }
         else {
@@ -461,8 +462,6 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         }
     }
 }
-
-
 
 State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehicle::Direction &d) {
     // Start the pause menu of the game

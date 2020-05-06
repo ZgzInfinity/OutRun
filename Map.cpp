@@ -1052,14 +1052,14 @@ Vehicle::Elevation Map::getElevation(float currentY) const {
 }
 
 bool Map::isOver() const {
-    if (initMap)
+    if (initMap || next == nullptr)
         return posY >= lines.size();
     else
         return posY >= float(lines.size() - END_RECTANGLES * RECTANGLE);
 }
 
 float Map::getMaxY() const {
-    if (initMap)
+    if (initMap || next == nullptr)
         return lines.size();
     else
         return float(lines.size() - END_RECTANGLES * RECTANGLE);
@@ -1073,7 +1073,7 @@ float Map::getOffsetX() const {
 }
 
 bool Map::inFork(const float currentY) const {
-    if (initMap)
+    if (initMap || next == nullptr)
         return false;
     else
         return currentY >= float(lines.size() - (FORK_RECTANGLES + END_RECTANGLES) * RECTANGLE);
