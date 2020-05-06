@@ -1,3 +1,4 @@
+
 /******************************************************************************
  * @file    Game.cpp
  * @author  Andrés Gavín Murillo, 716358
@@ -21,10 +22,10 @@ using namespace std;
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
-Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
-                        lastY(0), vehicleCrash(false) {
-    int nm = 1;
-    int nobjects[] = {6, 15, 15, 40, 0, 25, 29, 26, 0, 0, 0, 30, 0, 34, 0, 33}; // TODO: Más mapas
+Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
+                                              lastY(0), vehicleCrash(false) {
+    int nm = 2;
+    int nobjects[] = {6, 15, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -36,18 +37,16 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
             Map m(c, "resources/map" + to_string(nm) + "/", "bg.png", objectNames, false);
             vm.push_back(m);
 
-            nm++; // TODO: Añadir más mapas y descomentar
-            nm = nm % 4 + 1;
+            // nm++; // TODO: Añadir más mapas y descomentar
         }
         maps.emplace_back(vm);
 
         // nm++; // TODO: Añadir más mapas y borrar línea
         // nm = nm % 3; // TODO: Añadir más mapas y borrar línea
     }
-    currentMap = &maps[0][0];
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j <= i; j++)
-            maps[i][j].addFork(&maps[i + 1][j], &maps[i + 1][j + 1]);
+    mapId = make_pair(0, 0);
+    currentMap = &maps[mapId.first][mapId.second];
+    currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]); // TODO: Añadir bifurcación
     isInitMap = true;
 
     // Vehicles
@@ -66,72 +65,116 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER,
     for (int i = 1; i <= 6; i++){
         // Load the texture from the file
         t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
-        textures.push_back(t);
+        interface.textures.push_back(t);
     }
 
     for (int i = 0; i < 7; i++){
-        s.setTexture(textures[i], true);
-        sprites.push_back(s);
+        s.setTexture(interface.textures[i], true);
+        interface.sprites.push_back(s);
+    }
+
+    // Assign positions in the game console for the game panel indicators
+    for (int i = 0; i < 7; i++){
+        switch(i){
+            case 0: // TODO: Usar porcentajes, no restas y sumas, para así permitir distintas resoluciones de pantalla
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 430, c.w.getSize().y / 2.f - 330);
+                interface.sprites[i].scale(1.5f, 1.5f);
+                break;
+            case 1:
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 200, c.w.getSize().y / 2.f - 330);
+                interface.sprites[i].scale(1.5f, 1.5f);
+                break;
+            case 2:
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f + 150 , c.w.getSize().y / 2.f - 323);
+                interface.sprites[i].scale(1.5f, 1.5f);
+                break;
+            case 3:
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 300 , c.w.getSize().y / 2.f + 260);
+                interface.sprites[i].scale(2.f, 2.f);
+                break;
+            case 4:
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f + 370 , c.w.getSize().y / 2.f + 270);
+                interface.sprites[i].scale(2.f, 2.f);
+                break;
+            case 5:
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f + 160 , c.w.getSize().y / 2.f + 284);
+                interface.sprites[i].scale(1.5f, 1.5f);
+                break;
+            case 6:
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 420 , c.w.getSize().y / 2.f + 320);
+                interface.sprites[i].scale(2.f, 1.5f);
+        }
     }
 
     // Text
-    sText.setFillColor(Color(206, 73, 73));
-    sText.setOutlineColor(Color::Black);
-    sText.setOutlineThickness(3);
-    sText.setCharacterSize(70);
-    sText.setFont(c.speedVehicle);
+    interface.sText.setFillColor(Color(206, 73, 73));
+    interface.sText.setOutlineColor(Color::Black);
+    interface.sText.setOutlineThickness(3);
+    interface.sText.setCharacterSize(70);
+    interface.sText.setFont(c.speedVehicle);
 
     // Initialize the HUD indicator of time
     time = MAX_TIME;
-    timeToPlay.setString(to_string(time));
-    timeToPlay.setFont(c.timeToPlay);
-    timeToPlay.setPosition(c.w.getSize().x / 2.f - 310, c.w.getSize().y / 2.f - 340);
-    timeToPlay.setCharacterSize(50);
-    timeToPlay.setFillColor(Color::Yellow);
-    timeToPlay.setOutlineColor(Color::Black);
-    timeToPlay.setOutlineThickness(3);
+    interface.timeToPlay.setString(to_string(time));
+    interface.timeToPlay.setFont(c.timeToPlay);
+    interface.timeToPlay.setPosition(c.w.getSize().x / 2.f - 310, c.w.getSize().y / 2.f - 340);
+    interface.timeToPlay.setCharacterSize(50);
+    interface.timeToPlay.setFillColor(Color::Yellow);
+    interface.timeToPlay.setOutlineColor(Color::Black);
+    interface.timeToPlay.setOutlineThickness(3);
 
     // Initialize the HUD indicator of score
     score = 0;
-    textScore.setString(to_string(score));
-    textScore.setFont(c.timeToPlay);
-    textScore.setPosition(c.w.getSize().x / 2.f + 40, c.w.getSize().y / 2.f - 325);
-    textScore.setCharacterSize(35);
-    textScore.setFillColor(Color(183, 164, 190));
-    textScore.setOutlineColor(Color::Black);
-    textScore.setOutlineThickness(3);
+    interface.textScore.setString(to_string(score));
+    interface.textScore.setFont(c.timeToPlay);
+    interface.textScore.setPosition(c.w.getSize().x / 2.f + 40, c.w.getSize().y / 2.f - 325);
+    interface.textScore.setCharacterSize(35);
+    interface.textScore.setFillColor(Color(183, 164, 190));
+    interface.textScore.setOutlineColor(Color::Black);
+    interface.textScore.setOutlineThickness(3);
 
     // Initialize the HUD indicator of lap time
-    textLap.setFont(c.timeToPlay);
-    textLap.setPosition(c.w.getSize().x / 2.f + 250, c.w.getSize().y / 2.f - 325);
-    textLap.setCharacterSize(35);
-    textLap.setFillColor(Color(146, 194, 186));
-    textLap.setOutlineColor(Color::Black);
-    textLap.setOutlineThickness(3);
+    interface.textLap.setFont(c.timeToPlay);
+    interface.textLap.setPosition(c.w.getSize().x / 2.f + 250, c.w.getSize().y / 2.f - 325);
+    interface.textLap.setCharacterSize(35);
+    interface.textLap.setFillColor(Color(146, 194, 186));
+    interface.textLap.setOutlineColor(Color::Black);
+    interface.textLap.setOutlineThickness(3);
 
     // Initialize the HUD stage indicator
     level = 1;
-    textLevel.setFont(c.timeToPlay);
-    textLevel.setPosition(c.w.getSize().x / 2.f + 305, c.w.getSize().y / 2.f + 268);
-    textLevel.setCharacterSize(40);
-    textLevel.setFillColor(Color(146, 194, 186));
-    textLevel.setOutlineColor(Color::Black);
-    textLevel.setOutlineThickness(3);
+    interface.textLevel.setFont(c.timeToPlay);
+    interface.textLevel.setPosition(c.w.getSize().x / 2.f + 305, c.w.getSize().y / 2.f + 268);
+    interface.textLevel.setCharacterSize(40);
+    interface.textLevel.setFillColor(Color(146, 194, 186));
+    interface.textLevel.setOutlineColor(Color::Black);
+    interface.textLevel.setOutlineThickness(3);
 
     // Game over indicator
-    gameOver.setFont(c.timeToPlay);
-    gameOver.setPosition(c.w.getSize().x / 2.f - 125, c.w.getSize().y / 2.f - 50);
-    gameOver.setString("GAME OVER");
-    gameOver.setCharacterSize(60);
-    gameOver.setFillColor(Color::Yellow);
-    gameOver.setOutlineColor(Color(14, 29, 184));
-    gameOver.setOutlineThickness(3);
+    interface.gameOver.setFont(c.timeToPlay);
+    interface.gameOver.setPosition(c.w.getSize().x / 2.f - 125, c.w.getSize().y / 2.f - 50);
+    interface.gameOver.setString("GAME OVER");
+    interface.gameOver.setCharacterSize(60);
+    interface.gameOver.setFillColor(Color::Yellow);
+    interface.gameOver.setOutlineColor(Color(14, 29, 184));
+    interface.gameOver.setOutlineThickness(3);
 
     // Control if the player is still playing
     finalGame = false;
+    inGame = false;
+    onPause = false;
 }
 
-State Game::play(Config &c) {
+
+bool Game::isInGame(){
+    return inGame;
+}
+
+
+
+State Game::play(Config &c, Interface& interface) {
+
+    inGame = true;
     c.themes[c.currentSoundtrack]->play();
 
     initialAnimation(c); // TODO: Aquí es el lugar correcto, o primero se tiene que mostrar la velocidad y tal??
@@ -143,7 +186,6 @@ State Game::play(Config &c) {
 
     // Time to update the clock counter lap
     Time shot_delayLap = seconds(0.1);
-    float elapsed1, elapsed2, elapsed3, elapsed4;
 
     gameClockTime.restart().asSeconds();
     elapsed1 = gameClockTime.restart().asSeconds();
@@ -151,41 +193,14 @@ State Game::play(Config &c) {
     gameClockLap.restart();
     elapsed3 = gameClockLap.getElapsedTime().asSeconds();
 
-    // Assign positions in the game console for the game panel indicators
-    for (int i = 0; i < 7; i++){
-        switch(i){
-            case 0: // TODO: Usar porcentajes, no restas y sumas, para así permitir distintas resoluciones de pantalla
-                sprites[i].setPosition(c.w.getSize().x / 2.f - 430, c.w.getSize().y / 2.f - 330);
-                sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 1:
-                sprites[i].setPosition(c.w.getSize().x / 2.f - 200, c.w.getSize().y / 2.f - 330);
-                sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 2:
-                sprites[i].setPosition(c.w.getSize().x / 2.f + 150 , c.w.getSize().y / 2.f - 323);
-                sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 3:
-                sprites[i].setPosition(c.w.getSize().x / 2.f - 300 , c.w.getSize().y / 2.f + 260);
-                sprites[i].scale(2.f, 2.f);
-                break;
-            case 4:
-                sprites[i].setPosition(c.w.getSize().x / 2.f + 370 , c.w.getSize().y / 2.f + 270);
-                sprites[i].scale(2.f, 2.f);
-                break;
-            case 5:
-                sprites[i].setPosition(c.w.getSize().x / 2.f + 160 , c.w.getSize().y / 2.f + 284);
-                sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 6:
-                sprites[i].setPosition(c.w.getSize().x / 2.f - 420 , c.w.getSize().y / 2.f + 320);
-                sprites[i].scale(2.f, 1.5f);
-        }
-    }
+    Vehicle::Action action;
+    Vehicle::Direction direction;
+
+    State status;
 
     while (!finalGame && c.w.isOpen()) {
-        updateAndDraw(c);
+
+        updateAndDraw(c, action, direction);
 
         if (!finalGame) {
             Event e{};
@@ -194,20 +209,35 @@ State Game::play(Config &c) {
                     c.w.close();
             }
 
-            if (Keyboard::isKeyPressed(c.menuKey))
-                return PAUSE;
+            if (Keyboard::isKeyPressed(c.menuKey) || onPause){
+                // Pause the game
+                c.effects[1]->stop();
+                c.effects[1]->play();
+                status = pause(c, interface, action, direction);
+
+                // Control the exit of the game
+                if (status == OPTIONS){
+                    finalGame = true;
+                }
+                else if (status == START){
+                    finalGame = true;
+                }
+                else if (status == GAME){
+
+                }
+            }
 
             // Draw speed
             string strSpeed = to_string(player.getRealSpeed());
-            sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-            sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - sText.getLocalBounds().width,
+            interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+            interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
                               (float) c.w.getSize().y / 2.f + 240);
 
-            textures[6].loadFromFile("resources/GamePanel/7.png",
+            interface.textures[6].loadFromFile("resources/GamePanel/7.png",
                                      IntRect(0, 0, ((int) player.getRealSpeed() * 117 / MAX_SPEED), 20));
-            sprites[6].setTexture(textures[6], true);
+            interface.sprites[6].setTexture(interface.textures[6], true);
 
-            c.w.draw(sText);
+            c.w.draw(interface.sText);
 
             // Update the score of the player if the player is not stopped
             if (player.getRealSpeed() > 0.f) {
@@ -248,24 +278,24 @@ State Game::play(Config &c) {
             lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
             lap = (decs_second < 10) ? lap + "0" + to_string(decs_second) : lap + to_string(decs_second);
 
-            timeToPlay.setString(to_string(time));
-            textScore.setString(to_string(score));
-            textLap.setString(lap);
-            textLevel.setString(to_string(level));
+            interface.timeToPlay.setString(to_string(time));
+            interface.textScore.setString(to_string(score));
+            interface.textLap.setString(lap);
+            interface.textLevel.setString(to_string(level));
 
             // Draw the panel indicators
             for (int i = 0; i < 6; i++) {
-                c.w.draw(sprites[i]);
+                c.w.draw(interface.sprites[i]);
             }
 
             if (player.getRealSpeed() > 0) {
-                c.w.draw(sprites[6]);
+                c.w.draw(interface.sprites[6]);
             }
 
-            c.w.draw(timeToPlay);
-            c.w.draw(textScore);
-            c.w.draw(textLap);
-            c.w.draw(textLevel);
+            c.w.draw(interface.timeToPlay);
+            c.w.draw(interface.textScore);
+            c.w.draw(interface.textLap);
+            c.w.draw(interface.textLevel);
             c.w.display();
 
             // Check if the player has time to continue
@@ -275,17 +305,26 @@ State Game::play(Config &c) {
             }
         }
     }
-    // Draw the game over text in the console window
-    c.w.draw(gameOver);
-    c.w.display();
 
-    //system("pause"); // TODO: No usar system(), "pause" puede no existir. Se ha cambiado por el siguiente bucle:
-    bool startPressed = false;
-    while (!startPressed)
-        startPressed = Keyboard::isKeyPressed(c.menuEnterKey);
+    finalGame = false;
 
-    return EXIT;
+    if (status != OPTIONS && status != START) {
+        // Draw the game over text in the console window
+        c.w.draw(interface.gameOver);
+        c.w.display();
+
+        bool startPressed = false;
+        while (!startPressed)
+            startPressed = Keyboard::isKeyPressed(c.menuEnterKey);
+
+        return EXIT;
+    }
+    else if (status == START){
+        inGame = false;
+    }
+    return status;
 }
+
 
 void Game::initialAnimation(Config &c) {
     int flagger, semaphore;
@@ -337,19 +376,23 @@ void Game::initialAnimation(Config &c) {
     currentMap->incrementSpriteIndex(flagger, false, -1);
 }
 
-void Game::updateAndDraw(Config &c) {
+void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
     if (currentMap->isOver()) {
-        if (currentMap->getNext() != nullptr) {
+        // TODO: Añadir bifurcación
+        if (!isInitMap)
+            mapId.first++;
+        if (isInitMap || mapId.first < maps.size()) {
             // Update player and vehicle positions
-            player.setPosition(player.getPosX() + currentMap->getOffsetX(), player.getPosY() - currentMap->getMaxY());
+            player.setPosition(player.getPosX(), player.getPosY() - currentMap->getMaxY());
             for (Vehicle &v : cars)
                 v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
-            currentMap = currentMap->getNext();
-            if (!isInitMap) {
+            currentMap = &maps[mapId.first][mapId.second];
+            if (!isInitMap && mapId.first < maps.size() - 1) {
+                currentMap->addNextMap(&maps[mapId.first + 1][mapId.second]);
                 time = MAX_TIME; // Update time when map changes
             }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
@@ -369,7 +412,7 @@ void Game::updateAndDraw(Config &c) {
         if (lastY <= currentMap->getCamY() + float(c.renderLen))
             lastY = currentMap->getCamY() + float(c.renderLen);
         for (Enemy &v : cars) {
-            if (currentMap->inFork(v.getPosY()) || v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+            if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
                 v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
@@ -384,11 +427,11 @@ void Game::updateAndDraw(Config &c) {
         currentMap->draw(c, cars);
 
         // Player update and draw
-        Vehicle::Action action = Vehicle::CRASH;
-        Vehicle::Direction direction = Vehicle::RIGHT;
+        action = Vehicle::CRASH;
+        direction = Vehicle::RIGHT;
 
         if (!player.isCrashing()) { // If not has crashed
-            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
+            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX()));
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
         }
         else {
@@ -416,5 +459,139 @@ void Game::updateAndDraw(Config &c) {
                 player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
             }
         }
+    }
+}
+
+
+
+State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehicle::Direction &d) {
+    // Start the pause menu of the game
+    vector<Button> menuButtons;
+
+    // Game in pause
+    onPause = true;
+
+    // Stop the music of the level
+    c.themes[c.currentSoundtrack]->pause();
+
+    RectangleShape shape;
+    shape.setPosition(0 , 0);
+    shape.setSize(Vector2f(c.w.getSize().x, c.w.getSize().y));
+    shape.setFillColor(Color(0, 0, 0, 200));
+
+    RectangleShape pauseShape;
+    pauseShape.setPosition(c.w.getSize().x / 2.f - 120 , c.w.getSize().y / 2.f - 180);
+    pauseShape.setSize(sf::Vector2f(250 , 350));
+    pauseShape.setFillColor(Color(0, 0, 0));
+    pauseShape.setOutlineColor(Color::Green);
+    pauseShape.setOutlineThickness(5);
+
+    Text textMenu;
+    textMenu.setPosition(c.w.getSize().x / 2.f - 75 , c.w.getSize().y / 2.f - 150);
+    textMenu.setFont(c.options);
+    textMenu.setFillColor(Color(214, 234, 12));
+    textMenu.setOutlineColor(Color(12, 72, 234));
+    textMenu.setOutlineThickness(2);
+    textMenu.setCharacterSize(35);
+    textMenu.setString("PAUSE");
+
+    // Control if the start key is pressed or not
+    bool startPressed = false;
+
+    // Control the option selected by the user
+    int optionSelected = 0;
+
+    // Buttons of the menu
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
+                                 "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
+
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
+                                 "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
+                                 "Quit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+
+    while (!startPressed){
+
+        // Detect the possible events
+        Event e{};
+        while (c.w.pollEvent(e)) {
+            if (e.type == Event::Closed){
+                c.w.close();
+            }
+        }
+
+        // Check if the up or down cursor keys have been pressed or not
+        if (Keyboard::isKeyPressed(c.menuDownKey)){
+            // Up cursor pressed and change the soundtrack selected in the list
+            if (optionSelected != int(menuButtons.size() - 1)){
+                // Change the color appearance of both buttons
+                c.effects[0]->stop();
+                c.effects[0]->play();
+                optionSelected++;
+                menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
+            }
+        }
+        else if (Keyboard::isKeyPressed(c.menuUpKey)){
+            // Down cursor pressed and change the soundtrack selected in the list
+            if (optionSelected != 0){
+                c.effects[0]->stop();
+                c.effects[0]->play();
+                optionSelected--;
+                // Change the color appearance of both buttons
+                menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
+            }
+        }
+        else if (Keyboard::isKeyPressed(c.menuEnterKey)){
+            startPressed = true;
+        }
+
+        // Draw the map
+        currentMap->draw(c, cars);
+
+        // Draw the vehicle of the player
+        player.draw(c, a, d, currentMap->getElevation(player.getPosY()));
+
+        c.w.draw(i.sText);
+        c.w.draw(i.textLap);
+        c.w.draw(i.textLevel);
+        c.w.draw(i.textScore);
+        c.w.draw(i.timeToPlay);
+
+        for (Sprite s : i.sprites){
+            c.w.draw(s);
+        }
+
+        c.w.draw(shape);
+        c.w.draw(pauseShape);
+        c.w.draw(textMenu);
+
+        for (Button b : menuButtons){
+            b.render(&c.w);
+        }
+
+        c.w.display();
+        sleep(milliseconds(180));
+    }
+
+    c.effects[2]->stop();
+    c.effects[2]->play();
+
+    // Check the option selected by the user
+    switch(optionSelected){
+        case 0:
+            // Resume button selected and reanudate the music
+            c.themes[c.currentSoundtrack]->play();
+            onPause = false;
+            return GAME;
+        case 1:
+            // Options button selected
+            return OPTIONS;
+        case 2:
+            // Quit button selected
+            onPause = false;
+            return START;
     }
 }

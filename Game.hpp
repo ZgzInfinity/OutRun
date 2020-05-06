@@ -15,6 +15,7 @@
 #include "Map.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Interface.hpp"
 
 
 const int MAX_TIME = 80;
@@ -36,15 +37,6 @@ class Game {
     float lastY;
     bool vehicleCrash;
 
-    // HUD
-    sf::Text sText;
-
-    // Vector of textures for represent the game panel
-    vector<Texture> textures;
-
-    // Vector of sprites for represent the game panel
-    vector<Sprite> sprites;
-
     // Time to play
     int time;
 
@@ -60,21 +52,6 @@ class Game {
     // decs of game played
     int decs_second = 0;
 
-    // Available time to arrive to the next checkpoint
-    Text timeToPlay;
-
-    // Score of the player displayed in the panel
-    Text textScore;
-
-    // Time of lap consumed
-    Text textLap;
-
-    // Level indicator
-    Text textLevel;
-
-    // Game over text
-    Text gameOver;
-
     // Clock counter of time
     Clock gameClockTime;
 
@@ -87,6 +64,15 @@ class Game {
     // End of game
     bool finalGame;
 
+    // Control the game
+    bool inGame;
+
+    // Pause of the game
+    bool onPause;
+
+    // Counter time to update the HUD indicators
+    float elapsed1, elapsed2, elapsed3, elapsed4;
+
     /**
      * Muestra la animación inicial del comienzo de la partida.
      * @param c
@@ -97,21 +83,27 @@ class Game {
      * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
      * @param c
      */
-    void updateAndDraw(Config &c);
+    void updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction);
 
 public:
     /**
      * Inicializa la lógica del juego y carga los vehículos y los mapas.
      * @param c
      */
-    explicit Game(Config &c);
+    explicit Game(Config &c, Interface& iface);
+
+
+    bool isInGame();
 
     /**
      * Actualiza la lógica del juego y lo actualiza la pantalla hasta que se sale del juego.
      * @param c
      * @return
      */
-    State play(Config &c);
+    State play(Config &c, Interface& i);
+
+    State pause(Config &c, Interface& i, const Vehicle::Action& a, const Vehicle::Direction &d);
+
 };
 
 
