@@ -55,13 +55,12 @@ class Map {
         float curve, clip{}, scale{};
         bool mainColor;
         SpriteInfo spriteLeft, spriteRight;
-        bool isFork;
+        float offsetX, yOffsetX;
 
         /**
          * Inicializa el rectángulo.
-         * @param fork es true si hay una bifurcación
          */
-        explicit Line(bool fork = false);
+        explicit Line();
 
         /**
          * Establece las coordenadas en la pantalla que corresponen al rectángulo y su escala. Esta función debe ser
@@ -146,10 +145,11 @@ class Map {
      * @param mainColor
      * @param spriteLeft
      * @param spriteRight
-     * @param fork es true si hay una bifurcación
+     * @param offsetX es > 0 si hay una bifurcación
+     * @param offetInc
      */
     void addLine(float x, float y, float &z, float prevY, float curve, bool mainColor, const SpriteInfo &spriteLeft,
-            const SpriteInfo &spriteRight, bool fork = false);
+            const SpriteInfo &spriteRight, float &offsetX, float offetInc = 0.0f);
 
     /**
      * Añade rectángulos desde las instrucciones al mapa desde (x, y, z). Actualiza z para una nueva línea.
