@@ -17,10 +17,6 @@
 #include "Enemy.hpp"
 #include "Interface.hpp"
 
-
-const int MAX_TIME = 80;
-const unsigned long MAX_SCORE = 4294967295;
-
 /**
  * Lógica del juego que contiene la información del jugador, la información de los mapas y el HUD.
  * La información de los mapas está compuesta por un conjunto de objetos Map y su jerarquía de conexión entre ellos.

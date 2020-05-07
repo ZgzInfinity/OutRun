@@ -111,7 +111,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     interface.sText.setFont(c.speedVehicle);
 
     // Initialize the HUD indicator of time
-    time = MAX_TIME;
+    time = currentMap->getTime();
     interface.timeToPlay.setString(to_string(time));
     interface.timeToPlay.setFont(c.timeToPlay);
     interface.timeToPlay.setPosition(c.w.getSize().x / 2.f - 310, c.w.getSize().y / 2.f - 340);
