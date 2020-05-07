@@ -89,7 +89,21 @@ public:
      * @param x
      * @param end
      */
-    void drawAnimation(Config &c, float x, bool &end);
+    void drawInitialAnimation(Config &c, float x, bool &end);
+
+    /**
+     * Dibuja la animación final en la pantalla y devuelve si ha acabado.
+     * @param c
+     * @param step
+     * @param end
+     */
+    void drawGoalAnimation(Config &c, int &step, bool &end);
+
+    /**
+     * Fuerza a que el coche esté echando humo o no.
+     * @param smoke
+     */
+    void setSmoking(bool smoke);
 };
 
 

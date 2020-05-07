@@ -380,7 +380,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     }
 }
 
-void Player::drawAnimation(Config &c, float x, bool &end) {
+void Player::drawInitialAnimation(Config &c, float x, bool &end) {
     if (textures.size() == PLAYER_TEXTURES) {
         if (counter_code_image >= maxCounterToChange) {
             current_code_image++;
@@ -420,4 +420,57 @@ void Player::drawAnimation(Config &c, float x, bool &end) {
             counter_code_image++;
         }
     }
+}
+
+void Player::drawGoalAnimation(Config &c, int &step, bool &end) {
+    if (textures.size() == PLAYER_TEXTURES) {
+        if (counter_code_image >= maxCounterToChange) {
+            current_code_image++;
+            counter_code_image = 0;
+            step++;
+        }
+        if (current_code_image < 132 || current_code_image > 135)
+            current_code_image = 132;
+
+        int index = 126;
+        if (step < 2)
+            index = 124;
+        else if (step < 4)
+            index = 125;
+
+        // Vehicle
+        sprite.setTexture(textures[index], true);
+        sprite.setScale(scale, scale);
+        minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
+        maxScreenX = minScreenX + sprite.getGlobalBounds().width;
+        sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
+        c.w.draw(sprite);
+
+        // Smoke
+        float i = minScreenX - sprite.getGlobalBounds().width / 3, j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+        while (i < (float)c.w.getSize().x) {
+            index = current_code_image;
+            sprite.setTexture(textures[index], true);
+            sprite.setScale(4, 4);
+            sprite.setPosition(i, j - sprite.getGlobalBounds().height);
+            c.w.draw(sprite);
+
+            i += sprite.getGlobalBounds().width;
+        }
+
+        if (step >= 6)
+            end = true;
+
+        if (end) {
+            current_code_image = 0;
+            counter_code_image = 0;
+        }
+        else {
+            counter_code_image++;
+        }
+    }
+}
+
+void Player::setSmoking(bool smoke) {
+    smoking = smoke;
 }

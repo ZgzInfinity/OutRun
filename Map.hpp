@@ -109,6 +109,7 @@ class Map {
     Map *next, *nextRight;
 
     bool initMap;
+    bool goalMap;
 
     /**
      * Devuelve Line n
@@ -246,6 +247,20 @@ public:
     Map(const Map &map, int &flagger, int &semaphore);
 
     /**
+     * Crea un mapa recto y llano con la configuración de map y partiendo de los objetos comunes de mapCommon para
+     * la animación final. Devuelve la posición del abanderado y del final de la animación.
+     * @param flagger
+     * @param goalEnd
+     */
+    Map(int &flagger, int &goalEnd);
+
+    /**
+     * Copia los colores y el fondo de map.
+     * @param map
+     */
+    void setColors(const Map &map);
+
+    /**
      * Incrementa el índice del sprite en la línea line si existe.
      * @param line
      * @param right spriteRight o spriteLeft
@@ -365,6 +380,18 @@ public:
      * @return
      */
     Map* getNext() const;
+
+    /**
+     * Devuelve true si es el mapa inicial con la animación.
+     * @return
+     */
+    bool isInitMap() const;
+
+    /**
+     * Devuelve true si es el mapa final con la animación.
+     * @return
+     */
+    bool isGoalMap() const;
 };
 
 

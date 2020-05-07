@@ -492,7 +492,7 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
         const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr), nextRight(nullptr),
-                                                                    initMap(false) {
+                                                                    initMap(false), goalMap(false) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -514,10 +514,10 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 }
 
 Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr),
-                                                         nextRight(nullptr), initMap(true) {
+                                                         nextRight(nullptr), initMap(true), goalMap(false) {
     const int rectangles = 50; // Map size
     const string mapPath = "resources/mapCommon/"; // Folder with common objects
-    const int nobjects = 37;
+    const int nobjects = 38;
 
     // Colors
     roadColor[0] = map.roadColor[0];
@@ -592,6 +592,79 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
 
     flagger = RECTANGLE * 5 + PRE_POS;
     semaphore = RECTANGLE * 6 + PRE_POS;
+}
+
+Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRight(nullptr), initMap(false),
+                                       goalMap(true) {
+    const int rectangles = 150; // Map size
+    const string mapPath = "resources/mapCommon/"; // Folder with common objects
+    const int nobjects = 38;
+
+    // Load objects
+    vector<string> objectNames;
+    objectNames.reserve(nobjects);
+    for (int no = 1; no <= nobjects; no++)
+        objectNames.push_back(to_string(no) + ".png");
+    vector<int> objectIndexes;
+    loadObjects(mapPath, objectNames, objectIndexes);
+
+    // Hardcoded sprites
+    vector<SpriteInfo> leftSprites, rightSprites;
+    leftSprites.reserve(rectangles);
+    rightSprites.reserve(rectangles);
+    for (int i = 0; i < rectangles; i++) {
+        leftSprites.emplace_back();
+        rightSprites.emplace_back();
+    }
+    // First goal
+    rightSprites[1].spriteNum = 32;
+    rightSprites[1].offset = -0.95f;
+    // Trees
+    leftSprites[0].spriteNum = 37;
+    leftSprites[0].offset = -1.0f;
+    rightSprites[0].spriteNum = 37;
+    rightSprites[0].offset = -1.0f;
+    // People
+    leftSprites[53].spriteNum = 28; // 29 - 1
+    leftSprites[53].offset = -1.75f;
+    rightSprites[53].spriteNum = 29;
+    rightSprites[53].offset = -1.75f;
+    // Flagger
+    leftSprites[50].spriteNum = 16;
+    leftSprites[50].offset = -4;
+    // Second goal
+    rightSprites[50].spriteNum = 32;
+    rightSprites[50].offset = -0.95f;
+    // Trees
+    leftSprites[49].spriteNum = 37;
+    leftSprites[49].offset = -1.0f;
+    rightSprites[49].spriteNum = 37;
+    rightSprites[49].offset = -1.0f;
+
+    // Line generation
+    bool mainColor = true;
+    vector<vector<string>> instructions;
+    instructions.reserve(rectangles);
+    float z = 0; // Line position
+    for (int i = 0; i < rectangles; i++) {
+        float offset = 0.0f;
+        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i], offset);
+        mainColor = !mainColor;
+    }
+
+    flagger = RECTANGLE * 50 + PRE_POS;
+    goalEnd = 45 * RECTANGLE;
+}
+
+void Map::setColors(const Map &map) {
+    // Colors
+    bg = map.bg;
+    roadColor[0] = map.roadColor[0];
+    roadColor[1] = map.roadColor[1];
+    grassColor[0] = map.grassColor[0];
+    grassColor[1] = map.grassColor[1];
+    rumbleColor = map.rumbleColor;
+    dashColor = map.dashColor;
 }
 
 void Map::incrementSpriteIndex(int line, bool right, int increment) {
@@ -1052,14 +1125,14 @@ Vehicle::Elevation Map::getElevation(float currentY) const {
 }
 
 bool Map::isOver() const {
-    if (initMap || next == nullptr)
+    if (initMap || goalMap || (next != nullptr && next->goalMap))
         return posY >= lines.size();
     else
         return posY >= float(lines.size() - END_RECTANGLES * RECTANGLE);
 }
 
 float Map::getMaxY() const {
-    if (initMap || next == nullptr)
+    if (initMap || goalMap || (next != nullptr && next->goalMap))
         return lines.size();
     else
         return float(lines.size() - END_RECTANGLES * RECTANGLE);
@@ -1073,7 +1146,7 @@ float Map::getOffsetX() const {
 }
 
 bool Map::inFork(const float currentY) const {
-    if (initMap || next == nullptr)
+    if (initMap || goalMap || (next != nullptr && next->goalMap))
         return false;
     else
         return currentY >= float(lines.size() - (FORK_RECTANGLES + END_RECTANGLES) * RECTANGLE);
@@ -1081,4 +1154,12 @@ bool Map::inFork(const float currentY) const {
 
 Map *Map::getNext() const {
     return next;
+}
+
+bool Map::isInitMap() const {
+    return initMap;
+}
+
+bool Map::isGoalMap() const {
+    return goalMap;
 }

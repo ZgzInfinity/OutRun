@@ -23,7 +23,7 @@ using namespace std;
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
-                                              lastY(0), vehicleCrash(false) {
+                                              lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
     int nm = 0;
     int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33}; // TODO: Más mapas
     for (int i = 0; i < 5; i++) {
@@ -44,7 +44,6 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
-    isInitMap = true;
 
     // Vehicles
     cars.reserve(MAX_VEHICLES);
@@ -334,7 +333,7 @@ void Game::initialAnimation(Config &c) {
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
-        player.drawAnimation(c, float(i), end);
+        player.drawInitialAnimation(c, float(i), end);
         c.w.display();
     }
     sleep(milliseconds(200));
@@ -372,17 +371,70 @@ void Game::initialAnimation(Config &c) {
     currentMap->incrementSpriteIndex(flagger, false, -1);
 }
 
+void Game::goalAnimation(Config &c) {
+    // Hide enemies
+    for (Enemy &v : cars)
+        v.setPosition(v.getPosX(), -RECTANGLE);
+
+    player.setSmoking(false);
+    int increment = 0;
+    float currentTime = gameClockTime.getElapsedTime().asMilliseconds();
+    while (int(player.getPosY()) < goalEnd) {
+        // Update camera
+        currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
+
+        // Draw map
+        c.w.clear();
+        currentMap->draw(c, cars);
+        player.setPosition(player.getPosX(), player.getPosY() + 1);
+        player.draw(c, Vehicle::Action::ACCELERATE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+        c.w.display();
+
+        // Flager animation
+        if (gameClockTime.getElapsedTime().asMilliseconds() - currentTime >= 200.0f) {
+            if (increment >= 5) {
+                increment = 0;
+                currentMap->incrementSpriteIndex(goalFlagger, false, -5);
+            }
+            else {
+                currentMap->incrementSpriteIndex(goalFlagger, false);
+                increment++;
+            }
+
+            currentTime = gameClockTime.getElapsedTime().asMilliseconds();
+        }
+
+        // TODO: Ir mostrando bonus y tal
+    }
+
+    // Car animation
+    int step = 0;
+    bool end = false;
+    while (!end) {
+        // Draw map
+        c.w.clear();
+        currentMap->draw(c, cars);
+        player.drawGoalAnimation(c, step, end);
+        c.w.display();
+    }
+}
+
 void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
-    if (currentMap->isOver()) {
+    if (currentMap->isGoalMap()) {
+        goalAnimation(c);
+        finalGame = true;
+    }
+    else if (currentMap->isOver()) {
         if (currentMap->getNext() != nullptr) {
             // Update player and vehicle positions
             player.setPosition(player.getPosX() + currentMap->getOffsetX(), player.getPosY() - currentMap->getMaxY());
-            for (Vehicle &v : cars)
+            for (Enemy &v : cars)
                 v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
+            const bool isInitMap = currentMap->isInitMap();
             currentMap = currentMap->getNext();
             if (!isInitMap) {
                 time = MAX_TIME; // Update time when map changes
@@ -396,13 +448,14 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                 cout << "Map: " << mapId.first << ", " << mapId.second << endl; // TODO: Borrar
                 if (mapId.first < 4)
                     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+                else {
+                    goalMap.setColors(*currentMap);
+                    currentMap->addNextMap(&goalMap);
+                }
             }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
             lastY = currentMap->getCamY();
-
-            if (isInitMap)
-                isInitMap = false;
         }
         else {
             finalGame = true;
