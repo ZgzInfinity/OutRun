@@ -35,38 +35,38 @@ Config::Config() {
 
     camD = 0.84; // Camera depth
     renderLen = 300;
+}
 
 
-    for (int i = 0; i < 4; i++){
-        // Load the music soundtracks of the game
+void loadGameSoundtracks(Config& c){
+     // Load the music soundtracks of the game
+     for (int i = 0; i <= 3; i++){
         unique_ptr<Music> music = unique_ptr<Music>(new Music());
-        switch(i){
-            case 0:
-                music->openFromFile("resources/Soundtrack/Options.wav");
-                break;
-             case 1:
-                music->openFromFile("resources/Soundtrack/MagicalSoundShower.wav");
-                break;
-            case 2:
-                music->openFromFile("resources/Soundtrack/PassingBreeze.wav");
-                break;
-            case 3:
-                music->openFromFile("resources/Soundtrack/SplashWave.wav");
-        }
+        music->openFromFile("resources/Soundtrack/" + to_string(i) + ".ogg");
         music->setVolume(100);
         music->setLoop(true);
-        themes.push_back(move(music));
-
-        unique_ptr<Music> effect = unique_ptr<Music>(new Music());
-        effect->openFromFile("resources/SoundEffects/" + to_string(i + 1) + ".wav");
-        effect->setVolume(100);
-        effects.push_back(move(effect));
+        c.themes.push_back(move(music));
     }
 }
 
 
 
+void loadGameSoundEffects(Config& c){
+     // Load the game effects
+     for (int i = 1; i <= 11; i++){
+        unique_ptr<Music> effect = unique_ptr<Music>(new Music());
+        effect->openFromFile("resources/SoundEffects/" + to_string(i) + ".ogg");
+        effect->setVolume(100);
+        c.effects.push_back(move(effect));
+    }
+}
+
+
 State introAnimation(Config& c){
+
+    // Load the sound effects
+    thread soundTrackLoader(loadGameSoundtracks, ref(c));
+
     // Vector of images with the logo of Sega
     Texture t;
     vector<Texture> segaIcons;
@@ -88,6 +88,10 @@ State introAnimation(Config& c){
         // Sleep the process to see the menu icons correctly
         sleep(milliseconds(35));
     }
+
+    // Control the final of the thread
+    soundTrackLoader.join();
+
     // Final of animation
     return START;
 }
@@ -95,6 +99,9 @@ State introAnimation(Config& c){
 
 
 State startMenu(Config &c) {
+
+    // Load the soundtracks of the game
+    thread soundEffectsLoader(loadGameSoundEffects, ref(c));
 
     const int ELEMENTS = 5;
 
@@ -188,6 +195,8 @@ State startMenu(Config &c) {
 
     // Code of sprite to display
     int j = 0;
+
+    soundEffectsLoader.join();
 
     // While the console window is opened
     while (c.w.isOpen()) {
@@ -296,6 +305,7 @@ State startMenu(Config &c) {
         }
         // Return the state of the game
         c.effects[0]->stop();
+        // Stop the thread that load the soundtracks
         return state;
     }
     return EXIT;
