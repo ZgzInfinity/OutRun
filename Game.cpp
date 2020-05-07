@@ -22,6 +22,19 @@ using namespace std;
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
+
+void comentaristIntro(Config& c){
+     c.effects[11]->stop();
+     c.effects[11]->play();
+     this_thread::sleep_for(chrono::milliseconds(5000));
+}
+
+void slideCar(Config& c){
+    c.effects[8]->stop();
+    c.effects[8]->play();
+}
+
+
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
     int nm = 0;
@@ -170,7 +183,6 @@ bool Game::isInGame(){
 
 
 State Game::play(Config &c, Interface& interface) {
-    c.themes[c.currentSoundtrack]->play();
 
     if (!inGame) {
         inGame = true;
@@ -330,6 +342,9 @@ void Game::initialAnimation(Config &c) {
 
     // Prepare car
     bool end = false;
+
+    thread slide(slideCar, ref(c));
+
     for (int i = (int) c.w.getSize().x / 2; !end; i -= 3) {
         // Draw map
         c.w.clear();
@@ -337,11 +352,19 @@ void Game::initialAnimation(Config &c) {
         player.drawInitialAnimation(c, float(i), end);
         c.w.display();
     }
-    sleep(milliseconds(200));
+    sleep(milliseconds(250));
+    slide.join();
 
     // Semaphore and flagger
     currentMap->incrementSpriteIndex(flagger, false, -1);
     int ms = 1000;
+
+    thread comentarist(comentaristIntro, ref(c));
+    currentMap->draw(c, cars);
+    player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+    c.w.display();
+    comentarist.join();
+
     for (int i = 0; i < 3; i++) {
         // Draw map
         c.w.clear();
@@ -365,11 +388,18 @@ void Game::initialAnimation(Config &c) {
         }
 
         // Change semaphore state
-        if (ms > 0)
+        if (ms > 0){
             sleep(milliseconds(ms));
+            c.effects[4]->stop();
+            c.effects[4]->play();
+        }
         currentMap->incrementSpriteIndex(semaphore, false);
+        c.effects[5]->stop();
+        c.effects[5]->play();
     }
     currentMap->incrementSpriteIndex(flagger, false, -1);
+
+    c.themes[c.currentSoundtrack]->play();
 }
 
 void Game::goalAnimation(Config &c) {

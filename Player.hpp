@@ -9,6 +9,8 @@
 #ifndef OUTRUN_PLAYER_HPP
 #define OUTRUN_PLAYER_HPP
 
+#include <thread>
+#include <mutex>
 #include "Vehicle.hpp"
 
 class Player : public Vehicle {
@@ -18,6 +20,7 @@ class Player : public Vehicle {
     sf::Sprite sprite;
     bool crashing; // True if crashing state is on
     bool smoking; // True if player generates smoke
+    bool goingFast;
 
 public:
     /**

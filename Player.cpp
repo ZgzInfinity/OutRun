@@ -15,11 +15,30 @@ using namespace sf;
 
 #define PLAYER_TEXTURES 136
 
+float globalSpeed;
+mutex mtx;
+
+void advanceFerrari(Config& c){
+    float speed;
+    while(1){
+        mtx.lock();
+        speed = globalSpeed;
+        mtx.unlock();
+        if (speed >= 0.8f){
+            c.effects[6]->play();
+            this_thread::sleep_for(chrono::milliseconds(700));
+        }
+        else {
+            c.effects[6]->stop();
+        }
+    }
+}
+
 Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
         const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                       scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false) {}
+                       scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false), goingFast(false) {}
 
 float Player::getPreviousY() const {
     return previousY;
@@ -94,6 +113,7 @@ float Player::getRealSpeed() const {
 Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
     Action a = NONE;
     smoking = false;
+    bool isFast;
 
     if (Keyboard::isKeyPressed(c.brakeKey))
         a = BRAKE;
@@ -133,11 +153,33 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
         a = ACCELERATE;
 
     speed = sqrt(acceleration);
-    if (speed > 0.0f) {
+    mtx.lock();
+    globalSpeed = speed;
+    isFast = goingFast;
+    mtx.unlock();
+
+    if (speed > 0.0f){
         previousY = posY;
         posY += speed;
+        if (speed <= 0.4f && Keyboard::isKeyPressed(c.accelerateKey)){
+            sleep(milliseconds(20));
+            c.effects[12]->stop();
+            c.effects[12]->play();
+        }
     }
-
+    if (speed >= 0.8f && !isFast){
+        // Start the thread
+        mtx.lock();
+        goingFast = true;
+        mtx.unlock();
+        thread runFerrari(advanceFerrari, ref(c));
+        runFerrari.detach();
+    }
+    if (speed < 0.8f && isFast){
+        mtx.lock();
+        goingFast = false;
+        mtx.unlock();
+    }
     return a;
 }
 

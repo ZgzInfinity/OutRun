@@ -43,7 +43,7 @@ void loadGameSoundtracks(Config& c){
      for (int i = 0; i <= 3; i++){
         unique_ptr<Music> music = unique_ptr<Music>(new Music());
         music->openFromFile("resources/Soundtrack/" + to_string(i) + ".ogg");
-        music->setVolume(100);
+        music->setVolume(80);
         music->setLoop(true);
         c.themes.push_back(move(music));
     }
@@ -53,12 +53,13 @@ void loadGameSoundtracks(Config& c){
 
 void loadGameSoundEffects(Config& c){
      // Load the game effects
-     for (int i = 1; i <= 11; i++){
+     for (int i = 1; i <= 13; i++){
         unique_ptr<Music> effect = unique_ptr<Music>(new Music());
         effect->openFromFile("resources/SoundEffects/" + to_string(i) + ".ogg");
         effect->setVolume(100);
         c.effects.push_back(move(effect));
     }
+    c.effects[6]->setLoop(true);
 }
 
 
