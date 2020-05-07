@@ -12,7 +12,7 @@
 #include "Vehicle.hpp"
 
 class Player : public Vehicle {
-    const float speedMul, halfMaxSpeed, maxAcc, accInc;
+    const float speedMul, halfMaxSpeed, maxAcc, accInc, scaleY;
     float acceleration, minCrashAcc, xDest;
 
     sf::Sprite sprite;
@@ -25,13 +25,14 @@ public:
      * @param maxSpeed
      * @param speedMul multiplicador de la velocidad que multiplicado por speed obtiene la velocidad real
      * @param accInc incremento de la aceleración
-     * @param scale escalado del sprite del vehículo
+     * @param scaleX escalado del sprite del vehículo
+     * @param scaleY escalado del sprite del vehículo
      * @param maxCounterToChange cuando counter_code_image llega a maxCounterToChange se actualiza el sprite
      * @param vehicle nombre del vehículo
      * @param pX
      * @param pY
      */
-    Player(float maxSpeed, float speedMul, float accInc, float scale, int maxCounterToChange,
+    Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
             const std::string &vehicle, float pX, float pY);
 
     /**

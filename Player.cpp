@@ -15,11 +15,11 @@ using namespace sf;
 
 #define PLAYER_TEXTURES 136
 
-Player::Player(float maxSpeed, float speedMul, float accInc, float scale, int maxCounterToChange, const string &vehicle,
-               float pX, float pY) : Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
+Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
+        const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                       acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false) {}
+                       scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false) {}
 
 float Player::getPreviousY() const {
     return previousY;
@@ -362,7 +362,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     }
 
     sprite.setTexture(textures[current_code_image - 1], true);
-    sprite.setScale(scale, scale);
+    sprite.setScale(scale, scaleY);
     minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
     maxScreenX = minScreenX + sprite.getGlobalBounds().width;
     sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
@@ -396,7 +396,7 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end) {
 
         // Vehicle
         sprite.setTexture(textures[index], true);
-        sprite.setScale(scale, scale);
+        sprite.setScale(scale, scaleY);
         sprite.setPosition(x, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
         c.w.draw(sprite);
 
@@ -440,7 +440,7 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end) {
 
         // Vehicle
         sprite.setTexture(textures[index], true);
-        sprite.setScale(scale, scale);
+        sprite.setScale(scale, scaleY);
         minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
         maxScreenX = minScreenX + sprite.getGlobalBounds().width;
         sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);

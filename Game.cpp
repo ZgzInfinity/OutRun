@@ -22,8 +22,8 @@ using namespace std;
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
-Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
-                                              lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
+Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
+        "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
     int nm = 0;
     const int times[] = {80, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
@@ -49,7 +49,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     // Vehicles
     cars.reserve(MAX_VEHICLES);
     const int maxSprites = 6;
-    const float vehicleScales[maxSprites] = {1.25f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
+    const float vehicleScales[maxSprites] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
     for (int i = 0; i < MAX_VEHICLES; i++) {
         Enemy v(MAX_SPEED, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
                 "car" + to_string(1 + i % maxSprites), -RECTANGLE);
