@@ -87,7 +87,7 @@ class Map {
          * @param left indica si el objeto está a la izquierda de la pantalla
          */
         void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &hitCoeff,
-                const std::vector<float> &scaleCoeff, SpriteInfo &object, bool left);
+                const std::vector<float> &scaleCoeff, SpriteInfo &object, bool left) const;
     };
 
     // Background
@@ -110,6 +110,8 @@ class Map {
 
     bool initMap;
     bool goalMap;
+
+    int maxTime;
 
     /**
      * Devuelve Line n
@@ -233,9 +235,10 @@ public:
      * @param bgName
      * @param objectNames
      * @param random
+     * @param time
      */
     Map(Config &c, const std::string &path, const std::string &bgName,
-            const std::vector<std::string> &objectNames, bool random);
+            const std::vector<std::string> &objectNames, bool random, int time);
 
     /**
      * Crea un mapa recto y llano con la configuración de map y partiendo de los objetos comunes de mapCommon para
@@ -392,6 +395,12 @@ public:
      * @return
      */
     bool isGoalMap() const;
+
+    /**
+     * Devuelve el tiempo máximo del mapa.
+     * @return
+     */
+    int getTime() const;
 };
 
 

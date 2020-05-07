@@ -491,8 +491,8 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random) : posX(0), posY(0), next(nullptr), nextRight(nullptr),
-                                                                    initMap(false), goalMap(false) {
+        const std::vector<std::string> &objectNames, bool random, const int time) : posX(0), posY(0), next(nullptr),
+        nextRight(nullptr), initMap(false), goalMap(false), maxTime(time) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -514,7 +514,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 }
 
 Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr),
-                                                         nextRight(nullptr), initMap(true), goalMap(false) {
+                                                         nextRight(nullptr), initMap(true), goalMap(false), maxTime(0) {
     const int rectangles = 50; // Map size
     const string mapPath = "resources/mapCommon/"; // Folder with common objects
     const int nobjects = 38;
@@ -595,7 +595,7 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
 }
 
 Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRight(nullptr), initMap(false),
-                                       goalMap(true) {
+                                       goalMap(true), maxTime(0) {
     const int rectangles = 150; // Map size
     const string mapPath = "resources/mapCommon/"; // Folder with common objects
     const int nobjects = 38;
@@ -777,7 +777,7 @@ void Map::Line::project(float camX, float camY, float camZ, float camD, float wi
 }
 
 void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const vector<float> &hitCoeff,
-        const vector<float> &scaleCoeff, SpriteInfo &object, bool left) {
+        const vector<float> &scaleCoeff, SpriteInfo &object, bool left) const {
     Sprite s(objs[object.spriteNum]);
     const float width = scaleCoeff[object.spriteNum] * s.getTextureRect().width;
     const float widthOri = s.getTextureRect().width;
@@ -1162,4 +1162,8 @@ bool Map::isInitMap() const {
 
 bool Map::isGoalMap() const {
     return goalMap;
+}
+
+int Map::getTime() const {
+    return maxTime;
 }

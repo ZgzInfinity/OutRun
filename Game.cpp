@@ -25,7 +25,8 @@ using namespace std;
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.0f, MAX_COUNTER, "Ferrari", 0.0f, RECTANGLE),
                                               lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33}; // TODO: Más mapas
+    const int times[] = {80, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75};
+    const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -34,7 +35,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
             for (int no = 1; no <= nobjects[nm]; no++)
                 objectNames.push_back(to_string(no) + ".png");
 
-            Map m(c, "resources/map" + to_string(nm + 1) + "/", "bg.png", objectNames, false);
+            Map m(c, "resources/map" + to_string(nm + 1) + "/", "bg.png", objectNames, false, times[nm]);
             vm.push_back(m);
 
             nm++;
@@ -423,11 +424,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
-    if (currentMap->isGoalMap()) {
-        goalAnimation(c);
-        finalGame = true;
-    }
-    else if (currentMap->isOver()) {
+    if (currentMap->isOver()) {
         if (currentMap->getNext() != nullptr) {
             // Update player and vehicle positions
             player.setPosition(player.getPosX() + currentMap->getOffsetX(), player.getPosY() - currentMap->getMaxY());
@@ -436,8 +433,8 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
 
             const bool isInitMap = currentMap->isInitMap();
             currentMap = currentMap->getNext();
-            if (!isInitMap) {
-                time = MAX_TIME; // Update time when map changes
+            if (!isInitMap && !currentMap->isGoalMap()) {
+                time = currentMap->getTime(); // Update time when map changes
                 level++;
                 // TODO: Actualizar esquema del nivel actual
 
@@ -460,6 +457,11 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         else {
             finalGame = true;
         }
+    }
+
+    if (currentMap->isGoalMap()) {
+        goalAnimation(c);
+        finalGame = true;
     }
 
     if (!finalGame) {
