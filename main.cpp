@@ -15,40 +15,42 @@ using namespace std;
 
 int main() {
     Config c;
-    Interface i;
-    Game engine(c, i);
     State state = ANIMATION;
 
-    while (c.w.isOpen()) {
-        switch (state) {
-            case ANIMATION: {
-                state = introAnimation(c);
-                break;
-            }
-            case START: {
-                state = startMenu(c);
-                break;
-            }
-            case MUSIC: {
-                state = selectMusicSoundtrack(c);
-                break;
-            }
-            case OPTIONS: {
-                bool inGame = engine.isInGame();
-                state = optionsMenu(c, inGame);
-                break;
-            }
-            case GAME: {
-                state = engine.play(c, i);
-                break;
-            }
-            case END: {
-                state = endMenu(c);
-                break;
-            }
-            default: {
-                c.w.close();
-                break;
+    while (c.w.isOpen() && state != EXIT) {
+        Interface i;
+        Game engine(c, i);
+
+        if (state == START)
+            state = startMenu(c);
+
+        while (c.w.isOpen() && state != START) {
+            switch (state) {
+                case ANIMATION: {
+                    state = introAnimation(c);
+                    break;
+                }
+                case MUSIC: {
+                    state = selectMusicSoundtrack(c);
+                    break;
+                }
+                case OPTIONS: {
+                    bool inGame = engine.isInGame();
+                    state = optionsMenu(c, inGame);
+                    break;
+                }
+                case GAME: {
+                    state = engine.play(c, i);
+                    break;
+                }
+                case END: {
+                    state = endMenu(c);
+                    break;
+                }
+                default: {
+                    c.w.close();
+                    break;
+                }
             }
         }
     }

@@ -231,6 +231,8 @@ State startMenu(Config &c) {
                 c.effects[1]->play();
                 sleep(milliseconds(50));
             }
+            else if (Keyboard::isKeyPressed(Keyboard::Escape))
+                return EXIT;
 
             j = ( j < (int)nameGames.size() - 1) ? j + 1 : 0;
 

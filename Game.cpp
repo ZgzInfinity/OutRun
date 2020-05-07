@@ -170,11 +170,12 @@ bool Game::isInGame(){
 
 
 State Game::play(Config &c, Interface& interface) {
-
-    inGame = true;
     c.themes[c.currentSoundtrack]->play();
 
-    initialAnimation(c); // TODO: Aquí es el lugar correcto, o primero se tiene que mostrar la velocidad y tal??
+    if (!inGame) {
+        inGame = true;
+        initialAnimation(c);
+    }
 
     c.w.setKeyRepeatEnabled(false);
 
