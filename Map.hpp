@@ -9,6 +9,11 @@
 #ifndef OUTRUN_MAP_HPP
 #define OUTRUN_MAP_HPP
 
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
