@@ -13,7 +13,7 @@
 #include <vector>
 #include "Menu.hpp"
 
-#define XINC 0.05f // x increment
+#define XINC 0.025f // x increment
 
 /**
  * La información del vehículo está compuesta por su velocidad, aceleración, posición x, conjunto de texturas del

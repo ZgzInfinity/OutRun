@@ -24,14 +24,8 @@ using namespace sf;
 #define RUMBLECOEFF 0.0666f // Ruble size = Road size * Rumble coeff
 #define SCREEN_SCALE 266.0f
 #define FORK_COEFF 0.03f
-#define FORK_RADIUS 10.0f
 #define FORK_RECTANGLES 100 // Multiple of RECTANGLE
 #define END_RECTANGLES 60 // Multiple of RECTANGLE
-
-// TODO pi
-const float a = sqrt(2.0f) * FORK_RADIUS;
-const float b = FORK_RADIUS - sqrt(2.0f) * FORK_RADIUS;
-const float xChange = FORK_RADIUS * sin(0.75f * M_PI);
 
 Map::SpriteInfo::SpriteInfo() {
     spriteNum = -1;
@@ -46,7 +40,8 @@ Map::Line::Line() {
 }
 
 void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
-        const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight, float &offsetX, const float offetInc) {
+        const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight, float &bgX, float &offsetX,
+        const float offsetInc) {
     float yInc = (y - prevY) / float(RECTANGLE); // RECTANGLE is total lines number will be added
 
     Line line, lineAux;
@@ -66,15 +61,16 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
         z += SEGL;
         if (offsetX > 0.0f) {
             if (offsetX >= xChange)
-                lineAux.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - a, 2.0f)) + b;
+                lineAux.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - aOffsetX, 2.0f)) + bOffsetX;
             else
                 lineAux.yOffsetX = -sqrt(FORK_RADIUS * FORK_RADIUS - offsetX * offsetX) + FORK_RADIUS;
-            //lineAux.yOffsetX = offsetX * offsetX;
             lineAux.offsetX = offsetX;
-            if (offsetX + offetInc <= 2.0f * xChange)
-                offsetX += offetInc;
+            if (offsetX + offsetInc <= 2.0f * xChange)
+                offsetX += offsetInc;
         }
         lineAux.y += yInc;
+        bgX += lineAux.curve;
+        lineAux.bgX = bgX;
         lines.push_back(lineAux);
     }
 
@@ -82,15 +78,17 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
     z += SEGL;
     if (offsetX > 0.0f) {
         if (offsetX >= xChange)
-            line.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - a, 2.0f)) + b;
+            line.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - aOffsetX, 2.0f)) + bOffsetX;
         else
             line.yOffsetX = -sqrt(FORK_RADIUS * FORK_RADIUS - offsetX * offsetX) + FORK_RADIUS;
         line.offsetX = offsetX;
-        if (offsetX + offetInc <= 2.0f * xChange)
-            offsetX += offetInc;
+        if (offsetX + offsetInc <= 2.0f * xChange)
+            offsetX += offsetInc;
     }
     lineAux.y += yInc;
     line.y = lineAux.y;
+    bgX += line.curve;
+    line.bgX = bgX;
     lines.push_back(line);
 
     for (int i = 0; i < PRE_POS; i++) {
@@ -98,14 +96,16 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
         z += SEGL;
         if (offsetX > 0.0f) {
             if (offsetX >= xChange)
-                lineAux.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - a, 2.0f)) + b;
+                lineAux.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - aOffsetX, 2.0f)) + bOffsetX;
             else
                 lineAux.yOffsetX = -sqrt(FORK_RADIUS * FORK_RADIUS - offsetX * offsetX) + FORK_RADIUS;
             lineAux.offsetX = offsetX;
-            if (offsetX + offetInc <= 2.0f * xChange)
-                offsetX += offetInc;
+            if (offsetX + offsetInc <= 2.0f * xChange)
+                offsetX += offsetInc;
         }
         lineAux.y += yInc;
+        bgX += lineAux.curve;
+        lineAux.bgX = bgX;
         lines.push_back(lineAux);
     }
 }
@@ -352,7 +352,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
     return instructions;
 }
 
-void Map::addLines(float x, float y, float &z, const vector<vector<string>> &instructions) {
+void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<string>> &instructions) {
     float curveCoeff = 0.0f, elevation = 0.0f;
     int elevationIndex = 0, elevationLines = -1;
     bool mainColor = true;
@@ -447,7 +447,7 @@ void Map::addLines(float x, float y, float &z, const vector<vector<string>> &ins
 
             float offset = 0.0f;
             addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curveCoeff, mainColor,
-                    spriteLeft, spriteRight, offset);
+                    spriteLeft, spriteRight, bgX, offset);
             mainColor = !mainColor;
         }
     }
@@ -502,11 +502,12 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 
     // Line generation
     float z = 0; // Line position
+    float bgX = 0; // Background position
     if (random) { // Random generation
-        addLines(0, 0, z, randomMap(1000, objectIndexes));
+        addLines(0, 0, z, bgX, randomMap(1000, objectIndexes));
     }
     else { // Predefined map
-        addLines(0, 0, z, readMapFile(path + "map.info"));
+        addLines(0, 0, z, bgX, readMapFile(path + "map.info"));
     }
 
     if (lines.empty())
@@ -584,9 +585,10 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
     vector<vector<string>> instructions;
     instructions.reserve(rectangles);
     float z = 0; // Line position
+    float bgX = 0; // Background position
     for (int i = 0; i < rectangles; i++) {
         float offset = 0.0f;
-        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i], offset);
+        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i], bgX, offset);
         mainColor = !mainColor;
     }
 
@@ -646,9 +648,10 @@ Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRigh
     vector<vector<string>> instructions;
     instructions.reserve(rectangles);
     float z = 0; // Line position
+    float bgX = 0; // Background position
     for (int i = 0; i < rectangles; i++) {
         float offset = 0.0f;
-        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i], offset);
+        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i], bgX, offset);
         mainColor = !mainColor;
     }
 
@@ -699,11 +702,12 @@ void Map::addFork(Map *left, Map *right) {
             float x = lines[lines.size() - 1].x;
             float y = lines[lines.size() - 1].y;
             float z = lines[lines.size() - 1].z + SEGL;
+            float bgX = lines[lines.size() - 1].bgX;
             bool mainColor = !lines[lines.size() - 1].mainColor;
 
             float xOffset = lines[lines.size() - 1].offsetX + FORK_COEFF;
             for (int i = 0; i < FORK_RECTANGLES + END_RECTANGLES; i++) { // 20 rectangles to fork
-                addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), xOffset, FORK_COEFF);
+                addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), bgX, xOffset, FORK_COEFF);
                 mainColor = !mainColor;
             }
 
@@ -713,16 +717,18 @@ void Map::addFork(Map *left, Map *right) {
             left->lines.clear();
             left->lines.reserve(auxLines.size() + END_RECTANGLES * RECTANGLE);
             z = 0.0f;
+            bgX = 0.0f;
             if (!lines[lines.size() - 1].mainColor)
-                left->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), xOffset);
+                left->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), bgX, xOffset);
             mainColor = true;
             for (int i = 0; i < END_RECTANGLES; i++) {
-                left->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), xOffset);
+                left->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), bgX, xOffset);
                 mainColor = !mainColor;
             }
             for (const Line &l : auxLines) {
                 left->lines.push_back(l);
                 left->lines.back().z += z;
+                left->lines.back().bgX += bgX;
             }
             auxLines.clear();
 
@@ -732,15 +738,16 @@ void Map::addFork(Map *left, Map *right) {
                 right->lines.reserve(auxLines.size() + END_RECTANGLES * RECTANGLE);
                 z = 0.0f;
                 if (!lines[lines.size() - 1].mainColor)
-                    right->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), xOffset);
+                    right->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), bgX, xOffset);
                 mainColor = true;
                 for (int i = 0; i < END_RECTANGLES; i++) {
-                    right->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), xOffset);
+                    right->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), bgX, xOffset);
                     mainColor = !mainColor;
                 }
                 for (const Line &l : auxLines) {
                     right->lines.push_back(l);
                     right->lines.back().z += z;
+                    right->lines.back().bgX += bgX;
                 }
                 auxLines.clear();
             }
@@ -872,12 +879,9 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     Sprite sbg;
     sbg.setTexture(bg);
     sbg.setScale(Vector2f(2.0f * (float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
+    sbg.setTextureRect(IntRect(0, 0, 5.0f * sbg.getGlobalBounds().width, bg.getSize().y));
     sbg.setPosition(0, 0);
-    sbg.move(-sbg.getGlobalBounds().width / 3.0f - posX, 0);
-    if (l->curve > 0.0f)
-        sbg.move(XINC / 2.0f, 0);
-    else if (l->curve < 0.0f)
-        sbg.move(-XINC / 2.0f, 0);
+    sbg.move(-4.0f * c.w.getSize().x - l->bgX - posX, 0);
     c.w.draw(sbg);
 
     // Initialize lines

@@ -16,6 +16,7 @@
 #include "Enemy.hpp"
 
 #define PRE_POS 2
+#define FORK_RADIUS 10.0f
 const int RECTANGLE = PRE_POS * 2 + 1; // the number of lines that form a rectangle
 
 /**
@@ -55,6 +56,7 @@ class Map {
         float curve, clip{}, scale{};
         bool mainColor;
         SpriteInfo spriteLeft, spriteRight;
+        float bgX; // background position
         float offsetX, yOffsetX;
 
         /**
@@ -89,6 +91,13 @@ class Map {
         void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &hitCoeff,
                 const std::vector<float> &scaleCoeff, SpriteInfo &object, bool left) const;
     };
+
+    // Circles info for forks (with different centers):
+    //      Circle 1: y = -sqrt(r² - x²) + r
+    //      Circle 2: y = sqrt(r² - (x - a)²) + b
+    const float aOffsetX = sqrt(2.0f) * FORK_RADIUS; // a value for C1
+    const float bOffsetX = FORK_RADIUS - sqrt(2.0f) * FORK_RADIUS; // b value for C1
+    const float xChange = FORK_RADIUS * sin(0.75f * M_PI); // x increment
 
     // Background
     sf::Texture bg;
@@ -150,20 +159,22 @@ class Map {
      * @param mainColor
      * @param spriteLeft
      * @param spriteRight
+     * @param bgX
      * @param offsetX es > 0 si hay una bifurcación
-     * @param offetInc
+     * @param offsetInc
      */
     void addLine(float x, float y, float &z, float prevY, float curve, bool mainColor, const SpriteInfo &spriteLeft,
-            const SpriteInfo &spriteRight, float &offsetX, float offetInc = 0.0f);
+            const SpriteInfo &spriteRight, float &bgX, float &offsetX, float offsetInc = 0.0f);
 
     /**
      * Añade rectángulos desde las instrucciones al mapa desde (x, y, z). Actualiza z para una nueva línea.
      * @param x
      * @param y
      * @param z
+     * @param bgX
      * @param instructions
      */
-    void addLines(float x, float y, float &z, const std::vector<std::vector<std::string>> &instructions);
+    void addLines(float x, float y, float &z, float &bgX, const std::vector<std::vector<std::string>> &instructions);
 
     /**
      * Carga los objetos en el mapa y devuelve un vector con los índices de los objetos.

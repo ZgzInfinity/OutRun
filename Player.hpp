@@ -18,13 +18,15 @@ class Player : public Vehicle {
     sf::Sprite sprite;
     bool crashing; // True if crashing state is on
     bool smoking; // True if player generates smoke
+    bool skidding; // True if player is skidding
 
-    thread accelerationSoundThread, engineSoundThread;
-    bool accederationSoundFinished, engineSoundFinished;
+    thread accelerationSoundThread, engineSoundThread, skiddingSoundThread;
+    bool accederationSoundFinished, engineSoundFinished, skiddingSoundFinished;
     bool firstCrash;
 
     void accelerationSound(Config &c);
     void engineSound(Config &c);
+    void skiddingSound(Config &c);
 
 public:
     /**

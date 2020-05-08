@@ -20,7 +20,8 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
                        scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false),
-                       accederationSoundFinished(true), engineSoundFinished(true), firstCrash(true) {}
+                       skidding(false), accederationSoundFinished(true), engineSoundFinished(true),
+                       skiddingSoundFinished(true), firstCrash(true) {}
 
 Player::~Player() {
     if (accelerationSoundThread.joinable())
@@ -36,6 +37,7 @@ float Player::getPreviousY() const {
 void Player::hitControl(const bool vehicleCrash, float vehicleAcc) {
     crashing = true;
     smoking = false;
+    skidding = false;
 
     if (!vehicleCrash) {
         if (posX > XINC)
@@ -156,9 +158,26 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
 }
 
 Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
+    skidding = false;
+
     if (speed > 0.0f) {
-        if (curveCoefficient != 0.0f)
-            posX -= curveCoefficient * XINC * speed / (maxSpeed * 1.5f);
+        if (curveCoefficient != 0.0f) {
+            if (abs(curveCoefficient) >= 0.33f && speed >= 0.75f * maxSpeed) {
+                skidding = true;
+
+                posX -= XINC * curveCoefficient * speed / (8.0f * maxSpeed);
+                if (curveCoefficient < 0.0f)
+                    posX += XINC * speed / maxSpeed;
+                else
+                    posX -= XINC * speed / maxSpeed;
+            }
+            else {
+                if (abs(curveCoefficient) >= 0.33f)
+                    posX -= XINC * curveCoefficient * speed / maxSpeed;
+                else
+                    posX -= 2.0f * XINC * curveCoefficient * speed / maxSpeed;
+            }
+        }
 
         if (Keyboard::isKeyPressed(c.leftKey)) {
             posX -= XINC * speed / maxSpeed;
@@ -168,6 +187,8 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
             posX += XINC * speed / maxSpeed;
             return TURNRIGHT;
         }
+
+        skidding = false;
     }
 
     return RIGHT;
@@ -196,6 +217,14 @@ void crashSound(Config &c) {
     c.effects[7]->stop();
 }
 
+void Player::skiddingSound(Config &c) {
+    // TODO: El 7 es el sonido de choque????
+    c.effects[7]->play();
+    sleep(c.effects[7]->getDuration());
+    c.effects[7]->stop();
+    skiddingSoundFinished = true;
+}
+
 void Player::draw(Config &c, const Action &a, const Direction &d, const Elevation &e, bool enableSound) {
     // Sound effects
     if (enableSound) {
@@ -203,6 +232,8 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
             accelerationSoundThread.join();
         if (engineSoundFinished && engineSoundThread.joinable())
             engineSoundThread.join();
+        if (skiddingSoundFinished && skiddingSoundThread.joinable())
+            skiddingSoundThread.join();
         if (speed > 0.0f) {
             if (a == BOOT && !accelerationSoundThread.joinable()) {
                 accederationSoundFinished = false;
@@ -211,6 +242,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
             else if (accederationSoundFinished && !engineSoundThread.joinable()) {
                 engineSoundFinished = false;
                 engineSoundThread = thread(&Player::engineSound, this, ref(c));
+            }
+
+            if (skidding && skiddingSoundFinished && !skiddingSoundThread.joinable()) {
+                skiddingSoundFinished = false;
+                skiddingSoundThread = thread(&Player::skiddingSound, this, ref(c));
             }
         }
         else if (engineSoundThread.joinable()) {
@@ -230,6 +266,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
         c.effects[6]->stop();
         c.effects[7]->stop();
         c.effects[12]->stop();
+        // TODO Stop sonido de derrape
     }
 
     // Draw
@@ -441,7 +478,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
     c.w.draw(sprite);
 
-    if (smoking) {
+    if (smoking || skidding) {
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
         sprite.setTexture(textures[132 + current_code_image % 4], true);
         sprite.setScale(4, 4);
