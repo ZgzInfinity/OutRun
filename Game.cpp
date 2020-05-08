@@ -388,7 +388,7 @@ void Game::initialAnimation(Config &c) {
         }
 
         // Change semaphore state
-        if (ms > 0){
+        if (ms > 0) {
             sleep(milliseconds(ms));
             c.effects[4]->stop();
             c.effects[4]->play();

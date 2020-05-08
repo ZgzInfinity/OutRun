@@ -15,30 +15,12 @@ using namespace sf;
 
 #define PLAYER_TEXTURES 136
 
-float globalSpeed;
-mutex mtx;
-
-void advanceFerrari(Config& c){
-    float speed;
-    while(1){
-        mtx.lock();
-        speed = globalSpeed;
-        mtx.unlock();
-        if (speed >= 0.8f){
-            c.effects[6]->play();
-            this_thread::sleep_for(chrono::milliseconds(700));
-        }
-        else {
-            c.effects[6]->stop();
-        }
-    }
-}
-
 Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
         const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                       scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false), goingFast(false) {}
+                       scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false),
+                       accederationSoundFinished(true), engineSoundFinished(true), firstCrash(true) {}
 
 float Player::getPreviousY() const {
     return previousY;
@@ -113,7 +95,7 @@ float Player::getRealSpeed() const {
 Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
     Action a = NONE;
     smoking = false;
-    bool isFast;
+    float previousAcc = acceleration;
 
     if (Keyboard::isKeyPressed(c.brakeKey))
         a = BRAKE;
@@ -149,37 +131,17 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
             acceleration = 0.0f;
     }
 
-    if (a == NONE && acceleration > 0.0f)
+    if (previousAcc == 0.0f && acceleration > 0.0f)
+        a = BOOT;
+    else if (a == NONE && acceleration > 0.0f)
         a = ACCELERATE;
 
     speed = sqrt(acceleration);
-    mtx.lock();
-    globalSpeed = speed;
-    isFast = goingFast;
-    mtx.unlock();
-
-    if (speed > 0.0f){
+    if (speed > 0.0f) {
         previousY = posY;
         posY += speed;
-        if (speed <= 0.4f && Keyboard::isKeyPressed(c.accelerateKey)){
-            sleep(milliseconds(20));
-            c.effects[12]->stop();
-            c.effects[12]->play();
-        }
     }
-    if (speed >= 0.8f && !isFast){
-        // Start the thread
-        mtx.lock();
-        goingFast = true;
-        mtx.unlock();
-        thread runFerrari(advanceFerrari, ref(c));
-        runFerrari.detach();
-    }
-    if (speed < 0.8f && isFast){
-        mtx.lock();
-        goingFast = false;
-        mtx.unlock();
-    }
+
     return a;
 }
 
@@ -201,7 +163,60 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
     return RIGHT;
 }
 
+void Player::accelerationSound(Config &c) {
+    c.effects[12]->play();
+    Clock clock;
+    while (speed > 0 && clock.getElapsedTime() < c.effects[12]->getDuration())
+        sleep(milliseconds(100));
+    c.effects[12]->stop();
+    accederationSoundFinished = true;
+}
+
+void Player::engineSound(Config &c) {
+    c.effects[6]->play();
+    sleep(c.effects[6]->getDuration());
+    c.effects[6]->stop();
+    engineSoundFinished = true;
+}
+
+void crashSound(Config &c) {
+    // TODO: El 7 es el sonido de choque????
+    c.effects[7]->play();
+    sleep(c.effects[7]->getDuration());
+    c.effects[7]->stop();
+}
+
 void Player::draw(Config &c, const Action &a, const Direction &d, const Elevation &e) {
+    // Sound effects
+    if (accederationSoundFinished && accelerationSoundThread.joinable())
+        accelerationSoundThread.join();
+    if (engineSoundFinished && engineSoundThread.joinable())
+        engineSoundThread.join();
+    if (speed > 0.0f) {
+        if (a == BOOT && !accelerationSoundThread.joinable()) {
+            accederationSoundFinished = false;
+            accelerationSoundThread = thread(&Player::accelerationSound, this, ref(c));
+        }
+        else if (accederationSoundFinished && !engineSoundThread.joinable()) {
+            engineSoundFinished = false;
+            engineSoundThread = thread(&Player::engineSound, this, ref(c));
+        }
+    }
+    else if (engineSoundThread.joinable()) {
+        c.effects[6]->stop();
+        engineSoundFinished = false;
+    }
+
+    if (a == CRASH && firstCrash) {
+        thread crashSoundThread(crashSound, ref(c));
+        crashSoundThread.detach();
+        firstCrash = false;
+    }
+    else if (a != CRASH) {
+        firstCrash = true;
+    }
+
+    // Draw
     if (a != NONE) {
         if (counter_code_image >= maxCounterToChange) {
             counter_code_image = 0;
@@ -210,7 +225,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                 current_code_image++;
 
             if (textures.size() == PLAYER_TEXTURES) {
-                if (a == ACCELERATE) {
+                if (a == ACCELERATE || a == BOOT) {
                     if (e == FLAT) {
                         if (d == RIGHT) {
                             if (current_code_image < 1 || current_code_image > 4)

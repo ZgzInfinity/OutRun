@@ -30,7 +30,8 @@ public:
         NONE,
         BRAKE,
         ACCELERATE,
-        CRASH
+        CRASH,
+        BOOT
     };
     enum Direction {
         RIGHT,
