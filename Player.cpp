@@ -182,11 +182,17 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
         }
 
         if (Keyboard::isKeyPressed(c.leftKey)) {
-            posX -= XINC * speed / maxSpeed;
+            if (curveCoefficient == 0.0f)
+                posX -= 1.5f * XINC * speed / maxSpeed;
+            else
+                posX -= XINC * speed / maxSpeed;
             return TURNLEFT;
         }
         if (Keyboard::isKeyPressed(c.rightKey)) {
-            posX += XINC * speed / maxSpeed;
+            if (curveCoefficient == 0.0f)
+                posX += 1.5f * XINC * speed / maxSpeed;
+            else
+                posX += XINC * speed / maxSpeed;
             return TURNRIGHT;
         }
 
