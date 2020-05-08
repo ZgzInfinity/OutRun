@@ -515,7 +515,6 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
 
-            v.autoControl();
             float posY = v.getPosY();
             v.draw(c, currentMap->getElevation(posY), currentMap->getCamX());
         }
@@ -543,20 +542,33 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
             float crashPos;
             bool crash = currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
                                                 player.getMaxScreenX(), crashPos);
-            if (!crash)
-                for (int i = 0; !vehicleCrash && i < cars.size(); i++)
-                    vehicleCrash = cars[i].hasCrashed(c, player.getPreviousY(), player.getPosY(),
-                                                      player.getMinScreenX(),
-                                                      player.getMaxScreenX(), crashPos);
+            float vehicleAcc = player.getAcceleration();
+            if (!crash) {
+                for (const Enemy &v : cars) {
+                    vehicleCrash = vehicleCrash || v.hasCrashed(c, player.getPreviousY(), player.getPosY(),
+                                                                player.getMinScreenX(), player.getMaxScreenX(),
+                                                                crashPos);
+                    if (vehicleCrash && v.getAcceleration() < vehicleAcc)
+                        vehicleAcc = v.getAcceleration();
+                }
+            }
             if (crash || vehicleCrash) {
                 player.setPosition(player.getPosX(), crashPos);
-                player.hitControl(vehicleCrash);
+                if (vehicleCrash) {
+                    player.hitControl(true, vehicleAcc);
+                }
+                else {
+                    player.hitControl(false);
+                }
                 action = Vehicle::CRASH;
                 direction = Vehicle::RIGHT;
 
                 player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
             }
         }
+
+        for (Enemy &v : cars)
+            v.autoControl();
 
         // Check if enemies are displayed on the screen
         for (Enemy &v : cars) {

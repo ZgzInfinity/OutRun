@@ -33,17 +33,9 @@ float Player::getPreviousY() const {
     return previousY;
 }
 
-void Player::hitControl(const bool vehicleCrash) {
+void Player::hitControl(const bool vehicleCrash, float vehicleAcc) {
     crashing = true;
     smoking = false;
-
-    acceleration -= accInc * 2.5f;
-    if (speed > 1.333f * halfMaxSpeed) // Reduces hit time
-        acceleration -= accInc * 7.5f;
-    else if (speed > halfMaxSpeed)
-        acceleration -= accInc * 5.0f;
-    else if (speed > 0.5f * halfMaxSpeed)
-        acceleration -= accInc * 2.5f;
 
     if (!vehicleCrash) {
         if (posX > XINC)
@@ -53,33 +45,44 @@ void Player::hitControl(const bool vehicleCrash) {
     }
     else {
         if (minCrashAcc <= 0.0f) { // Only first time
-            minCrashAcc = acceleration * 0.666f; // In case of car crash, acc will be drop 1/3. Otherwise it will be drop to 0.
+            minCrashAcc = acceleration * 0.66f; // In case of car crash, acc will be drop 1/3. Otherwise it will be drop to 0.
 
-            if (xDest < 0.0f)
-                xDest = 0.9f;
+            if (posX < 0.0f)
+                xDest = 0.8f;
             else
-                xDest = -0.9f;
+                xDest = -0.8f;
         }
 
         if (posX > xDest)
-            posX -= XINC * 2.0f;
+            posX -= XINC;
         else if (posX < xDest)
-            posX += XINC * 2.0f;
+            posX += XINC;
 
-        if (posX > 0.9f)
-            posX = 0.9f;
-        else if (posX < -0.9f)
-            posX = -0.9f;
+        if (posX > 0.8f)
+            posX = 0.8f;
+        else if (posX < -0.8f)
+            posX = -0.8f;
     }
+
+    acceleration -= accInc * 2.5f;
+    if (speed > 1.333f * halfMaxSpeed) // Reduces hit time
+        acceleration -= accInc * 7.5f;
+    else if (speed > halfMaxSpeed)
+        acceleration -= accInc * 5.0f;
+    else if (speed > 0.5f * halfMaxSpeed)
+        acceleration -= accInc * 2.5f;
 
     if (acceleration < 0.0f)
         acceleration = 0.0f;
 
     speed = sqrt(acceleration);
-    if (vehicleCrash && speed > 0.0f) { // Only it moves in case of car crash
-        previousY = posY;
-        posY += speed;
-    }
+
+    previousY = posY;
+    if (vehicleCrash && abs(posX) != 0.8f)
+        posY -= speed / 2.0f;
+    if (!vehicleCrash && (posX <= -XINC || posX >= XINC))
+        posY -= speed / 6.0f;
+
     if (acceleration <= minCrashAcc) {
         acceleration = minCrashAcc;
         speed = sqrt(acceleration);
