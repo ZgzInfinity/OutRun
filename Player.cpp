@@ -214,11 +214,6 @@ void crashSound(Config &c, int sound){
     c.effects[sound - 1]->stop();
     c.effects[sound - 1]->play();
     sleep(c.effects[sound - 1]->getDuration());
-    /*
-     c.effects[7]->play();
-     sleep(c.effects[7]->getDuration());
-     c.effects[7]->stop();
-    */
 }
 
 void Player::skiddingSound(Config &c) {
@@ -269,9 +264,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     }
     else {
         c.effects[6]->stop();
-        c.effects[7]->stop();
         c.effects[12]->stop();
-        // TODO Stop sonido de derrape
+        c.effects[17]->stop();
+        c.effects[18]->stop();
+        c.effects[19]->stop();
+        c.effects[7]->stop(); // TODO: El 7 es el sonido de choque????
     }
 
     // Draw
