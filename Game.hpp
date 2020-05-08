@@ -11,6 +11,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <random>
+#include "Random.hpp"
 #include "Menu.hpp"
 #include "Map.hpp"
 #include "Player.hpp"
@@ -56,6 +58,12 @@ class Game {
     // Clock counter of time
     Clock gameClockLap;
 
+    // Clock to control the woman shout
+    Clock womanShot;
+
+    // Time to update the clock counter lap
+    Time woman_delay;
+
     // Actual level
     int level;
 
@@ -69,7 +77,7 @@ class Game {
     bool onPause;
 
     // Counter time to update the HUD indicators
-    float elapsed1, elapsed2, elapsed3, elapsed4;
+    float elapsed1, elapsed2, elapsed3, elapsed4, elapsed5, elapsed6;
 
     /**
      * Muestra la animación inicial del comienzo de la partida.

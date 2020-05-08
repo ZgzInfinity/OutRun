@@ -34,6 +34,12 @@ void slideCar(Config& c){
     c.effects[8]->play();
 }
 
+void makeWomanSound(Config& c, int sound){
+    c.effects[sound - 1]->stop();
+    c.effects[sound - 1]->play();
+    sleep(c.effects[sound - 1]->getDuration());
+}
+
 
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
@@ -173,6 +179,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     finalGame = false;
     inGame = false;
     onPause = false;
+    woman_delay = seconds(5.0f);
 }
 
 
@@ -202,6 +209,10 @@ State Game::play(Config &c, Interface& interface) {
 
     gameClockLap.restart();
     elapsed3 = gameClockLap.getElapsedTime().asSeconds();
+
+    womanShot.restart();
+    elapsed5 = womanShot.getElapsedTime().asSeconds();
+
 
     Vehicle::Action action;
     Vehicle::Direction direction;
@@ -553,7 +564,15 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
             bool visible = v.isVisible(c, currentMap->getCamY(), player.getPosX(), player.getPosY(), distX, distY);
             if (visible) {
                 // TODO: Este coche se ve en la pantalla y la distancia al jugador en X y en Y está en distX y distY
-                cout << distX << ", " << distY << endl;
+                if (distY <= 20.f && distX <= 0.3f){
+                    // Thread with sound of the woman
+                    elapsed6 = womanShot.getElapsedTime().asSeconds();
+                    if (elapsed6 - elapsed5 >= woman_delay.asSeconds()){
+                        int code = random_int(14, 16);
+                        thread (makeWomanSound, ref(c), code).detach();
+                        womanShot.restart();
+                    }
+                }
             }
         }
     }
