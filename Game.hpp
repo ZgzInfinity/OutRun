@@ -61,8 +61,14 @@ class Game {
     // Clock to control the woman shout
     Clock womanShot;
 
+    // Control the sound of the traffic
+    Clock trafficCarSound;
+
     // Time to update the clock counter lap
     Time woman_delay;
+
+    // Time to reproduce a new traffic car sound
+    Time traffic_delay;
 
     // Actual level
     int level;
@@ -76,8 +82,12 @@ class Game {
     // Pause of the game
     bool onPause;
 
+    // Control the options menu
+    bool comeFromOptions;
+
     // Counter time to update the HUD indicators
-    float elapsed1, elapsed2, elapsed3, elapsed4, elapsed5, elapsed6;
+    float elapsed1, elapsed2, elapsed3, elapsed4,
+          elapsed5, elapsed6, elapsed7, elapsed8;
 
     /**
      * Muestra la animación inicial del comienzo de la partida.

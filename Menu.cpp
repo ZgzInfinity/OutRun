@@ -53,7 +53,7 @@ void loadGameSoundtracks(Config& c){
 
 void loadGameSoundEffects(Config& c){
      // Load the game effects
-     for (int i = 1; i <= 16; i++){
+     for (int i = 1; i <= 22; i++){
         unique_ptr<Music> effect = unique_ptr<Music>(new Music());
         effect->openFromFile("resources/SoundEffects/" + to_string(i) + ".ogg");
         effect->setVolume(100);
@@ -66,7 +66,7 @@ void loadGameSoundEffects(Config& c){
 State introAnimation(Config& c){
 
     // Load the sound effects
-    thread soundTrackLoader(loadGameSoundtracks, ref(c));
+    thread (loadGameSoundtracks, ref(c)).detach();
 
     // Vector of images with the logo of Sega
     Texture t;
@@ -90,19 +90,14 @@ State introAnimation(Config& c){
         sleep(milliseconds(35));
     }
 
-    // Control the final of the thread
-    soundTrackLoader.join();
-
-    // Final of animation
+    // Load the soundtracks of the game
+    thread (loadGameSoundEffects, ref(c)).detach();
     return START;
 }
 
 
 
 State startMenu(Config &c) {
-
-    // Load the soundtracks of the game
-    thread soundEffectsLoader(loadGameSoundEffects, ref(c));
 
     const int ELEMENTS = 5;
 
@@ -196,8 +191,6 @@ State startMenu(Config &c) {
 
     // Code of sprite to display
     int j = 0;
-
-    soundEffectsLoader.join();
 
     // While the console window is opened
     while (c.w.isOpen()) {
@@ -550,8 +543,7 @@ State optionsMenu(Config& c, const bool& inGame){
     c.w.clear(Color(0, 0, 0));
     c.w.display();
 
-    c.currentSoundtrack = 0;
-    c.themes[c.currentSoundtrack]->play();
+    c.themes[0]->play();
 
     // Loading the background texture
     Texture segaBackground, textureShape;
@@ -772,7 +764,7 @@ State optionsMenu(Config& c, const bool& inGame){
             c.effects[1]->play();
         }
     }
-    c.themes[c.currentSoundtrack]->stop();
+    c.themes[0]->stop();
     if (inGame){
         return GAME;
     }
@@ -838,7 +830,7 @@ State selectMusicSoundtrack(Config &c){
     // Control if the Enter key is pressed
     bool startPressed = false;
 
-    // Stop soundsn                                                                            nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+    // Stop sounds
     c.themes[0]->stop();
     c.themes[1]->stop();
     c.themes[2]->stop();
@@ -925,7 +917,7 @@ State selectMusicSoundtrack(Config &c){
             c.effects[2]->play();
         }
     }
-    c.themes[c.currentSoundtrack]->stop();
+    c.themes[0]->stop();
     return GAME;
 }
 
