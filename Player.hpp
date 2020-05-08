@@ -58,9 +58,8 @@ public:
     /**
      * Actualiza la lógica del choque y restablece la velocidad y aceleración.
      * @param vehicleCrash true si es un choque entre vehículos
-     * @param vehicleAcc es la aceleración del coche con el que ha chocado (sólo en la primera llamada)
      */
-    void hitControl(bool vehicleCrash, float vehicleAcc = 0.0f);
+    void hitControl(bool vehicleCrash);
 
     /**
      * Devuelve true si la lógica de choque está en ejecución.

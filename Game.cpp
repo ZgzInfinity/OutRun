@@ -557,24 +557,15 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
             float crashPos;
             bool crash = currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
                                                 player.getMaxScreenX(), crashPos);
-            float vehicleAcc = player.getAcceleration();
-            if (!crash) {
-                for (const Enemy &v : cars) {
-                    vehicleCrash = vehicleCrash || v.hasCrashed(c, player.getPreviousY(), player.getPosY(),
-                                                                player.getMinScreenX(), player.getMaxScreenX(),
-                                                                crashPos);
-                    if (vehicleCrash && v.getAcceleration() < vehicleAcc)
-                        vehicleAcc = v.getAcceleration();
-                }
-            }
+            if (!crash)
+                for (int i = 0; !vehicleCrash && i < cars.size(); i++)
+                    vehicleCrash = cars[i].hasCrashed(c, player.getPreviousY(), player.getPosY(),
+                                                player.getMinScreenX(), player.getMaxScreenX(),
+                                                crashPos);
+
             if (crash || vehicleCrash) {
                 player.setPosition(player.getPosX(), crashPos);
-                if (vehicleCrash) {
-                    player.hitControl(true, vehicleAcc);
-                }
-                else {
-                    player.hitControl(false);
-                }
+                player.hitControl(vehicleCrash);
                 action = Vehicle::CRASH;
                 direction = Vehicle::RIGHT;
 

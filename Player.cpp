@@ -34,7 +34,7 @@ float Player::getPreviousY() const {
     return previousY;
 }
 
-void Player::hitControl(const bool vehicleCrash, float vehicleAcc) {
+void Player::hitControl(const bool vehicleCrash) {
     crashing = true;
     smoking = false;
     skidding = false;
