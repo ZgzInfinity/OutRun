@@ -48,3 +48,7 @@ float Vehicle::getMinScreenX() const {
 float Vehicle::getMaxScreenX() const {
     return maxScreenX;
 }
+
+float Vehicle::getAcceleration() const {
+    return speed * speed;
+}

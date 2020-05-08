@@ -90,9 +90,23 @@ public:
      */
     float getPosY() const;
 
+    /**
+     * Devuelve la coordenada mínima de pantalla en X que ocupa el vehículo.
+     * @return
+     */
     float getMinScreenX() const;
 
+    /**
+     * Devuelve la coordenada máxima de pantalla en X que ocupa el vehículo.
+     * @return
+     */
     float getMaxScreenX() const;
+
+    /**
+     * Devuelve la aceleración del vehículo.
+     * @return
+     */
+    float getAcceleration() const;
 };
 
 
