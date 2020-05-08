@@ -69,6 +69,18 @@ public:
      * @return
      */
     bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const;
+
+    /**
+     * Devuelve true si el coche se muestra en pantalla y la distancia al jugador, sino devuelve false.
+     * @param c
+     * @param minY
+     * @param playerX
+     * @param playerY
+     * @param distanceX
+     * @param distanceY
+     * @return
+     */
+    bool isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const;
 };
 
 

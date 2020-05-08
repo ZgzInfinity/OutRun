@@ -43,6 +43,11 @@ public:
             const std::string &vehicle, float pX, float pY);
 
     /**
+     * Destructor.
+     */
+    virtual ~Player();
+
+    /**
      * Devuelve la posición previa Y.
      * @return
      */
@@ -88,8 +93,9 @@ public:
      * @param a
      * @param d
      * @param e
+     * @param enableSound
      */
-    void draw(Config &c, const Action &a, const Direction &d, const Elevation &e);
+    void draw(Config &c, const Action &a, const Direction &d, const Elevation &e, bool enableSound = true);
 
     /**
      * Dibuja la animación inicial en la pantalla y devuelve si ha acabado.

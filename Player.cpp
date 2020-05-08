@@ -22,6 +22,13 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
                        scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false),
                        accederationSoundFinished(true), engineSoundFinished(true), firstCrash(true) {}
 
+Player::~Player() {
+    if (accelerationSoundThread.joinable())
+        accelerationSoundThread.join();
+    if (engineSoundThread.joinable())
+        engineSoundThread.join();
+}
+
 float Player::getPreviousY() const {
     return previousY;
 }
@@ -186,34 +193,40 @@ void crashSound(Config &c) {
     c.effects[7]->stop();
 }
 
-void Player::draw(Config &c, const Action &a, const Direction &d, const Elevation &e) {
+void Player::draw(Config &c, const Action &a, const Direction &d, const Elevation &e, bool enableSound) {
     // Sound effects
-    if (accederationSoundFinished && accelerationSoundThread.joinable())
-        accelerationSoundThread.join();
-    if (engineSoundFinished && engineSoundThread.joinable())
-        engineSoundThread.join();
-    if (speed > 0.0f) {
-        if (a == BOOT && !accelerationSoundThread.joinable()) {
-            accederationSoundFinished = false;
-            accelerationSoundThread = thread(&Player::accelerationSound, this, ref(c));
+    if (enableSound) {
+        if (accederationSoundFinished && accelerationSoundThread.joinable())
+            accelerationSoundThread.join();
+        if (engineSoundFinished && engineSoundThread.joinable())
+            engineSoundThread.join();
+        if (speed > 0.0f) {
+            if (a == BOOT && !accelerationSoundThread.joinable()) {
+                accederationSoundFinished = false;
+                accelerationSoundThread = thread(&Player::accelerationSound, this, ref(c));
+            }
+            else if (accederationSoundFinished && !engineSoundThread.joinable()) {
+                engineSoundFinished = false;
+                engineSoundThread = thread(&Player::engineSound, this, ref(c));
+            }
         }
-        else if (accederationSoundFinished && !engineSoundThread.joinable()) {
+        else if (engineSoundThread.joinable()) {
+            c.effects[6]->stop();
             engineSoundFinished = false;
-            engineSoundThread = thread(&Player::engineSound, this, ref(c));
+        }
+
+        if (a == CRASH && firstCrash) {
+            thread (crashSound, ref(c)).detach();
+            firstCrash = false;
+        }
+        else if (a != CRASH) {
+            firstCrash = true;
         }
     }
-    else if (engineSoundThread.joinable()) {
+    else {
         c.effects[6]->stop();
-        engineSoundFinished = false;
-    }
-
-    if (a == CRASH && firstCrash) {
-        thread crashSoundThread(crashSound, ref(c));
-        crashSoundThread.detach();
-        firstCrash = false;
-    }
-    else if (a != CRASH) {
-        firstCrash = true;
+        c.effects[7]->stop();
+        c.effects[12]->stop();
     }
 
     // Draw

@@ -161,3 +161,14 @@ bool Enemy::hasCrashed(const Config &c, float prevY, float currentY, float minX,
     }
     return false;
 }
+
+bool Enemy::isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const {
+    if (posY < minY || posY > minY + float(c.renderLen) || minScreenX < 0 || maxScreenX > c.w.getSize().y) {
+        return false;
+    }
+    else {
+        distanceX = abs(playerX - posX);
+        distanceY = abs(playerY - posY);
+        return true;
+    }
+}

@@ -546,6 +546,16 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                 player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
             }
         }
+
+        // Check if enemies are displayed on the screen
+        for (Enemy &v : cars) {
+            float distX, distY;
+            bool visible = v.isVisible(c, currentMap->getCamY(), player.getPosX(), player.getPosY(), distX, distY);
+            if (visible) {
+                // TODO: Este coche se ve en la pantalla y la distancia al jugador en X y en Y está en distX y distY
+                cout << distX << ", " << distY << endl;
+            }
+        }
     }
 }
 
@@ -637,7 +647,7 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
         currentMap->draw(c, cars);
 
         // Draw the vehicle of the player
-        player.draw(c, a, d, currentMap->getElevation(player.getPosY()));
+        player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
 
         c.w.draw(i.sText);
         c.w.draw(i.textLap);
