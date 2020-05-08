@@ -18,16 +18,18 @@ using namespace sf;
 Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
         const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
-                       halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                       scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false),
-                       skidding(false), accederationSoundFinished(true), engineSoundFinished(true),
-                       skiddingSoundFinished(true), firstCrash(true) {}
+                                                     halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
+                                                     scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false),
+                                                     skidding(false), accederationSoundFinished(true), engineSoundFinished(true),
+                                                     skiddingSoundFinished(true), firstCrash(true), firstTurnLeft(true), firstTurnRight(true) {}
 
 Player::~Player() {
     if (accelerationSoundThread.joinable())
         accelerationSoundThread.join();
     if (engineSoundThread.joinable())
         engineSoundThread.join();
+    if (skiddingSoundThread.joinable())
+        skiddingSoundThread.join();
 }
 
 float Player::getPreviousY() const {
@@ -217,7 +219,7 @@ void crashSound(Config &c, int sound){
 }
 
 void Player::skiddingSound(Config &c) {
-    // TODO: El 7 es el sonido de choque????
+    // TODO: El 7 es el sonido de derrape????
     c.effects[7]->play();
     sleep(c.effects[7]->getDuration());
     c.effects[7]->stop();
@@ -268,10 +270,15 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
         c.effects[17]->stop();
         c.effects[18]->stop();
         c.effects[19]->stop();
-        c.effects[7]->stop(); // TODO: El 7 es el sonido de choque????
+        c.effects[7]->stop(); // TODO: El 7 es el sonido de derrape????
     }
 
     // Draw
+    if (d != TURNLEFT)
+        firstTurnLeft = true;
+    if (d != TURNRIGHT)
+        firstTurnRight = true;
+
     if (a != NONE) {
         if (counter_code_image >= maxCounterToChange) {
             counter_code_image = 0;
@@ -287,9 +294,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 1;
                         }
                         else if (d == TURNLEFT) {
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnLeft) {
                                 if (current_code_image < 5 || current_code_image > 8)
                                     current_code_image = 5;
+                                if (current_code_image == 8)
+                                    firstTurnLeft = false;
                             }
                             else {
                                 if (current_code_image < 9 || current_code_image > 12)
@@ -297,9 +306,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                             }
                         }
                         else { // Turn right
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnRight) {
                                 if (current_code_image < 13 || current_code_image > 16)
                                     current_code_image = 13;
+                                if (current_code_image == 16)
+                                    firstTurnRight = false;
                             }
                             else {
                                 if (current_code_image < 17 || current_code_image > 20)
@@ -313,9 +324,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 21;
                         }
                         else if (d == TURNLEFT) {
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnLeft) {
                                 if (current_code_image < 25 || current_code_image > 28)
                                     current_code_image = 25;
+                                if (current_code_image == 28)
+                                    firstTurnLeft = false;
                             }
                             else {
                                 if (current_code_image < 29 || current_code_image > 32)
@@ -323,9 +336,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                             }
                         }
                         else { // Turn right
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnRight) {
                                 if (current_code_image < 33 || current_code_image > 36)
                                     current_code_image = 33;
+                                if (current_code_image == 36)
+                                    firstTurnRight = false;
                             }
                             else {
                                 if (current_code_image < 37 || current_code_image > 40)
@@ -339,9 +354,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 41;
                         }
                         else if (d == TURNLEFT) {
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnLeft) {
                                 if (current_code_image < 45 || current_code_image > 48)
                                     current_code_image = 45;
+                                if (current_code_image == 48)
+                                    firstTurnLeft = false;
                             }
                             else {
                                 if (current_code_image < 49 || current_code_image > 52)
@@ -349,9 +366,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                             }
                         }
                         else { // Turn right
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnRight) {
                                 if (current_code_image < 53 || current_code_image > 56)
                                     current_code_image = 53;
+                                if (current_code_image == 56)
+                                    firstTurnRight = false;
                             }
                             else {
                                 if (current_code_image < 57 || current_code_image > 60)
@@ -367,9 +386,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 61;
                         }
                         else if (d == TURNLEFT) {
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnLeft) {
                                 if (current_code_image < 65 || current_code_image > 68)
                                     current_code_image = 65;
+                                if (current_code_image == 68)
+                                    firstTurnLeft = false;
                             }
                             else {
                                 if (current_code_image < 69 || current_code_image > 72)
@@ -377,9 +398,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                             }
                         }
                         else { // Turn right
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnRight) {
                                 if (current_code_image < 73 || current_code_image > 76)
                                     current_code_image = 73;
+                                if (current_code_image == 76)
+                                    firstTurnRight = false;
                             }
                             else {
                                 if (current_code_image < 77 || current_code_image > 80)
@@ -393,9 +416,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 81;
                         }
                         else if (d == TURNLEFT) {
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnLeft) {
                                 if (current_code_image < 85 || current_code_image > 88)
                                     current_code_image = 85;
+                                if (current_code_image == 88)
+                                    firstTurnLeft = false;
                             }
                             else {
                                 if (current_code_image < 89 || current_code_image > 92)
@@ -403,9 +428,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                             }
                         }
                         else { // Turn right
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnRight) {
                                 if (current_code_image < 93 || current_code_image > 96)
                                     current_code_image = 93;
+                                if (current_code_image == 96)
+                                    firstTurnRight = false;
                             }
                             else {
                                 if (current_code_image < 97 || current_code_image > 100)
@@ -419,9 +446,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 101;
                         }
                         else if (d == TURNLEFT) {
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnLeft) {
                                 if (current_code_image < 105 || current_code_image > 108)
                                     current_code_image = 105;
+                                if (current_code_image == 108)
+                                    firstTurnLeft = false;
                             }
                             else {
                                 if (current_code_image < 109 || current_code_image > 112)
@@ -429,9 +458,11 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                             }
                         }
                         else { // Turn right
-                            if (speed < halfMaxSpeed) {
+                            if (firstTurnRight) {
                                 if (current_code_image < 113 || current_code_image > 116)
                                     current_code_image = 113;
+                                if (current_code_image == 116)
+                                    firstTurnRight = false;
                             }
                             else {
                                 if (current_code_image < 117 || current_code_image > 120)
@@ -462,8 +493,6 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 131;
                         }
                     }
-                    // Thread that control the crash of the car
-
                 }
             }
         }

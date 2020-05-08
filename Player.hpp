@@ -22,7 +22,7 @@ class Player : public Vehicle {
 
     thread accelerationSoundThread, engineSoundThread, skiddingSoundThread;
     bool accederationSoundFinished, engineSoundFinished, skiddingSoundFinished;
-    bool firstCrash;
+    bool firstCrash, firstTurnLeft, firstTurnRight;
 
     void accelerationSound(Config &c);
     void engineSound(Config &c);
