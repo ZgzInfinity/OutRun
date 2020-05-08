@@ -210,11 +210,15 @@ void Player::engineSound(Config &c) {
     engineSoundFinished = true;
 }
 
-void crashSound(Config &c) {
-    // TODO: El 7 es el sonido de choque????
-    c.effects[7]->play();
-    sleep(c.effects[7]->getDuration());
-    c.effects[7]->stop();
+void crashSound(Config &c, int sound){
+    c.effects[sound - 1]->stop();
+    c.effects[sound - 1]->play();
+    sleep(c.effects[sound - 1]->getDuration());
+    /*
+     c.effects[7]->play();
+     sleep(c.effects[7]->getDuration());
+     c.effects[7]->stop();
+    */
 }
 
 void Player::skiddingSound(Config &c) {
@@ -255,7 +259,8 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
         }
 
         if (a == CRASH && firstCrash) {
-            thread (crashSound, ref(c)).detach();
+            int codeCrashSound = random_int(18, 20);
+            thread (crashSound, ref(c), codeCrashSound).detach();
             firstCrash = false;
         }
         else if (a != CRASH) {
@@ -460,6 +465,8 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                                 current_code_image = 131;
                         }
                     }
+                    // Thread that control the crash of the car
+
                 }
             }
         }

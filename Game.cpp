@@ -41,6 +41,13 @@ void makeWomanSound(Config& c, int sound){
 }
 
 
+void makeCarTrafficSound(Config& c, int sound){
+    c.effects[sound - 1]->stop();
+    c.effects[sound - 1]->play();
+    sleep(c.effects[sound - 1]->getDuration());
+}
+
+
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
     int nm = 0;
@@ -179,7 +186,9 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     finalGame = false;
     inGame = false;
     onPause = false;
+    comeFromOptions = false;
     woman_delay = seconds(5.0f);
+    traffic_delay = seconds(2.f);
 }
 
 
@@ -213,6 +222,9 @@ State Game::play(Config &c, Interface& interface) {
     womanShot.restart();
     elapsed5 = womanShot.getElapsedTime().asSeconds();
 
+    trafficCarSound.restart();
+    elapsed7 = trafficCarSound.getElapsedTime().asSeconds();
+
 
     Vehicle::Action action;
     Vehicle::Direction direction;
@@ -237,13 +249,16 @@ State Game::play(Config &c, Interface& interface) {
 
                 // Control the exit of the game
                 if (status == OPTIONS){
+                    comeFromOptions = true;
                     finalGame = true;
                 }
                 else if (status == START){
                     finalGame = true;
+                    inGame = false;
+                    return START;
                 }
                 else if (status == GAME){
-
+                    c.themes[c.currentSoundtrack]->play();
                 }
             }
 
@@ -339,13 +354,12 @@ State Game::play(Config &c, Interface& interface) {
 
         return EXIT;
     }
-    else if (status == START){
-        inGame = false;
-    }
     return status;
 }
 
 void Game::initialAnimation(Config &c) {
+
+    c.themes[c.currentSoundtrack]->stop();
     int flagger, semaphore;
     Map *initMap = new Map(*currentMap, flagger, semaphore);
     initMap->addNextMap(currentMap);
@@ -354,6 +368,7 @@ void Game::initialAnimation(Config &c) {
     // Prepare car
     bool end = false;
 
+    sleep(milliseconds(70));
     thread slide(slideCar, ref(c));
 
     for (int i = (int) c.w.getSize().x / 2; !end; i -= 3) {
@@ -585,6 +600,15 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                         womanShot.restart();
                     }
                 }
+                if (distY <= 30.f && distX <= 1.2f){
+                    // Thread with sound of the woman
+                    elapsed8 = trafficCarSound.getElapsedTime().asSeconds();
+                    if (elapsed8 - elapsed7 >= traffic_delay.asSeconds()){
+                        int code = random_int(21, 22);
+                        thread (makeCarTrafficSound, ref(c), code).detach();
+                        trafficCarSound.restart();
+                    }
+                }
             }
         }
     }
@@ -671,7 +695,12 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
             }
         }
         else if (Keyboard::isKeyPressed(c.menuEnterKey)){
-            startPressed = true;
+            if (comeFromOptions){
+                comeFromOptions = false;
+            }
+            else {
+                startPressed = true;
+            }
         }
 
         // Draw the map
@@ -709,7 +738,6 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
     switch(optionSelected){
         case 0:
             // Resume button selected and reanudate the music
-            c.themes[c.currentSoundtrack]->play();
             onPause = false;
             return GAME;
         case 1:
