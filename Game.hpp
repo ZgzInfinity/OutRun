@@ -64,11 +64,17 @@ class Game {
     // Control the sound of the traffic
     Clock trafficCarSound;
 
+    // Control the
+    Clock blinkTime;
+
     // Time to update the clock counter lap
     Time woman_delay;
 
     // Time to reproduce a new traffic car sound
     Time traffic_delay;
+
+    // Time to reproduce a new traffic car sound
+    Time blink_delay;
 
     // Actual level
     int level;
@@ -85,9 +91,15 @@ class Game {
     // Control the options menu
     bool comeFromOptions;
 
+    // Control the checkpoint
+    bool checkPoint = false;
+
+    bool blink;
+
     // Counter time to update the HUD indicators
     float elapsed1, elapsed2, elapsed3, elapsed4,
-          elapsed5, elapsed6, elapsed7, elapsed8;
+          elapsed5, elapsed6, elapsed7, elapsed8,
+          elapsed9, elapsed10;
 
     /**
      * Muestra la animación inicial del comienzo de la partida.
@@ -105,7 +117,7 @@ class Game {
      * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
      * @param c
      */
-    void updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction);
+    void updateAndDraw(Config &c, Interface& interface, Vehicle::Action& action, Vehicle::Direction &direction);
 
 public:
     /**

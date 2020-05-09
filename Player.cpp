@@ -226,9 +226,9 @@ void crashSound(Config &c, int sound){
 
 void Player::skiddingSound(Config &c) {
     // TODO: El 7 es el sonido de derrape????
-    c.effects[7]->play();
-    sleep(c.effects[7]->getDuration());
-    c.effects[7]->stop();
+    c.effects[8]->play();
+    sleep(c.effects[8]->getDuration());
+    c.effects[8]->stop();
     skiddingSoundFinished = true;
 }
 

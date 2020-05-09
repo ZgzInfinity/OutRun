@@ -22,6 +22,7 @@
 
 #define PRE_POS 2
 #define FORK_RADIUS 10.0f
+
 const int RECTANGLE = PRE_POS * 2 + 1; // the number of lines that form a rectangle
 
 /**
@@ -98,8 +99,8 @@ class Map {
     };
 
     // Circles info for forks (with different centers):
-    //      Circle 1: y = -sqrt(r² - x²) + r
-    //      Circle 2: y = sqrt(r² - (x - a)²) + b
+    // Circle 1: y = -sqrt(r² - x²) + r
+    // Circle 2: y = sqrt(r² - (x - a)²) + b
     const float aOffsetX = sqrt(2.0f) * FORK_RADIUS; // a value for C1
     const float bOffsetX = FORK_RADIUS - sqrt(2.0f) * FORK_RADIUS; // b value for C1
     const float xChange = FORK_RADIUS * sin(0.75f * M_PI); // x increment

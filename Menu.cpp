@@ -43,7 +43,7 @@ void loadGameSoundtracks(Config& c){
      for (int i = 0; i <= 3; i++){
         unique_ptr<Music> music = unique_ptr<Music>(new Music());
         music->openFromFile("resources/Soundtrack/" + to_string(i) + ".ogg");
-        music->setVolume(80);
+        music->setVolume(90);
         music->setLoop(true);
         c.themes.push_back(move(music));
     }
@@ -53,20 +53,21 @@ void loadGameSoundtracks(Config& c){
 
 void loadGameSoundEffects(Config& c){
      // Load the game effects
-     for (int i = 1; i <= 22; i++){
+     for (int i = 1; i <= 27; i++){
         unique_ptr<Music> effect = unique_ptr<Music>(new Music());
         effect->openFromFile("resources/SoundEffects/" + to_string(i) + ".ogg");
         effect->setVolume(100);
         c.effects.push_back(move(effect));
     }
     c.effects[6]->setLoop(true);
+    c.effects[6]->setVolume(60);
 }
 
 
 State introAnimation(Config& c){
 
-    // Load the sound effects
-    thread (loadGameSoundtracks, ref(c)).detach();
+    // Load the soundtracks of the game
+    thread (loadGameSoundEffects, ref(c)).detach();
 
     // Vector of images with the logo of Sega
     Texture t;
@@ -87,11 +88,12 @@ State introAnimation(Config& c){
         // Show the logos in the console
         c.w.display();
         // Sleep the process to see the menu icons correctly
-        sleep(milliseconds(35));
+        sleep(milliseconds(40));
     }
+    c.effects[26]->play();
+    // Load the sound effects
+    thread (loadGameSoundtracks, ref(c)).detach();
 
-    // Load the soundtracks of the game
-    thread (loadGameSoundEffects, ref(c)).detach();
     return START;
 }
 

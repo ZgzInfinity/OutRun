@@ -47,11 +47,22 @@ void makeCarTrafficSound(Config& c, int sound){
     sleep(c.effects[sound - 1]->getDuration());
 }
 
+void makeBeepSound(Config& c){
+    c.effects[22]->stop();
+    c.effects[22]->play();
+    sleep(c.effects[22]->getDuration());
+}
+
+void makeCheckPointEffect(Config& c){
+    c.effects[23]->stop();
+    c.effects[23]->play();
+    sleep(c.effects[23]->getDuration());
+}
 
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {80, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75};
+    const int times[] = {750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
@@ -85,19 +96,19 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     Texture t;
     Sprite s;
     // Load the textures of the panel and assign them to their sprites
-    for (int i = 1; i <= 6; i++){
+    for (int i = 1; i <= 7; i++){
         // Load the texture from the file
         t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
         interface.textures.push_back(t);
     }
 
-    for (int i = 0; i < 7; i++){
+    for (int i = 0; i < 8; i++){
         s.setTexture(interface.textures[i], true);
         interface.sprites.push_back(s);
     }
 
     // Assign positions in the game console for the game panel indicators
-    for (int i = 0; i < 7; i++){
+    for (int i = 0; i < 8; i++){
         switch(i){
             case 0: // TODO: Usar porcentajes, no restas y sumas, para así permitir distintas resoluciones de pantalla
                 interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 430, c.w.getSize().y / 2.f - 330);
@@ -124,8 +135,13 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
                 interface.sprites[i].scale(1.5f, 1.5f);
                 break;
             case 6:
+                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 170 , c.w.getSize().y / 2.f - 180);
+                interface.sprites[i].scale(1.5f, 1.5f);
+                break;
+            case 7:
                 interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 420 , c.w.getSize().y / 2.f + 320);
                 interface.sprites[i].scale(2.f, 1.5f);
+                break;
         }
     }
 
@@ -182,13 +198,29 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     interface.gameOver.setOutlineColor(Color(14, 29, 184));
     interface.gameOver.setOutlineThickness(3);
 
+    // CheckPoint indicator
+    interface.checkPoint.setFont(c.timeToPlay);
+    interface.checkPoint.setPosition(c.w.getSize().x / 2.f - 120, c.w.getSize().y / 2.f - 235);
+    interface.checkPoint.setString("CHECKPOINT!");
+    interface.checkPoint.setCharacterSize(50);
+    interface.checkPoint.setFillColor(Color::Yellow);
+    interface.checkPoint.setOutlineColor(Color(12, 12, 12));
+    interface.checkPoint.setOutlineThickness(3);
+
+    interface.textForLap.setFont(c.timeToPlay);
+    interface.textForLap.setPosition(c.w.getSize().x / 2.f - 80, c.w.getSize().y / 2.f - 140);
+    interface.textForLap.setCharacterSize(35);
+    interface.textForLap.setOutlineThickness(3);
+
     // Control if the player is still playing
     finalGame = false;
     inGame = false;
     onPause = false;
     comeFromOptions = false;
+    blink = false;
     woman_delay = seconds(5.0f);
     traffic_delay = seconds(2.f);
+    blink_delay = seconds(0.5f);
 }
 
 
@@ -225,6 +257,8 @@ State Game::play(Config &c, Interface& interface) {
     trafficCarSound.restart();
     elapsed7 = trafficCarSound.getElapsedTime().asSeconds();
 
+    blinkTime.restart();
+    elapsed9 = blinkTime.getElapsedTime().asSeconds();
 
     Vehicle::Action action;
     Vehicle::Direction direction;
@@ -232,7 +266,7 @@ State Game::play(Config &c, Interface& interface) {
     State status;
 
     while (!finalGame && c.w.isOpen()) {
-        updateAndDraw(c, action, direction);
+        updateAndDraw(c, interface, action, direction);
 
         if (!finalGame) {
             Event e{};
@@ -268,9 +302,9 @@ State Game::play(Config &c, Interface& interface) {
             interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
                               (float) c.w.getSize().y / 2.f + 240);
 
-            interface.textures[6].loadFromFile("resources/GamePanel/7.png",
+            interface.textures[7].loadFromFile("resources/GamePanel/8.png",
                                      IntRect(0, 0, ((int) player.getRealSpeed() * 117 / MAX_SPEED), 20));
-            interface.sprites[6].setTexture(interface.textures[6], true);
+            interface.sprites[7].setTexture(interface.textures[7], true);
 
             c.w.draw(interface.sText);
 
@@ -324,7 +358,7 @@ State Game::play(Config &c, Interface& interface) {
             }
 
             if (player.getRealSpeed() > 0) {
-                c.w.draw(interface.sprites[6]);
+                c.w.draw(interface.sprites[7]);
             }
 
             c.w.draw(interface.timeToPlay);
@@ -332,6 +366,11 @@ State Game::play(Config &c, Interface& interface) {
             c.w.draw(interface.textLap);
             c.w.draw(interface.textLevel);
             c.w.display();
+
+            if (time == 10){
+                c.effects[25]->stop();
+                c.effects[25]->play();
+            }
 
             // Check if the player has time to continue
             if (time == 0) {
@@ -346,6 +385,9 @@ State Game::play(Config &c, Interface& interface) {
     if (status != OPTIONS && status != START) {
         // Draw the game over text in the console window
         c.w.draw(interface.gameOver);
+        c.themes[c.currentSoundtrack]->stop();
+        c.effects[24]->stop();
+        c.effects[24]->play();
         c.w.display();
 
         bool startPressed = false;
@@ -476,7 +518,7 @@ void Game::goalAnimation(Config &c) {
     }
 }
 
-void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction) {
+void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& action, Vehicle::Direction &direction) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -490,10 +532,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
             const bool isInitMap = currentMap->isInitMap();
             currentMap = currentMap->getNext();
             if (!isInitMap && !currentMap->isGoalMap()) {
-                time = currentMap->getTime(); // Update time when map changes
                 level++;
-                // TODO: Actualizar esquema del nivel actual
-
                 // Update fork maps
                 if (currentMap == &maps[mapId.first + 1][mapId.second + 1])
                     mapId.second++;
@@ -505,6 +544,24 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                     goalMap.setColors(*currentMap);
                     currentMap->addNextMap(&goalMap);
                 }
+                // Update time when map changes
+                time = currentMap->getTime();
+
+                // Update the indicators
+                if (!checkPoint){
+                    string lap = "";
+                    lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
+                    lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
+                    lap = (decs_second < 10) ? lap + "0" + to_string(decs_second) : lap + to_string(decs_second);
+                    interface.textForLap.setString(lap);
+
+                    // Initialize to zero the time
+                    decs_second = 0;
+                    secs = 0;
+                    minutes = 0;
+                }
+                checkPoint = true;
+                thread(makeCheckPointEffect, ref(c)).detach();
             }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -601,6 +658,33 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                     }
                 }
             }
+        }
+        if (checkPoint){
+             elapsed10 = blinkTime.getElapsedTime().asSeconds();
+             if (elapsed10 - elapsed9 >= blink_delay.asSeconds()){
+                blink = !blink;
+                blinkTime.restart();
+             }
+             if (blink){
+                interface.checkPoint.setFillColor(Color::Yellow);
+                interface.checkPoint.setOutlineColor(Color(14, 29, 184));
+                interface.textForLap.setFillColor(Color(146, 194, 186));
+                interface.textForLap.setOutlineColor(Color::Black);
+                c.w.draw(interface.sprites[6]);
+                thread(makeBeepSound, ref(c)).detach();
+             }
+             else {
+                interface.checkPoint.setFillColor(Color::Transparent);
+                interface.checkPoint.setOutlineColor(Color::Transparent);
+                interface.textForLap.setFillColor(Color::Transparent);
+                interface.textForLap.setOutlineColor(Color::Transparent);
+             }
+             c.w.draw(interface.textForLap);
+             c.w.draw(interface.checkPoint);
+
+             if (currentMap->getTime() - time > 5.0f){
+                checkPoint = false;
+             }
         }
     }
 }

@@ -34,6 +34,11 @@ struct Interface {
     // Game over text
     Text gameOver;
 
+    // Time inverted by the player for complete the game
+    Text textForLap;
+
+    // CheckPoint title
+    Text checkPoint;
 
     /*
      * Constructor of the interface
