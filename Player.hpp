@@ -113,8 +113,9 @@ public:
      * @param c
      * @param step
      * @param end
+     * @param smoke
      */
-    void drawGoalAnimation(Config &c, int &step, bool &end);
+    void drawGoalAnimation(Config &c, int &step, bool &end, bool smoke = true);
 
     /**
      * Fuerza a que el coche esté echando humo o no.

@@ -152,6 +152,8 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
                 interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 420 , c.w.getSize().y / 2.f + 320);
                 interface.sprites[i].scale(2.f, 1.5f);
                 break;
+            default:
+                break;
         }
     }
 
@@ -312,11 +314,11 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     woman_delay = seconds(5.0f);
     traffic_delay = seconds(2.f);
     blink_delay = seconds(0.5f);
-    bonus_delay = seconds(0.1f);
+    bonus_delay = seconds(0.01f);
 }
 
 
-bool Game::isInGame(){
+bool Game::isInGame() const {
     return inGame;
 }
 
@@ -395,15 +397,15 @@ State Game::play(Config &c, Interface& interface) {
                               (float) c.w.getSize().y / 2.f + 240);
 
             interface.textures[6].loadFromFile("resources/GamePanel/7.png",
-                                     IntRect(0, 0, ((int) player.getRealSpeed() * 117 / MAX_SPEED), 20));
+                                     IntRect(0, 0, (int(player.getRealSpeed() * 117.0f / MAX_SPEED)), 20));
             interface.sprites[6].setTexture(interface.textures[6], true);
 
             c.w.draw(interface.sText);
 
             // Update the score of the player if the player is not stopped
-            if (player.getRealSpeed() > 0.f) {
+            if (player.getRealSpeed() > 0.0f) {
                 // Add score
-                score++;
+                score += int(player.getRealSpeed());
             }
 
             // Get the actual time
@@ -434,10 +436,10 @@ State Game::play(Config &c, Interface& interface) {
             }
 
             // Update the indicators
-            string lap = "";
-            lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
-            lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
-            lap = (cents_second < 10) ? lap + "0" + to_string(cents_second) : lap + to_string(cents_second);
+            string lap;
+            lap += (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
+            lap += (secs < 10) ? "0" + to_string(secs) + " ''" : to_string(secs) + " ''";
+            lap += (cents_second < 10) ? "0" + to_string(cents_second) : to_string(cents_second);
 
             interface.timeToPlay.setString(to_string(time));
             interface.textScore.setString(to_string(score));
@@ -564,7 +566,6 @@ void Game::initialAnimation(Config &c) {
 }
 
 void Game::goalAnimation(Config &c, Interface& interface) {
-
     // Stop music level
     c.themes[c.currentSoundtrack]->stop();
 
@@ -583,11 +584,8 @@ void Game::goalAnimation(Config &c, Interface& interface) {
     int seconds = decsTime / 10;
     int decs_second = decsTime % 10;
 
-    unsigned long plusScore = time * SCORE_BONIFICATION;
-    unsigned long totalScore = score + plusScore;
-
     bonus.restart();
-    elapsed11 = bonus.getElapsedTime().asSeconds();
+    elapsed11 = bonus.getElapsedTime().asSeconds(); // TODO: Esta marca solo se actualiza aquí ?????
 
     // Draw the time bonus
     interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
@@ -595,7 +593,6 @@ void Game::goalAnimation(Config &c, Interface& interface) {
                                     (float) c.w.getSize().y / 2.f - 135);
 
     while (int(player.getPosY()) < goalEnd) {
-
         // Update camera
         currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -630,17 +627,15 @@ void Game::goalAnimation(Config &c, Interface& interface) {
             // Decs per second
             decs_second = decsTime % 10;
 
+            score += SCORE_BONIFICATION / 10; // Bonif. per dec.
+            interface.textScore.setString(to_string(score));
+
             // Draw the time bonus
             interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
             interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
                                             (float) c.w.getSize().y / 2.f - 135);
 
             bonus.restart();
-        }
-
-        if (score != totalScore){
-            score++;
-            interface.textScore.setString(to_string(score));
         }
 
         // Draw the bonus indicators
@@ -687,16 +682,15 @@ void Game::goalAnimation(Config &c, Interface& interface) {
     bonus.restart();
 
     while (!end) {
-
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
 
-        if (!firstEnd){
+        if (!firstEnd) {
             player.drawGoalAnimation(c, step, end);
         }
         else {
-            player.drawGoalAnimation(c, lastStep, end);
+            player.drawGoalAnimation(c, lastStep, end, false);
         }
 
         if (end && !firstEnd){
@@ -706,31 +700,27 @@ void Game::goalAnimation(Config &c, Interface& interface) {
             lastStep = step - 1;
         }
 
-        if (decsTime > 0 || score != totalScore){
-            if (decsTime > 0){
-                elapsed12 = bonus.getElapsedTime().asSeconds();
+        if (decsTime > 0){
+            elapsed12 = bonus.getElapsedTime().asSeconds();
 
-                // Check if a second has passed between both timestamps
-                if (elapsed12 - elapsed11 >= bonus_delay.asSeconds()) {
-                    // Decrement one Tenth of a second
-                    decsTime--;
+            // Check if a second has passed between both timestamps
+            if (elapsed12 - elapsed11 >= bonus_delay.asSeconds()) {
+                // Decrement one Tenth of a second
+                decsTime--;
 
-                    seconds = decsTime / 10;
-                    // Decs per second
-                    decs_second = decsTime % 10;
+                seconds = decsTime / 10;
+                // Decs per second
+                decs_second = decsTime % 10;
 
-                    // Draw the time bonus
-                    interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
-                    interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
+                score += SCORE_BONIFICATION / 10; // Bonif. per dec.
+                interface.textScore.setString(to_string(score));
+
+                // Draw the time bonus
+                interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
+                interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
                                                 (float) c.w.getSize().y / 2.f - 135);
 
-                    bonus.restart();
-                }
-            }
-
-            if (score != totalScore){
-                score++;
-                interface.textScore.setString(to_string(score));
+                bonus.restart();
             }
 
             // Draw the bonus indicators
@@ -802,15 +792,14 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     currentMap->addNextMap(&goalMap);
                 }
                 // Update time when map changes
-                time = currentMap->getTime();
+                time += currentMap->getTime();
 
                 // Update the indicators
                 if (!checkPoint){
-
-                    string lap = "";
-                    lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
-                    lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
-                    lap = (cents_second < 10) ? lap + "0" + to_string(cents_second) : lap + to_string(cents_second);
+                    string lap;
+                    lap += (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
+                    lap += (secs < 10) ? "0" + to_string(secs) + " ''" : to_string(secs) + " ''";
+                    lap += (cents_second < 10) ? "0" + to_string(cents_second) : to_string(cents_second);
                     interface.textForLap.setString(lap);
 
                     // Initialize to zero the time
@@ -899,7 +888,6 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
             float distX, distY;
             bool visible = v.isVisible(c, currentMap->getCamY(), player.getPosX(), player.getPosY(), distX, distY);
             if (visible) {
-                // TODO: Este coche se ve en la pantalla y la distancia al jugador en X y en Y está en distX y distY
                 if (distY <= 20.f && distX <= 0.3f){
                     // Thread with sound of the woman
                     elapsed6 = womanShot.getElapsedTime().asSeconds();
@@ -944,7 +932,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
              c.w.draw(interface.textForLap);
              c.w.draw(interface.checkPoint);
 
-             if (currentMap->getTime() - time > 5.0f){
+             if (currentMap->getTime() - time > 5){
                 checkPoint = false;
              }
         }
@@ -989,17 +977,35 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
     int optionSelected = 0;
 
     // Buttons of the menu
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
-                                 "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
+                                 "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
-                                 "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
+                                 "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
-                                 "Quit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
+                                 "Quit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
-    while (!startPressed){
 
+    // Draw the map
+    currentMap->draw(c, cars);
+
+    // Draw the vehicle of the player
+    player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
+
+    c.w.draw(i.sText);
+    c.w.draw(i.textLap);
+    c.w.draw(i.textLevel);
+    c.w.draw(i.textScore);
+    c.w.draw(i.timeToPlay);
+
+    for (const Sprite& s : i.sprites){
+        c.w.draw(s);
+    }
+
+    c.w.draw(shape);
+
+    while (!startPressed) {
         // Detect the possible events
         Event e{};
         while (c.w.pollEvent(e)) {
@@ -1040,23 +1046,6 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
             }
         }
 
-        // Draw the map
-        currentMap->draw(c, cars);
-
-        // Draw the vehicle of the player
-        player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
-
-        c.w.draw(i.sText);
-        c.w.draw(i.textLap);
-        c.w.draw(i.textLevel);
-        c.w.draw(i.textScore);
-        c.w.draw(i.timeToPlay);
-
-        for (Sprite s : i.sprites){
-            c.w.draw(s);
-        }
-
-        c.w.draw(shape);
         c.w.draw(pauseShape);
         c.w.draw(textMenu);
 
@@ -1080,7 +1069,7 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
         case 1:
             // Options button selected
             return OPTIONS;
-        case 2:
+        default:
             // Quit button selected
             onPause = false;
             return START;

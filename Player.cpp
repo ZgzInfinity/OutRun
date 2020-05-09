@@ -600,7 +600,7 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end) {
     }
 }
 
-void Player::drawGoalAnimation(Config &c, int &step, bool &end) {
+void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
     if (textures.size() == PLAYER_TEXTURES) {
         if (counter_code_image >= maxCounterToChange) {
             current_code_image++;
@@ -625,15 +625,18 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end) {
         c.w.draw(sprite);
 
         // Smoke
-        float i = minScreenX - sprite.getGlobalBounds().width / 3, j = sprite.getPosition().y + sprite.getGlobalBounds().height;
-        while (i < (float)c.w.getSize().x) {
-            index = current_code_image;
-            sprite.setTexture(textures[index], true);
-            sprite.setScale(4, 4);
-            sprite.setPosition(i, j - sprite.getGlobalBounds().height);
-            c.w.draw(sprite);
+        if (smoke) {
+            float i = minScreenX - sprite.getGlobalBounds().width / 3, j =
+                    sprite.getPosition().y + sprite.getGlobalBounds().height;
+            while (i < (float) c.w.getSize().x) {
+                index = current_code_image;
+                sprite.setTexture(textures[index], true);
+                sprite.setScale(4, 4);
+                sprite.setPosition(i, j - sprite.getGlobalBounds().height);
+                c.w.draw(sprite);
 
-            i += sprite.getGlobalBounds().width;
+                i += sprite.getGlobalBounds().width;
+            }
         }
 
         if (step >= 6)

@@ -136,7 +136,7 @@ public:
     explicit Game(Config &c, Interface& iface);
 
 
-    bool isInGame();
+    bool isInGame() const;
 
     /**
      * Actualiza la lógica del juego y lo actualiza la pantalla hasta que se sale del juego.
