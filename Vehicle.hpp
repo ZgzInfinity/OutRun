@@ -13,7 +13,7 @@
 #include <vector>
 #include "Menu.hpp"
 
-#define XINC 0.025f // x increment
+#define XINC 0.033f // x increment
 #define ACC_INC 0.01f
 
 /**

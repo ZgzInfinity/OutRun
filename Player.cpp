@@ -14,12 +14,13 @@ using namespace std;
 using namespace sf;
 
 #define PLAYER_TEXTURES 136
+#define MAX_INERTIA 10
 
 Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
         const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scaleY(scaleY), acceleration(0),
-                       minCrashAcc(0), xDest(0), crashing(false), smoking(false), skidding(false),
+                       minCrashAcc(0), xDest(0), inertia(0), crashing(false), smoking(false), skidding(false),
                        accederationSoundFinished(true), engineSoundFinished(true), skiddingSoundFinished(true),
                        firstCrash(true), firstTurnLeft(true), firstTurnRight(true) {}
 
@@ -93,6 +94,7 @@ void Player::hitControl(const bool vehicleCrash) {
         crashing = false;
         minCrashAcc = 0.0f;
         xDest = 0.0f;
+        inertia = 0;
 
         previousY = posY;
     }
@@ -182,18 +184,46 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
         }
 
         if (Keyboard::isKeyPressed(c.leftKey)) {
-            if (curveCoefficient == 0.0f || speed < halfMaxSpeed)
-                posX -= 1.5f * XINC * speed / maxSpeed;
-            else
-                posX -= XINC * speed / maxSpeed;
-            return TURNLEFT;
+            if (inertia > -MAX_INERTIA)
+                inertia--;
+
+            if (inertia < 0) {
+                if (curveCoefficient > 0.0f)
+                    skidding = false;
+
+                if (speed < halfMaxSpeed)
+                    posX -= 1.5f * XINC * speed / maxSpeed;
+                else if (curveCoefficient == 0.0f)
+                    posX -= 1.25f * XINC * speed / maxSpeed;
+                else
+                    posX -= XINC * speed / maxSpeed;
+
+                return TURNLEFT;
+            }
         }
-        if (Keyboard::isKeyPressed(c.rightKey)) {
-            if (curveCoefficient == 0.0f || speed < halfMaxSpeed)
-                posX += 1.5f * XINC * speed / maxSpeed;
-            else
-                posX += XINC * speed / maxSpeed;
-            return TURNRIGHT;
+        else if (Keyboard::isKeyPressed(c.rightKey)) {
+            if (inertia < MAX_INERTIA)
+                inertia++;
+
+            if (inertia > 0) {
+                if (curveCoefficient < 0.0f)
+                    skidding = false;
+
+                if (speed < halfMaxSpeed)
+                    posX += 1.5f * XINC * speed / maxSpeed;
+                else if (curveCoefficient == 0.0f)
+                    posX += 1.25f * XINC * speed / maxSpeed;
+                else
+                    posX += XINC * speed / maxSpeed;
+
+                return TURNRIGHT;
+            }
+        }
+        else if (inertia > 0) {
+            inertia--;
+        }
+        else if (inertia < 0) {
+            inertia++;
         }
 
         skidding = false;
