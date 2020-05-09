@@ -58,10 +58,25 @@ void makeCheckPointEffect(Config& c){
     sleep(c.effects[23]->getDuration());
 }
 
+void makeGoalSound(Config& c){
+    c.effects[27]->stop();
+    c.effects[27]->play();
+    sleep(c.effects[27]->getDuration());
+    c.effects[28]->stop();
+    c.effects[28]->play();
+    sleep(c.effects[28]->getDuration());
+}
+
+void claps(Config& c){
+    c.effects[29]->stop();
+    c.effects[29]->play();
+    sleep(c.effects[29]->getDuration());
+}
+
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750, 750};
+    const int times[] = {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
@@ -230,10 +245,63 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     interface.checkPoint.setOutlineColor(Color(12, 12, 12));
     interface.checkPoint.setOutlineThickness(3);
 
+    // Bonification indicator
+    interface.bonification.setFont(c.timeToPlay);
+    interface.bonification.setPosition(c.w.getSize().x / 2.f - 190, c.w.getSize().y / 2.f - 235);
+    interface.bonification.setString("BONUS POINTS!");
+    interface.bonification.setCharacterSize(65);
+    interface.bonification.setFillColor(Color::Yellow);
+    interface.bonification.setOutlineColor(Color(12, 12, 12));
+    interface.bonification.setOutlineThickness(3);
+
+    // Seconds arrival indicator
+    interface.secondsIndicator.setFont(c.timeToPlay);
+    interface.secondsIndicator.setPosition(c.w.getSize().x / 2.f - 160, c.w.getSize().y / 2.f - 130);
+    interface.secondsIndicator.setString("SEC");
+    interface.secondsIndicator.setCharacterSize(50);
+    interface.secondsIndicator.setFillColor(Color(183, 164, 190));
+    interface.secondsIndicator.setOutlineColor(Color::Black);
+    interface.secondsIndicator.setOutlineThickness(3);
+
+    // Cross indicator
+    interface.crossSign.setFont(c.timeToPlay);
+    interface.crossSign.setPosition(c.w.getSize().x / 2.f - 50, c.w.getSize().y / 2.f - 120);
+    interface.crossSign.setString("x");
+    interface.crossSign.setCharacterSize(40);
+    interface.crossSign.setFillColor(Color(232, 191, 157));
+    interface.crossSign.setOutlineColor(Color::Black);
+    interface.crossSign.setOutlineThickness(3);
+
+    // factor score multiplicator
+    interface.scoreMultiply.setFont(c.timeToPlay);
+    interface.scoreMultiply.setPosition(c.w.getSize().x / 2.f - 10, c.w.getSize().y / 2.f - 135);
+    interface.scoreMultiply.setString("1000000");
+    interface.scoreMultiply.setCharacterSize(55);
+    interface.scoreMultiply.setFillColor(Color::Yellow);
+    interface.scoreMultiply.setOutlineColor(Color(12, 12, 12));
+    interface.scoreMultiply.setOutlineThickness(3);
+
+    // Seconds arrival indicator
+    interface.pointsIndicator.setFont(c.timeToPlay);
+    interface.pointsIndicator.setPosition(c.w.getSize().x / 2.f + 200, c.w.getSize().y / 2.f - 130);
+    interface.pointsIndicator.setString("PTS");
+    interface.pointsIndicator.setCharacterSize(50);
+    interface.pointsIndicator.setFillColor(Color(183, 164, 190));
+    interface.pointsIndicator.setOutlineColor(Color::Black);
+    interface.pointsIndicator.setOutlineThickness(3);
+
+    // Seconds arrival indicator
+    interface.timeBonus.setFont(c.timeToPlay);
+    interface.timeBonus.setCharacterSize(55);
+    interface.timeBonus.setFillColor(Color::Yellow);
+    interface.timeBonus.setOutlineColor(Color(12, 12, 12));
+    interface.timeBonus.setOutlineThickness(3);
+
     interface.textForLap.setFont(c.timeToPlay);
     interface.textForLap.setPosition(c.w.getSize().x / 2.f - 80, c.w.getSize().y / 2.f - 140);
     interface.textForLap.setCharacterSize(35);
     interface.textForLap.setOutlineThickness(3);
+
 
     // Control if the player is still playing
     finalGame = false;
@@ -244,6 +312,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     woman_delay = seconds(5.0f);
     traffic_delay = seconds(2.f);
     blink_delay = seconds(0.5f);
+    bonus_delay = seconds(0.1f);
 }
 
 
@@ -353,18 +422,13 @@ State Game::play(Config &c, Interface& interface) {
             // Check if a tenth of second has passed between both timestamps
             if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
                 cents_second++;
-                cents_secondLap++;
                 gameClockLap.restart();
                 if (cents_second == 100) {
                     cents_second = 0;
-                    cents_secondLap = 0;
                     secs++;
-                    secsLap++;
                     if (secs == 60) {
                         secs = 0;
-                        secsLap = 0;
                         minutes++;
-                        minutesLap++;
                     }
                 }
             }
@@ -499,7 +563,13 @@ void Game::initialAnimation(Config &c) {
     c.themes[c.currentSoundtrack]->play();
 }
 
-void Game::goalAnimation(Config &c) {
+void Game::goalAnimation(Config &c, Interface& interface) {
+
+    // Stop music level
+    c.themes[c.currentSoundtrack]->stop();
+
+    thread (makeGoalSound, ref(c)).detach();
+
     // Hide enemies
     for (Enemy &v : cars)
         v.setPosition(v.getPosX(), -RECTANGLE);
@@ -507,7 +577,25 @@ void Game::goalAnimation(Config &c) {
     player.setSmoking(false);
     int increment = 0;
     float currentTime = gameClockTime.getElapsedTime().asMilliseconds();
+
+    // Bonus seconds
+    int decsTime = time * 10;
+    int seconds = decsTime / 10;
+    int decs_second = decsTime % 10;
+
+    unsigned long plusScore = time * SCORE_BONIFICATION;
+    unsigned long totalScore = score + plusScore;
+
+    bonus.restart();
+    elapsed11 = bonus.getElapsedTime().asSeconds();
+
+    // Draw the time bonus
+    interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
+    interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
+                                    (float) c.w.getSize().y / 2.f - 135);
+
     while (int(player.getPosY()) < goalEnd) {
+
         // Update camera
         currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -515,8 +603,7 @@ void Game::goalAnimation(Config &c) {
         c.w.clear();
         currentMap->draw(c, cars);
         player.setPosition(player.getPosX(), player.getPosY() + 1);
-        player.draw(c, Vehicle::Action::ACCELERATE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
-        c.w.display();
+        player.draw(c, Vehicle::Action::ACCELERATE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()), false);
 
         // Flager animation
         if (gameClockTime.getElapsedTime().asMilliseconds() - currentTime >= 200.0f) {
@@ -532,20 +619,157 @@ void Game::goalAnimation(Config &c) {
             currentTime = gameClockTime.getElapsedTime().asMilliseconds();
         }
 
-        // TODO: Ir mostrando bonus y tal
+        elapsed12 = bonus.getElapsedTime().asSeconds();
+
+        // Check if a second has passed between both timestamps
+        if (elapsed12 - elapsed11 >= bonus_delay.asSeconds()) {
+            // Decrement one Tenth of a second
+            decsTime--;
+
+            seconds = decsTime / 10;
+            // Decs per second
+            decs_second = decsTime % 10;
+
+            // Draw the time bonus
+            interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
+            interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
+                                            (float) c.w.getSize().y / 2.f - 135);
+
+            bonus.restart();
+        }
+
+        if (score != totalScore){
+            score++;
+            interface.textScore.setString(to_string(score));
+        }
+
+        // Draw the bonus indicators
+        c.w.draw(interface.timeBonus);
+        c.w.draw(interface.bonification);
+        c.w.draw(interface.secondsIndicator);
+        c.w.draw(interface.crossSign);
+        c.w.draw(interface.scoreMultiply);
+        c.w.draw(interface.pointsIndicator);
+        c.w.draw(interface.timeBonus);
+
+        // Draw speed
+        string strSpeed = to_string(player.getRealSpeed());
+        interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+        interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
+                          (float) c.w.getSize().y / 2.f + 240);
+
+        // Draw the panel indicators
+        for (int i = 0; i < 5; i++) {
+            c.w.draw(interface.sprites[i]);
+        }
+
+        if (player.getRealSpeed() > 0) {
+            c.w.draw(interface.sprites[6]);
+        }
+
+        c.w.draw(interface.sprites[7]);
+        c.w.draw(interface.timeToPlay);
+        c.w.draw(interface.textScore);
+        c.w.draw(interface.textLap);
+        c.w.draw(interface.textLevel);
+
+        c.w.draw(interface.sText);
+        c.w.display();
     }
 
     // Car animation
-    int step = 0;
-    bool end = false;
+    int step = 0, lastStep;
+    bool firstEnd = false, end = false;
+
+    thread(slideCar, ref(c)).detach();
+    thread(claps, ref(c)).detach();
+
+    bonus.restart();
+
     while (!end) {
+
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
-        player.drawGoalAnimation(c, step, end);
+
+        if (!firstEnd){
+            player.drawGoalAnimation(c, step, end);
+        }
+        else {
+            player.drawGoalAnimation(c, lastStep, end);
+        }
+
+        if (end && !firstEnd){
+            firstEnd = true;
+        }
+        if (firstEnd){
+            lastStep = step - 1;
+        }
+
+        if (decsTime > 0 || score != totalScore){
+            if (decsTime > 0){
+                elapsed12 = bonus.getElapsedTime().asSeconds();
+
+                // Check if a second has passed between both timestamps
+                if (elapsed12 - elapsed11 >= bonus_delay.asSeconds()) {
+                    // Decrement one Tenth of a second
+                    decsTime--;
+
+                    seconds = decsTime / 10;
+                    // Decs per second
+                    decs_second = decsTime % 10;
+
+                    // Draw the time bonus
+                    interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
+                    interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
+                                                (float) c.w.getSize().y / 2.f - 135);
+
+                    bonus.restart();
+                }
+            }
+
+            if (score != totalScore){
+                score++;
+                interface.textScore.setString(to_string(score));
+            }
+
+            // Draw the bonus indicators
+            c.w.draw(interface.timeBonus);
+            c.w.draw(interface.bonification);
+            c.w.draw(interface.secondsIndicator);
+            c.w.draw(interface.crossSign);
+            c.w.draw(interface.scoreMultiply);
+            c.w.draw(interface.pointsIndicator);
+            c.w.draw(interface.timeBonus);
+
+            // Draw speed
+            string strSpeed = to_string(player.getRealSpeed());
+            interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+            interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
+                              (float) c.w.getSize().y / 2.f + 240);
+
+            // Draw the panel indicators
+            for (int i = 0; i < 5; i++) {
+                c.w.draw(interface.sprites[i]);
+            }
+
+            if (player.getRealSpeed() > 0) {
+                c.w.draw(interface.sprites[6]);
+            }
+
+            c.w.draw(interface.sprites[7]);
+            c.w.draw(interface.timeToPlay);
+            c.w.draw(interface.textScore);
+            c.w.draw(interface.textLap);
+            c.w.draw(interface.textLevel);
+
+            c.w.draw(interface.sText);
+            end = false;
+        }
         c.w.display();
     }
 }
+
 
 void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& action, Vehicle::Direction &direction) {
     // Update camera
@@ -584,15 +808,15 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                 if (!checkPoint){
 
                     string lap = "";
-                    lap = (minutesLap < 10) ? lap + "0" + to_string(minutesLap) + " '" : lap + to_string(minutesLap) + " ''";
-                    lap = (secsLap < 10) ? lap + "0" + to_string(secsLap) + " ''" : lap + to_string(secsLap) + " ''";
-                    lap = (cents_secondLap < 10) ? lap + "0" + to_string(cents_secondLap) : lap + to_string(cents_secondLap);
+                    lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
+                    lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
+                    lap = (cents_second < 10) ? lap + "0" + to_string(cents_second) : lap + to_string(cents_second);
                     interface.textForLap.setString(lap);
 
                     // Initialize to zero the time
-                    cents_secondLap = 0;
-                    secsLap = 0;
-                    minutesLap = 0;
+                    cents_second = 0;
+                    secs = 0;
+                    minutes= 0;
                 }
                 checkPoint = true;
                 thread(makeCheckPointEffect, ref(c)).detach();
@@ -607,7 +831,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
     }
 
     if (currentMap->isGoalMap()) {
-        goalAnimation(c);
+        goalAnimation(c, interface);
         finalGame = true;
     }
 

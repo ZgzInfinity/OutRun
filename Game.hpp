@@ -19,6 +19,9 @@
 #include "Enemy.hpp"
 #include "Interface.hpp"
 
+
+const int SCORE_BONIFICATION = 1000000;
+
 /**
  * Lógica del juego que contiene la información del jugador, la información de los mapas y el HUD.
  * La información de los mapas está compuesta por un conjunto de objetos Map y su jerarquía de conexión entre ellos.
@@ -52,15 +55,6 @@ class Game {
     // decs of game played
     int cents_second = 0;
 
-    // Minutes of game played
-    int minutesLap = 0;
-
-    // Seconds of game played
-    int secsLap = 0;
-
-    // decs of game played
-    int cents_secondLap = 0;
-
     // Clock counter of time
     Clock gameClockTime;
 
@@ -76,6 +70,9 @@ class Game {
     // Control the
     Clock blinkTime;
 
+    // Discount time bonus
+    Clock bonus;
+
     // Time to update the clock counter lap
     Time woman_delay;
 
@@ -84,6 +81,9 @@ class Game {
 
     // Time to reproduce a new traffic car sound
     Time blink_delay;
+
+     // Time to reproduce a discount the time bonus
+    Time bonus_delay;
 
     // Actual level
     int level;
@@ -108,7 +108,7 @@ class Game {
     // Counter time to update the HUD indicators
     float elapsed1, elapsed2, elapsed3, elapsed4,
           elapsed5, elapsed6, elapsed7, elapsed8,
-          elapsed9, elapsed10;
+          elapsed9, elapsed10, elapsed11, elapsed12;
 
     /**
      * Muestra la animación inicial del comienzo de la partida.
@@ -120,7 +120,7 @@ class Game {
      * Muestra la animación final de la partida.
      * @param c
      */
-    void goalAnimation(Config &c);
+    void goalAnimation(Config &c, Interface& interface);
 
     /**
      * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
