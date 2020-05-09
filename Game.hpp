@@ -50,7 +50,16 @@ class Game {
     int secs = 0;
 
     // decs of game played
-    int decs_second = 0;
+    int cents_second = 0;
+
+    // Minutes of game played
+    int minutesLap = 0;
+
+    // Seconds of game played
+    int secsLap = 0;
+
+    // decs of game played
+    int cents_secondLap = 0;
 
     // Clock counter of time
     Clock gameClockTime;
