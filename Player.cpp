@@ -206,7 +206,7 @@ void Player::accelerationSound(Config &c) {
     c.effects[12]->play();
     Clock clock;
     while (speed > 0 && clock.getElapsedTime() < c.effects[12]->getDuration())
-        sleep(milliseconds(100));
+        sleep(milliseconds(10));
     c.effects[12]->stop();
     accederationSoundFinished = true;
 }
@@ -225,7 +225,6 @@ void crashSound(Config &c, int sound){
 }
 
 void Player::skiddingSound(Config &c) {
-    // TODO: El 7 es el sonido de derrape????
     c.effects[8]->play();
     sleep(c.effects[8]->getDuration());
     c.effects[8]->stop();
@@ -246,7 +245,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                 accederationSoundFinished = false;
                 accelerationSoundThread = thread(&Player::accelerationSound, this, ref(c));
             }
-            else if (accederationSoundFinished && !engineSoundThread.joinable()) {
+            if (!engineSoundThread.joinable()) {
                 engineSoundFinished = false;
                 engineSoundThread = thread(&Player::engineSound, this, ref(c));
             }
@@ -276,7 +275,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
         c.effects[17]->stop();
         c.effects[18]->stop();
         c.effects[19]->stop();
-        c.effects[7]->stop(); // TODO: El 7 es el sonido de derrape????
+        c.effects[8]->stop();
     }
 
     // Draw
