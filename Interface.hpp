@@ -40,11 +40,11 @@ struct Interface {
     // CheckPoint title
     Text checkPoint;
 
-    // Tree map with levels
-    vector<vector<Texture>> treeMap;
+	// Tree map with levels
+    Texture treeMap[5][5];
 
     // Tree map with levels
-    vector<vector<Sprite>> spriteMap;
+    Sprite spriteMap[5][5];
 
     // Record lap of the player
     Sprite recordLap;
