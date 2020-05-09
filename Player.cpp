@@ -18,10 +18,10 @@ using namespace sf;
 Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
         const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
-                                                     halfMaxSpeed(this->maxSpeed / 2.0f), maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
-                                                     scaleY(scaleY), acceleration(0), minCrashAcc(0), xDest(0), crashing(false), smoking(false),
-                                                     skidding(false), accederationSoundFinished(true), engineSoundFinished(true),
-                                                     skiddingSoundFinished(true), firstCrash(true), firstTurnLeft(true), firstTurnRight(true) {}
+                       maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scaleY(scaleY), acceleration(0),
+                       minCrashAcc(0), xDest(0), crashing(false), smoking(false), skidding(false),
+                       accederationSoundFinished(true), engineSoundFinished(true), skiddingSoundFinished(true),
+                       firstCrash(true), firstTurnLeft(true), firstTurnRight(true) {}
 
 Player::~Player() {
     if (accelerationSoundThread.joinable())
@@ -116,7 +116,7 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
 
     if (a != BRAKE && Keyboard::isKeyPressed(c.accelerateKey)) {
         if (hasGotOut) {
-            if (acceleration < maxAcc / 3.0f)
+            if (acceleration < maxAcc / 4.5f)
                 acceleration += accInc / 3.0f;
             else
                 acceleration -= accInc * 1.5f;

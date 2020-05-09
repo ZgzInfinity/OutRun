@@ -12,7 +12,7 @@
 #include "Vehicle.hpp"
 
 class Player : public Vehicle {
-    const float speedMul, halfMaxSpeed, maxAcc, accInc, scaleY;
+    const float speedMul, maxAcc, accInc, scaleY;
     float acceleration, minCrashAcc, xDest;
 
     sf::Sprite sprite;

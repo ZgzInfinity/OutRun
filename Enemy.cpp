@@ -8,6 +8,7 @@
 
 #include "Enemy.hpp"
 #include "Random.hpp"
+#include <cmath>
 
 using namespace std;
 using namespace sf;
@@ -18,28 +19,69 @@ using namespace sf;
 Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY) :
         Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0, random_float(-0.5f, 0.5f),
                 pY, pY, 0, 0, vehicle, ENEMY_TEXTURES, 1, 0), oriX(this->posX),
-                currentDirection(RIGHT), current_direction_counter(0), max_direction_counter(0) {}
+                currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0) {}
 
-void Enemy::autoControl() {
-    if (current_direction_counter < max_direction_counter) {
-        current_direction_counter++;
+void Enemy::autoControl(Config &c, float playerPosX, float playerPosY) {
+    const float probAI = float(c.aggressiveness) / 100.0f;
+
+    if (random_zero_one() >= probAI) {
+        // Original
+        if (current_direction_counter < max_direction_counter) {
+            current_direction_counter++;
+        }
+        else {
+            max_direction_counter = random_zero_n(MAX_AUTO_DIRECTION_COUNTER);
+            current_direction_counter = 0;
+            calculatedPath = randomDirection();
+        }
+
+        float newX = posX;
+        if (calculatedPath == TURNRIGHT)
+            newX += XINC * random_zero_one() * speed / maxSpeed;
+        else if (calculatedPath == TURNLEFT)
+            newX -= XINC * random_zero_one() * speed / maxSpeed;
+
+        if (newX < oriX - 0.15f || newX > oriX + 0.15f)
+            calculatedPath = RIGHT;
+        else
+            posX = newX;
+
+        currentDirection = calculatedPath;
     }
     else {
-        max_direction_counter = random_zero_n(MAX_AUTO_DIRECTION_COUNTER);
-        current_direction_counter = 0;
-        currentDirection = randomDirection();
+        // AI
+        const float acc = getAcceleration();
+        if (abs(playerPosX - posX) > XINC) { // Rotation control
+            // The vehicle is not in the player's path
+            if (speed < halfMaxSpeed)
+                speed = sqrt(acc + ACC_INC);
+
+            if (posX > playerPosX && posX > -0.9f) {
+                posX -= XINC * speed / maxSpeed;
+                currentDirection = TURNLEFT;
+            }
+            else if (posX < 0.9f) {
+                posX += XINC * speed / maxSpeed;
+                currentDirection = TURNRIGHT;
+            }
+        }
+        else { // Acceleration control
+            // The vehicle is in the player's path
+            if (posY <= playerPosY)
+                speed = sqrt(acc + ACC_INC);
+            else if (acc > ACC_INC)
+                speed = sqrt(acc - ACC_INC);
+            else
+                speed = 0.0f;
+
+            currentDirection = RIGHT;
+        }
     }
 
-    float newX = posX;
-    if (currentDirection == TURNRIGHT)
-        newX += XINC * random_zero_one() * speed / maxSpeed;
-    else if (currentDirection == TURNLEFT)
-        newX -= XINC * random_zero_one() * speed / maxSpeed;
-
-    if (newX < oriX - 0.15f || newX > oriX + 0.15f)
-        currentDirection = RIGHT;
-    else
-        posX = newX;
+    if (speed > maxSpeed)
+        speed = maxSpeed;
+    else if (speed < 0)
+        speed = 0;
 
     previousY = posY;
     posY += speed;

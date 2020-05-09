@@ -14,6 +14,7 @@
 #include "Menu.hpp"
 
 #define XINC 0.025f // x increment
+#define ACC_INC 0.01f
 
 /**
  * La información del vehículo está compuesta por su velocidad, aceleración, posición x, conjunto de texturas del
@@ -40,7 +41,7 @@ public:
     };
 
 protected:
-    const float maxSpeed, scale;
+    const float maxSpeed, halfMaxSpeed, scale;
     const int maxCounterToChange;
 
     float speed;

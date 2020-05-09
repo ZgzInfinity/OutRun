@@ -15,7 +15,6 @@ using namespace std;
 
 #define MAX_SPEED 300.0f
 #define SPEED_MUL 100.0f
-#define ACC_INC 0.01f
 #define MAX_COUNTER 10
 #define MAX_VEHICLES 10 // Number of vehicles simultaneously
 #define VEHICLE_DENSITY 3.0f // Greater than 0
@@ -89,7 +88,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     const float vehicleScales[maxSprites] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
     for (int i = 0; i < MAX_VEHICLES; i++) {
         Enemy v(MAX_SPEED, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
-                "car" + to_string(1 + i % maxSprites), -RECTANGLE);
+                "car" + to_string(1 + i % maxSprites), -RECTANGLE * DEL_VEHICLE * 3.0f);
         cars.push_back(v);
     }
 
@@ -634,7 +633,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
         }
 
         for (Enemy &v : cars)
-            v.autoControl();
+            v.autoControl(c, player.getPosX(), player.getPosY());
 
         // Check if enemies are displayed on the screen
         for (Enemy &v : cars) {
