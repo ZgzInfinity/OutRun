@@ -18,26 +18,19 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
-sf::Font arial();
-
 sf::Font initializeFontTimePlay();
 
 sf::Font initializeFontSpeed();
 
 sf::Font initializeFontOptions();
 
-using namespace std;
-using namespace sf;
-
 const int NUM_SEGA_ICONS = 39;
 const int NUM_SOUNDTRACKS = 4;
-const int NUM_OPTIONS = 5;
-const int NUM_CONTROLLERS = 4;
-
 
 enum Difficult {
-    EASY = 0,
-    MEDIUM,
+    PEACEFUL, // Without enemies
+    EASY,
+    NORMAL,
     HARD
 };
 
@@ -56,8 +49,6 @@ struct Config {
     sf::Keyboard::Key leftKey;
     sf::Keyboard::Key rightKey;
 
-    sf::Font font;
-
     sf::Font timeToPlay;
 
     sf::Font speedVehicle;
@@ -74,20 +65,19 @@ struct Config {
     int renderLen; // Length rendered
 
     // Control the volume of the effects and the music
-    int volumeEffects = 100, volumeMusic = 100;
+    int volumeEffects, volumeMusic;
 
     // Difficult level
-    Difficult level = EASY;
-
-    // Control of the traffic
-    bool trafficControl = true;
+    Difficult level;
 
     // Control if the configuration has been changed correctly
-    bool modifiedConfig = false;
+    bool modifiedConfig;
 
     // Identifier of soundtrack to reproduce
-    int currentSoundtrack = 0;
+    int currentSoundtrack;
 
+    // AI aggressiveness level: probability that the ai will be activated (0 is original game; 100 is only AI)
+    int aggressiveness;
 };
 
 enum State {
@@ -113,7 +103,7 @@ void changeCarControllers(Config& c);
 
 State selectMusicSoundtrack(Config& c);
 
-State startMenu(Config &c);
+State startMenu(Config &c, bool startPressed = false);
 
 State endMenu(Config &c);
 

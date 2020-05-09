@@ -11,6 +11,8 @@
 #define TEXTSIZE 50
 #define FPS 60
 
+using namespace std;
+using namespace sf;
 
 Config::Config() {
     w.create(VideoMode(921, 691), "Outrun Racing!", Style::Titlebar | Style::Close);
@@ -25,8 +27,6 @@ Config::Config() {
     leftKey = Keyboard::Left;
     rightKey = Keyboard::Right;
 
-    font = arial();
-
     timeToPlay = initializeFontTimePlay();
 
     speedVehicle = initializeFontSpeed();
@@ -35,8 +35,18 @@ Config::Config() {
 
     camD = 0.84; // Camera depth
     renderLen = 300;
-}
 
+    volumeEffects = 100;
+    volumeMusic = 80;
+
+    level = NORMAL;
+
+    modifiedConfig = false;
+
+    currentSoundtrack = 0;
+
+    aggressiveness = 0;
+}
 
 void loadGameSoundtracks(Config& c){
      // Load the music soundtracks of the game
@@ -49,8 +59,6 @@ void loadGameSoundtracks(Config& c){
     }
 }
 
-
-
 void loadGameSoundEffects(Config& c){
      // Load the game effects
      for (int i = 1; i <= 27; i++){
@@ -62,7 +70,6 @@ void loadGameSoundEffects(Config& c){
     c.effects[6]->setLoop(true);
     c.effects[6]->setVolume(60);
 }
-
 
 State introAnimation(Config& c){
 
@@ -97,10 +104,7 @@ State introAnimation(Config& c){
     return START;
 }
 
-
-
-State startMenu(Config &c) {
-
+State startMenu(Config &c, bool startPressed) {
     const int ELEMENTS = 5;
 
     // Clean the console window
@@ -132,7 +136,6 @@ State startMenu(Config &c) {
         nameGame.setScale(2.0, 2.0);
         nameGames.push_back(nameGame);
     }
-
 
     // Loading the texture of the game's name
     rowSelector.loadFromFile("resources/MainMenu/row.png");
@@ -187,9 +190,6 @@ State startMenu(Config &c) {
 
     // Change the background texture
     c.w.draw(mainMenu);
-
-    // Control for press the enter key
-    bool startPressed = false;
 
     // Code of sprite to display
     int j = 0;
@@ -307,8 +307,6 @@ State startMenu(Config &c) {
     return EXIT;
 }
 
-
-
 void changeCarControllers(Config& c){
 
     // Clean the console window
@@ -350,7 +348,7 @@ void changeCarControllers(Config& c){
     optionsText.setFillColor(Color::Red);
 
     Text info1;
-    info1.setString("Press Space to select a controller");
+    info1.setString("Hold down Space to select a controller");
     info1.setFillColor(Color(10, 201, 235));
     info1.setOutlineColor(Color(3, 39, 8));
     info1.setOutlineThickness(3);
@@ -361,7 +359,7 @@ void changeCarControllers(Config& c){
     c.w.draw(info1);
 
     Text info2;
-    info2.setString("Then a key twice to change its configuration");
+    info2.setString("Then press a key to change its configuration");
     info2.setFillColor(Color(10, 201, 235));
     info2.setOutlineColor(Color(3, 39, 8));
     info2.setCharacterSize(15);
@@ -413,6 +411,8 @@ void changeCarControllers(Config& c){
 
     // Until the start keyword is not pressed
     while (!startPressed){
+        Event e{};
+        c.w.waitEvent(e);
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1) / 2){
@@ -437,13 +437,10 @@ void changeCarControllers(Config& c){
                 menuButtons[optionSelected + 5].setButtonState(BUTTON_IDLE);
             }
         }
-        Event e;
-        c.w.waitEvent(e);
-        if (Keyboard::isKeyPressed(Keyboard::Space)){
+        while (Keyboard::isKeyPressed(Keyboard::Space) && !Keyboard::isKeyPressed(Keyboard::Enter)) {
             // Check if any keyword has been pressed or not
-            Event e;
             c.w.waitEvent(e);
-            if (e.type == Event::KeyPressed && e.key.code != -1 && e.key.code != Keyboard::Enter){
+            if (e.type == Event::KeyPressed && e.key.code != -1 && e.key.code != Keyboard::Enter && e.key.code != Keyboard::Space){
                 // Modify the option parameter if it's necessary
                 switch (optionSelected){
                     case 0:
@@ -508,7 +505,10 @@ void changeCarControllers(Config& c){
                             c.effects[1]->stop();
                             c.effects[1]->play();
                         }
-                    }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         c.w.draw(sprite);
@@ -537,10 +537,7 @@ void changeCarControllers(Config& c){
     }
 }
 
-
-
 State optionsMenu(Config& c, const bool& inGame){
-
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     c.w.display();
@@ -581,7 +578,7 @@ State optionsMenu(Config& c, const bool& inGame){
                                  "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
 
     menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
-                                 "Traffic", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+                                 "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
     menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
                                  "Music volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
@@ -595,10 +592,10 @@ State optionsMenu(Config& c, const bool& inGame){
     // Option configurations
 
     menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 130, 200, 30, c.options,
-                                 "Easy", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
+                                 "Normal", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
 
     menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
-                                 "Yes", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+                                 to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
     menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
                                  to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
@@ -650,26 +647,34 @@ State optionsMenu(Config& c, const bool& inGame){
             case 0:
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(c.leftKey)){
-                    if (c.level != EASY){
-                        // Change the difficult level to medium or easy
-                        if (c.level == MEDIUM){
+                    if (c.level != PEACEFUL){
+                        // Change the difficult level
+                        if (c.level == EASY) {
+                            c.level = PEACEFUL;
+                            menuButtons[optionSelected + 5].setTextButton("Peaceful");
+                        }
+                        if (c.level == NORMAL) {
                             c.level = EASY;
                              menuButtons[optionSelected + 5].setTextButton("Easy");
                         }
-                        else if (c.level == HARD){
-                            c.level = MEDIUM;
-                            menuButtons[optionSelected + 5].setTextButton("Medium");
+                        else if (c.level == HARD) {
+                            c.level = NORMAL;
+                            menuButtons[optionSelected + 5].setTextButton("Normal");
                         }
                     }
                 }
                 else if (Keyboard::isKeyPressed(c.rightKey)){
                     if (c.level != HARD){
-                        // Change the difficult level to medium or easy
-                        if (c.level == EASY){
-                            c.level = MEDIUM;
-                            menuButtons[optionSelected + 5].setTextButton("Medium");
+                        // Change the difficult level
+                        if (c.level == PEACEFUL) {
+                            c.level = EASY;
+                            menuButtons[optionSelected + 5].setTextButton("Easy");
                         }
-                        else if (c.level == MEDIUM){
+                        if (c.level == EASY) {
+                            c.level = NORMAL;
+                            menuButtons[optionSelected + 5].setTextButton("Normal");
+                        }
+                        else if (c.level == NORMAL){
                             c.level = HARD;
                             menuButtons[optionSelected + 5].setTextButton("Hard");
                         }
@@ -677,17 +682,18 @@ State optionsMenu(Config& c, const bool& inGame){
                 }
                 break;
             case 1:
+                // AI aggressiveness level
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(c.leftKey)){
-                    if (!c.trafficControl){
-                       c.trafficControl = true;
-                       menuButtons[optionSelected + 5].setTextButton("Yes");
+                    if (c.aggressiveness >= 5){
+                        c.aggressiveness -= 5;
+                        menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
                     }
                 }
                 else if (Keyboard::isKeyPressed(c.rightKey)){
-                    if (c.trafficControl){
-                       c.trafficControl = false;
-                       menuButtons[optionSelected + 5].setTextButton("No");
+                    if (c.aggressiveness <= 95){
+                        c.aggressiveness += 5;
+                        menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
                     }
                 }
                 break;
@@ -708,7 +714,7 @@ State optionsMenu(Config& c, const bool& inGame){
                 }
                 break;
             case 3:
-                // Volume music
+                // Volume effects
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(c.leftKey)){
                     if (c.volumeEffects != 0){
@@ -771,13 +777,9 @@ State optionsMenu(Config& c, const bool& inGame){
         return GAME;
     }
     else {
-        return MUSIC;
+        return startMenu(c, true);
     }
-
 }
-
-
-
 
 State selectMusicSoundtrack(Config &c){
     // Clean the console window
@@ -923,17 +925,9 @@ State selectMusicSoundtrack(Config &c){
     return GAME;
 }
 
-
 State endMenu(Config &c) {
     return EXIT;
 }
-
-sf::Font arial() {
-    Font f;
-    if (!f.loadFromFile("resources/fonts/arial.ttf")) exit(1);
-    return f;
-}
-
 
 sf::Font initializeFontTimePlay() {
     Font f;
@@ -941,19 +935,14 @@ sf::Font initializeFontTimePlay() {
     return f;
 }
 
-
-
 sf::Font initializeFontSpeed() {
     Font f;
     if (!f.loadFromFile("resources/fonts/digital.ttf")) exit(1);
     return f;
 }
 
-
 sf::Font initializeFontOptions(){
     Font f;
     if (!f.loadFromFile("resources/fonts/needForSpeed.ttf")) exit(1);
     return f;
 }
-
-
