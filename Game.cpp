@@ -96,7 +96,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     Texture t;
     Sprite s;
     // Load the textures of the panel and assign them to their sprites
-    for (int i = 1; i <= 7; i++){
+    for (int i = 1; i <= 6; i++){
         // Load the texture from the file
         t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
         interface.textures.push_back(t);
@@ -108,7 +108,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     }
 
     // Assign positions in the game console for the game panel indicators
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < 7; i++){
         switch(i){
             case 0: // TODO: Usar porcentajes, no restas y sumas, para así permitir distintas resoluciones de pantalla
                 interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 430, c.w.getSize().y / 2.f - 330);
@@ -127,23 +127,47 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
                 interface.sprites[i].scale(2.f, 2.f);
                 break;
             case 4:
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f + 370 , c.w.getSize().y / 2.f + 270);
-                interface.sprites[i].scale(2.f, 2.f);
-                break;
-            case 5:
                 interface.sprites[i].setPosition(c.w.getSize().x / 2.f + 160 , c.w.getSize().y / 2.f + 284);
                 interface.sprites[i].scale(1.5f, 1.5f);
                 break;
-            case 6:
+            case 5:
                 interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 170 , c.w.getSize().y / 2.f - 180);
                 interface.sprites[i].scale(1.5f, 1.5f);
                 break;
-            case 7:
+            case 6:
                 interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 420 , c.w.getSize().y / 2.f + 320);
                 interface.sprites[i].scale(2.f, 1.5f);
                 break;
         }
     }
+
+    // Code of first Map
+    int idFirstMap = 8;
+
+    // Fill the matrix with the tree maps
+    for (int i = 0; i <= 4; i++){
+        for(int j = 0; j <= i; j++){
+            t.loadFromFile("resources/GamePanel/" + to_string(idFirstMap) + ".png");
+            interface.treeMap[i][j] = t;
+            idFirstMap++;
+        }
+    }
+
+    // Fill the matrix with the sprite maps
+    for (int i = 0; i <= 4; i++){
+        for(int j = 0; j <= i; j++){
+            s.setTexture(interface.treeMap[i][j], true);
+            interface.spriteMap[i][j] = s;
+        }
+    }
+
+    interface.recordLap.setTexture(interface.textures[2], true);
+    interface.recordLap.setPosition(c.w.getSize().x / 2.f - 50 , c.w.getSize().y / 2.f - 180);
+    interface.recordLap.setScale(1.5f, 1.5f);
+
+    interface.sprites[7] = interface.spriteMap[0][0];
+    interface.sprites[7].setPosition(c.w.getSize().x / 2.f + 370 , c.w.getSize().y / 2.f + 270);
+    interface.sprites[7].scale(2.f, 2.f);
 
     // Text
     interface.sText.setFillColor(Color(206, 73, 73));
@@ -243,7 +267,7 @@ State Game::play(Config &c, Interface& interface) {
     Time shot_delayTime = seconds(1.0);
 
     // Time to update the clock counter lap
-    Time shot_delayLap = seconds(0.1);
+    Time shot_delayLap = seconds(0.01);
 
     gameClockTime.restart().asSeconds();
     elapsed1 = gameClockTime.restart().asSeconds();
@@ -302,9 +326,9 @@ State Game::play(Config &c, Interface& interface) {
             interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
                               (float) c.w.getSize().y / 2.f + 240);
 
-            interface.textures[7].loadFromFile("resources/GamePanel/8.png",
+            interface.textures[6].loadFromFile("resources/GamePanel/7.png",
                                      IntRect(0, 0, ((int) player.getRealSpeed() * 117 / MAX_SPEED), 20));
-            interface.sprites[7].setTexture(interface.textures[7], true);
+            interface.sprites[6].setTexture(interface.textures[6], true);
 
             c.w.draw(interface.sText);
 
@@ -329,14 +353,19 @@ State Game::play(Config &c, Interface& interface) {
 
             // Check if a tenth of second has passed between both timestamps
             if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
-                decs_second++;
+                cents_second++;
+                cents_secondLap++;
                 gameClockLap.restart();
-                if (decs_second == 100) {
-                    decs_second = 0;
+                if (cents_second == 100) {
+                    cents_second = 0;
+                    cents_secondLap = 0;
                     secs++;
+                    secsLap++;
                     if (secs == 60) {
                         secs = 0;
+                        secsLap = 0;
                         minutes++;
+                        minutesLap++;
                     }
                 }
             }
@@ -345,7 +374,7 @@ State Game::play(Config &c, Interface& interface) {
             string lap = "";
             lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
             lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
-            lap = (decs_second < 10) ? lap + "0" + to_string(decs_second) : lap + to_string(decs_second);
+            lap = (cents_second < 10) ? lap + "0" + to_string(cents_second) : lap + to_string(cents_second);
 
             interface.timeToPlay.setString(to_string(time));
             interface.textScore.setString(to_string(score));
@@ -353,14 +382,15 @@ State Game::play(Config &c, Interface& interface) {
             interface.textLevel.setString(to_string(level));
 
             // Draw the panel indicators
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 5; i++) {
                 c.w.draw(interface.sprites[i]);
             }
 
             if (player.getRealSpeed() > 0) {
-                c.w.draw(interface.sprites[7]);
+                c.w.draw(interface.sprites[6]);
             }
 
+            c.w.draw(interface.sprites[7]);
             c.w.draw(interface.timeToPlay);
             c.w.draw(interface.textScore);
             c.w.draw(interface.textLap);
@@ -537,7 +567,11 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                 if (currentMap == &maps[mapId.first + 1][mapId.second + 1])
                     mapId.second++;
                 mapId.first++;
-                cout << "Map: " << mapId.first << ", " << mapId.second << endl; // TODO: Borrar
+
+                interface.sprites[7] = interface.spriteMap[mapId.first][mapId.second];
+                interface.sprites[7].setPosition(c.w.getSize().x / 2.f + 370 , c.w.getSize().y / 2.f + 270);
+                interface.sprites[7].scale(2.f, 2.f);
+
                 if (mapId.first < 4)
                     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
                 else {
@@ -549,16 +583,17 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
 
                 // Update the indicators
                 if (!checkPoint){
+
                     string lap = "";
-                    lap = (minutes < 10) ? lap + "0" + to_string(minutes) + " '" : lap + to_string(minutes) + " ''";
-                    lap = (secs < 10) ? lap + "0" + to_string(secs) + " ''" : lap + to_string(secs) + " ''";
-                    lap = (decs_second < 10) ? lap + "0" + to_string(decs_second) : lap + to_string(decs_second);
+                    lap = (minutesLap < 10) ? lap + "0" + to_string(minutesLap) + " '" : lap + to_string(minutesLap) + " ''";
+                    lap = (secsLap < 10) ? lap + "0" + to_string(secsLap) + " ''" : lap + to_string(secsLap) + " ''";
+                    lap = (cents_secondLap < 10) ? lap + "0" + to_string(cents_secondLap) : lap + to_string(cents_secondLap);
                     interface.textForLap.setString(lap);
 
                     // Initialize to zero the time
-                    decs_second = 0;
-                    secs = 0;
-                    minutes = 0;
+                    cents_secondLap = 0;
+                    secsLap = 0;
+                    minutesLap = 0;
                 }
                 checkPoint = true;
                 thread(makeCheckPointEffect, ref(c)).detach();
@@ -674,6 +709,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                 interface.textForLap.setFillColor(Color(146, 194, 186));
                 interface.textForLap.setOutlineColor(Color::Black);
                 c.w.draw(interface.sprites[6]);
+                c.w.draw(interface.recordLap);
                 thread(makeBeepSound, ref(c)).detach();
              }
              else {
