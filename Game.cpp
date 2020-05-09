@@ -582,7 +582,10 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
         if (lastY <= currentMap->getCamY() + float(c.renderLen))
             lastY = currentMap->getCamY() + float(c.renderLen);
         for (Enemy &v : cars) {
-            if (currentMap->inFork(v.getPosY()) || v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+            if (currentMap->inFork(v.getPosY())) {
+                v.setPosition(v.getPosX(), -RECTANGLE * DEL_VEHICLE * 3.0f);
+            }
+            else if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
                 v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
