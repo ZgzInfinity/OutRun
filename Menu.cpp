@@ -61,7 +61,7 @@ void loadGameSoundtracks(Config& c){
 
 void loadGameSoundEffects(Config& c){
      // Load the game effects
-     for (int i = 1; i <= 27; i++){
+     for (int i = 1; i <= 30; i++){
         unique_ptr<Music> effect = unique_ptr<Music>(new Music());
         effect->openFromFile("resources/SoundEffects/" + to_string(i) + ".ogg");
         effect->setVolume(100);

@@ -40,13 +40,31 @@ struct Interface {
     // CheckPoint title
     Text checkPoint;
 
-	// Tree map with levels
+    // Final score after completing all the levels
+    Text bonification;
+
+    // Seconds arrival indicator
+    Text secondsIndicator;
+
+    // Seconds arrival indicator
+    Text crossSign;
+
+    // Seconds arrival indicator
+    Text pointsIndicator;
+
+    // Score factor to multiply
+    Text scoreMultiply;
+
+    // Time bonus to the player
+    Text timeBonus;
+
+    // Tree map with levels
     Texture treeMap[5][5];
 
     // Tree map with levels
     Sprite spriteMap[5][5];
 
-    // Record lap of the player
+    // Record lap of the pl
     Sprite recordLap;
 
     /*
