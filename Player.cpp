@@ -224,6 +224,9 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
 
 void Player::draw(Config &c, const Action &a, const Direction &d, const Elevation &e, bool enableSound) {
     // Sound effects
+    if (a != CRASH)
+        firstCrash = true;
+
     if (enableSound) {
         if (speed > 0.0f) {
             if (a == BOOT) {
@@ -236,6 +239,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                 c.effects[6]->stop();
                 c.effects[6]->play();
             }
+            c.effects[6]->setVolume(33.0f + 67.0f * speed / maxSpeed);
 
             if (skidding && c.effects[8]->getStatus() != SoundSource::Playing) {
                 // Skidding sound
@@ -249,9 +253,13 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
             c.effects[8]->stop();
         }
 
-        if (a == CRASH && c.effects[17]->getStatus() != sf::SoundSource::Playing && c.effects[18]->getStatus() !=
-            sf::SoundSource::Playing && c.effects[19]->getStatus() != sf::SoundSource::Playing) {
-            c.effects[random_int(17, 19)]->play();
+        if (a == CRASH && firstCrash) {
+            firstCrash = false;
+            c.effects[17]->stop();
+            c.effects[18]->stop();
+            c.effects[19]->stop();
+            c.effects[17]->play();
+            c.effects[random_int(18, 19)]->play();
         }
     }
     else {

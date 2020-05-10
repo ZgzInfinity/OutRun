@@ -57,7 +57,6 @@ State introAnimation(Config& c){
         effect->setVolume(100);
         c.effects.push_back(move(effect));
     }
-    c.effects[6]->setVolume(60);
 
     // Vector of images with the logo of Sega
     Texture t;
