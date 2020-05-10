@@ -19,8 +19,7 @@
 #include "Enemy.hpp"
 #include "Interface.hpp"
 
-
-const int SCORE_BONIFICATION = 1000000;
+#define SCORE_BONIFICATION 1000000.0f
 
 /**
  * Lógica del juego que contiene la información del jugador, la información de los mapas y el HUD.
@@ -42,9 +41,11 @@ class Game {
 
     // Time to play
     int time;
+    float timeMul;
 
     // Score of the player
     unsigned long score;
+    float scoreMul;
 
     // Minutes of game played
     int minutes = 0;
@@ -135,6 +136,11 @@ public:
      */
     explicit Game(Config &c, Interface& iface);
 
+    /**
+     * Comprueba la dificultad y ajusta los parámetros correspondientes.
+     * @param c
+     */
+    void checkDifficulty(Config &c);
 
     bool isInGame() const;
 
@@ -146,7 +152,6 @@ public:
     State play(Config &c, Interface& i);
 
     State pause(Config &c, Interface& i, const Vehicle::Action& a, const Vehicle::Direction &d);
-
 };
 
 

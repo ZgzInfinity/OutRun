@@ -16,11 +16,9 @@ using namespace std;
 #define MAX_SPEED 300.0f
 #define SPEED_MUL 100.0f
 #define MAX_COUNTER 10
-#define MAX_VEHICLES 10 // Number of vehicles simultaneously
 #define VEHICLE_DENSITY 3.0f // Greater than 0
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
-
 
 void comentaristIntro(Config& c){
      c.effects[11]->stop();
@@ -38,7 +36,6 @@ void makeWomanSound(Config& c, int sound){
     c.effects[sound - 1]->play();
     sleep(c.effects[sound - 1]->getDuration());
 }
-
 
 void makeCarTrafficSound(Config& c, int sound){
     c.effects[sound - 1]->stop();
@@ -74,7 +71,8 @@ void claps(Config& c){
 }
 
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
-        "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), goalMap(goalFlagger, goalEnd) {
+        "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f),
+        goalMap(goalFlagger, goalEnd) {
     int nm = 0;
     const int times[] = {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
@@ -97,15 +95,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     currentMap = &maps[mapId.first][mapId.second];
     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
 
-    // Vehicles
-    cars.reserve(MAX_VEHICLES);
-    const int maxSprites = 6;
-    const float vehicleScales[maxSprites] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
-    for (int i = 0; i < MAX_VEHICLES; i++) {
-        Enemy v(MAX_SPEED, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
-                "car" + to_string(1 + i % maxSprites), -RECTANGLE * DEL_VEHICLE * 3.0f);
-        cars.push_back(v);
-    }
+    checkDifficulty(c); // Loads enemies and time
 
     Texture t;
     Sprite s;
@@ -193,7 +183,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     interface.sText.setFont(c.speedVehicle);
 
     // Initialize the HUD indicator of time
-    time = currentMap->getTime();
+    time = int(float(currentMap->getTime()) * timeMul);
     interface.timeToPlay.setString(to_string(time));
     interface.timeToPlay.setFont(c.timeToPlay);
     interface.timeToPlay.setPosition(c.w.getSize().x / 2.f - 310, c.w.getSize().y / 2.f - 340);
@@ -317,12 +307,57 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     bonus_delay = seconds(0.01f);
 }
 
+void Game::checkDifficulty(Config &c) {
+    int numCars = cars.size(); // Number of vehicles simultaneously
+    time = int(float(time) / timeMul); // Restore original time
+
+    switch (c.level) {
+        case PEACEFUL:
+            numCars = 0;
+            timeMul = 1.1f;
+            scoreMul = 0.25f;
+            break;
+        case EASY:
+            numCars = 5;
+            timeMul = 1.1f;
+            scoreMul = 0.5f;
+            break;
+        case NORMAL:
+            numCars = 10;
+            timeMul = 1.0f;
+            scoreMul = 1.0f;
+            break;
+        case HARD:
+            numCars = 15;
+            timeMul = 0.9f;
+            scoreMul = 1.5f;
+            break;
+        default:
+            break;
+    }
+
+    // Vehicles
+    cars.reserve(numCars);
+    if (cars.size() > numCars) {
+        while (cars.size() > numCars)
+            cars.pop_back();
+    }
+    else if (cars.size() < numCars) {
+        const int maxSprites = 6;
+        const float vehicleScales[maxSprites] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
+        for (int i = cars.size(); i < numCars; i++) {
+            Enemy v(MAX_SPEED, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
+                    "car" + to_string(1 + i % maxSprites), -RECTANGLE * DEL_VEHICLE * 3.0f);
+            cars.push_back(v);
+        }
+    }
+
+    time = int(float(time) * timeMul);
+}
 
 bool Game::isInGame() const {
     return inGame;
 }
-
-
 
 State Game::play(Config &c, Interface& interface) {
 
@@ -405,7 +440,7 @@ State Game::play(Config &c, Interface& interface) {
             // Update the score of the player if the player is not stopped
             if (player.getRealSpeed() > 0.0f) {
                 // Add score
-                score += int(player.getRealSpeed());
+                score += int(player.getRealSpeed() * scoreMul);
             }
 
             // Get the actual time
@@ -627,7 +662,7 @@ void Game::goalAnimation(Config &c, Interface& interface) {
             // Decs per second
             decs_second = decsTime % 10;
 
-            score += SCORE_BONIFICATION / 10; // Bonif. per dec.
+            score += int(scoreMul * SCORE_BONIFICATION / 10.0f); // Bonif. per dec.
             interface.textScore.setString(to_string(score));
 
             // Draw the time bonus
@@ -712,7 +747,7 @@ void Game::goalAnimation(Config &c, Interface& interface) {
                 // Decs per second
                 decs_second = decsTime % 10;
 
-                score += SCORE_BONIFICATION / 10; // Bonif. per dec.
+                score += int(scoreMul * SCORE_BONIFICATION / 10.0f); // Bonif. per dec.
                 interface.textScore.setString(to_string(score));
 
                 // Draw the time bonus
@@ -792,7 +827,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     currentMap->addNextMap(&goalMap);
                 }
                 // Update time when map changes
-                time += currentMap->getTime();
+                time += int(float(currentMap->getTime()) * timeMul);
 
                 // Update the indicators
                 if (!checkPoint){

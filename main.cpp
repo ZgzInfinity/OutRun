@@ -37,6 +37,7 @@ int main() {
                 case OPTIONS: {
                     bool inGame = engine.isInGame();
                     state = optionsMenu(c, inGame);
+                    engine.checkDifficulty(c);
                     break;
                 }
                 case GAME: {

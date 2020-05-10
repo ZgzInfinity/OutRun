@@ -586,13 +586,29 @@ State optionsMenu(Config& c, const bool& inGame){
     menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
                                  "Volume effect", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
-     menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 150, 200, 30, c.options,
+    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 150, 200, 30, c.options,
                                  "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
 
     // Option configurations
 
+    string difficulty;
+    switch (c.level) {
+        case PEACEFUL:
+            difficulty = "Peaceful";
+            break;
+        case EASY:
+            difficulty = "Easy";
+            break;
+        case HARD:
+            difficulty = "Hard";
+            break;
+        default:
+            difficulty = "Normal";
+            break;
+    }
+
     menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 130, 200, 30, c.options,
-                                 "Normal", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
+                                 difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
 
     menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
                                  to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
