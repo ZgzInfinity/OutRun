@@ -1,7 +1,7 @@
 /* Mapa 3 */
 
 74 74 74		/* Road RGB color 1 */
-74 74 74  		/* Road RGB color 2 */
+72 72 72  		/* Road RGB color 2 */
 189 120 55      /* Grass RGB color 1 */
 181 113 49		/* Grass RGB color 2 */
 255 246 242     /* Rumble RGB color */

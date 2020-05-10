@@ -1,6 +1,6 @@
 /* Mapa 3 */
 
-0 0 0  			/* Road RGB color 1 */
+2 2 2  			/* Road RGB color 1 */
 0 0 0  			/* Road RGB color 2 */
 26 205 43		/* Grass RGB color 1 */
 17 171 31		/* Grass RGB color 2 */

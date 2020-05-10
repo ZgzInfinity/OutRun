@@ -1,7 +1,7 @@
 /* Mapa 3 */
 
 91 91 91  		/* Road RGB color 1 */
-91 91 91  		/* Road RGB color 2 */
+89 89 89  		/* Road RGB color 2 */
 233 166 85		/* Grass RGB color 1 */
 211 147 70 		/* Grass RGB color 2 */
 255 255 255     /* Rumble RGB color */

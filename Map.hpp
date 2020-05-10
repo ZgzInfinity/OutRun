@@ -41,7 +41,7 @@ class Map {
      */
     struct SpriteInfo {
         int spriteNum;
-        float offset, spriteMinX, spriteMaxX;
+        float offset, spriteMinX, spriteMaxX, spriteToSideX; // spriteToSideX is the space from spriteMinX to another minX side
         bool repetitive;
 
         /**
@@ -84,18 +84,26 @@ class Map {
          */
         void project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset);
 
+        enum HitCoeffType {
+            HIT_CENTER,
+            HIT_LEFT,
+            HIT_RIGHT,
+            HIT_SIDES // Example arc
+        };
 
         /**
          * Dibuja el objeto en la pantalla. Esta función debe ser llamada después de project().
          * @param w
          * @param objs
          * @param hitCoeff
+         * @param hitCoeffType
          * @param scaleCoeff
          * @param object
          * @param left indica si el objeto está a la izquierda de la pantalla
          */
         void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &hitCoeff,
-                const std::vector<float> &scaleCoeff, SpriteInfo &object, bool left) const;
+                const std::vector<HitCoeffType> &hitCoeffType, const std::vector<float> &scaleCoeff,
+                SpriteInfo &object, bool left) const;
     };
 
     // Circles info for forks (with different centers):
@@ -111,6 +119,7 @@ class Map {
     // Objects
     std::vector<sf::Texture> objects;
     std::vector<float> hitCoeffs;
+    std::vector<Line::HitCoeffType> hitCoeffTypes;
     std::vector<float> scaleCoeffs;
     std::vector<Line> lines;
 

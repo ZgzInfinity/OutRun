@@ -24,14 +24,14 @@ using namespace sf;
 
 Map::SpriteInfo::SpriteInfo() {
     spriteNum = -1;
-    offset = spriteMinX = spriteMaxX = 0.0f;
+    offset = spriteMinX = spriteMaxX = spriteToSideX = 0.0f;
     repetitive = false;
 }
 
 Map::Line::Line() {
     curve = x = y = z = 0;
     mainColor = false;
-    offsetX = yOffsetX = 0.0f;
+    offsetX = yOffsetX = bgX = 0.0f;
 }
 
 void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
@@ -319,7 +319,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
                             objectIndexes.push_back(stoi(buffer[i]));
 
                         const vector<vector<string>> randomInstructions = randomMap(stoi(buffer[1]), objectIndexes);
-                        for (int i = 4; i < randomInstructions.size(); i++) {
+                        for (int i = 6; i < randomInstructions.size(); i++) {
                             instructions.push_back(randomInstructions[i]);
                         }
                     }
@@ -453,6 +453,7 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
     objectIndexes.reserve(objectNames.size());
     objects.reserve(objectNames.size());
     hitCoeffs.reserve(objectNames.size());
+    hitCoeffTypes.reserve(objectNames.size());
     for (const string &objName : objectNames) {
         // Load indexes
         objectIndexes.push_back(k);
@@ -467,20 +468,38 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
         // Load hit percentage from center and scale coeff
         ifstream fin(path + objName + ".info");
         float hitC = 1.0f, scaleC = 1.0f;
+        Line::HitCoeffType hitCoeffType = Line::HIT_CENTER;
         if (fin.is_open()) {
-            string s;
             while (!fin.eof()) {
+                string s;
                 fin >> s;
                 if (s == "HIT:" && !fin.eof()) {
                     fin >> hitC;
+                    hitCoeffType = Line::HIT_CENTER;
+                }
+                else if (s == "HIT_LEFT:" && !fin.eof()) {
+                    fin >> hitC;
+                    hitCoeffType = Line::HIT_LEFT;
+                }
+                else if (s == "HIT_RIGHT:" && !fin.eof()) {
+                    fin >> hitC;
+                    hitCoeffType = Line::HIT_RIGHT;
+                }
+                else if (s == "HIT_SIDES:" && !fin.eof()) {
+                    fin >> hitC;
+                    hitCoeffType = Line::HIT_SIDES;
                 }
                 else if (s == "SCALE:" && !fin.eof()) {
                     fin >> scaleC;
+                }
+                else if (!s.empty()) {
+                    cerr << "WARNING: '" << s << "' at file " << path + objName + ".info" << endl;
                 }
             }
             fin.close();
         }
         hitCoeffs.push_back(hitC);
+        hitCoeffTypes.push_back(hitCoeffType);
         scaleCoeffs.push_back(scaleC);
     }
 }
@@ -779,7 +798,8 @@ void Map::Line::project(float camX, float camY, float camZ, float camD, float wi
 }
 
 void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const vector<float> &hitCoeff,
-        const vector<float> &scaleCoeff, SpriteInfo &object, bool left) const {
+                           const vector<HitCoeffType> &hitCoeffType, const vector<float> &scaleCoeff,
+                           SpriteInfo &object, bool left) const {
     Sprite s(objs[object.spriteNum]);
     const float width = scaleCoeff[object.spriteNum] * s.getTextureRect().width;
     const float widthOri = s.getTextureRect().width;
@@ -805,9 +825,25 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
         s.setPosition(destX, destY);
         w.draw(s);
 
-        object.spriteMinX =
-                destX + (s.getGlobalBounds().width - s.getGlobalBounds().width * hitCoeff[object.spriteNum]) / 2.0f;
+        if (hitCoeffType[object.spriteNum] == HIT_CENTER) {
+            object.spriteMinX =
+                    destX + (s.getGlobalBounds().width - s.getGlobalBounds().width * hitCoeff[object.spriteNum]) / 2.0f;
+        }
+        else if (hitCoeffType[object.spriteNum] == HIT_RIGHT) {
+            object.spriteMinX =
+                    destX + s.getGlobalBounds().width - s.getGlobalBounds().width * hitCoeff[object.spriteNum];
+        }
+        else { // HIT_LEFT and HIT_SIDES
+            object.spriteMinX = destX;
+        }
         object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * hitCoeff[object.spriteNum];
+
+        if (hitCoeffType[object.spriteNum] != HIT_SIDES) {
+            object.spriteToSideX = 0.0f;
+        }
+        else {
+            object.spriteToSideX = s.getGlobalBounds().width - (object.spriteMaxX - object.spriteMinX);
+        }
 
         // Repetitive drawing
         if (left && object.repetitive) {
@@ -889,8 +925,10 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
         l = getLine(n);
         l->spriteLeft.spriteMinX = 0;
         l->spriteLeft.spriteMaxX = 0;
+        l->spriteLeft.spriteToSideX = 0;
         l->spriteRight.spriteMinX = 0;
         l->spriteRight.spriteMaxX = 0;
+        l->spriteRight.spriteToSideX = 0;
 
         l->project(posX * ROADW - x, camH, float(startPos * SEGL), c.camD,
                    c.w.getSize().x, c.w.getSize().y, ROADW, n < N ? 0.0f : lines[lines.size() - 1].z);
@@ -1035,15 +1073,15 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
         // Draw object
         if (l->spriteLeft.spriteNum > -1) {
             if (n < N || next == nullptr)
-                l->drawSprite(c.w, objects, hitCoeffs, scaleCoeffs, l->spriteLeft, true);
+                l->drawSprite(c.w, objects, hitCoeffs, hitCoeffTypes, scaleCoeffs, l->spriteLeft, true);
             else
-                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->scaleCoeffs, l->spriteLeft, true);
+                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs, l->spriteLeft, true);
         }
         if (l->spriteRight.spriteNum > -1) {
             if (n < N || next == nullptr)
-                l->drawSprite(c.w, objects, hitCoeffs, scaleCoeffs, l->spriteRight, false);
+                l->drawSprite(c.w, objects, hitCoeffs, hitCoeffTypes, scaleCoeffs, l->spriteRight, false);
             else
-                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->scaleCoeffs, l->spriteRight, false);
+                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs, l->spriteRight, false);
         }
 
         // Draw vehicles
@@ -1075,23 +1113,37 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, f
     for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
         l = getLine(n);
 
-        if (l.spriteLeft.spriteNum != -1 && l.spriteLeft.spriteMinX != l.spriteLeft.spriteMaxX && // l has an object that can crash
-                prevY <= float(n) && currentY >= float(n) && // y matches
-                ((minX >= l.spriteLeft.spriteMinX && minX <= l.spriteLeft.spriteMaxX) ||
-                 (maxX >= l.spriteLeft.spriteMinX && maxX <= l.spriteLeft.spriteMaxX) ||
-                 (l.spriteLeft.spriteMinX >= minX && l.spriteLeft.spriteMinX <= maxX) ||
-                 (l.spriteLeft.spriteMaxX >= minX && l.spriteLeft.spriteMaxX <= maxX))) { // x matches
-            crashPos = float(n);
-            return true;
-        }
-        if (l.spriteRight.spriteNum != -1 && l.spriteRight.spriteMinX != l.spriteRight.spriteMaxX && // l has an object that can crash
-                prevY <= float(n) && currentY >= float(n) && // y matches
-                ((minX >= l.spriteRight.spriteMinX && minX <= l.spriteRight.spriteMaxX) ||
-                 (maxX >= l.spriteRight.spriteMinX && maxX <= l.spriteRight.spriteMaxX) ||
-                 (l.spriteRight.spriteMinX >= minX && l.spriteRight.spriteMinX <= maxX) ||
-                 (l.spriteRight.spriteMaxX >= minX && l.spriteRight.spriteMaxX <= maxX))) { // x matches
-            crashPos = float(n);
-            return true;
+        float spriteMinX, spriteMaxX;
+        int spriteNum;
+        for (int i = 0; i < 4; i++) {
+            if (i == 0) {
+                spriteNum = l.spriteLeft.spriteNum;
+                spriteMinX = l.spriteLeft.spriteMinX;
+                spriteMaxX = l.spriteLeft.spriteMaxX;
+            }
+            else if (i == 1) {
+                spriteNum = l.spriteLeft.spriteNum;
+                spriteMinX = l.spriteLeft.spriteMinX + l.spriteLeft.spriteToSideX;
+                spriteMaxX = l.spriteLeft.spriteMaxX + l.spriteLeft.spriteToSideX;
+            }
+            else if (i == 2) {
+                spriteNum = l.spriteRight.spriteNum;
+                spriteMinX = l.spriteRight.spriteMinX;
+                spriteMaxX = l.spriteRight.spriteMaxX;
+            }
+            else {
+                spriteNum = l.spriteRight.spriteNum;
+                spriteMinX = l.spriteRight.spriteMinX + l.spriteRight.spriteToSideX;
+                spriteMaxX = l.spriteRight.spriteMaxX + l.spriteRight.spriteToSideX;
+            }
+
+            if (spriteNum != -1 && spriteMinX != spriteMaxX && // l has an object that can crash
+                    prevY <= float(n) && currentY >= float(n) && // y matches
+                    ((minX >= spriteMinX && minX <= spriteMaxX) || (maxX >= spriteMinX && maxX <= spriteMaxX) ||
+                     (spriteMinX >= minX && spriteMinX <= maxX) || (spriteMaxX >= minX && spriteMaxX <= maxX))) { // x matches
+                crashPos = float(n);
+                return true;
+            }
         }
     }
     return false;
