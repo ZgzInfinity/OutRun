@@ -14,7 +14,7 @@ using namespace sf;
 using namespace std;
 
 #define MAX_SPEED 300.0f
-#define SPEED_MUL 100.0f
+#define SPEED_MUL 90.0f
 #define MAX_COUNTER 10
 #define VEHICLE_DENSITY 3.0f // Greater than 0
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
@@ -261,6 +261,7 @@ void Game::checkDifficulty(Config &c) {
     int numCars = cars.size(); // Number of vehicles simultaneously
     time = int(float(time) / timeMul); // Restore original time
 
+    float prevScoreMul = scoreMul;
     switch (c.level) {
         case PEACEFUL:
             numCars = 0;
@@ -285,6 +286,8 @@ void Game::checkDifficulty(Config &c) {
         default:
             break;
     }
+    if (prevScoreMul < scoreMul) // Keep the least multiplier
+        scoreMul = prevScoreMul;
 
     // Vehicles
     cars.reserve(numCars);
@@ -803,6 +806,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     minutes= 0;
                 }
                 checkPoint = true;
+                timeCheck = time;
                 // CheckPointEffect
                 c.effects[23]->stop();
                 c.effects[23]->play();
@@ -936,7 +940,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
              c.w.draw(interface.textForLap);
              c.w.draw(interface.checkPoint);
 
-             if (currentMap->getTime() - time > 5){
+             if (timeCheck - time > 5){
                 checkPoint = false;
              }
         }

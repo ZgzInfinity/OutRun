@@ -40,7 +40,7 @@ void Player::hitControl(const bool vehicleCrash) {
     }
     else {
         if (minCrashAcc <= 0.0f) { // Only first time
-            minCrashAcc = acceleration * 0.66f; // In case of car crash, acc will be drop 1/3. Otherwise it will be drop to 0.
+            minCrashAcc = acceleration * 0.5f; // In case of car crash, acc will be drop 1/2. Otherwise it will be drop to 0.
 
             if (posX < 0.0f)
                 xDest = 0.8f;

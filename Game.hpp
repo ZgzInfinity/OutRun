@@ -103,6 +103,7 @@ class Game {
 
     // Control the checkpoint
     bool checkPoint = false;
+    int timeCheck = 0;
 
     bool blink;
 
