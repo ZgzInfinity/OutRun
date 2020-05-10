@@ -9,7 +9,6 @@
 #ifndef OUTRUN_MENU_HPP
 #define OUTRUN_MENU_HPP
 
-#include <thread>
 #include <vector>
 #include <iostream>
 #include "Button.hpp"
@@ -89,11 +88,6 @@ enum State {
     END,
     EXIT
 };
-
-
-void loadGameSoundtracks(Config& c);
-
-void loadGameSoundEffects(Config& c);
 
 State introAnimation(Config& c);
 

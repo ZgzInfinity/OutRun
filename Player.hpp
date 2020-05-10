@@ -21,13 +21,7 @@ class Player : public Vehicle {
     bool smoking; // True if player generates smoke
     bool skidding; // True if player is skidding
 
-    thread accelerationSoundThread, engineSoundThread, skiddingSoundThread;
-    bool accederationSoundFinished, engineSoundFinished, skiddingSoundFinished;
     bool firstCrash, firstTurnLeft, firstTurnRight;
-
-    void accelerationSound(Config &c);
-    void engineSound(Config &c);
-    void skiddingSound(Config &c);
 
 public:
     /**
@@ -44,11 +38,6 @@ public:
      */
     Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
             const std::string &vehicle, float pX, float pY);
-
-    /**
-     * Destructor.
-     */
-    virtual ~Player();
 
     /**
      * Devuelve la posición previa Y.

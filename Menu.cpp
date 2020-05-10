@@ -8,7 +8,8 @@
 
 #include "Menu.hpp"
 
-#define TEXTSIZE 50
+#include <memory>
+
 #define FPS 60
 
 using namespace std;
@@ -48,33 +49,15 @@ Config::Config() {
     aggressiveness = 0;
 }
 
-void loadGameSoundtracks(Config& c){
-     // Load the music soundtracks of the game
-     for (int i = 0; i <= 3; i++){
-        unique_ptr<Music> music = unique_ptr<Music>(new Music());
-        music->openFromFile("resources/Soundtrack/" + to_string(i) + ".ogg");
-        music->setVolume(90);
-        music->setLoop(true);
-        c.themes.push_back(move(music));
-    }
-}
-
-void loadGameSoundEffects(Config& c){
-     // Load the game effects
-     for (int i = 1; i <= 30; i++){
-        unique_ptr<Music> effect = unique_ptr<Music>(new Music());
+State introAnimation(Config& c){
+    // Load the game effects
+    for (int i = 1; i <= 29; i++){
+        unique_ptr<Music> effect = make_unique<Music>();
         effect->openFromFile("resources/SoundEffects/" + to_string(i) + ".ogg");
         effect->setVolume(100);
         c.effects.push_back(move(effect));
     }
-    c.effects[6]->setLoop(true);
     c.effects[6]->setVolume(60);
-}
-
-State introAnimation(Config& c){
-
-    // Load the soundtracks of the game
-    thread (loadGameSoundEffects, ref(c)).detach();
 
     // Vector of images with the logo of Sega
     Texture t;
@@ -98,8 +81,15 @@ State introAnimation(Config& c){
         sleep(milliseconds(40));
     }
     c.effects[26]->play();
-    // Load the sound effects
-    thread (loadGameSoundtracks, ref(c)).detach();
+
+    // Load the music soundtracks of the game
+    for (int i = 0; i <= 3; i++){
+        unique_ptr<Music> music = make_unique<Music>();
+        music->openFromFile("resources/Soundtrack/" + to_string(i) + ".ogg");
+        music->setVolume(90);
+        music->setLoop(true);
+        c.themes.push_back(move(music));
+    }
 
     return START;
 }
@@ -301,7 +291,6 @@ State startMenu(Config &c, bool startPressed) {
         }
         // Return the state of the game
         c.effects[0]->stop();
-        // Stop the thread that load the soundtracks
         return state;
     }
     return EXIT;

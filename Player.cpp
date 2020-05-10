@@ -21,17 +21,7 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
                        vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
                        maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scaleY(scaleY), acceleration(0),
                        minCrashAcc(0), xDest(0), inertia(0), crashing(false), smoking(false), skidding(false),
-                       accederationSoundFinished(true), engineSoundFinished(true), skiddingSoundFinished(true),
                        firstCrash(true), firstTurnLeft(true), firstTurnRight(true) {}
-
-Player::~Player() {
-    if (accelerationSoundThread.joinable())
-        accelerationSoundThread.join();
-    if (engineSoundThread.joinable())
-        engineSoundThread.join();
-    if (skiddingSoundThread.joinable())
-        skiddingSoundThread.join();
-}
 
 float Player::getPreviousY() const {
     return previousY;
@@ -232,80 +222,45 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
     return RIGHT;
 }
 
-void Player::accelerationSound(Config &c) {
-    c.effects[12]->play();
-    Clock clock;
-    while (speed > 0 && clock.getElapsedTime() < c.effects[12]->getDuration())
-        sleep(milliseconds(10));
-    c.effects[12]->stop();
-    accederationSoundFinished = true;
-}
-
-void Player::engineSound(Config &c) {
-    c.effects[6]->play();
-    sleep(c.effects[6]->getDuration());
-    c.effects[6]->stop();
-    engineSoundFinished = true;
-}
-
-void crashSound(Config &c, int sound){
-    c.effects[sound - 1]->stop();
-    c.effects[sound - 1]->play();
-    sleep(c.effects[sound - 1]->getDuration());
-}
-
-void Player::skiddingSound(Config &c) {
-    c.effects[8]->play();
-    sleep(c.effects[8]->getDuration());
-    c.effects[8]->stop();
-    skiddingSoundFinished = true;
-}
-
 void Player::draw(Config &c, const Action &a, const Direction &d, const Elevation &e, bool enableSound) {
     // Sound effects
     if (enableSound) {
-        if (accederationSoundFinished && accelerationSoundThread.joinable())
-            accelerationSoundThread.join();
-        if (engineSoundFinished && engineSoundThread.joinable())
-            engineSoundThread.join();
-        if (skiddingSoundFinished && skiddingSoundThread.joinable())
-            skiddingSoundThread.join();
         if (speed > 0.0f) {
-            if (a == BOOT && !accelerationSoundThread.joinable()) {
-                accederationSoundFinished = false;
-                accelerationSoundThread = thread(&Player::accelerationSound, this, ref(c));
+            if (a == BOOT) {
+                // Acceleration sound
+                c.effects[12]->stop();
+                c.effects[12]->play();
             }
-            if (!engineSoundThread.joinable()) {
-                engineSoundFinished = false;
-                engineSoundThread = thread(&Player::engineSound, this, ref(c));
+            if (c.effects[6]->getStatus() != SoundSource::Playing) {
+                // Engine sound
+                c.effects[6]->stop();
+                c.effects[6]->play();
             }
 
-            if (skidding && skiddingSoundFinished && !skiddingSoundThread.joinable()) {
-                skiddingSoundFinished = false;
-                skiddingSoundThread = thread(&Player::skiddingSound, this, ref(c));
+            if (skidding && c.effects[8]->getStatus() != SoundSource::Playing) {
+                // Skidding sound
+                c.effects[8]->stop();
+                c.effects[8]->play();
             }
         }
-        else if (engineSoundThread.joinable()) {
+        else {
+            c.effects[12]->stop();
             c.effects[6]->stop();
-            engineSoundFinished = false;
+            c.effects[8]->stop();
         }
 
-        if (a == CRASH && firstCrash) {
-            int codeCrashSound = random_int(18, 20);
-            thread (crashSound, ref(c), codeCrashSound).detach();
-            firstCrash = false;
-        }
-        else if (a != CRASH) {
-            firstCrash = true;
+        if (a == CRASH && c.effects[17]->getStatus() != sf::SoundSource::Playing && c.effects[18]->getStatus() !=
+            sf::SoundSource::Playing && c.effects[19]->getStatus() != sf::SoundSource::Playing) {
+            c.effects[random_int(17, 19)]->play();
         }
     }
     else {
-        c.effects[6]->stop();
         c.effects[12]->stop();
+        c.effects[6]->stop();
+        c.effects[8]->stop();
         c.effects[17]->stop();
         c.effects[18]->stop();
         c.effects[19]->stop();
-        c.effects[8]->stop();
     }
 
     // Draw

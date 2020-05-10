@@ -20,56 +20,6 @@ using namespace std;
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
-void comentaristIntro(Config& c){
-     c.effects[11]->stop();
-     c.effects[11]->play();
-     this_thread::sleep_for(chrono::milliseconds(5000));
-}
-
-void slideCar(Config& c){
-    c.effects[8]->stop();
-    c.effects[8]->play();
-}
-
-void makeWomanSound(Config& c, int sound){
-    c.effects[sound - 1]->stop();
-    c.effects[sound - 1]->play();
-    sleep(c.effects[sound - 1]->getDuration());
-}
-
-void makeCarTrafficSound(Config& c, int sound){
-    c.effects[sound - 1]->stop();
-    c.effects[sound - 1]->play();
-    sleep(c.effects[sound - 1]->getDuration());
-}
-
-void makeBeepSound(Config& c){
-    c.effects[22]->stop();
-    c.effects[22]->play();
-    sleep(c.effects[22]->getDuration());
-}
-
-void makeCheckPointEffect(Config& c){
-    c.effects[23]->stop();
-    c.effects[23]->play();
-    sleep(c.effects[23]->getDuration());
-}
-
-void makeGoalSound(Config& c){
-    c.effects[27]->stop();
-    c.effects[27]->play();
-    sleep(c.effects[27]->getDuration());
-    c.effects[28]->stop();
-    c.effects[28]->play();
-    sleep(c.effects[28]->getDuration());
-}
-
-void claps(Config& c){
-    c.effects[29]->stop();
-    c.effects[29]->play();
-    sleep(c.effects[29]->getDuration());
-}
-
 Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f),
         goalMap(goalFlagger, goalEnd) {
@@ -530,7 +480,6 @@ State Game::play(Config &c, Interface& interface) {
 }
 
 void Game::initialAnimation(Config &c) {
-
     c.themes[c.currentSoundtrack]->stop();
     int flagger, semaphore;
     Map *initMap = new Map(*currentMap, flagger, semaphore);
@@ -541,7 +490,9 @@ void Game::initialAnimation(Config &c) {
     bool end = false;
 
     sleep(milliseconds(70));
-    thread slide(slideCar, ref(c));
+    // slideCar
+    c.effects[8]->stop();
+    c.effects[8]->play();
 
     for (int i = (int) c.w.getSize().x / 2; !end; i -= 3) {
         // Draw map
@@ -551,17 +502,19 @@ void Game::initialAnimation(Config &c) {
         c.w.display();
     }
     sleep(milliseconds(250));
-    slide.join();
 
     // Semaphore and flagger
     currentMap->incrementSpriteIndex(flagger, false, -1);
     int ms = 1000;
 
-    thread comentarist(comentaristIntro, ref(c));
     currentMap->draw(c, cars);
     player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
     c.w.display();
-    comentarist.join();
+
+    // comentaristIntro
+    c.effects[11]->stop();
+    c.effects[11]->play();
+    sleep(c.effects[11]->getDuration() - c.effects[11]->getPlayingOffset());
 
     for (int i = 0; i < 3; i++) {
         // Draw map
@@ -604,7 +557,9 @@ void Game::goalAnimation(Config &c, Interface& interface) {
     // Stop music level
     c.themes[c.currentSoundtrack]->stop();
 
-    thread (makeGoalSound, ref(c)).detach();
+    // GoalSound
+    c.effects[27]->stop();
+    c.effects[27]->play();
 
     // Hide enemies
     for (Enemy &v : cars)
@@ -711,8 +666,13 @@ void Game::goalAnimation(Config &c, Interface& interface) {
     int step = 0, lastStep;
     bool firstEnd = false, end = false;
 
-    thread(slideCar, ref(c)).detach();
-    thread(claps, ref(c)).detach();
+    // slideCar
+    c.effects[8]->stop();
+    c.effects[8]->play();
+
+    // claps
+    c.effects[28]->stop();
+    c.effects[28]->play();
 
     bonus.restart();
 
@@ -843,7 +803,9 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     minutes= 0;
                 }
                 checkPoint = true;
-                thread(makeCheckPointEffect, ref(c)).detach();
+                // CheckPointEffect
+                c.effects[23]->stop();
+                c.effects[23]->play();
             }
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -927,8 +889,11 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     // Thread with sound of the woman
                     elapsed6 = womanShot.getElapsedTime().asSeconds();
                     if (elapsed6 - elapsed5 >= woman_delay.asSeconds()){
-                        int code = random_int(14, 16);
-                        thread (makeWomanSound, ref(c), code).detach();
+                        // WomanSound
+                        c.effects[13]->stop();
+                        c.effects[14]->stop();
+                        c.effects[15]->stop();
+                        c.effects[random_int(13, 15)]->play();
                         womanShot.restart();
                     }
                 }
@@ -936,8 +901,10 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     // Thread with sound of the woman
                     elapsed8 = trafficCarSound.getElapsedTime().asSeconds();
                     if (elapsed8 - elapsed7 >= traffic_delay.asSeconds()){
-                        int code = random_int(21, 22);
-                        thread (makeCarTrafficSound, ref(c), code).detach();
+                        // makeCarTrafficSound
+                        c.effects[20]->stop();
+                        c.effects[21]->stop();
+                        c.effects[random_int(20, 21)]->play();
                         trafficCarSound.restart();
                     }
                 }
@@ -956,7 +923,9 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                 interface.textForLap.setOutlineColor(Color::Black);
                 c.w.draw(interface.sprites[6]);
                 c.w.draw(interface.recordLap);
-                thread(makeBeepSound, ref(c)).detach();
+                // BeepSound
+                c.effects[22]->stop();
+                c.effects[22]->play();
              }
              else {
                 interface.checkPoint.setFillColor(Color::Transparent);
