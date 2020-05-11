@@ -1506,7 +1506,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
             if (lettersIntroduced != 3){
                 start.setString("ENTER YOUR NAME!");
-                start.setPosition(c.w.getSize().x / 3.5f, (c.w.getSize().y / 4.5f) + 400.0f);
+                start.setPosition(c.w.getSize().x / 3.0f, (c.w.getSize().y / 4.5f) + 400.0f);
             }
             else {
                 start.setString("PRESS START!");

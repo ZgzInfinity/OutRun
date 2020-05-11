@@ -24,7 +24,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f),
         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 42, 42, 41, 42};
+    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 45, 45, 44, 45};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
@@ -663,11 +663,14 @@ void Game::goalAnimation(Config &c, Interface& interface) {
         // Check if a second has passed between both timestamps
         if (elapsed12 - elapsed11 >= bonus_delay.asSeconds()) {
             // Decrement one Tenth of a second
-            decsTime--;
 
-            seconds = decsTime / 10;
-            // Decs per second
-            decs_second = decsTime % 10;
+            if (decsTime > 0){
+                decsTime--;
+
+                seconds = decsTime / 10;
+                // Decs per second
+                decs_second = decsTime % 10;
+            }
 
             score += int(scoreMul * SCORE_BONIFICATION / 10.0f); // Bonif. per dec.
             interface.textScore.setString(to_string(score));
@@ -796,8 +799,34 @@ void Game::goalAnimation(Config &c, Interface& interface) {
             c.w.draw(interface.sText);
             end = false;
         }
+
+        // Draw the panel indicators
+        for (int i = 0; i < 5; i++) {
+            c.w.draw(interface.sprites[i]);
+        }
+
+        if (player.getRealSpeed() > 0) {
+            c.w.draw(interface.sprites[6]);
+        }
+
+        // Draw the bonus indicators
+        c.w.draw(interface.timeBonus);
+        c.w.draw(interface.bonification);
+        c.w.draw(interface.secondsIndicator);
+        c.w.draw(interface.crossSign);
+        c.w.draw(interface.scoreMultiply);
+        c.w.draw(interface.pointsIndicator);
+        c.w.draw(interface.timeBonus);
+
+        c.w.draw(interface.sprites[7]);
+        c.w.draw(interface.timeToPlay);
+        c.w.draw(interface.textScore);
+        c.w.draw(interface.textLap);
+        c.w.draw(interface.textLevel);
         c.w.display();
     }
+    c.w.display();
+    sleep(milliseconds(7000));
 }
 
 
