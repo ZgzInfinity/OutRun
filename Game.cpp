@@ -87,11 +87,10 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
 }
 
 void Game::prepareScreen(Config &c, Interface& interface) {
-    interface.sprites.clear();
     Sprite s;
     for (int i = 0; i < 8; i++){
         s.setTexture(interface.textures[i], true);
-        interface.sprites.push_back(s);
+        interface.sprites[i] = s;
     }
 
     // Fill the matrix with the sprite maps
@@ -424,7 +423,7 @@ State Game::play(Config &c, Interface& interface) {
             interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
 
             interface.textures[6].loadFromFile("resources/GamePanel/7.png",
-                                     IntRect(0, 0, (int(player.getRealSpeed() * 117.0f / MAX_SPEED)), 20));
+                                     IntRect(0, 0, (player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale), 20.0f * c.screenScale));
             interface.sprites[6].setTexture(interface.textures[6], true);
 
             c.w.draw(interface.sText);

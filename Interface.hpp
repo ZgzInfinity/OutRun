@@ -17,7 +17,7 @@ struct Interface {
     vector<Texture> textures;
 
     // Vector of sprites for represent the game panel
-    vector<Sprite> sprites;
+    Sprite sprites[8];
 
     // Available time to arrive to the next checkpoint
     Text timeToPlay;
