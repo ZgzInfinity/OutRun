@@ -20,7 +20,7 @@ using namespace std;
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
-Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f),
         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
@@ -52,7 +52,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     for (int i = 1; i <= 6; i++){
         // Load the texture from the file
         t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
-        interface.textures.push_back(t);
+        textures.push_back(t);
     }
 
     // Code of first Map
@@ -62,7 +62,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     for (int i = 0; i <= 4; i++){
         for(int j = 0; j <= i; j++){
             t.loadFromFile("resources/GamePanel/" + to_string(idFirstMap) + ".png");
-            interface.treeMap[i][j] = t;
+            treeMap[i][j] = t;
             idFirstMap++;
         }
     }
@@ -82,202 +82,280 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     traffic_delay = seconds(2.f);
     blink_delay = seconds(0.5f);
     bonus_delay = seconds(0.01f);
-
-    Sprite s;
-    for (int i = 0; i < 8; i++){
-        s.setTexture(interface.textures[i], true);
-        interface.sprites.push_back(s);
-    }
-
-    // Fill the matrix with the sprite maps
-    for (int i = 0; i <= 4; i++){
-        for(int j = 0; j <= i; j++){
-            s.setTexture(interface.treeMap[i][j], true);
-            interface.spriteMap[i][j] = s;
-        }
-    }
-    prepareScreen(c, interface);
 }
 
-void Game::prepareScreen(Config &c, Interface& interface) {
+void Game::drawHUD(Config &c) {
+    Sprite s;
+
     // Assign positions in the game console for the game panel indicators
     const float up = float(c.w.getSize().y) / 10.0f;
 
     // UP
-    interface.sprites[0].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    const float separation = interface.sprites[0].getGlobalBounds().width / 3.0f;
-    interface.sprites[0].setPosition(separation, up - interface.sprites[0].getGlobalBounds().height);
-    float initial = separation + interface.sprites[0].getGlobalBounds().width + separation;
+    s.setTexture(textures[0], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    const float separation = s.getGlobalBounds().width / 3.0f;
+    s.setPosition(separation, up - s.getGlobalBounds().height);
+    float initial = separation + s.getGlobalBounds().width + separation;
+    c.w.draw(s);
 
     // Initialize the HUD indicator of time
-    interface.timeToPlay.setString("000");
-    interface.timeToPlay.setFont(c.timeToPlay);
-    interface.timeToPlay.setCharacterSize(int(50.0f * c.screenScale));
-    interface.timeToPlay.setFillColor(Color::Yellow);
-    interface.timeToPlay.setOutlineColor(Color::Black);
-    interface.timeToPlay.setOutlineThickness(3.0f * c.screenScale);
-    interface.timeToPlay.setPosition(initial, up - float(interface.timeToPlay.getCharacterSize()));
-    initial += interface.timeToPlay.getGlobalBounds().width + separation;
+    // Available time to arrive to the next checkpoint
+    Text timeToPlay;
+    timeToPlay.setString("000");
+    timeToPlay.setFont(c.timeToPlay);
+    timeToPlay.setCharacterSize(int(50.0f * c.screenScale));
+    timeToPlay.setFillColor(Color::Yellow);
+    timeToPlay.setOutlineColor(Color::Black);
+    timeToPlay.setOutlineThickness(3.0f * c.screenScale);
+    timeToPlay.setPosition(initial, up - float(timeToPlay.getCharacterSize()));
+    timeToPlay.setString(to_string(time));
+    c.w.draw(timeToPlay);
+    initial += timeToPlay.getGlobalBounds().width + separation;
 
-    interface.sprites[1].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    interface.sprites[1].setPosition(initial, up - interface.sprites[1].getGlobalBounds().height);
-    initial += interface.sprites[1].getGlobalBounds().width + separation;
+    s.setTexture(textures[1], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setPosition(initial, up - s.getGlobalBounds().height);
+    c.w.draw(s);
+    initial += s.getGlobalBounds().width + separation;
 
     // Initialize the HUD indicator of score
-    interface.textScore.setString(to_string(int(SCORE_BONIFICATION) * 100));
-    interface.textScore.setFont(c.timeToPlay);
-    interface.textScore.setCharacterSize(int(35.0f * c.screenScale));
-    interface.textScore.setFillColor(Color(183, 164, 190));
-    interface.textScore.setOutlineColor(Color::Black);
-    interface.textScore.setOutlineThickness(3.0f * c.screenScale);
-    interface.textScore.setPosition(initial, up - float(interface.textScore.getCharacterSize()));
+    // Score of the player displayed in the panel
+    Text textScore;
+    textScore.setString(to_string(int(SCORE_BONIFICATION) * 100));
+    textScore.setFont(c.timeToPlay);
+    textScore.setCharacterSize(int(35.0f * c.screenScale));
+    textScore.setFillColor(Color(183, 164, 190));
+    textScore.setOutlineColor(Color::Black);
+    textScore.setOutlineThickness(3.0f * c.screenScale);
+    textScore.setPosition(initial, up - float(textScore.getCharacterSize()));
+    textScore.setString(to_string(score));
+    c.w.draw(textScore);
 
     // Initialize the HUD indicator of lap time
-    interface.textLap.setFont(c.timeToPlay);
-    interface.textLap.setString("00' 00'' 00");
-    interface.textLap.setCharacterSize(int(35.0f * c.screenScale));
-    interface.textLap.setFillColor(Color(146, 194, 186));
-    interface.textLap.setOutlineColor(Color::Black);
-    interface.textLap.setOutlineThickness(3.0f * c.screenScale);
-    initial = float(c.w.getSize().x) - separation - interface.textLap.getGlobalBounds().width;
-    interface.textLap.setPosition(initial, up - float(interface.textLap.getCharacterSize()));
+    // Time of lap consumed
+    Text textLap;
+    textLap.setFont(c.timeToPlay);
+    textLap.setString("00' 00'' 00");
+    textLap.setCharacterSize(int(35.0f * c.screenScale));
+    textLap.setFillColor(Color(146, 194, 186));
+    textLap.setOutlineColor(Color::Black);
+    textLap.setOutlineThickness(3.0f * c.screenScale);
+    initial = float(c.w.getSize().x) - separation - textLap.getGlobalBounds().width;
+    textLap.setPosition(initial, up - float(textLap.getCharacterSize()));
+    textLap.setString(lap);
+    c.w.draw(textLap);
 
-    interface.sprites[2].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    initial -= separation + interface.sprites[2].getGlobalBounds().width;
-    interface.sprites[2].setPosition(initial, up - interface.sprites[2].getGlobalBounds().height);
+    s.setTexture(textures[2], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    initial -= separation + s.getGlobalBounds().width;
+    s.setPosition(initial, up - s.getGlobalBounds().height);
+    c.w.draw(s);
 
     // DOWN
-    interface.sprites[6].scale(2.f * c.screenScale, 1.5f * c.screenScale);
-    const float down = float(c.w.getSize().y) - interface.sprites[6].getGlobalBounds().height * 1.5f;
-    interface.sprites[6].setPosition(separation, float(c.w.getSize().y) - interface.sprites[6].getGlobalBounds().height * 1.25f);
-    initial = separation + interface.sprites[6].getGlobalBounds().width / 2.0f;
+    textures[6].loadFromFile("resources/GamePanel/7.png");
+    s.setTexture(textures[6], true);
+    s.setScale(2.f * c.screenScale, 1.5f * c.screenScale);
+    const float down = float(c.w.getSize().y) - s.getGlobalBounds().height * 1.5f;
+    s.setPosition(separation, float(c.w.getSize().y) - s.getGlobalBounds().height * 1.25f);
+    initial = separation + s.getGlobalBounds().width / 2.0f;
+    textures[6].loadFromFile("resources/GamePanel/7.png",
+                             IntRect(0, 0, (player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale), 20.0f * c.screenScale));
+    s.setTexture(textures[6], true);
+    if (player.getRealSpeed() > 0.0f)
+        c.w.draw(s);
 
     // Text
-    interface.sText.setFont(c.speedVehicle);
-    interface.sText.setString("000");
-    interface.sText.setCharacterSize(int(70.0f * c.screenScale));
-    interface.sText.setFillColor(Color(206, 73, 73));
-    interface.sText.setOutlineColor(Color::Black);
-    interface.sText.setOutlineThickness(3.0f * c.screenScale);
-    interface.sText.setPosition(initial, down - float(interface.sText.getCharacterSize()));
-    initial += interface.sText.getGlobalBounds().width;
+    // HUD
+    Text sText;
+    sText.setFont(c.speedVehicle);
+    sText.setString("000");
+    sText.setCharacterSize(int(70.0f * c.screenScale));
+    sText.setFillColor(Color(206, 73, 73));
+    sText.setOutlineColor(Color::Black);
+    sText.setOutlineThickness(3.0f * c.screenScale);
+    sText.setPosition(initial, down - float(sText.getCharacterSize()));
+    initial += sText.getGlobalBounds().width;
+    string strSpeed = to_string(player.getRealSpeed());
+    sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+    c.w.draw(sText);
 
-    interface.sprites[3].scale(2.f * c.screenScale, 2.f * c.screenScale);
-    interface.sprites[3].setPosition(initial, down - interface.sprites[3].getGlobalBounds().height);
+    s.setTexture(textures[3], true);
+    s.setScale(2.f * c.screenScale, 2.f * c.screenScale);
+    s.setPosition(initial, down - s.getGlobalBounds().height);
+    c.w.draw(s);
 
-    interface.sprites[7] = interface.spriteMap[0][0];
-    interface.sprites[7].scale(2.f * c.screenScale, 2.f * c.screenScale);
-    initial = float(c.w.getSize().x) - separation - interface.sprites[7].getGlobalBounds().width;
-    interface.sprites[7].setPosition(initial, down - interface.sprites[7].getGlobalBounds().height);
+    s.setTexture(treeMap[mapId.first][mapId.second], true);
+    s.setScale(2.f * c.screenScale, 2.f * c.screenScale);
+    initial = float(c.w.getSize().x) - separation - s.getGlobalBounds().width;
+    s.setPosition(initial, down - s.getGlobalBounds().height);
+    c.w.draw(s);
 
     // Initialize the HUD stage indicator
-    interface.textLevel.setFont(c.timeToPlay);
-    interface.textLevel.setString("0");
-    interface.textLevel.setCharacterSize(int(40.0f * c.screenScale));
-    interface.textLevel.setFillColor(Color(146, 194, 186));
-    interface.textLevel.setOutlineColor(Color::Black);
-    interface.textLevel.setOutlineThickness(3.0f * c.screenScale);
-    initial -= separation + interface.textLevel.getGlobalBounds().width;
-    interface.textLevel.setPosition(initial, down - float(interface.textLevel.getCharacterSize()));
+    // Level indicator
+    Text textLevel;
+    textLevel.setFont(c.timeToPlay);
+    textLevel.setString("0");
+    textLevel.setCharacterSize(int(40.0f * c.screenScale));
+    textLevel.setFillColor(Color(146, 194, 186));
+    textLevel.setOutlineColor(Color::Black);
+    textLevel.setOutlineThickness(3.0f * c.screenScale);
+    initial -= separation + textLevel.getGlobalBounds().width;
+    textLevel.setPosition(initial, down - float(textLevel.getCharacterSize()));
+    textLevel.setString(to_string(level));
+    c.w.draw(textLevel);
 
-    interface.sprites[4].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    initial -= separation + interface.sprites[4].getGlobalBounds().width;
-    interface.sprites[4].setPosition(initial, down - interface.sprites[4].getGlobalBounds().height);
+    s.setTexture(textures[4], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    initial -= separation + s.getGlobalBounds().width;
+    s.setPosition(initial, down - s.getGlobalBounds().height);
+    c.w.draw(s);
+}
 
-    // Checkpoint
-    interface.checkPoint.setFont(c.timeToPlay);
-    interface.checkPoint.setString("CHECKPOINT!");
-    interface.checkPoint.setCharacterSize(int(50.0f * c.screenScale));
-    interface.checkPoint.setFillColor(Color::Yellow);
-    interface.checkPoint.setOutlineColor(Color(12, 12, 12));
-    interface.checkPoint.setOutlineThickness(3.0f * c.screenScale);
-    initial = c.w.getSize().y / 3.0f + 0.25f * float(interface.checkPoint.getCharacterSize());
-    interface.checkPoint.setPosition((float(c.w.getSize().x) - interface.checkPoint.getGlobalBounds().width) / 2.0f, c.w.getSize().y / 3.0f - float(interface.checkPoint.getCharacterSize()));
+void Game::drawCheckpoint(Config &c, bool visible) {
+    Sprite s;
 
-    interface.sprites[5].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    interface.sprites[5].setPosition((float(c.w.getSize().x) - interface.sprites[5].getGlobalBounds().width) / 2.0f, initial);
-    initial += interface.sprites[5].getGlobalBounds().height * 1.25f;
+    // CheckPoint title
+    Text checkPointTitle;
+    checkPointTitle.setFont(c.timeToPlay);
+    checkPointTitle.setString("CHECKPOINT!");
+    checkPointTitle.setCharacterSize(int(50.0f * c.screenScale));
+    if (visible) {
+        checkPointTitle.setFillColor(Color::Yellow);
+        checkPointTitle.setOutlineColor(Color(14, 29, 184));
+    }
+    else {
+        checkPointTitle.setFillColor(Color::Transparent);
+        checkPointTitle.setOutlineColor(Color::Transparent);
+    }
+    checkPointTitle.setOutlineThickness(3.0f * c.screenScale);
+    float initial = c.w.getSize().y / 3.0f + 0.25f * float(checkPointTitle.getCharacterSize());
+    checkPointTitle.setPosition((float(c.w.getSize().x) - checkPointTitle.getGlobalBounds().width) / 2.0f, c.w.getSize().y / 3.0f - float(checkPointTitle.getCharacterSize()));
+    c.w.draw(checkPointTitle);
 
-    interface.textForLap.setFont(c.timeToPlay);
-    interface.textForLap.setString("00' 00'' 00");
-    interface.textForLap.setCharacterSize(int(35.0f * c.screenScale));
-    interface.textForLap.setOutlineThickness(3.0f * c.screenScale);
-    interface.textForLap.setPosition((float(c.w.getSize().x) - interface.textForLap.getGlobalBounds().width) / 2.0f, initial);
+    s.setTexture(textures[5], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setPosition((float(c.w.getSize().x) - s.getGlobalBounds().width) / 2.0f, initial);
+    c.w.draw(s);
+    initial += s.getGlobalBounds().height * 1.25f;
 
-    interface.recordLap.setTexture(interface.textures[2], true);
-    interface.recordLap.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    interface.recordLap.setPosition((float(c.w.getSize().x) + 1.25f * interface.textForLap.getGlobalBounds().width) / 2.0f, initial);
+    // Time inverted by the player for complete the game
+    Text textForLap;
+    textForLap.setFont(c.timeToPlay);
+    textForLap.setString("00' 00'' 00");
+    textForLap.setCharacterSize(int(35.0f * c.screenScale));
+    textForLap.setOutlineThickness(3.0f * c.screenScale);
+    textForLap.setPosition((float(c.w.getSize().x) - textForLap.getGlobalBounds().width) / 2.0f, initial);
+    if (visible) {
+        textForLap.setFillColor(Color(146, 194, 186));
+        textForLap.setOutlineColor(Color::Black);
+    }
+    else {
+        textForLap.setFillColor(Color::Transparent);
+        textForLap.setOutlineColor(Color::Transparent);
+    }
+    textForLap.setString(lap);
+    c.w.draw(textForLap);
 
-    // Game over indicator
-    interface.gameOver.setFont(c.timeToPlay);
-    interface.gameOver.setString("GAME OVER");
-    interface.gameOver.setCharacterSize(int(60.0f * c.screenScale));
-    interface.gameOver.setFillColor(Color::Yellow);
-    interface.gameOver.setOutlineColor(Color(14, 29, 184));
-    interface.gameOver.setOutlineThickness(3.0f * c.screenScale);
-    interface.gameOver.setPosition((float(c.w.getSize().x) - interface.gameOver.getGlobalBounds().width) / 2.0f, (float(c.w.getSize().y) - float(interface.gameOver.getCharacterSize())) / 2.0f);
+    s.setTexture(textures[2], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setPosition((float(c.w.getSize().x) + 1.25f * textForLap.getGlobalBounds().width) / 2.0f, initial);
+    c.w.draw(s);
+}
 
-    // Bonification indicator
-    interface.bonification.setFont(c.timeToPlay);
-    interface.bonification.setString("BONUS POINTS!");
-    interface.bonification.setCharacterSize(int(65.0f * c.screenScale));
-    interface.bonification.setFillColor(Color::Yellow);
-    interface.bonification.setOutlineColor(Color(12, 12, 12));
-    interface.bonification.setOutlineThickness(3.0f * c.screenScale);
-    float initialY = float(c.w.getSize().y) / 3.0f + float(interface.bonification.getCharacterSize());
-    initial = (float(c.w.getSize().x) - interface.bonification.getGlobalBounds().width) / 2.0f;
-    interface.bonification.setPosition(initial, float(c.w.getSize().y) / 3.0f - float(interface.bonification.getCharacterSize()));
+void Game::drawGameOver(Config &c) {
+    // Game over text
+    Text gameOver;
+    gameOver.setFont(c.timeToPlay);
+    gameOver.setString("GAME OVER");
+    gameOver.setCharacterSize(int(60.0f * c.screenScale));
+    gameOver.setFillColor(Color::Yellow);
+    gameOver.setOutlineColor(Color(14, 29, 184));
+    gameOver.setOutlineThickness(3.0f * c.screenScale);
+    gameOver.setPosition((float(c.w.getSize().x) - gameOver.getGlobalBounds().width) / 2.0f, (float(c.w.getSize().y) - float(gameOver.getCharacterSize())) / 2.0f);
+    c.w.draw(gameOver);
+}
+
+void Game::drawBonus(Config &c, int seconds, int decs_second) {
+    // Only for separation
+    Sprite s;
+    s.setTexture(textures[0], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    const float separation = s.getGlobalBounds().width / 3.0f;
+
+    // Final score after completing all the levels
+    Text bonification;
+    bonification.setFont(c.timeToPlay);
+    bonification.setString("BONUS POINTS!");
+    bonification.setCharacterSize(int(65.0f * c.screenScale));
+    bonification.setFillColor(Color::Yellow);
+    bonification.setOutlineColor(Color(12, 12, 12));
+    bonification.setOutlineThickness(3.0f * c.screenScale);
+    float initialY = float(c.w.getSize().y) / 3.0f + float(bonification.getCharacterSize());
+    float initial = (float(c.w.getSize().x) - bonification.getGlobalBounds().width) / 2.0f;
+    bonification.setPosition(initial, float(c.w.getSize().y) / 3.0f - float(bonification.getCharacterSize()));
+    c.w.draw(bonification);
+
+    // Time bonus to the player
+    Text timeBonus;
+    timeBonus.setFont(c.timeToPlay);
+    timeBonus.setString("000.0");
+    timeBonus.setCharacterSize(int(55.0f * c.screenScale));
+    timeBonus.setFillColor(Color::Yellow);
+    timeBonus.setOutlineColor(Color(12, 12, 12));
+    timeBonus.setOutlineThickness(3.0f * c.screenScale);
+    initial -= timeBonus.getLocalBounds().width;
+    timeBonus.setPosition(initial, initialY);
+    initialY += float(timeBonus.getCharacterSize());
+    initial += 1.25f * timeBonus.getLocalBounds().width;
+    timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
+    c.w.draw(timeBonus);
 
     // Seconds arrival indicator
-    interface.timeBonus.setFont(c.timeToPlay);
-    interface.timeBonus.setString("000.0");
-    interface.timeBonus.setCharacterSize(int(55.0f * c.screenScale));
-    interface.timeBonus.setFillColor(Color::Yellow);
-    interface.timeBonus.setOutlineColor(Color(12, 12, 12));
-    interface.timeBonus.setOutlineThickness(3.0f * c.screenScale);
-    initial -= interface.timeBonus.getLocalBounds().width;
-    interface.timeBonus.setPosition(initial, initialY);
-    initialY += float(interface.timeBonus.getCharacterSize());
-    initial += 1.25f * interface.timeBonus.getLocalBounds().width;
+    Text secondsIndicator;
+    secondsIndicator.setFont(c.timeToPlay);
+    secondsIndicator.setString("SEC");
+    secondsIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    secondsIndicator.setFillColor(Color(183, 164, 190));
+    secondsIndicator.setOutlineColor(Color::Black);
+    secondsIndicator.setOutlineThickness(3.0f * c.screenScale);
+    secondsIndicator.setPosition(initial, initialY - float(secondsIndicator.getCharacterSize()));
+    initial += separation + secondsIndicator.getLocalBounds().width;
+    c.w.draw(secondsIndicator);
 
     // Seconds arrival indicator
-    interface.secondsIndicator.setFont(c.timeToPlay);
-    interface.secondsIndicator.setString("SEC");
-    interface.secondsIndicator.setCharacterSize(int(50.0f * c.screenScale));
-    interface.secondsIndicator.setFillColor(Color(183, 164, 190));
-    interface.secondsIndicator.setOutlineColor(Color::Black);
-    interface.secondsIndicator.setOutlineThickness(3.0f * c.screenScale);
-    interface.secondsIndicator.setPosition(initial, initialY - float(interface.secondsIndicator.getCharacterSize()));
-    initial += separation + interface.secondsIndicator.getLocalBounds().width;
+    Text crossSign;
+    crossSign.setFont(c.timeToPlay);
+    crossSign.setString("x");
+    crossSign.setCharacterSize(int(40.0f * c.screenScale));
+    crossSign.setFillColor(Color(232, 191, 157));
+    crossSign.setOutlineColor(Color::Black);
+    crossSign.setOutlineThickness(3.0f * c.screenScale);
+    crossSign.setPosition(initial, initialY - float(crossSign.getCharacterSize()));
+    initial += separation + crossSign.getLocalBounds().width;
+    c.w.draw(crossSign);
 
-    // Cross indicator
-    interface.crossSign.setFont(c.timeToPlay);
-    interface.crossSign.setString("x");
-    interface.crossSign.setCharacterSize(int(40.0f * c.screenScale));
-    interface.crossSign.setFillColor(Color(232, 191, 157));
-    interface.crossSign.setOutlineColor(Color::Black);
-    interface.crossSign.setOutlineThickness(3.0f * c.screenScale);
-    interface.crossSign.setPosition(initial, initialY - float(interface.crossSign.getCharacterSize()));
-    initial += separation + interface.crossSign.getLocalBounds().width;
-
-    // factor score multiplicator
-    interface.scoreMultiply.setFont(c.timeToPlay);
-    interface.scoreMultiply.setString(to_string((long long) SCORE_BONIFICATION));
-    interface.scoreMultiply.setCharacterSize(int(55.0f * c.screenScale));
-    interface.scoreMultiply.setFillColor(Color::Yellow);
-    interface.scoreMultiply.setOutlineColor(Color(12, 12, 12));
-    interface.scoreMultiply.setOutlineThickness(3.0f * c.screenScale);
-    interface.scoreMultiply.setPosition(initial, initialY - float(interface.scoreMultiply.getCharacterSize()));
-    initial += separation + interface.scoreMultiply.getLocalBounds().width;
+    // Score factor to multiply
+    Text scoreMultiply;
+    scoreMultiply.setFont(c.timeToPlay);
+    scoreMultiply.setString(to_string((long long) SCORE_BONIFICATION));
+    scoreMultiply.setCharacterSize(int(55.0f * c.screenScale));
+    scoreMultiply.setFillColor(Color::Yellow);
+    scoreMultiply.setOutlineColor(Color(12, 12, 12));
+    scoreMultiply.setOutlineThickness(3.0f * c.screenScale);
+    scoreMultiply.setPosition(initial, initialY - float(scoreMultiply.getCharacterSize()));
+    initial += separation + scoreMultiply.getLocalBounds().width;
+    c.w.draw(scoreMultiply);
 
     // Seconds arrival indicator
-    interface.pointsIndicator.setFont(c.timeToPlay);
-    interface.pointsIndicator.setString("PTS");
-    interface.pointsIndicator.setCharacterSize(int(50.0f * c.screenScale));
-    interface.pointsIndicator.setFillColor(Color(183, 164, 190));
-    interface.pointsIndicator.setOutlineColor(Color::Black);
-    interface.pointsIndicator.setOutlineThickness(3.0f * c.screenScale);
-    interface.pointsIndicator.setPosition(initial, initialY - float(interface.pointsIndicator.getCharacterSize()));
+    Text pointsIndicator;
+    pointsIndicator.setFont(c.timeToPlay);
+    pointsIndicator.setString("PTS");
+    pointsIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    pointsIndicator.setFillColor(Color(183, 164, 190));
+    pointsIndicator.setOutlineColor(Color::Black);
+    pointsIndicator.setOutlineThickness(3.0f * c.screenScale);
+    pointsIndicator.setPosition(initial, initialY - float(pointsIndicator.getCharacterSize()));
+    c.w.draw(pointsIndicator);
 }
 
 void Game::checkDifficulty(Config &c) {
@@ -351,7 +429,7 @@ int Game::getCents_SecondTrip() const{
     return cents_secondTrip;
 }
 
-State Game::play(Config &c, Interface& interface) {
+State Game::play(Config &c) {
 
     if (!inGame) {
         inGame = true;
@@ -387,7 +465,7 @@ State Game::play(Config &c, Interface& interface) {
     State status;
 
     while (!finalGame && !arrival && c.w.isOpen()) {
-        updateAndDraw(c, interface, action, direction);
+        updateAndDraw(c, action, direction);
 
         if (!finalGame) {
             Event e{};
@@ -400,7 +478,7 @@ State Game::play(Config &c, Interface& interface) {
                 // Pause the game
                 c.effects[1]->stop();
                 c.effects[1]->play();
-                status = pause(c, interface, action, direction);
+                status = pause(c, action, direction);
 
                 // Control the exit of the game
                 if (status == OPTIONS){
@@ -416,16 +494,6 @@ State Game::play(Config &c, Interface& interface) {
                     c.themes[c.currentSoundtrack]->play();
                 }
             }
-
-            // Draw speed
-            string strSpeed = to_string(player.getRealSpeed());
-            interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-
-            interface.textures[6].loadFromFile("resources/GamePanel/7.png",
-                                     IntRect(0, 0, (player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale), 20.0f * c.screenScale));
-            interface.sprites[6].setTexture(interface.textures[6], true);
-
-            c.w.draw(interface.sText);
 
             // Update the score of the player if the player is not stopped
             if (player.getRealSpeed() > 0.0f) {
@@ -470,30 +538,12 @@ State Game::play(Config &c, Interface& interface) {
             }
 
             // Update the indicators
-            string lap;
-            lap += (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
+            lap = (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
             lap += (secs < 10) ? "0" + to_string(secs) + " ''" : to_string(secs) + " ''";
             lap += (cents_second < 10) ? "0" + to_string(cents_second) : to_string(cents_second);
 
-            interface.timeToPlay.setString(to_string(time));
-            interface.textScore.setString(to_string(score));
-            interface.textLap.setString(lap);
-            interface.textLevel.setString(to_string(level));
+            drawHUD(c);
 
-            // Draw the panel indicators
-            for (int i = 0; i < 5; i++) {
-                c.w.draw(interface.sprites[i]);
-            }
-
-            if (player.getRealSpeed() > 0) {
-                c.w.draw(interface.sprites[6]);
-            }
-
-            c.w.draw(interface.sprites[7]);
-            c.w.draw(interface.timeToPlay);
-            c.w.draw(interface.textScore);
-            c.w.draw(interface.textLap);
-            c.w.draw(interface.textLevel);
             c.w.display();
 
             if (time == 10){
@@ -518,7 +568,7 @@ State Game::play(Config &c, Interface& interface) {
 
     if (status != OPTIONS && status != START) {
         // Draw the game over text in the console window
-        c.w.draw(interface.gameOver);
+        drawGameOver(c);
         c.themes[c.currentSoundtrack]->stop();
         c.effects[24]->stop();
         c.effects[24]->play();
@@ -607,7 +657,7 @@ void Game::initialAnimation(Config &c) {
     c.themes[c.currentSoundtrack]->play();
 }
 
-void Game::goalAnimation(Config &c, Interface& interface) {
+void Game::goalAnimation(Config &c) {
     // Stop music level
     c.themes[c.currentSoundtrack]->stop();
 
@@ -630,9 +680,6 @@ void Game::goalAnimation(Config &c, Interface& interface) {
 
     bonus.restart();
     elapsed11 = bonus.getElapsedTime().asSeconds(); // TODO: Esta marca solo se actualiza aquí ?????
-
-    // Draw the time bonus
-    interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
 
     while (int(player.getPosY()) < goalEnd) {
         // Update camera
@@ -673,43 +720,14 @@ void Game::goalAnimation(Config &c, Interface& interface) {
             }
 
             score += int(scoreMul * SCORE_BONIFICATION / 10.0f); // Bonif. per dec.
-            interface.textScore.setString(to_string(score));
-
-            // Draw the time bonus
-            interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
 
             bonus.restart();
         }
 
         // Draw the bonus indicators
-        c.w.draw(interface.timeBonus);
-        c.w.draw(interface.bonification);
-        c.w.draw(interface.secondsIndicator);
-        c.w.draw(interface.crossSign);
-        c.w.draw(interface.scoreMultiply);
-        c.w.draw(interface.pointsIndicator);
-        c.w.draw(interface.timeBonus);
+        drawBonus(c, seconds, decs_second);
+        drawHUD(c);
 
-        // Draw speed
-        string strSpeed = to_string(player.getRealSpeed());
-        interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-
-        // Draw the panel indicators
-        for (int i = 0; i < 5; i++) {
-            c.w.draw(interface.sprites[i]);
-        }
-
-        if (player.getRealSpeed() > 0) {
-            c.w.draw(interface.sprites[6]);
-        }
-
-        c.w.draw(interface.sprites[7]);
-        c.w.draw(interface.timeToPlay);
-        c.w.draw(interface.textScore);
-        c.w.draw(interface.textLap);
-        c.w.draw(interface.textLevel);
-
-        c.w.draw(interface.sText);
         c.w.display();
     }
 
@@ -760,69 +778,25 @@ void Game::goalAnimation(Config &c, Interface& interface) {
                 decs_second = decsTime % 10;
 
                 score += int(scoreMul * SCORE_BONIFICATION / 10.0f); // Bonif. per dec.
-                interface.textScore.setString(to_string(score));
-
-                // Draw the time bonus
-                interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
 
                 bonus.restart();
             }
 
             // Draw the bonus indicators
-            c.w.draw(interface.timeBonus);
-            c.w.draw(interface.bonification);
-            c.w.draw(interface.secondsIndicator);
-            c.w.draw(interface.crossSign);
-            c.w.draw(interface.scoreMultiply);
-            c.w.draw(interface.pointsIndicator);
-            c.w.draw(interface.timeBonus);
+            drawBonus(c, seconds, decs_second);
 
             // Draw speed
-            string strSpeed = to_string(player.getRealSpeed());
-            interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
+            drawHUD(c);
 
-            // Draw the panel indicators
-            for (int i = 0; i < 5; i++) {
-                c.w.draw(interface.sprites[i]);
-            }
-
-            if (player.getRealSpeed() > 0) {
-                c.w.draw(interface.sprites[6]);
-            }
-
-            c.w.draw(interface.sprites[7]);
-            c.w.draw(interface.timeToPlay);
-            c.w.draw(interface.textScore);
-            c.w.draw(interface.textLap);
-            c.w.draw(interface.textLevel);
-
-            c.w.draw(interface.sText);
             end = false;
         }
 
-        // Draw the panel indicators
-        for (int i = 0; i < 5; i++) {
-            c.w.draw(interface.sprites[i]);
-        }
-
-        if (player.getRealSpeed() > 0) {
-            c.w.draw(interface.sprites[6]);
-        }
-
         // Draw the bonus indicators
-        c.w.draw(interface.timeBonus);
-        c.w.draw(interface.bonification);
-        c.w.draw(interface.secondsIndicator);
-        c.w.draw(interface.crossSign);
-        c.w.draw(interface.scoreMultiply);
-        c.w.draw(interface.pointsIndicator);
-        c.w.draw(interface.timeBonus);
+        drawBonus(c, seconds, decs_second);
 
-        c.w.draw(interface.sprites[7]);
-        c.w.draw(interface.timeToPlay);
-        c.w.draw(interface.textScore);
-        c.w.draw(interface.textLap);
-        c.w.draw(interface.textLevel);
+        // Draw speed
+        drawHUD(c);
+
         c.w.display();
     }
     c.w.display();
@@ -830,7 +804,7 @@ void Game::goalAnimation(Config &c, Interface& interface) {
 }
 
 
-void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& action, Vehicle::Direction &direction) {
+void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -850,11 +824,6 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     mapId.second++;
                 mapId.first++;
 
-                const Vector2f position = interface.sprites[7].getPosition();
-                interface.sprites[7] = interface.spriteMap[mapId.first][mapId.second];
-                interface.sprites[7].setPosition(position);
-                interface.sprites[7].scale(2.f * c.screenScale, 2.f * c.screenScale);
-
                 if (mapId.first < 4)
                     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
                 else {
@@ -866,11 +835,9 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
 
                 // Update the indicators
                 if (!checkPoint){
-                    string lap;
-                    lap += (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
+                    lap = (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
                     lap += (secs < 10) ? "0" + to_string(secs) + " ''" : to_string(secs) + " ''";
                     lap += (cents_second < 10) ? "0" + to_string(cents_second) : to_string(cents_second);
-                    interface.textForLap.setString(lap);
 
                     // Initialize to zero the time
                     cents_second = 0;
@@ -893,7 +860,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
     }
 
     if (currentMap->isGoalMap()) {
-        goalAnimation(c, interface);
+        goalAnimation(c);
         arrival = true;
     }
 
@@ -993,24 +960,14 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                 blinkTime.restart();
              }
              if (blink){
-                interface.checkPoint.setFillColor(Color::Yellow);
-                interface.checkPoint.setOutlineColor(Color(14, 29, 184));
-                interface.textForLap.setFillColor(Color(146, 194, 186));
-                interface.textForLap.setOutlineColor(Color::Black);
-                c.w.draw(interface.sprites[6]);
-                c.w.draw(interface.recordLap);
+                 drawCheckpoint(c, true);
                 // BeepSound
                 c.effects[22]->stop();
                 c.effects[22]->play();
              }
              else {
-                interface.checkPoint.setFillColor(Color::Transparent);
-                interface.checkPoint.setOutlineColor(Color::Transparent);
-                interface.textForLap.setFillColor(Color::Transparent);
-                interface.textForLap.setOutlineColor(Color::Transparent);
+                 drawCheckpoint(c, false);
              }
-             c.w.draw(interface.textForLap);
-             c.w.draw(interface.checkPoint);
 
              if (timeCheck - time > 5){
                 checkPoint = false;
@@ -1019,7 +976,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
     }
 }
 
-State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehicle::Direction &d) {
+State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction &d) {
     // Start the pause menu of the game
     vector<Button> menuButtons;
 
@@ -1073,15 +1030,7 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
     // Draw the vehicle of the player
     player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
 
-    c.w.draw(i.sText);
-    c.w.draw(i.textLap);
-    c.w.draw(i.textLevel);
-    c.w.draw(i.textScore);
-    c.w.draw(i.timeToPlay);
-
-    for (const Sprite& s : i.sprites){
-        c.w.draw(s);
-    }
+    drawHUD(c);
 
     c.w.draw(shape);
 

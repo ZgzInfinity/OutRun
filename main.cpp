@@ -18,8 +18,7 @@ int main() {
     State state = ANIMATION;
 
     while (c.w.isOpen() && state != EXIT) {
-        Interface i;
-        Game engine(c, i);
+        Game engine(c);
 
         if (state == START)
             state = startMenu(c);
@@ -38,11 +37,10 @@ int main() {
                     bool inGame = engine.isInGame();
                     state = optionsMenu(c, inGame);
                     engine.checkDifficulty(c);
-                    engine.prepareScreen(c, i);
                     break;
                 }
                 case GAME: {
-                    state = engine.play(c, i);
+                    state = engine.play(c);
                     break;
                 }
                 case RANKING: {

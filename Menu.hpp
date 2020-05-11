@@ -12,7 +12,6 @@
 #include <vector>
 #include <iostream>
 #include "Button.hpp"
-#include "Interface.hpp"
 #include "KeywordMapper.hpp"
 #include "Score.hpp"
 #include <SFML/Graphics.hpp>

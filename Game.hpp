@@ -17,7 +17,6 @@
 #include "Map.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
-#include "Interface.hpp"
 
 #define SCORE_BONIFICATION 1000000.0f
 
@@ -123,6 +122,22 @@ class Game {
           elapsed5, elapsed6, elapsed7, elapsed8,
           elapsed9, elapsed10, elapsed11, elapsed12;
 
+    // Vector of textures for represent the game panel
+    vector<Texture> textures;
+
+    // Tree map with levels
+    Texture treeMap[5][5];
+
+    string lap;
+
+    void drawHUD(Config &c);
+
+    void drawCheckpoint(Config &c, bool visible);
+
+    void drawGameOver(Config &c);
+
+    void drawBonus(Config &c, int seconds, int decs_second);
+
     /**
      * Muestra la animación inicial del comienzo de la partida.
      * @param c
@@ -133,27 +148,20 @@ class Game {
      * Muestra la animación final de la partida.
      * @param c
      */
-    void goalAnimation(Config &c, Interface& interface);
+    void goalAnimation(Config &c);
 
     /**
      * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
      * @param c
      */
-    void updateAndDraw(Config &c, Interface& interface, Vehicle::Action& action, Vehicle::Direction &direction);
+    void updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction);
 
 public:
     /**
      * Inicializa la lógica del juego y carga los vehículos y los mapas.
      * @param c
      */
-    explicit Game(Config &c, Interface& iface);
-
-    /**
-     * Prepara la pantalla. Llamar cada vez que se cambie de resolución.
-     * @param c
-     * @param interface
-     */
-    void prepareScreen(Config &c, Interface& interface);
+    explicit Game(Config &c);
 
     /**
      * Comprueba la dificultad y ajusta los parámetros correspondientes.
@@ -176,9 +184,9 @@ public:
      * @param c
      * @return
      */
-    State play(Config &c, Interface& i);
+    State play(Config &c);
 
-    State pause(Config &c, Interface& i, const Vehicle::Action& a, const Vehicle::Direction &d);
+    State pause(Config &c, const Vehicle::Action& a, const Vehicle::Direction &d);
 };
 
 
