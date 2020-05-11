@@ -83,14 +83,10 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     blink_delay = seconds(0.5f);
     bonus_delay = seconds(0.01f);
 
-    prepareScreen(c, interface);
-}
-
-void Game::prepareScreen(Config &c, Interface& interface) {
     Sprite s;
     for (int i = 0; i < 8; i++){
         s.setTexture(interface.textures[i], true);
-        interface.sprites[i] = s;
+        interface.sprites.push_back(s);
     }
 
     // Fill the matrix with the sprite maps
@@ -100,7 +96,10 @@ void Game::prepareScreen(Config &c, Interface& interface) {
             interface.spriteMap[i][j] = s;
         }
     }
+    prepareScreen(c, interface);
+}
 
+void Game::prepareScreen(Config &c, Interface& interface) {
     // Assign positions in the game console for the game panel indicators
     const float up = float(c.w.getSize().y) / 10.0f;
 
