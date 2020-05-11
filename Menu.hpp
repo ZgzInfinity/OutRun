@@ -14,6 +14,7 @@
 #include "Button.hpp"
 #include "Interface.hpp"
 #include "KeywordMapper.hpp"
+#include "Score.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
@@ -98,6 +99,7 @@ enum State {
     MUSIC,
     GAME,
     END,
+    RANKING,
     EXIT
 };
 
@@ -112,6 +114,8 @@ State selectMusicSoundtrack(Config& c);
 State startMenu(Config &c, bool startPressed = false);
 
 State endMenu(Config &c);
+
+State rankingMenu(Config& c, unsigned long scorePlayerGame, const int minutes, const int decs, const int cents_Second);
 
 
 #endif //OUTRUN_MENU_HPP
