@@ -44,6 +44,14 @@ int main() {
                     state = engine.play(c, i);
                     break;
                 }
+                case RANKING: {
+                    unsigned long scorePlayer = engine.getScore();
+                    int minutes = engine.getMinutesTrip();
+                    int secs = engine.getSecsTrip();
+                    int cents_Second = engine.getCents_SecondTrip();
+;                   state = rankingMenu(c, scorePlayer, minutes, secs, cents_Second);
+                    break;
+                }
                 case END: {
                     state = endMenu(c);
                     break;

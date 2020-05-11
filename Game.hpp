@@ -44,7 +44,7 @@ class Game {
     float timeMul;
 
     // Score of the player
-    unsigned long score;
+    long long int score;
     float scoreMul;
 
     // Minutes of game played
@@ -55,6 +55,15 @@ class Game {
 
     // decs of game played
     int cents_second = 0;
+
+    // Minutes of game played
+    int minutesTrip = 0;
+
+    // Seconds of game played
+    int secsTrip = 0;
+
+    // decs of game played
+    int cents_secondTrip = 0;
 
     // Clock counter of time
     Clock gameClockTime;
@@ -107,6 +116,8 @@ class Game {
 
     bool blink;
 
+    bool arrival;
+
     // Counter time to update the HUD indicators
     float elapsed1, elapsed2, elapsed3, elapsed4,
           elapsed5, elapsed6, elapsed7, elapsed8,
@@ -144,6 +155,14 @@ public:
     void checkDifficulty(Config &c);
 
     bool isInGame() const;
+
+    unsigned long getScore() const;
+
+    int getMinutesTrip() const;
+
+    int getSecsTrip() const;
+
+    int getCents_SecondTrip() const;
 
     /**
      * Actualiza la lógica del juego y lo actualiza la pantalla hasta que se sale del juego.

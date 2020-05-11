@@ -251,6 +251,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     onPause = false;
     comeFromOptions = false;
     blink = false;
+    arrival = false;
     woman_delay = seconds(5.0f);
     traffic_delay = seconds(2.f);
     blink_delay = seconds(0.5f);
@@ -312,6 +313,22 @@ bool Game::isInGame() const {
     return inGame;
 }
 
+unsigned long Game::getScore() const {
+    return score;
+}
+
+int Game::getMinutesTrip() const {
+    return minutesTrip;
+}
+
+int Game::getSecsTrip() const {
+    return secsTrip;
+}
+
+int Game::getCents_SecondTrip() const{
+    return cents_secondTrip;
+}
+
 State Game::play(Config &c, Interface& interface) {
 
     if (!inGame) {
@@ -347,7 +364,7 @@ State Game::play(Config &c, Interface& interface) {
 
     State status;
 
-    while (!finalGame && c.w.isOpen()) {
+    while (!finalGame && !arrival && c.w.isOpen()) {
         updateAndDraw(c, interface, action, direction);
 
         if (!finalGame) {
@@ -412,7 +429,6 @@ State Game::play(Config &c, Interface& interface) {
             // Check if a tenth of second has passed between both timestamps
             if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
                 cents_second++;
-                gameClockLap.restart();
                 if (cents_second == 100) {
                     cents_second = 0;
                     secs++;
@@ -421,6 +437,16 @@ State Game::play(Config &c, Interface& interface) {
                         minutes++;
                     }
                 }
+                cents_secondTrip++;
+                if (cents_secondTrip == 100) {
+                    cents_secondTrip = 0;
+                    secsTrip++;
+                    if (secsTrip == 60) {
+                        secsTrip = 0;
+                        minutesTrip++;
+                    }
+                }
+                gameClockLap.restart();
             }
 
             // Update the indicators
@@ -465,6 +491,11 @@ State Game::play(Config &c, Interface& interface) {
 
     finalGame = false;
 
+    if (arrival){
+        arrival = false;
+        return RANKING;
+    }
+
     if (status != OPTIONS && status != START) {
         // Draw the game over text in the console window
         c.w.draw(interface.gameOver);
@@ -477,7 +508,7 @@ State Game::play(Config &c, Interface& interface) {
         while (!startPressed)
             startPressed = Keyboard::isKeyPressed(c.menuEnterKey);
 
-        return EXIT;
+        return START;
     }
     return status;
 }
@@ -678,6 +709,7 @@ void Game::goalAnimation(Config &c, Interface& interface) {
     c.effects[28]->play();
 
     bonus.restart();
+    sleep(milliseconds(20));
 
     while (!end) {
         // Draw map
@@ -822,7 +854,7 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
 
     if (currentMap->isGoalMap()) {
         goalAnimation(c, interface);
-        finalGame = true;
+        arrival = true;
     }
 
     if (!finalGame) {
