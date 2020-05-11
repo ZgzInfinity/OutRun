@@ -150,9 +150,9 @@ void Game::prepareScreen(Config &c, Interface& interface) {
 
     // DOWN
     interface.sprites[6].scale(2.f * c.screenScale, 1.5f * c.screenScale);
-    const float down = float(c.w.getSize().y) - interface.sprites[7].getGlobalBounds().height * 1.5f;
-    interface.sprites[6].setPosition(separation, float(c.w.getSize().y) - interface.sprites[7].getGlobalBounds().height * 1.25f);
-    initial = separation + interface.sprites[7].getGlobalBounds().width / 2.0f;
+    const float down = float(c.w.getSize().y) - interface.sprites[6].getGlobalBounds().height * 1.5f;
+    interface.sprites[6].setPosition(separation, float(c.w.getSize().y) - interface.sprites[6].getGlobalBounds().height * 1.25f);
+    initial = separation + interface.sprites[6].getGlobalBounds().width / 2.0f;
 
     // Text
     interface.sText.setFont(c.speedVehicle);
