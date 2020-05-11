@@ -149,6 +149,13 @@ public:
     explicit Game(Config &c, Interface& iface);
 
     /**
+     * Prepara la pantalla. Llamar cada vez que se cambie de resolución.
+     * @param c
+     * @param interface
+     */
+    void prepareScreen(Config &c, Interface& interface);
+
+    /**
      * Comprueba la dificultad y ajusta los parámetros correspondientes.
      * @param c
      */

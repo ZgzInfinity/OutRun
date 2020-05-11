@@ -128,7 +128,7 @@ State startMenu(Config &c, bool startPressed) {
     backgroundMenu.loadFromFile("resources/MainMenu/LogoMain1.png");
     mainMenu.setTexture(backgroundMenu);
     mainMenu.setPosition(0 , 0);
-    mainMenu.setScale(2.9, 3.1);
+    mainMenu.setScale((float)c.w.getSize().x / backgroundMenu.getSize().x, (float)c.w.getSize().y / backgroundMenu.getSize().y);
 
     for (int i = 2; i <= 7; i++){
         // Loading the texture of the game's name
@@ -139,8 +139,8 @@ State startMenu(Config &c, bool startPressed) {
     for (int i = 0; i < 6; i++){
         // Loading the texture of the game's name
         nameGame.setTexture(gameIcons[i], true);
-        nameGame.setPosition((c.w.getSize().x / 2.f) - 180, c.w.getSize().y / 2.f - 200);
-        nameGame.setScale(2.0, 2.0);
+        nameGame.setPosition((c.w.getSize().x / 2.f) - 180.0f * c.screenScale, c.w.getSize().y / 2.f - 200.0f * c.screenScale);
+        nameGame.setScale(2.0f * c.screenScale, 2.0f * c.screenScale);
         nameGames.push_back(nameGame);
     }
 
@@ -176,21 +176,22 @@ State startMenu(Config &c, bool startPressed) {
     textElements[2].setOutlineColor(Color::Black);
     textElements[2].setOutlineThickness(3.0f * c.screenScale);
 
-    textElements[3].setString("1986");
-    textElements[3].setPosition(c.w.getSize().x / 2.f + 270.0f * c.screenScale, c.w.getSize().y / 2.f + 290.0f * c.screenScale);
-    textElements[3].setCharacterSize(int(30.0f * c.screenScale));
-    textElements[3].setFont(c.timeToPlay);
-    textElements[3].setFillColor(Color::Green);
-    textElements[3].setOutlineColor(Color::Black);
-    textElements[3].setOutlineThickness(3.0f * c.screenScale);
-
     textElements[4].setString("©SEGA");
-    textElements[4].setPosition(c.w.getSize().x / 2.f + 350.0f * c.screenScale, c.w.getSize().y / 2.f + 290.0f * c.screenScale);
     textElements[4].setCharacterSize(int(30.0f * c.screenScale));
     textElements[4].setFont(c.timeToPlay);
     textElements[4].setFillColor(Color::Green);
     textElements[4].setOutlineColor(Color::Black);
     textElements[4].setOutlineThickness(3.0f * c.screenScale);
+    const float initialX = c.w.getSize().x - 2.0f * textElements[4].getGlobalBounds().width, initialY = c.w.getSize().y - 2.0f * float(textElements[4].getCharacterSize());
+    textElements[4].setPosition(initialX, initialY);
+
+    textElements[3].setString("1986");
+    textElements[3].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[3].setFont(c.timeToPlay);
+    textElements[3].setFillColor(Color::Green);
+    textElements[3].setOutlineColor(Color::Black);
+    textElements[3].setOutlineThickness(3.0f * c.screenScale);
+    textElements[3].setPosition(initialX - 1.5f * textElements[3].getGlobalBounds().width, initialY);
 
     // Partial state of the game
     State state = START;
@@ -1173,7 +1174,7 @@ State selectMusicSoundtrack(Config &c){
     backgroundMusic.loadFromFile("resources/MusicMenu/radioBackground.png");
     radioMenu.setTexture(backgroundMusic);
     radioMenu.setPosition(0 , 0);
-    radioMenu.setScale(2.9, 3.1);
+    radioMenu.setScale((float)c.w.getSize().x / backgroundMusic.getSize().x, (float)c.w.getSize().y / backgroundMusic.getSize().y);
 
     // Load the titles of the soundtracks
     for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++){
@@ -1255,21 +1256,21 @@ State selectMusicSoundtrack(Config &c){
         switch(c.currentSoundtrack){
             case 1:
                 // First soundtrack
-                music.setPosition((c.w.getSize().x / 2.f) - 300, c.w.getSize().y / 2.f - 70);
-                radio.setPosition((c.w.getSize().x / 2.f) - 88, c.w.getSize().y / 2.f + 170);
-                hand.setPosition((c.w.getSize().x / 2.f) - 120, c.w.getSize().y / 2.f + 170);
+                music.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale);
+                radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
+                hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
                 break;
             case 2:
                 // Second soundtrack
-                music.setPosition((c.w.getSize().x / 2.f) - 230, c.w.getSize().y / 2.f - 70);
-                radio.setPosition((c.w.getSize().x / 2.f) - 88, c.w.getSize().y / 2.f + 170);
-                hand.setPosition((c.w.getSize().x / 2.f) - 120, c.w.getSize().y / 2.f + 170);
+                music.setPosition((c.w.getSize().x / 2.f) - 230.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale);
+                radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
+                hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
                 break;
             case 3:
                 // Third soundtrack
-                music.setPosition((c.w.getSize().x / 2.f) - 200, c.w.getSize().y / 2.f - 70);
-                radio.setPosition((c.w.getSize().x / 2.f) - 88, c.w.getSize().y / 2.f + 170);
-                hand.setPosition((c.w.getSize().x / 2.f) - 120, c.w.getSize().y / 2.f + 170);
+                music.setPosition((c.w.getSize().x / 2.f) - 200.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale);
+                radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
+                hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
         }
 
         // Show the title of the soundtrack
@@ -1321,103 +1322,101 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     rankingTitle.setFont(c.timeToPlay);
     rankingTitle.setPosition(c.w.getSize().x / 4.f, c.w.getSize().y / 17.f);
     rankingTitle.setString("BEST OUTRUNNERS");
-    rankingTitle.setCharacterSize(65);
+    rankingTitle.setCharacterSize(int(65.0f * c.screenScale));
     rankingTitle.setFillColor(Color::Yellow);
     rankingTitle.setOutlineColor(Color(12, 12, 12));
-    rankingTitle.setOutlineThickness(3);
+    rankingTitle.setOutlineThickness(3.0f * c.screenScale);
 
     Text scoreIndicator;
     scoreIndicator.setFont(c.timeToPlay);
     scoreIndicator.setPosition(c.w.getSize().x / 8.f, c.w.getSize().y / 6.0f);
     scoreIndicator.setString("SCORE");
-    scoreIndicator.setCharacterSize(50);
+    scoreIndicator.setCharacterSize(int(50.0f * c.screenScale));
     scoreIndicator.setFillColor(Color(146, 194, 186));
     scoreIndicator.setOutlineColor(Color(12, 12, 12));
-    scoreIndicator.setOutlineThickness(3);
+    scoreIndicator.setOutlineThickness(3.0f * c.screenScale);
 
     Text playerIndicator;
     playerIndicator.setFont(c.timeToPlay);
     playerIndicator.setPosition(c.w.getSize().x / 2.2f, c.w.getSize().y / 6.0f);
     playerIndicator.setString("NAME");
-    playerIndicator.setCharacterSize(50);
+    playerIndicator.setCharacterSize(int(50.0f * c.screenScale));
     playerIndicator.setFillColor(Color(146, 194, 186));
     playerIndicator.setOutlineColor(Color(12, 12, 12));
-    playerIndicator.setOutlineThickness(3);
+    playerIndicator.setOutlineThickness(3.0f * c.screenScale);
 
     Text recordIndicator;
     recordIndicator.setFont(c.timeToPlay);
     recordIndicator.setPosition((c.w.getSize().x / 2.f) * 1.5f, c.w.getSize().y / 6.0f);
     recordIndicator.setString("RECORD");
-    recordIndicator.setCharacterSize(50);
+    recordIndicator.setCharacterSize(int(50.0f * c.screenScale));
     recordIndicator.setFillColor(Color(146, 194, 186));
     recordIndicator.setOutlineColor(Color(12, 12, 12));
-    recordIndicator.setOutlineThickness(3);
+    recordIndicator.setOutlineThickness(3.0f * c.screenScale);
 
     Text timeCounter;
     timeCounter.setFont(c.timeToPlay);
-    timeCounter.setCharacterSize(62);
+    timeCounter.setCharacterSize(int(62.0f * c.screenScale));
     timeCounter.setString(to_string(time));
     timeCounter.setPosition((c.w.getSize().x / 2.f) * 1.7f - timeCounter.getLocalBounds().width, c.w.getSize().y / 15.7f);
     timeCounter.setFillColor(Color::Red);
     timeCounter.setOutlineColor(Color(12, 12, 12));
-    timeCounter.setOutlineThickness(3);
+    timeCounter.setOutlineThickness(3.0f * c.screenScale);
 
     Text scorePlayer;
     scorePlayer.setFont(c.timeToPlay);
-    scorePlayer.setCharacterSize(35);
+    scorePlayer.setCharacterSize(int(35.0f * c.screenScale));
     scorePlayer.setFillColor(Color(146, 194, 186));
     scorePlayer.setOutlineColor(Color::Black);
-    scorePlayer.setOutlineThickness(3);
+    scorePlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text namePlayer;
     namePlayer.setFont(c.timeToPlay);
-    namePlayer.setCharacterSize(35);
+    namePlayer.setCharacterSize(int(35.0f * c.screenScale));
     namePlayer.setFillColor(Color(146, 194, 186));
     namePlayer.setOutlineColor(Color(12, 12, 12));
-    namePlayer.setOutlineThickness(3);
+    namePlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text minutesPlayer;
     minutesPlayer.setFont(c.timeToPlay);
-    minutesPlayer.setCharacterSize(35);
+    minutesPlayer.setCharacterSize(int(35.0f * c.screenScale));
     minutesPlayer.setFillColor(Color(146, 194, 186));
     minutesPlayer.setOutlineColor(Color::Black);
-    minutesPlayer.setOutlineThickness(3);
+    minutesPlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text secondsPlayer;
     secondsPlayer.setFont(c.timeToPlay);
-    secondsPlayer.setCharacterSize(35);
+    secondsPlayer.setCharacterSize(int(35.0f * c.screenScale));
     secondsPlayer.setFillColor(Color(146, 194, 186));
     secondsPlayer.setOutlineColor(Color::Black);
-    secondsPlayer.setOutlineThickness(3);
+    secondsPlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text centsPlayer;
     centsPlayer.setFont(c.timeToPlay);
-    centsPlayer.setCharacterSize(35);
+    centsPlayer.setCharacterSize(int(35.0f * c.screenScale));
     centsPlayer.setFillColor(Color(146, 194, 186));
     centsPlayer.setOutlineColor(Color::Black);
-    centsPlayer.setOutlineThickness(3);
+    centsPlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text index;
     index.setFont(c.timeToPlay);
-    index.setCharacterSize(35);
+    index.setCharacterSize(int(35.0f * c.screenScale));
     index.setFillColor(Color(180, 130, 211));
     index.setOutlineColor(Color::Black);
-    index.setOutlineThickness(3);
+    index.setOutlineThickness(3.0f * c.screenScale);
 
     Text start;
-    start.setCharacterSize(45);
+    start.setCharacterSize(int(45.0f * c.screenScale));
     start.setFont(c.timeToPlay);
     start.setFillColor(Color::Green);
     start.setOutlineColor(Color::Black);
-    start.setOutlineThickness(3);
+    start.setOutlineThickness(3.0f * c.screenScale);
 
     // Loading the background texture
     Texture rankingBackground;
     rankingBackground.loadFromFile("resources/RankingMenu/bg.png");
-    rankingBackground.setRepeated(true);
-
-    IntRect background(0, 0, c.w.getSize().x,  c.w.getSize().y);
-    Sprite palm_trees(rankingBackground, background);
+    Sprite palm_trees(rankingBackground);
+    palm_trees.setScale((float)c.w.getSize().x / rankingBackground.getSize().x, (float)c.w.getSize().y / rankingBackground.getSize().y);
 
     // Get the best seventh out runners
     vector<Score> scoreRankingPlayer = getGlobalScores();
@@ -1432,6 +1431,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
     rankingTime.restart();
     elapsed1 = rankingTime.getElapsedTime().asSeconds();
+    elapsed3 = blinkStart.getElapsedTime().asSeconds();
 
     c.effects[29]->play();
 
@@ -1460,22 +1460,22 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
         if (record == -1){
 
             start.setString("PRESS START!");
-            start.setPosition(c.w.getSize().x / 2.5f, (c.w.getSize().y / 4.5f) + 400);
+            start.setPosition(c.w.getSize().x / 2.5f, (c.w.getSize().y / 4.5f) + 400.0f);
 
             // There is not a new record
             for (int i = 1; i <= 7; i++){
 
                 index.setString(to_string(i) + ".");
-                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * i);
+                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
                 scorePlayer.setString(to_string(scoreRankingPlayer[i -1].score));
-                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * i);
+                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
                 namePlayer.setString(scoreRankingPlayer[i -1].name);
-                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * i);
+                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i -1].minutes) + "'");
-                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * i);
+                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
                 if (scoreRankingPlayer[i -1].secs >= 10){
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i -1].secs) + "''");
@@ -1483,7 +1483,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 else {
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i -1].secs) + "''");
                 }
-                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * i);
+                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
 
                 if (scoreRankingPlayer[i -1].cents_second >= 10){
@@ -1492,7 +1492,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 else {
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i -1].cents_second));
                 }
-                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * i);
+                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
                 c.w.draw(index);
                 c.w.draw(scorePlayer);
@@ -1506,11 +1506,11 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
             if (lettersIntroduced != 3){
                 start.setString("ENTER YOUR NAME!");
-                start.setPosition(c.w.getSize().x / 3.5f, (c.w.getSize().y / 4.5f) + 400);
+                start.setPosition(c.w.getSize().x / 3.5f, (c.w.getSize().y / 4.5f) + 400.0f);
             }
             else {
                 start.setString("PRESS START!");
-                start.setPosition(c.w.getSize().x / 2.5f, (c.w.getSize().y / 4.5f) + 400);
+                start.setPosition(c.w.getSize().x / 2.5f, (c.w.getSize().y / 4.5f) + 400.0f);
             }
 
             // There is a new record
@@ -1519,16 +1519,16 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
             for (int i = 0; i <= record - 1; i++ && record != 0){
 
                 index.setString(to_string(i) + ".");
-                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * i);
+                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) i);
 
                 scorePlayer.setString(to_string(scoreRankingPlayer[i].score));
-                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 1));
+                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
                 namePlayer.setString(scoreRankingPlayer[i].name);
-                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 1));
+                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i].minutes) + "'");
-                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 1));
+                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
                 if (scoreRankingPlayer[i].secs >= 10){
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i].secs) + "''");
@@ -1536,7 +1536,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 else {
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i].secs) + "''");
                 }
-                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 1));
+                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
 
                 if (scoreRankingPlayer[i].cents_second >= 10){
@@ -1545,7 +1545,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 else {
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i].cents_second));
                 }
-                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 1));
+                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
                 c.w.draw(scorePlayer);
                 c.w.draw(namePlayer);
@@ -1558,13 +1558,13 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
             // Show the actual player
             scorePlayer.setString(to_string(scorePlayerGame));
-            scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * offset);
+            scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
             namePlayer.setString(name);
-            namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * offset);
+            namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
             minutesPlayer.setString(to_string(minutes) + "'");
-            minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * offset);
+            minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
             if (secs >= 10){
                 secondsPlayer.setString(to_string(secs) + "''");
@@ -1572,7 +1572,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
             else {
                 secondsPlayer.setString("0" + to_string(secs) + "''");
             }
-            secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * offset);
+            secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
 
             if (cents_Second >= 10){
@@ -1581,7 +1581,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
             else {
                 centsPlayer.setString("0" + to_string(cents_Second));
             }
-            centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * offset);
+            centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
             c.w.draw(scorePlayer);
             c.w.draw(namePlayer);
@@ -1591,15 +1591,15 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
             // Show the rest of out runners
 
-            for (int i = record; i < 6; i++){
+            for (int i = record; i < 6 && i < scoreRankingPlayer.size(); i++){
                 scorePlayer.setString(to_string(scoreRankingPlayer[i].score));
-                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 2));
+                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
                 namePlayer.setString(scoreRankingPlayer[i].name);
-                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 2));
+                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i].minutes) + "'");
-                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 2));
+                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
                 if (scoreRankingPlayer[i].secs >= 10){
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i].secs) + "''");
@@ -1607,7 +1607,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 else {
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i].secs) + "''");
                 }
-                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 2));
+                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
 
                 if (scoreRankingPlayer[i].cents_second >= 10){
@@ -1616,7 +1616,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 else {
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i].cents_second));
                 }
-                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50 * (i + 2));
+                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
                 c.w.draw(scorePlayer);
                 c.w.draw(namePlayer);
@@ -1644,7 +1644,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
         if (lettersIntroduced != 3){
             // while there are pending events...
-            Event event;
+            Event event{};
             while (c.w.pollEvent(event)){
                 if (event.type == Event::KeyPressed){
                     // Get code of the key

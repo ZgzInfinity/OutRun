@@ -48,53 +48,11 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     checkDifficulty(c); // Loads enemies and time
 
     Texture t;
-    Sprite s;
     // Load the textures of the panel and assign them to their sprites
     for (int i = 1; i <= 6; i++){
         // Load the texture from the file
         t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
         interface.textures.push_back(t);
-    }
-
-    for (int i = 0; i < 8; i++){
-        s.setTexture(interface.textures[i], true);
-        interface.sprites.push_back(s);
-    }
-
-    // Assign positions in the game console for the game panel indicators
-    for (int i = 0; i < 7; i++){
-        switch(i){
-            case 0: // TODO: Usar porcentajes, no restas y sumas, para así permitir distintas resoluciones de pantalla
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 430, c.w.getSize().y / 2.f - 330);
-                interface.sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 1:
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 200, c.w.getSize().y / 2.f - 330);
-                interface.sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 2:
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f + 150 , c.w.getSize().y / 2.f - 323);
-                interface.sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 3:
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 300 , c.w.getSize().y / 2.f + 260);
-                interface.sprites[i].scale(2.f, 2.f);
-                break;
-            case 4:
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f + 160 , c.w.getSize().y / 2.f + 284);
-                interface.sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 5:
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 170 , c.w.getSize().y / 2.f - 180);
-                interface.sprites[i].scale(1.5f, 1.5f);
-                break;
-            case 6:
-                interface.sprites[i].setPosition(c.w.getSize().x / 2.f - 420 , c.w.getSize().y / 2.f + 320);
-                interface.sprites[i].scale(2.f, 1.5f);
-                break;
-            default:
-                break;
-        }
     }
 
     // Code of first Map
@@ -109,141 +67,9 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
         }
     }
 
-    // Fill the matrix with the sprite maps
-    for (int i = 0; i <= 4; i++){
-        for(int j = 0; j <= i; j++){
-            s.setTexture(interface.treeMap[i][j], true);
-            interface.spriteMap[i][j] = s;
-        }
-    }
-
-    interface.recordLap.setTexture(interface.textures[2], true);
-    interface.recordLap.setPosition(c.w.getSize().x / 2.f - 50 , c.w.getSize().y / 2.f - 180);
-    interface.recordLap.setScale(1.5f, 1.5f);
-
-    interface.sprites[7] = interface.spriteMap[0][0];
-    interface.sprites[7].setPosition(c.w.getSize().x / 2.f + 370 , c.w.getSize().y / 2.f + 270);
-    interface.sprites[7].scale(2.f, 2.f);
-
-    // Text
-    interface.sText.setFillColor(Color(206, 73, 73));
-    interface.sText.setOutlineColor(Color::Black);
-    interface.sText.setOutlineThickness(3);
-    interface.sText.setCharacterSize(70);
-    interface.sText.setFont(c.speedVehicle);
-
-    // Initialize the HUD indicator of time
     time = int(float(currentMap->getTime()) * timeMul);
-    interface.timeToPlay.setString(to_string(time));
-    interface.timeToPlay.setFont(c.timeToPlay);
-    interface.timeToPlay.setPosition(c.w.getSize().x / 2.f - 310, c.w.getSize().y / 2.f - 340);
-    interface.timeToPlay.setCharacterSize(50);
-    interface.timeToPlay.setFillColor(Color::Yellow);
-    interface.timeToPlay.setOutlineColor(Color::Black);
-    interface.timeToPlay.setOutlineThickness(3);
-
-    // Initialize the HUD indicator of score
     score = 0;
-    interface.textScore.setString(to_string(score));
-    interface.textScore.setFont(c.timeToPlay);
-    interface.textScore.setPosition(c.w.getSize().x / 2.f + 40, c.w.getSize().y / 2.f - 325);
-    interface.textScore.setCharacterSize(35);
-    interface.textScore.setFillColor(Color(183, 164, 190));
-    interface.textScore.setOutlineColor(Color::Black);
-    interface.textScore.setOutlineThickness(3);
-
-    // Initialize the HUD indicator of lap time
-    interface.textLap.setFont(c.timeToPlay);
-    interface.textLap.setPosition(c.w.getSize().x / 2.f + 250, c.w.getSize().y / 2.f - 325);
-    interface.textLap.setCharacterSize(35);
-    interface.textLap.setFillColor(Color(146, 194, 186));
-    interface.textLap.setOutlineColor(Color::Black);
-    interface.textLap.setOutlineThickness(3);
-
-    // Initialize the HUD stage indicator
     level = 1;
-    interface.textLevel.setFont(c.timeToPlay);
-    interface.textLevel.setPosition(c.w.getSize().x / 2.f + 305, c.w.getSize().y / 2.f + 268);
-    interface.textLevel.setCharacterSize(40);
-    interface.textLevel.setFillColor(Color(146, 194, 186));
-    interface.textLevel.setOutlineColor(Color::Black);
-    interface.textLevel.setOutlineThickness(3);
-
-    // Game over indicator
-    interface.gameOver.setFont(c.timeToPlay);
-    interface.gameOver.setPosition(c.w.getSize().x / 2.f - 125, c.w.getSize().y / 2.f - 50);
-    interface.gameOver.setString("GAME OVER");
-    interface.gameOver.setCharacterSize(60);
-    interface.gameOver.setFillColor(Color::Yellow);
-    interface.gameOver.setOutlineColor(Color(14, 29, 184));
-    interface.gameOver.setOutlineThickness(3);
-
-    // CheckPoint indicator
-    interface.checkPoint.setFont(c.timeToPlay);
-    interface.checkPoint.setPosition(c.w.getSize().x / 2.f - 120, c.w.getSize().y / 2.f - 235);
-    interface.checkPoint.setString("CHECKPOINT!");
-    interface.checkPoint.setCharacterSize(50);
-    interface.checkPoint.setFillColor(Color::Yellow);
-    interface.checkPoint.setOutlineColor(Color(12, 12, 12));
-    interface.checkPoint.setOutlineThickness(3);
-
-    // Bonification indicator
-    interface.bonification.setFont(c.timeToPlay);
-    interface.bonification.setPosition(c.w.getSize().x / 2.f - 190, c.w.getSize().y / 2.f - 235);
-    interface.bonification.setString("BONUS POINTS!");
-    interface.bonification.setCharacterSize(65);
-    interface.bonification.setFillColor(Color::Yellow);
-    interface.bonification.setOutlineColor(Color(12, 12, 12));
-    interface.bonification.setOutlineThickness(3);
-
-    // Seconds arrival indicator
-    interface.secondsIndicator.setFont(c.timeToPlay);
-    interface.secondsIndicator.setPosition(c.w.getSize().x / 2.f - 160, c.w.getSize().y / 2.f - 130);
-    interface.secondsIndicator.setString("SEC");
-    interface.secondsIndicator.setCharacterSize(50);
-    interface.secondsIndicator.setFillColor(Color(183, 164, 190));
-    interface.secondsIndicator.setOutlineColor(Color::Black);
-    interface.secondsIndicator.setOutlineThickness(3);
-
-    // Cross indicator
-    interface.crossSign.setFont(c.timeToPlay);
-    interface.crossSign.setPosition(c.w.getSize().x / 2.f - 50, c.w.getSize().y / 2.f - 120);
-    interface.crossSign.setString("x");
-    interface.crossSign.setCharacterSize(40);
-    interface.crossSign.setFillColor(Color(232, 191, 157));
-    interface.crossSign.setOutlineColor(Color::Black);
-    interface.crossSign.setOutlineThickness(3);
-
-    // factor score multiplicator
-    interface.scoreMultiply.setFont(c.timeToPlay);
-    interface.scoreMultiply.setPosition(c.w.getSize().x / 2.f - 10, c.w.getSize().y / 2.f - 135);
-    interface.scoreMultiply.setString("1000000");
-    interface.scoreMultiply.setCharacterSize(55);
-    interface.scoreMultiply.setFillColor(Color::Yellow);
-    interface.scoreMultiply.setOutlineColor(Color(12, 12, 12));
-    interface.scoreMultiply.setOutlineThickness(3);
-
-    // Seconds arrival indicator
-    interface.pointsIndicator.setFont(c.timeToPlay);
-    interface.pointsIndicator.setPosition(c.w.getSize().x / 2.f + 200, c.w.getSize().y / 2.f - 130);
-    interface.pointsIndicator.setString("PTS");
-    interface.pointsIndicator.setCharacterSize(50);
-    interface.pointsIndicator.setFillColor(Color(183, 164, 190));
-    interface.pointsIndicator.setOutlineColor(Color::Black);
-    interface.pointsIndicator.setOutlineThickness(3);
-
-    // Seconds arrival indicator
-    interface.timeBonus.setFont(c.timeToPlay);
-    interface.timeBonus.setCharacterSize(55);
-    interface.timeBonus.setFillColor(Color::Yellow);
-    interface.timeBonus.setOutlineColor(Color(12, 12, 12));
-    interface.timeBonus.setOutlineThickness(3);
-
-    interface.textForLap.setFont(c.timeToPlay);
-    interface.textForLap.setPosition(c.w.getSize().x / 2.f - 80, c.w.getSize().y / 2.f - 140);
-    interface.textForLap.setCharacterSize(35);
-    interface.textForLap.setOutlineThickness(3);
-
 
     // Control if the player is still playing
     finalGame = false;
@@ -256,6 +82,204 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
     traffic_delay = seconds(2.f);
     blink_delay = seconds(0.5f);
     bonus_delay = seconds(0.01f);
+
+    prepareScreen(c, interface);
+}
+
+void Game::prepareScreen(Config &c, Interface& interface) {
+    interface.sprites.clear();
+    Sprite s;
+    for (int i = 0; i < 8; i++){
+        s.setTexture(interface.textures[i], true);
+        interface.sprites.push_back(s);
+    }
+
+    // Fill the matrix with the sprite maps
+    for (int i = 0; i <= 4; i++){
+        for(int j = 0; j <= i; j++){
+            s.setTexture(interface.treeMap[i][j], true);
+            interface.spriteMap[i][j] = s;
+        }
+    }
+
+    // Assign positions in the game console for the game panel indicators
+    const float up = float(c.w.getSize().y) / 10.0f;
+
+    // UP
+    interface.sprites[0].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    const float separation = interface.sprites[0].getGlobalBounds().width / 3.0f;
+    interface.sprites[0].setPosition(separation, up - interface.sprites[0].getGlobalBounds().height);
+    float initial = separation + interface.sprites[0].getGlobalBounds().width + separation;
+
+    // Initialize the HUD indicator of time
+    interface.timeToPlay.setString("000");
+    interface.timeToPlay.setFont(c.timeToPlay);
+    interface.timeToPlay.setCharacterSize(int(50.0f * c.screenScale));
+    interface.timeToPlay.setFillColor(Color::Yellow);
+    interface.timeToPlay.setOutlineColor(Color::Black);
+    interface.timeToPlay.setOutlineThickness(3.0f * c.screenScale);
+    interface.timeToPlay.setPosition(initial, up - float(interface.timeToPlay.getCharacterSize()));
+    initial += interface.timeToPlay.getGlobalBounds().width + separation;
+
+    interface.sprites[1].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    interface.sprites[1].setPosition(initial, up - interface.sprites[1].getGlobalBounds().height);
+    initial += interface.sprites[1].getGlobalBounds().width + separation;
+
+    // Initialize the HUD indicator of score
+    interface.textScore.setString(to_string(int(SCORE_BONIFICATION) * 100));
+    interface.textScore.setFont(c.timeToPlay);
+    interface.textScore.setCharacterSize(int(35.0f * c.screenScale));
+    interface.textScore.setFillColor(Color(183, 164, 190));
+    interface.textScore.setOutlineColor(Color::Black);
+    interface.textScore.setOutlineThickness(3.0f * c.screenScale);
+    interface.textScore.setPosition(initial, up - float(interface.textScore.getCharacterSize()));
+
+    // Initialize the HUD indicator of lap time
+    interface.textLap.setFont(c.timeToPlay);
+    interface.textLap.setString("00' 00'' 00");
+    interface.textLap.setCharacterSize(int(35.0f * c.screenScale));
+    interface.textLap.setFillColor(Color(146, 194, 186));
+    interface.textLap.setOutlineColor(Color::Black);
+    interface.textLap.setOutlineThickness(3.0f * c.screenScale);
+    initial = float(c.w.getSize().x) - separation - interface.textLap.getGlobalBounds().width;
+    interface.textLap.setPosition(initial, up - float(interface.textLap.getCharacterSize()));
+
+    interface.sprites[2].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    initial -= separation + interface.sprites[2].getGlobalBounds().width;
+    interface.sprites[2].setPosition(initial, up - interface.sprites[2].getGlobalBounds().height);
+
+    // DOWN
+    interface.sprites[6].scale(2.f * c.screenScale, 1.5f * c.screenScale);
+    const float down = float(c.w.getSize().y) - interface.sprites[7].getGlobalBounds().height * 1.5f;
+    interface.sprites[6].setPosition(separation, float(c.w.getSize().y) - interface.sprites[7].getGlobalBounds().height * 1.25f);
+    initial = separation + interface.sprites[7].getGlobalBounds().width / 2.0f;
+
+    // Text
+    interface.sText.setFont(c.speedVehicle);
+    interface.sText.setString("000");
+    interface.sText.setCharacterSize(int(70.0f * c.screenScale));
+    interface.sText.setFillColor(Color(206, 73, 73));
+    interface.sText.setOutlineColor(Color::Black);
+    interface.sText.setOutlineThickness(3.0f * c.screenScale);
+    interface.sText.setPosition(initial, down - float(interface.sText.getCharacterSize()));
+    initial += interface.sText.getGlobalBounds().width;
+
+    interface.sprites[3].scale(2.f * c.screenScale, 2.f * c.screenScale);
+    interface.sprites[3].setPosition(initial, down - interface.sprites[3].getGlobalBounds().height);
+
+    interface.sprites[7] = interface.spriteMap[0][0];
+    interface.sprites[7].scale(2.f * c.screenScale, 2.f * c.screenScale);
+    initial = float(c.w.getSize().x) - separation - interface.sprites[7].getGlobalBounds().width;
+    interface.sprites[7].setPosition(initial, down - interface.sprites[7].getGlobalBounds().height);
+
+    // Initialize the HUD stage indicator
+    interface.textLevel.setFont(c.timeToPlay);
+    interface.textLevel.setString("0");
+    interface.textLevel.setCharacterSize(int(40.0f * c.screenScale));
+    interface.textLevel.setFillColor(Color(146, 194, 186));
+    interface.textLevel.setOutlineColor(Color::Black);
+    interface.textLevel.setOutlineThickness(3.0f * c.screenScale);
+    initial -= separation + interface.textLevel.getGlobalBounds().width;
+    interface.textLevel.setPosition(initial, down - float(interface.textLevel.getCharacterSize()));
+
+    interface.sprites[4].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    initial -= separation + interface.sprites[4].getGlobalBounds().width;
+    interface.sprites[4].setPosition(initial, down - interface.sprites[4].getGlobalBounds().height);
+
+    // Checkpoint
+    interface.checkPoint.setFont(c.timeToPlay);
+    interface.checkPoint.setString("CHECKPOINT!");
+    interface.checkPoint.setCharacterSize(int(50.0f * c.screenScale));
+    interface.checkPoint.setFillColor(Color::Yellow);
+    interface.checkPoint.setOutlineColor(Color(12, 12, 12));
+    interface.checkPoint.setOutlineThickness(3.0f * c.screenScale);
+    initial = c.w.getSize().y / 3.0f + 0.25f * float(interface.checkPoint.getCharacterSize());
+    interface.checkPoint.setPosition((float(c.w.getSize().x) - interface.checkPoint.getGlobalBounds().width) / 2.0f, c.w.getSize().y / 3.0f - float(interface.checkPoint.getCharacterSize()));
+
+    interface.sprites[5].scale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    interface.sprites[5].setPosition((float(c.w.getSize().x) - interface.sprites[5].getGlobalBounds().width) / 2.0f, initial);
+    initial += interface.sprites[5].getGlobalBounds().height * 1.25f;
+
+    interface.textForLap.setFont(c.timeToPlay);
+    interface.textForLap.setString("00' 00'' 00");
+    interface.textForLap.setCharacterSize(int(35.0f * c.screenScale));
+    interface.textForLap.setOutlineThickness(3.0f * c.screenScale);
+    interface.textForLap.setPosition((float(c.w.getSize().x) - interface.textForLap.getGlobalBounds().width) / 2.0f, initial);
+
+    interface.recordLap.setTexture(interface.textures[2], true);
+    interface.recordLap.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    interface.recordLap.setPosition((float(c.w.getSize().x) + 1.25f * interface.textForLap.getGlobalBounds().width) / 2.0f, initial);
+
+    // Game over indicator
+    interface.gameOver.setFont(c.timeToPlay);
+    interface.gameOver.setString("GAME OVER");
+    interface.gameOver.setCharacterSize(int(60.0f * c.screenScale));
+    interface.gameOver.setFillColor(Color::Yellow);
+    interface.gameOver.setOutlineColor(Color(14, 29, 184));
+    interface.gameOver.setOutlineThickness(3.0f * c.screenScale);
+    interface.gameOver.setPosition((float(c.w.getSize().x) - interface.gameOver.getGlobalBounds().width) / 2.0f, (float(c.w.getSize().y) - float(interface.gameOver.getCharacterSize())) / 2.0f);
+
+    // Bonification indicator
+    interface.bonification.setFont(c.timeToPlay);
+    interface.bonification.setString("BONUS POINTS!");
+    interface.bonification.setCharacterSize(int(65.0f * c.screenScale));
+    interface.bonification.setFillColor(Color::Yellow);
+    interface.bonification.setOutlineColor(Color(12, 12, 12));
+    interface.bonification.setOutlineThickness(3.0f * c.screenScale);
+    float initialY = float(c.w.getSize().y) / 3.0f + float(interface.bonification.getCharacterSize());
+    initial = (float(c.w.getSize().x) - interface.bonification.getGlobalBounds().width) / 2.0f;
+    interface.bonification.setPosition(initial, float(c.w.getSize().y) / 3.0f - float(interface.bonification.getCharacterSize()));
+
+    // Seconds arrival indicator
+    interface.timeBonus.setFont(c.timeToPlay);
+    interface.timeBonus.setString("000.0");
+    interface.timeBonus.setCharacterSize(int(55.0f * c.screenScale));
+    interface.timeBonus.setFillColor(Color::Yellow);
+    interface.timeBonus.setOutlineColor(Color(12, 12, 12));
+    interface.timeBonus.setOutlineThickness(3.0f * c.screenScale);
+    initial -= interface.timeBonus.getLocalBounds().width;
+    interface.timeBonus.setPosition(initial, initialY);
+    initialY += float(interface.timeBonus.getCharacterSize());
+    initial += 1.25f * interface.timeBonus.getLocalBounds().width;
+
+    // Seconds arrival indicator
+    interface.secondsIndicator.setFont(c.timeToPlay);
+    interface.secondsIndicator.setString("SEC");
+    interface.secondsIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    interface.secondsIndicator.setFillColor(Color(183, 164, 190));
+    interface.secondsIndicator.setOutlineColor(Color::Black);
+    interface.secondsIndicator.setOutlineThickness(3.0f * c.screenScale);
+    interface.secondsIndicator.setPosition(initial, initialY - float(interface.secondsIndicator.getCharacterSize()));
+    initial += separation + interface.secondsIndicator.getLocalBounds().width;
+
+    // Cross indicator
+    interface.crossSign.setFont(c.timeToPlay);
+    interface.crossSign.setString("x");
+    interface.crossSign.setCharacterSize(int(40.0f * c.screenScale));
+    interface.crossSign.setFillColor(Color(232, 191, 157));
+    interface.crossSign.setOutlineColor(Color::Black);
+    interface.crossSign.setOutlineThickness(3.0f * c.screenScale);
+    interface.crossSign.setPosition(initial, initialY - float(interface.crossSign.getCharacterSize()));
+    initial += separation + interface.crossSign.getLocalBounds().width;
+
+    // factor score multiplicator
+    interface.scoreMultiply.setFont(c.timeToPlay);
+    interface.scoreMultiply.setString(to_string((long long) SCORE_BONIFICATION));
+    interface.scoreMultiply.setCharacterSize(int(55.0f * c.screenScale));
+    interface.scoreMultiply.setFillColor(Color::Yellow);
+    interface.scoreMultiply.setOutlineColor(Color(12, 12, 12));
+    interface.scoreMultiply.setOutlineThickness(3.0f * c.screenScale);
+    interface.scoreMultiply.setPosition(initial, initialY - float(interface.scoreMultiply.getCharacterSize()));
+    initial += separation + interface.scoreMultiply.getLocalBounds().width;
+
+    // Seconds arrival indicator
+    interface.pointsIndicator.setFont(c.timeToPlay);
+    interface.pointsIndicator.setString("PTS");
+    interface.pointsIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    interface.pointsIndicator.setFillColor(Color(183, 164, 190));
+    interface.pointsIndicator.setOutlineColor(Color::Black);
+    interface.pointsIndicator.setOutlineThickness(3.0f * c.screenScale);
+    interface.pointsIndicator.setPosition(initial, initialY - float(interface.pointsIndicator.getCharacterSize()));
 }
 
 void Game::checkDifficulty(Config &c) {
@@ -398,8 +422,6 @@ State Game::play(Config &c, Interface& interface) {
             // Draw speed
             string strSpeed = to_string(player.getRealSpeed());
             interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-            interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
-                              (float) c.w.getSize().y / 2.f + 240);
 
             interface.textures[6].loadFromFile("resources/GamePanel/7.png",
                                      IntRect(0, 0, (int(player.getRealSpeed() * 117.0f / MAX_SPEED)), 20));
@@ -613,8 +635,6 @@ void Game::goalAnimation(Config &c, Interface& interface) {
 
     // Draw the time bonus
     interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
-    interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
-                                    (float) c.w.getSize().y / 2.f - 135);
 
     while (int(player.getPosY()) < goalEnd) {
         // Update camera
@@ -656,8 +676,6 @@ void Game::goalAnimation(Config &c, Interface& interface) {
 
             // Draw the time bonus
             interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
-            interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
-                                            (float) c.w.getSize().y / 2.f - 135);
 
             bonus.restart();
         }
@@ -674,8 +692,6 @@ void Game::goalAnimation(Config &c, Interface& interface) {
         // Draw speed
         string strSpeed = to_string(player.getRealSpeed());
         interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-        interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
-                          (float) c.w.getSize().y / 2.f + 240);
 
         // Draw the panel indicators
         for (int i = 0; i < 5; i++) {
@@ -747,8 +763,6 @@ void Game::goalAnimation(Config &c, Interface& interface) {
 
                 // Draw the time bonus
                 interface.timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
-                interface.timeBonus.setPosition((float) (c.w.getSize().x / 2.f) - 170 - interface.timeBonus.getLocalBounds().width,
-                                                (float) c.w.getSize().y / 2.f - 135);
 
                 bonus.restart();
             }
@@ -765,8 +779,6 @@ void Game::goalAnimation(Config &c, Interface& interface) {
             // Draw speed
             string strSpeed = to_string(player.getRealSpeed());
             interface.sText.setString(strSpeed.substr(0, strSpeed.find('.')));
-            interface.sText.setPosition((float) (c.w.getSize().x / 2.f) - 310 - interface.sText.getLocalBounds().width,
-                              (float) c.w.getSize().y / 2.f + 240);
 
             // Draw the panel indicators
             for (int i = 0; i < 5; i++) {
@@ -811,9 +823,10 @@ void Game::updateAndDraw(Config &c, Interface& interface, Vehicle::Action& actio
                     mapId.second++;
                 mapId.first++;
 
+                const Vector2f position = interface.sprites[7].getPosition();
                 interface.sprites[7] = interface.spriteMap[mapId.first][mapId.second];
-                interface.sprites[7].setPosition(c.w.getSize().x / 2.f + 370 , c.w.getSize().y / 2.f + 270);
-                interface.sprites[7].scale(2.f, 2.f);
+                interface.sprites[7].setPosition(position);
+                interface.sprites[7].scale(2.f * c.screenScale, 2.f * c.screenScale);
 
                 if (mapId.first < 4)
                     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
@@ -995,19 +1008,19 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
     shape.setFillColor(Color(0, 0, 0, 200));
 
     RectangleShape pauseShape;
-    pauseShape.setPosition(c.w.getSize().x / 2.f - 120 , c.w.getSize().y / 2.f - 180);
-    pauseShape.setSize(sf::Vector2f(250 , 350));
+    pauseShape.setPosition(c.w.getSize().x / 2.f - 120.0f * c.screenScale, c.w.getSize().y / 2.f - 180.0f * c.screenScale);
+    pauseShape.setSize(sf::Vector2f(250.0f * c.screenScale, 350.0f * c.screenScale));
     pauseShape.setFillColor(Color(0, 0, 0));
     pauseShape.setOutlineColor(Color::Green);
-    pauseShape.setOutlineThickness(5);
+    pauseShape.setOutlineThickness(5.0f * c.screenScale);
 
     Text textMenu;
-    textMenu.setPosition(c.w.getSize().x / 2.f - 75 , c.w.getSize().y / 2.f - 150);
+    textMenu.setPosition(c.w.getSize().x / 2.f - 75.0f * c.screenScale, c.w.getSize().y / 2.f - 150.0f * c.screenScale);
     textMenu.setFont(c.options);
     textMenu.setFillColor(Color(214, 234, 12));
     textMenu.setOutlineColor(Color(12, 72, 234));
-    textMenu.setOutlineThickness(2);
-    textMenu.setCharacterSize(35);
+    textMenu.setOutlineThickness(2.0f * c.screenScale);
+    textMenu.setCharacterSize(int(35.0f * c.screenScale));
     textMenu.setString("PAUSE");
 
     // Control if the start key is pressed or not
@@ -1017,13 +1030,13 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
     int optionSelected = 0;
 
     // Buttons of the menu
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                                  "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                                  "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                                  "Quit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
 

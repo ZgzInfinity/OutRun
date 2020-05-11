@@ -38,6 +38,7 @@ int main() {
                     bool inGame = engine.isInGame();
                     state = optionsMenu(c, inGame);
                     engine.checkDifficulty(c);
+                    engine.prepareScreen(c, i);
                     break;
                 }
                 case GAME: {
