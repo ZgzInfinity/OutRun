@@ -24,7 +24,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f),
         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90};
+    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 42, 42, 41, 42};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
