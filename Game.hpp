@@ -48,22 +48,22 @@ class Game {
     float scoreMul;
 
     // Minutes of game played
-    int minutes = 0;
+    float minutes = 0;
 
     // Seconds of game played
-    int secs = 0;
+    float secs = 0;
 
     // decs of game played
-    int cents_second = 0;
+    float cents_second = 0;
 
     // Minutes of game played
-    int minutesTrip = 0;
+    float minutesTrip = 0;
 
     // Seconds of game played
-    int secsTrip = 0;
+    float secsTrip = 0;
 
     // decs of game played
-    int cents_secondTrip = 0;
+    float cents_secondTrip = 0;
 
     // Clock counter of time
     Clock gameClockTime;

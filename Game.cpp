@@ -24,7 +24,7 @@ Game::Game(Config &c, Interface& interface) : player(MAX_SPEED, SPEED_MUL, ACC_I
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f),
         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 45, 45, 44, 45};
+    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 42, 42, 41, 42};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
@@ -448,20 +448,20 @@ State Game::play(Config &c, Interface& interface) {
 
             // Check if a tenth of second has passed between both timestamps
             if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
-                cents_second++;
-                if (cents_second == 100) {
-                    cents_second = 0;
+                cents_second += elapsed4;
+                if (cents_second >= 1.f){
+                    cents_second -= 1.f;
                     secs++;
-                    if (secs == 60) {
+                    if (secs == 60.f){
                         secs = 0;
                         minutes++;
                     }
                 }
-                cents_secondTrip++;
-                if (cents_secondTrip == 100) {
-                    cents_secondTrip = 0;
+                cents_secondTrip += elapsed4;
+                if (cents_secondTrip >= 1.f){
+                    cents_secondTrip -= 1.f;
                     secsTrip++;
-                    if (secsTrip == 60) {
+                    if (secsTrip == 60.f){
                         secsTrip = 0;
                         minutesTrip++;
                     }
@@ -471,9 +471,9 @@ State Game::play(Config &c, Interface& interface) {
 
             // Update the indicators
             string lap;
-            lap += (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
-            lap += (secs < 10) ? "0" + to_string(secs) + " ''" : to_string(secs) + " ''";
-            lap += (cents_second < 10) ? "0" + to_string(cents_second) : to_string(cents_second);
+            lap += (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
+            lap += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
+            lap += to_string(int(cents_second * 100.f));
 
             interface.timeToPlay.setString(to_string(time));
             interface.textScore.setString(to_string(score));
@@ -1126,8 +1126,8 @@ State Game::pause(Config& c, Interface& i, const Vehicle::Action& a, const Vehic
             }
         }
 
-        c.w.draw(pauseShape);
-        c.w.draw(textMenu);
+        // c.w.draw(pauseShape);
+        // c.w.draw(textMenu);
 
         for (Button b : menuButtons){
             b.render(&c.w);
