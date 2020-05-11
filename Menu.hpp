@@ -35,9 +35,21 @@ enum Difficult {
 
 
 struct Config {
+private:
+    const std::vector<std::pair<int, int>> resolutions;
+    int resIndex;
+
+public:
     Config();
 
+    /**
+     * Devuelve true si se ha cambiado la resolución de pantalla.
+     * @return
+     */
+    bool graphicsMenu();
+
     sf::RenderWindow w;
+    float screenScale;
 
     sf::Keyboard::Key menuKey;
     sf::Keyboard::Key menuUpKey;

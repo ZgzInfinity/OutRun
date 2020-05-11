@@ -11,13 +11,28 @@
 #include <memory>
 
 #define FPS 60
+// Screen
+#define SCREEN_DEFAULT_X 921
+#define SCREEN_DEFAULT_Y 691
+#define SCREEN_DEFAULT make_pair(SCREEN_DEFAULT_X, SCREEN_DEFAULT_Y)
+// HD
+#define SCREEN_1 make_pair(1280, 720)
+// HD+
+#define SCREEN_2 make_pair(1366, 768)
+// FULL HD
+#define SCREEN_3 make_pair(1920, 1080)
+// QHD
+#define SCREEN_4 make_pair(2560, 1440)
+// UHD
+#define SCREEN_5 make_pair(3840, 2160)
 
 using namespace std;
 using namespace sf;
 
-Config::Config() {
-    w.create(VideoMode(921, 691), "Outrun Racing!", Style::Titlebar | Style::Close);
+Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0) {
+    w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
     w.setFramerateLimit(FPS);
+    screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     menuKey = Keyboard::Escape;
     menuUpKey = Keyboard::Up;
@@ -63,9 +78,6 @@ State introAnimation(Config& c){
     vector<Texture> segaIcons;
     Sprite segaIcon;
 
-    // Initialize the position of the sega sprite
-    segaIcon.setPosition(340, 300);
-
     // Iterate throughout all the icons of sega
     for (int i = 1; i < NUM_SEGA_ICONS; i++){
         // Loading the icon texture
@@ -73,6 +85,11 @@ State introAnimation(Config& c){
         segaIcons.push_back(t);
         // Load the texture in the sprite reseting the last texture
         segaIcon.setTexture(segaIcons.at(i - 1), true);
+        segaIcon.setScale(c.screenScale, c.screenScale);
+        if (i == 1) {
+            segaIcon.setPosition((c.w.getSize().x - segaIcon.getGlobalBounds().width) / 2.0f,
+                                 (c.w.getSize().y - segaIcon.getGlobalBounds().height) / 2.0f);
+        }
         c.w.draw(segaIcon);
         // Show the logos in the console
         c.w.display();
@@ -129,50 +146,50 @@ State startMenu(Config &c, bool startPressed) {
     // Loading the texture of the game's name
     rowSelector.loadFromFile("resources/MainMenu/row.png");
     row.setTexture(rowSelector);
-    row.setScale(0.06, 0.06);
-    row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 75);
+    row.setScale(0.06f * c.screenScale, 0.06f * c.screenScale);
+    row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale, c.w.getSize().y / 2.f + 75.0f * c.screenScale);
 
     // Options of the main menu
     Text textElements[ELEMENTS];
     textElements[0].setString("PRESS START BUTTON");
-    textElements[0].setPosition((c.w.getSize().x / 2.f) - 120, c.w.getSize().y / 2.f + 100);
-    textElements[0].setCharacterSize(30);
+    textElements[0].setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 100.0f * c.screenScale);
+    textElements[0].setCharacterSize(int(30.0f * c.screenScale));
     textElements[0].setFont(c.timeToPlay);
     textElements[0].setFillColor(Color::Green);
     textElements[0].setOutlineColor(Color::Black);
-    textElements[0].setOutlineThickness(3);
+    textElements[0].setOutlineThickness(3.0f * c.screenScale);
 
     textElements[1].setString("START");
-    textElements[1].setPosition((c.w.getSize().x / 2.f) - 50, c.w.getSize().y / 2.f + 70);
-    textElements[1].setCharacterSize(30);
+    textElements[1].setPosition((c.w.getSize().x / 2.f) - 50.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale);
+    textElements[1].setCharacterSize(int(30.0f * c.screenScale));
     textElements[1].setFont(c.timeToPlay);
     textElements[1].setFillColor(Color::Green);
     textElements[1].setOutlineColor(Color::Black);
-    textElements[1].setOutlineThickness(3);
+    textElements[1].setOutlineThickness(3.0f * c.screenScale);
 
     textElements[2].setString("OPTIONS");
-    textElements[2].setPosition(c.w.getSize().x / 2.f - 50, c.w.getSize().y / 2.f + 120);
-    textElements[2].setCharacterSize(30);
+    textElements[2].setPosition(c.w.getSize().x / 2.f - 50.0f * c.screenScale, c.w.getSize().y / 2.f + 120.0f * c.screenScale);
+    textElements[2].setCharacterSize(int(30.0f * c.screenScale));
     textElements[2].setFont(c.timeToPlay);
     textElements[2].setFillColor(Color::Green);
     textElements[2].setOutlineColor(Color::Black);
-    textElements[2].setOutlineThickness(3);
+    textElements[2].setOutlineThickness(3.0f * c.screenScale);
 
     textElements[3].setString("1986");
-    textElements[3].setPosition(c.w.getSize().x / 2.f + 270, c.w.getSize().y / 2.f + 290);
-    textElements[3].setCharacterSize(30);
+    textElements[3].setPosition(c.w.getSize().x / 2.f + 270.0f * c.screenScale, c.w.getSize().y / 2.f + 290.0f * c.screenScale);
+    textElements[3].setCharacterSize(int(30.0f * c.screenScale));
     textElements[3].setFont(c.timeToPlay);
     textElements[3].setFillColor(Color::Green);
     textElements[3].setOutlineColor(Color::Black);
-    textElements[3].setOutlineThickness(3);
+    textElements[3].setOutlineThickness(3.0f * c.screenScale);
 
     textElements[4].setString("©SEGA");
-    textElements[4].setPosition(c.w.getSize().x / 2.f + 350, c.w.getSize().y / 2.f +290);
-    textElements[4].setCharacterSize(30);
+    textElements[4].setPosition(c.w.getSize().x / 2.f + 350.0f * c.screenScale, c.w.getSize().y / 2.f + 290.0f * c.screenScale);
+    textElements[4].setCharacterSize(int(30.0f * c.screenScale));
     textElements[4].setFont(c.timeToPlay);
     textElements[4].setFillColor(Color::Green);
     textElements[4].setOutlineColor(Color::Black);
-    textElements[4].setOutlineThickness(3);
+    textElements[4].setOutlineThickness(3.0f * c.screenScale);
 
     // Partial state of the game
     State state = START;
@@ -252,7 +269,7 @@ State startMenu(Config &c, bool startPressed) {
                 // Up cursor pressed
                 if (state != MUSIC){
                     c.effects[0]->play();
-                    row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 75);
+                    row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale, c.w.getSize().y / 2.f + 75.0f * c.screenScale);
                     state = MUSIC;
                 }
             }
@@ -260,7 +277,7 @@ State startMenu(Config &c, bool startPressed) {
                 // Down cursor pressed
                 if (state != OPTIONS){
                     c.effects[0]->play();
-                    row.setPosition((c.w.getSize().x / 2.f) - 100, c.w.getSize().y / 2.f + 125);
+                    row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale, c.w.getSize().y / 2.f + 125.0f * c.screenScale);
                     state = OPTIONS;
                 }
             }
@@ -296,7 +313,6 @@ State startMenu(Config &c, bool startPressed) {
 }
 
 void changeCarControllers(Config& c){
-
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     c.w.display();
@@ -318,10 +334,10 @@ void changeCarControllers(Config& c){
     Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
-    shape.setPosition((c.w.getSize().x / 2.f) - 300, c.w.getSize().y / 2.f - 250);
-    shape.setSize(sf::Vector2f(610, 500));
-    shape.setOutlineColor(Color( 19, 186, 251 ));
-    shape.setOutlineThickness(5);
+    shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
+    shape.setSize(sf::Vector2f(610.0f * c.screenScale, 500.0f * c.screenScale));
+    shape.setOutlineColor(Color(19, 186, 251));
+    shape.setOutlineThickness(5.0f * c.screenScale);
     shape.setTexture(&textureShape, true);
 
     vector<Button> menuButtons;
@@ -329,8 +345,8 @@ void changeCarControllers(Config& c){
     // Main Text of the menu
     Text optionsText;
     optionsText.setString("CONTROLLERS");
-    optionsText.setPosition(c.w.getSize().x / 2.f - 160, c.w.getSize().y / 2.f - 220);
-    optionsText.setCharacterSize(35);
+    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale, c.w.getSize().y / 2.f - 220.0f * c.screenScale);
+    optionsText.setCharacterSize(int(35.0f * c.screenScale));
     optionsText.setFont(c.options);
     optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
@@ -339,10 +355,10 @@ void changeCarControllers(Config& c){
     info1.setString("Hold down Space to select a controller");
     info1.setFillColor(Color(10, 201, 235));
     info1.setOutlineColor(Color(3, 39, 8));
-    info1.setOutlineThickness(3);
-    info1.setCharacterSize(15);
+    info1.setOutlineThickness(3.0f * c.screenScale);
+    info1.setCharacterSize(int(15.0f * c.screenScale));
     info1.setStyle(Text::Bold);
-    info1.setPosition(c.w.getSize().x / 2.f - 200, c.w.getSize().y / 2.f - 160);
+    info1.setPosition(c.w.getSize().x / 2.f - 200.0f * c.screenScale, c.w.getSize().y / 2.f - 160.0f * c.screenScale);
     info1.setFont(c.options);
     c.w.draw(info1);
 
@@ -350,45 +366,45 @@ void changeCarControllers(Config& c){
     info2.setString("Then press a key to change its configuration");
     info2.setFillColor(Color(10, 201, 235));
     info2.setOutlineColor(Color(3, 39, 8));
-    info2.setCharacterSize(15);
-    info2.setOutlineThickness(3);
+    info2.setCharacterSize(int(15.0f * c.screenScale));
+    info2.setOutlineThickness(3.0f * c.screenScale);
     info2.setStyle(Text::Bold);
-    info2.setPosition(c.w.getSize().x / 2.f - 265, c.w.getSize().y / 2.f - 120);
+    info2.setPosition(c.w.getSize().x / 2.f - 265.0f * c.screenScale, c.w.getSize().y / 2.f - 120.0f * c.screenScale);
     info2.setFont(c.options);
     c.w.draw(info2);
 
     // Option indicators
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f - 70, 200, 30, c.options,
-                                 "Turning left", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 "Turning left", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f, 200, 30, c.options,
-                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 70, 200, 30, c.options,
-                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 140, 200, 30, c.options,
-                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
     // Option configurations
 
     int code;
     code = kM.mapperCodeKeyWord[c.leftKey];
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 70, 200, 30, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
 
     code = kM.mapperCodeKeyWord[c.rightKey];
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f, 200, 30, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
     code = kM.mapperCodeKeyWord[c.accelerateKey];
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 70, 200, 30, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
     code = kM.mapperCodeKeyWord[c.brakeKey];
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 140, 200, 30, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
 
     // Control if the start key is pressed or not
@@ -506,8 +522,8 @@ void changeCarControllers(Config& c){
         c.w.draw(info2);
 
         // Show the buttons of the menu
-        for (int i = 0; i < (int)menuButtons.size(); i++){
-            menuButtons.at(i).render(&c.w);
+        for (auto & menuButton : menuButtons){
+            menuButton.render(&c.w);
         }
 
         c.w.display();
@@ -525,12 +541,16 @@ void changeCarControllers(Config& c){
     }
 }
 
-State optionsMenu(Config& c, const bool& inGame){
+void soundMenu(Config& c) {
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     c.w.display();
 
-    c.themes[0]->play();
+    KeywordMapper kM = KeywordMapper();
+
+    // Clean the console window
+    c.w.clear(Color(0, 0, 0));
+    c.w.display();
 
     // Loading the background texture
     Texture segaBackground, textureShape;
@@ -543,72 +563,37 @@ State optionsMenu(Config& c, const bool& inGame){
     Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
-    shape.setPosition((c.w.getSize().x / 2.f) - 350, c.w.getSize().y / 2.f - 250);
-    shape.setSize(sf::Vector2f(710, 535));
-    shape.setOutlineColor(Color( 19, 186, 251 ));
-    shape.setOutlineThickness(5);
+    shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
+    shape.setSize(sf::Vector2f(610.0f * c.screenScale, 500.0f * c.screenScale));
+    shape.setOutlineColor(Color(19, 186, 251));
+    shape.setOutlineThickness(5.0f * c.screenScale);
     shape.setTexture(&textureShape, true);
 
     vector<Button> menuButtons;
 
     // Main Text of the menu
     Text optionsText;
-    optionsText.setString("OPTIONS");
-    optionsText.setPosition((c.w.getSize().x / 2.f) - 90, c.w.getSize().y / 2.f - 230);
-    optionsText.setCharacterSize(35);
+    optionsText.setString("SOUND MENU");
+    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale, c.w.getSize().y / 2.f - 220.0f * c.screenScale);
+    optionsText.setCharacterSize(int(35.0f * c.screenScale));
     optionsText.setFont(c.options);
     optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
 
     // Option indicators
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f - 130, 200, 30, c.options,
-                                 "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             "Music volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
 
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
-                                 "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
-                                 "Music volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
-                                 "Volume effect", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f - 270, c.w.getSize().y / 2.f + 150, 200, 30, c.options,
-                                 "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             "Effects volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
     // Option configurations
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
 
-    string difficulty;
-    switch (c.level) {
-        case PEACEFUL:
-            difficulty = "Peaceful";
-            break;
-        case EASY:
-            difficulty = "Easy";
-            break;
-        case HARD:
-            difficulty = "Hard";
-            break;
-        default:
-            difficulty = "Normal";
-            break;
-    }
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 130, 200, 30, c.options,
-                                 difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1));
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f - 60, 200, 30, c.options,
-                                 to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 10, 200, 30, c.options,
-                                 to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 80, 200, 30, c.options,
-                                 to_string(c.volumeEffects), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
-
-    menuButtons.push_back(Button(c.w.getSize().x / 2.f + 80, c.w.getSize().y / 2.f + 150, 200, 30, c.options,
-                                 "Default", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0));
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             to_string(c.volumeEffects), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
 
     // Control if the start key is pressed or not
@@ -619,7 +604,8 @@ State optionsMenu(Config& c, const bool& inGame){
 
     // Until the start keyword is not pressed
     while (!startPressed){
-        // Check if the up or down cursor keys have been pressed or not
+        Event e{};
+        c.w.waitEvent(e);
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1) / 2){
@@ -628,140 +614,62 @@ State optionsMenu(Config& c, const bool& inGame){
                 optionSelected++;
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
-                menuButtons[optionSelected + 5].setButtonState(BUTTON_HOVER);
-                menuButtons[optionSelected + 4].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 2].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
             }
         }
         else if (Keyboard::isKeyPressed(c.menuUpKey)){
             // Down cursor pressed and change the soundtrack selected in the list
             if (optionSelected != 0){
+                // Change the color appearance of both buttons
                 c.effects[0]->play();
                 optionSelected--;
-                // Change the color appearance of both buttons
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
-                menuButtons[optionSelected + 5].setButtonState(BUTTON_HOVER);
-                menuButtons[optionSelected + 6].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 2].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 3].setButtonState(BUTTON_IDLE);
             }
         }
 
-
-        // Modify the option parameter if it's necessary
-        switch (optionSelected){
-            case 0:
-                // Check if left or right cursor keys have been pressed or not
-                if (Keyboard::isKeyPressed(c.leftKey)){
-                    if (c.level != PEACEFUL){
-                        // Change the difficult level
-                        if (c.level == EASY) {
-                            c.level = PEACEFUL;
-                            menuButtons[optionSelected + 5].setTextButton("Peaceful");
-                        }
-                        if (c.level == NORMAL) {
-                            c.level = EASY;
-                             menuButtons[optionSelected + 5].setTextButton("Easy");
-                        }
-                        else if (c.level == HARD) {
-                            c.level = NORMAL;
-                            menuButtons[optionSelected + 5].setTextButton("Normal");
-                        }
-                    }
+        if (optionSelected == 0) {
+            // Volume music
+            // Check if left or right cursor keys have been pressed or not
+            if (Keyboard::isKeyPressed(c.leftKey)) {
+                if (c.volumeMusic != 0) {
+                    c.volumeMusic--;
+                    menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
-                else if (Keyboard::isKeyPressed(c.rightKey)){
-                    if (c.level != HARD){
-                        // Change the difficult level
-                        if (c.level == PEACEFUL) {
-                            c.level = EASY;
-                            menuButtons[optionSelected + 5].setTextButton("Easy");
-                        }
-                        if (c.level == EASY) {
-                            c.level = NORMAL;
-                            menuButtons[optionSelected + 5].setTextButton("Normal");
-                        }
-                        else if (c.level == NORMAL){
-                            c.level = HARD;
-                            menuButtons[optionSelected + 5].setTextButton("Hard");
-                        }
-                    }
+            }
+            else if (Keyboard::isKeyPressed(c.rightKey)) {
+                if (c.volumeMusic != 100) {
+                    c.volumeMusic++;
+                    menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
-                break;
-            case 1:
-                // AI aggressiveness level
-                // Check if left or right cursor keys have been pressed or not
-                if (Keyboard::isKeyPressed(c.leftKey)){
-                    if (c.aggressiveness >= 5){
-                        c.aggressiveness -= 5;
-                        menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
-                    }
-                }
-                else if (Keyboard::isKeyPressed(c.rightKey)){
-                    if (c.aggressiveness <= 95){
-                        c.aggressiveness += 5;
-                        menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
-                    }
-                }
-                break;
-            case 2:
-                // Volume music
-                // Check if left or right cursor keys have been pressed or not
-                if (Keyboard::isKeyPressed(c.leftKey)){
-                    if (c.volumeMusic != 0){
-                       c.volumeMusic--;
-                       menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeMusic)));
-                    }
-                }
-                else if (Keyboard::isKeyPressed(c.rightKey)){
-                    if (c.volumeMusic != 100){
-                        c.volumeMusic++;
-                        menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeMusic)));
-                    }
-                }
-                break;
-            case 3:
-                // Volume effects
-                // Check if left or right cursor keys have been pressed or not
-                if (Keyboard::isKeyPressed(c.leftKey)){
-                    if (c.volumeEffects != 0){
-                       c.volumeEffects--;
-                       menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeEffects)));
-                    }
-                }
-                else if (Keyboard::isKeyPressed(c.rightKey)){
-                    if (c.volumeEffects != 100){
-                        c.volumeEffects++;
-                        menuButtons[optionSelected + 5].setTextButton((to_string(c.volumeEffects)));
-                    }
-                }
-                if (c.modifiedConfig){
-                    menuButtons[optionSelected + 6].setTextButton("Saved!");
-                }
-                else {
-                    menuButtons[optionSelected + 6].setTextButton("Default");
-                }
-                break;
-            case 4:
-                // Change the controllers of the game
-                menuButtons[optionSelected + 5].setTextButton("Press C!");
-
-                // Check if left or right cursor keys have been pressed or not
-                if (Keyboard::isKeyPressed(Keyboard::C)){
-                    // Change the controllers of the car
-                    c.effects[1]->stop();
-                    c.effects[1]->play();
-                    changeCarControllers(c);
-                    if (c.modifiedConfig){
-                         menuButtons[optionSelected + 5].setTextButton("Saved!");
-                    }
-                }
+            }
         }
-
+        else {
+            // Volume effects
+            // Check if left or right cursor keys have been pressed or not
+            if (Keyboard::isKeyPressed(c.leftKey)) {
+                if (c.volumeEffects != 0) {
+                    c.volumeEffects--;
+                    menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
+                }
+            }
+            else if (Keyboard::isKeyPressed(c.rightKey)) {
+                if (c.volumeEffects != 100) {
+                    c.volumeEffects++;
+                    menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
+                }
+            }
+        }
         c.w.draw(sprite);
         c.w.draw(shape);
         c.w.draw(optionsText);
 
         // Show the buttons of the menu
-        for (int i = 0; i < (int)menuButtons.size(); i++){
-            menuButtons.at(i).render(&c.w);
+        for (auto & menuButton : menuButtons){
+            menuButton.render(&c.w);
         }
 
         c.w.display();
@@ -772,16 +680,468 @@ State optionsMenu(Config& c, const bool& inGame){
         if (Keyboard::isKeyPressed(c.menuEnterKey)){
             // Change the controllers of the car
             startPressed = true;
-            c.effects[1]->stop();
-            c.effects[1]->play();
+            c.modifiedConfig = true;
+            c.effects[2]->stop();
+            c.effects[2]->play();
         }
     }
-    c.themes[0]->stop();
-    if (inGame){
-        return GAME;
+}
+
+bool Config::graphicsMenu() {
+    // Control if the start key is pressed or not
+    bool startPressed = false;
+    bool resized = false;
+
+    while (!startPressed) {
+        bool currentResized = false;
+
+        // Clean the console window
+        w.clear(Color(0, 0, 0));
+        w.display();
+
+        KeywordMapper kM = KeywordMapper();
+
+        // Clean the console window
+        w.clear(Color(0, 0, 0));
+        w.display();
+
+        // Loading the background texture
+        Texture segaBackground, textureShape;
+        segaBackground.loadFromFile("resources/MenuOptions/segaIcon.png");
+        segaBackground.setRepeated(true);
+        textureShape.loadFromFile("resources/MenuOptions/outrun.png");
+        textureShape.setRepeated(true);
+
+        IntRect background(0, 0, w.getSize().x, w.getSize().y);
+        Sprite sprite(segaBackground, background);
+
+        RectangleShape shape;
+        shape.setPosition((w.getSize().x / 2.f) - 300.0f * screenScale, w.getSize().y / 2.f - 250.0f * screenScale);
+        shape.setSize(sf::Vector2f(610.0f * screenScale, 500.0f * screenScale));
+        shape.setOutlineColor(Color(19, 186, 251));
+        shape.setOutlineThickness(5.0f * screenScale);
+        shape.setTexture(&textureShape, true);
+
+        vector<Button> menuButtons;
+
+        // Main Text of the menu
+        Text optionsText;
+        optionsText.setString("GRAPHICS MENU");
+        optionsText.setPosition(w.getSize().x / 2.f - 160.0f * screenScale, w.getSize().y / 2.f - 220.0f * screenScale);
+        optionsText.setCharacterSize(int(35.0f * screenScale));
+        optionsText.setFont(options);
+        optionsText.setStyle(Text::Bold | Text::Underlined);
+        optionsText.setFillColor(Color::Red);
+
+        // Option indicators
+
+        menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
+                                 200.0f * screenScale, 30.0f * screenScale, options,
+                                 "Resolution", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+
+        menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
+                                 30.0f * screenScale, options,
+                                 "Render Length", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        // Option configurations
+        const string res = resIndex < resolutions.size() ? to_string(resolutions[resIndex].first) + "x" +
+                                                           to_string(resolutions[resIndex].second) : "FULLSCREEN";
+        menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
+                                 200.0f * screenScale, 30.0f * screenScale, options,
+                                 res, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+
+        menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
+                                 30.0f * screenScale, options,
+                                 to_string(renderLen), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        // Control the option selected by the user
+        int optionSelected = 0;
+
+        // Until the start keyword is not pressed
+        while (!startPressed && !currentResized) {
+            Event e{};
+            w.waitEvent(e);
+            if (Keyboard::isKeyPressed(menuDownKey)) {
+                // Up cursor pressed and change the soundtrack selected in the list
+                if (optionSelected != int(menuButtons.size() - 1) / 2) {
+                    // Change the color appearance of both buttons
+                    effects[0]->play();
+                    optionSelected++;
+                    menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
+                    menuButtons[optionSelected + 2].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
+                }
+            } else if (Keyboard::isKeyPressed(menuUpKey)) {
+                // Down cursor pressed and change the soundtrack selected in the list
+                if (optionSelected != 0) {
+                    // Change the color appearance of both buttons
+                    effects[0]->play();
+                    optionSelected--;
+                    menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
+                    menuButtons[optionSelected + 2].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected + 3].setButtonState(BUTTON_IDLE);
+                }
+            }
+
+            if (optionSelected == 0) {
+                // Volume music
+                // Check if left or right cursor keys have been pressed or not
+                if (Keyboard::isKeyPressed(leftKey)) {
+                    if (resIndex > -1) {
+                        resIndex--;
+                        menuButtons[optionSelected + 2].setTextButton(resIndex > -1 ?
+                                                                      to_string(resolutions[resIndex].first) + "x" +
+                                                                      to_string(resolutions[resIndex].second)
+                                                                                                    : "FULLSCREEN");
+                        if (resIndex > -1) {
+                            w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
+                                     Style::Titlebar | Style::Close);
+                        } else {
+                            w.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
+                        }
+                        w.setFramerateLimit(FPS);
+                        screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
+                        currentResized = true;
+                        resized = true;
+                    }
+                } else if (Keyboard::isKeyPressed(rightKey)) {
+                    if (resIndex < int(resolutions.size()) - 1) {
+                        resIndex++;
+                        menuButtons[optionSelected + 2].setTextButton(to_string(resolutions[resIndex].first) + "x" +
+                                                                      to_string(resolutions[resIndex].second));
+
+                        w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
+                                 Style::Titlebar | Style::Close);
+                        w.setFramerateLimit(FPS);
+                        screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
+                        currentResized = true;
+                        resized = true;
+                    }
+                }
+            } else {
+                // Volume effects
+                // Check if left or right cursor keys have been pressed or not
+                if (Keyboard::isKeyPressed(leftKey)) {
+                    if (renderLen > 300) {
+                        renderLen--;
+                        menuButtons[optionSelected + 2].setTextButton((to_string(renderLen)));
+                    }
+                } else if (Keyboard::isKeyPressed(rightKey)) {
+                    if (renderLen < 400) {
+                        renderLen++;
+                        menuButtons[optionSelected + 2].setTextButton((to_string(renderLen)));
+                    }
+                }
+            }
+            w.draw(sprite);
+            w.draw(shape);
+            w.draw(optionsText);
+
+            // Show the buttons of the menu
+            for (auto &menuButton : menuButtons) {
+                menuButton.render(&w);
+            }
+
+            w.display();
+            sleep(milliseconds(120));
+            effects[0]->stop();
+
+            // Check if left or right cursor keys have been pressed or not
+            if (Keyboard::isKeyPressed(menuEnterKey)) {
+                // Change the controllers of the car
+                startPressed = true;
+                modifiedConfig = true;
+                effects[2]->stop();
+                effects[2]->play();
+            }
+        }
     }
-    else {
-        return startMenu(c, true);
+    return resized;
+}
+
+State optionsMenu(Config& c, const bool& inGame) {
+    // Control if the start key is pressed or not
+    bool startPressed = false;
+
+    while (!startPressed) {
+        bool resized = false;
+
+        // Clean the console window
+        c.w.clear(Color(0, 0, 0));
+        c.w.display();
+
+        c.themes[0]->play();
+
+        // Loading the background texture
+        Texture segaBackground, textureShape;
+        segaBackground.loadFromFile("resources/MenuOptions/segaIcon.png");
+        segaBackground.setRepeated(true);
+        textureShape.loadFromFile("resources/MenuOptions/outrun.png");
+        textureShape.setRepeated(true);
+
+        IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
+        Sprite sprite(segaBackground, background);
+
+        RectangleShape shape;
+        shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale,
+                          c.w.getSize().y / 2.f - 250.0f * c.screenScale);
+        shape.setSize(sf::Vector2f(710.0f * c.screenScale, 500.0f * c.screenScale));
+        shape.setOutlineColor(Color(19, 186, 251));
+        shape.setOutlineThickness(5.0f * c.screenScale);
+        shape.setTexture(&textureShape, true);
+
+        vector<Button> menuButtons;
+
+        // Main Text of the menu
+        Text optionsText;
+        optionsText.setString("OPTIONS");
+        optionsText.setPosition((c.w.getSize().x / 2.f) - 90.0f * c.screenScale,
+                                c.w.getSize().y / 2.f - 230.0f * c.screenScale);
+        optionsText.setCharacterSize(int(35.0f * c.screenScale));
+        optionsText.setFont(c.options);
+        optionsText.setStyle(Text::Bold | Text::Underlined);
+        optionsText.setFillColor(Color::Red);
+
+        // Option indicators
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        // Option configurations
+
+        string difficulty;
+        switch (c.level) {
+            case PEACEFUL:
+                difficulty = "Peaceful";
+                break;
+            case EASY:
+                difficulty = "Easy";
+                break;
+            case HARD:
+                difficulty = "Hard";
+                break;
+            default:
+                difficulty = "Normal";
+                break;
+        }
+
+        const string submenu = "Menu", access = "Press C", saved = "Saved!";
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0),
+                                 0);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+        // Control the option selected by the user
+        int optionSelected = 0;
+
+        // Until the start keyword is not pressed
+        while (!startPressed && !resized) {
+            // Check if the up or down cursor keys have been pressed or not
+            if (Keyboard::isKeyPressed(c.menuDownKey)) {
+                // Up cursor pressed and change the soundtrack selected in the list
+                if (optionSelected != int(menuButtons.size() - 1) / 2) {
+                    // Change the color appearance of both buttons
+                    c.effects[0]->play();
+                    optionSelected++;
+                    menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
+                    menuButtons[optionSelected + 5].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected + 4].setButtonState(BUTTON_IDLE);
+                }
+            } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
+                // Down cursor pressed and change the soundtrack selected in the list
+                if (optionSelected != 0) {
+                    c.effects[0]->play();
+                    optionSelected--;
+                    // Change the color appearance of both buttons
+                    menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
+                    menuButtons[optionSelected + 5].setButtonState(BUTTON_HOVER);
+                    menuButtons[optionSelected + 6].setButtonState(BUTTON_IDLE);
+                }
+            }
+
+
+            // Modify the option parameter if it's necessary
+            switch (optionSelected) {
+                case 0:
+                    // Check if left or right cursor keys have been pressed or not
+                    if (Keyboard::isKeyPressed(c.leftKey)) {
+                        if (c.level != PEACEFUL) {
+                            // Change the difficult level
+                            if (c.level == EASY) {
+                                c.level = PEACEFUL;
+                                menuButtons[optionSelected + 5].setTextButton("Peaceful");
+                            }
+                            if (c.level == NORMAL) {
+                                c.level = EASY;
+                                menuButtons[optionSelected + 5].setTextButton("Easy");
+                            } else if (c.level == HARD) {
+                                c.level = NORMAL;
+                                menuButtons[optionSelected + 5].setTextButton("Normal");
+                            }
+                        }
+                    } else if (Keyboard::isKeyPressed(c.rightKey)) {
+                        if (c.level != HARD) {
+                            // Change the difficult level
+                            if (c.level == PEACEFUL) {
+                                c.level = EASY;
+                                menuButtons[optionSelected + 5].setTextButton("Easy");
+                            }
+                            if (c.level == EASY) {
+                                c.level = NORMAL;
+                                menuButtons[optionSelected + 5].setTextButton("Normal");
+                            } else if (c.level == NORMAL) {
+                                c.level = HARD;
+                                menuButtons[optionSelected + 5].setTextButton("Hard");
+                            }
+                        }
+                    }
+                    break;
+                case 1:
+                    // AI aggressiveness level
+                    // Check if left or right cursor keys have been pressed or not
+                    if (Keyboard::isKeyPressed(c.leftKey)) {
+                        if (c.aggressiveness >= 5) {
+                            c.aggressiveness -= 5;
+                            menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
+                        }
+                    } else if (Keyboard::isKeyPressed(c.rightKey)) {
+                        if (c.aggressiveness <= 95) {
+                            c.aggressiveness += 5;
+                            menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
+                        }
+                    }
+
+                    menuButtons[optionSelected + 6].setTextButton(submenu);
+                    break;
+                case 2:
+                    // Change the volume of the game
+                    menuButtons[optionSelected + 5].setTextButton(access);
+
+                    // Check if left or right cursor keys have been pressed or not
+                    if (Keyboard::isKeyPressed(Keyboard::C)) {
+                        c.effects[1]->stop();
+                        c.effects[1]->play();
+                        soundMenu(c);
+                        if (c.modifiedConfig) {
+                            menuButtons[optionSelected + 5].setTextButton(saved);
+                        }
+                    }
+
+                    menuButtons[optionSelected + 6].setTextButton(submenu);
+                    break;
+                case 3:
+                    // Change the graphics of the game
+                    menuButtons[optionSelected + 5].setTextButton(access);
+
+                    // Check if left or right cursor keys have been pressed or not
+                    if (Keyboard::isKeyPressed(Keyboard::C)) {
+                        c.effects[1]->stop();
+                        c.effects[1]->play();
+                        resized = c.graphicsMenu();
+                        if (c.modifiedConfig) {
+                            menuButtons[optionSelected + 5].setTextButton(saved);
+                        }
+                    }
+
+                    menuButtons[optionSelected + 4].setTextButton(submenu);
+                    menuButtons[optionSelected + 6].setTextButton(submenu);
+                    break;
+                case 4:
+                    // Change the controllers of the game
+                    menuButtons[optionSelected + 5].setTextButton(access);
+
+                    // Check if left or right cursor keys have been pressed or not
+                    if (Keyboard::isKeyPressed(Keyboard::C)) {
+                        // Change the controllers of the car
+                        c.effects[1]->stop();
+                        c.effects[1]->play();
+                        changeCarControllers(c);
+                        if (c.modifiedConfig) {
+                            menuButtons[optionSelected + 5].setTextButton(saved);
+                        }
+                    }
+
+                    menuButtons[optionSelected + 4].setTextButton(submenu);
+                    break;
+                default:
+                    break;
+            }
+
+            c.w.draw(sprite);
+            c.w.draw(shape);
+            c.w.draw(optionsText);
+
+            // Show the buttons of the menu
+            for (auto &menuButton : menuButtons) {
+                menuButton.render(&c.w);
+            }
+
+            c.w.display();
+            sleep(milliseconds(120));
+            c.effects[0]->stop();
+
+            // Check if left or right cursor keys have been pressed or not
+            if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+                // Change the controllers of the car
+                startPressed = true;
+                c.effects[1]->stop();
+                c.effects[1]->play();
+            }
+        }
+        c.themes[0]->stop();
+        if (inGame) {
+            return GAME;
+        } else {
+            return startMenu(c, true);
+        }
     }
 }
 

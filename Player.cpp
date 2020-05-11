@@ -503,7 +503,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     }
 
     sprite.setTexture(textures[current_code_image - 1], true);
-    sprite.setScale(scale, scaleY);
+    sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
     minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
     maxScreenX = minScreenX + sprite.getGlobalBounds().width;
     sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
@@ -512,7 +512,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     if (smoking || skidding) {
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
         sprite.setTexture(textures[132 + current_code_image % 4], true);
-        sprite.setScale(4, 4);
+        sprite.setScale(4.0f * c.screenScale, 4.0f * c.screenScale);
         sprite.setPosition(((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width,
                 j - sprite.getGlobalBounds().height);
         c.w.draw(sprite);
@@ -537,7 +537,7 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end) {
 
         // Vehicle
         sprite.setTexture(textures[index], true);
-        sprite.setScale(scale, scaleY);
+        sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
         sprite.setPosition(x, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
         c.w.draw(sprite);
 
@@ -546,7 +546,7 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end) {
         while (i < (float)c.w.getSize().x) {
             index = current_code_image;
             sprite.setTexture(textures[index], true);
-            sprite.setScale(4, 4);
+            sprite.setScale(4.0f * c.screenScale, 4.0f * c.screenScale);
             sprite.setPosition(i, j - sprite.getGlobalBounds().height);
             c.w.draw(sprite);
 
@@ -581,7 +581,7 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
 
         // Vehicle
         sprite.setTexture(textures[index], true);
-        sprite.setScale(scale, scaleY);
+        sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
         minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
         maxScreenX = minScreenX + sprite.getGlobalBounds().width;
         sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
@@ -594,7 +594,7 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
             while (i < (float) c.w.getSize().x) {
                 index = current_code_image;
                 sprite.setTexture(textures[index], true);
-                sprite.setScale(4, 4);
+                sprite.setScale(4.0f * c.screenScale, 4.0f * c.screenScale);
                 sprite.setPosition(i, j - sprite.getGlobalBounds().height);
                 c.w.draw(sprite);
 
