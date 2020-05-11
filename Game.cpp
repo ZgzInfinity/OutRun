@@ -1034,6 +1034,9 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
 
     c.w.draw(shape);
 
+    c.w.draw(pauseShape);
+    c.w.draw(textMenu);
+
     while (!startPressed) {
         // Detect the possible events
         Event e{};
@@ -1074,9 +1077,6 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
                 startPressed = true;
             }
         }
-
-        // c.w.draw(pauseShape);
-        // c.w.draw(textMenu);
 
         for (Button b : menuButtons){
             b.render(&c.w);
