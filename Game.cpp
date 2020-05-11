@@ -360,7 +360,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
 
 void Game::checkDifficulty(Config &c) {
     int numCars = cars.size(); // Number of vehicles simultaneously
-    time = int(float(time) / timeMul); // Restore original time
+    time = int(float(time - int(timeAI)) / timeMul); // Restore original time
 
     float prevScoreMul = scoreMul;
     switch (c.level) {
@@ -407,6 +407,11 @@ void Game::checkDifficulty(Config &c) {
     }
 
     time = int(float(time) * timeMul);
+    timeAI = float(time) * float(c.aggressiveness) / 100.0f;
+    time += int(timeAI);
+
+    if (time < 0)
+        time = 0;
 }
 
 bool Game::isInGame() const {
@@ -1023,20 +1028,6 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                                  "Quit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
-
-    // Draw the map
-    currentMap->draw(c, cars);
-
-    // Draw the vehicle of the player
-    player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
-
-    drawHUD(c);
-
-    c.w.draw(shape);
-
-    c.w.draw(pauseShape);
-    c.w.draw(textMenu);
-
     while (!startPressed) {
         // Detect the possible events
         Event e{};
@@ -1077,6 +1068,19 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
                 startPressed = true;
             }
         }
+
+        // Draw the map
+        currentMap->draw(c, cars);
+
+        // Draw the vehicle of the player
+        player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
+
+        drawHUD(c);
+
+        c.w.draw(shape);
+
+        c.w.draw(pauseShape);
+        c.w.draw(textMenu);
 
         for (Button b : menuButtons){
             b.render(&c.w);

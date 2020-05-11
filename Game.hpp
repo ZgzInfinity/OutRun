@@ -41,6 +41,7 @@ class Game {
     // Time to play
     int time;
     float timeMul;
+    float timeAI;
 
     // Score of the player
     long long int score;
