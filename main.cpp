@@ -20,6 +20,7 @@ int main() {
     while (c.w.isOpen() && state != EXIT) {
         Game engine(c);
 
+        sleep(milliseconds(500));
         if (state == START)
             state = startMenu(c);
 
@@ -30,10 +31,12 @@ int main() {
                     break;
                 }
                 case MUSIC: {
+                    sleep(milliseconds(500));
                     state = selectMusicSoundtrack(c);
                     break;
                 }
                 case OPTIONS: {
+                    sleep(milliseconds(500));
                     bool inGame = engine.isInGame();
                     state = optionsMenu(c, inGame);
                     engine.checkDifficulty(c);

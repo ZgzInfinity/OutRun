@@ -276,7 +276,7 @@ State startMenu(Config &c, bool startPressed) {
 
         // Control the second menu
         startPressed = false;
-        sleep(milliseconds(200));
+        sleep(milliseconds(500));
         state = MUSIC;
 
         // While the ENTER keyword is not pressed

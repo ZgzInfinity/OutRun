@@ -44,8 +44,6 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
     currentMap = &maps[mapId.first][mapId.second];
     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
 
-    checkDifficulty(c); // Loads enemies and time
-
     Texture t;
     // Load the textures of the panel and assign them to their sprites
     for (int i = 1; i <= 6; i++){
@@ -81,6 +79,8 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
     traffic_delay = seconds(2.f);
     blink_delay = seconds(0.5f);
     bonus_delay = seconds(0.01f);
+
+    checkDifficulty(c); // Loads enemies and time
 }
 
 void Game::drawHUD(Config &c) {
@@ -244,7 +244,6 @@ void Game::drawCheckpoint(Config &c, bool visible) {
     textForLap.setString("00' 00'' 00");
     textForLap.setCharacterSize(int(35.0f * c.screenScale));
     textForLap.setOutlineThickness(3.0f * c.screenScale);
-    textForLap.setPosition((float(c.w.getSize().x) - textForLap.getGlobalBounds().width) / 2.0f, initial);
     if (visible) {
         textForLap.setFillColor(Color(146, 194, 186));
         textForLap.setOutlineColor(Color::Black);
@@ -253,12 +252,14 @@ void Game::drawCheckpoint(Config &c, bool visible) {
         textForLap.setFillColor(Color::Transparent);
         textForLap.setOutlineColor(Color::Transparent);
     }
-    textForLap.setString(lapCheckPoint);
-    c.w.draw(textForLap);
 
     s.setTexture(textures[2], true);
     s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    s.setPosition((float(c.w.getSize().x) + 1.25f * textForLap.getGlobalBounds().width) / 2.0f, initial);
+    textForLap.setPosition((float(c.w.getSize().x) - textForLap.getGlobalBounds().width - s.getGlobalBounds().width) / 2.0f, initial - s.getGlobalBounds().height / 2.0f);
+    s.setPosition((float(c.w.getSize().x) + textForLap.getGlobalBounds().width / 2.0f) / 2.0f, initial);
+
+    textForLap.setString(lapCheckPoint);
+    c.w.draw(textForLap);
     c.w.draw(s);
 }
 
@@ -407,7 +408,7 @@ void Game::checkDifficulty(Config &c) {
     }
 
     time = int(float(time) * timeMul);
-    timeAI = float(time) * float(c.aggressiveness) / 100.0f;
+    timeAI = !cars.empty() ? float(time) * float(c.aggressiveness) / 100.0f : 0.0f;
     time += int(timeAI);
 
     if (time < 0)
