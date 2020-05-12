@@ -141,13 +141,14 @@ void Game::drawHUD(Config &c) {
     textLap.setOutlineThickness(3.0f * c.screenScale);
     initial = float(c.w.getSize().x) - separation - textLap.getGlobalBounds().width;
     textLap.setPosition(initial, up - float(textLap.getCharacterSize()));
-    textLap.setString(lap);
-    c.w.draw(textLap);
 
     s.setTexture(textures[2], true);
     s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
     initial -= separation + s.getGlobalBounds().width;
     s.setPosition(initial, up - s.getGlobalBounds().height);
+
+    textLap.setString(lap);
+    c.w.draw(textLap);
     c.w.draw(s);
 
     // DOWN
@@ -156,7 +157,7 @@ void Game::drawHUD(Config &c) {
     s.setScale(2.f * c.screenScale, 1.5f * c.screenScale);
     const float down = float(c.w.getSize().y) - s.getGlobalBounds().height * 1.5f;
     s.setPosition(separation, float(c.w.getSize().y) - s.getGlobalBounds().height * 1.25f);
-    initial = separation + s.getGlobalBounds().width / 2.0f;
+    initial = separation + s.getGlobalBounds().width / 3.0f;
     textures[6].loadFromFile("resources/GamePanel/7.png",
                              IntRect(0, 0, (player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale), 20.0f * c.screenScale));
     s.setTexture(textures[6], true);
@@ -167,7 +168,7 @@ void Game::drawHUD(Config &c) {
     // HUD
     Text sText;
     sText.setFont(c.speedVehicle);
-    sText.setString("000");
+    sText.setString("0001");
     sText.setCharacterSize(int(70.0f * c.screenScale));
     sText.setFillColor(Color(206, 73, 73));
     sText.setOutlineColor(Color::Black);

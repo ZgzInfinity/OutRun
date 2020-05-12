@@ -1228,25 +1228,9 @@ State selectMusicSoundtrack(Config &c){
         hand.setTexture(textures[c.currentSoundtrack + 5], true);
 
         // Control the coordinates X and Y where display the title
-        switch(c.currentSoundtrack){
-            case 1:
-                // First soundtrack
-                music.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale);
-                radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
-                hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
-                break;
-            case 2:
-                // Second soundtrack
-                music.setPosition((c.w.getSize().x / 2.f) - 230.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale);
-                radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
-                hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
-                break;
-            case 3:
-                // Third soundtrack
-                music.setPosition((c.w.getSize().x / 2.f) - 200.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale);
-                radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
-                hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
-        }
+        music.setPosition((c.w.getSize().x - music.getGlobalBounds().width) / 2.f, (c.w.getSize().y - music.getGlobalBounds().height) / 2.f);
+        radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
+        hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
 
         // Show the title of the soundtrack
         c.w.draw(radioMenu);
