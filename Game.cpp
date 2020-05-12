@@ -253,7 +253,7 @@ void Game::drawCheckpoint(Config &c, bool visible) {
         textForLap.setFillColor(Color::Transparent);
         textForLap.setOutlineColor(Color::Transparent);
     }
-    textForLap.setString(lap);
+    textForLap.setString(lapCheckPoint);
     c.w.draw(textForLap);
 
     s.setTexture(textures[2], true);
@@ -494,22 +494,13 @@ State Game::play(Config &c) {
                 else if (status == EXIT) {
                     return EXIT;
                 }
+                gameClockLap.restart();
             }
 
             // Update the score of the player if the player is not stopped
             if (player.getRealSpeed() > 0.0f) {
                 // Add score
                 score += int(player.getRealSpeed() * scoreMul);
-            }
-
-            // Get the actual time
-            elapsed2 = gameClockTime.getElapsedTime().asSeconds();
-
-            // Check if a second has passed between both timestamps
-            if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
-                // Draw time
-                time--;
-                gameClockTime.restart();
             }
 
             // Get the actual time
@@ -536,6 +527,16 @@ State Game::play(Config &c) {
                     }
                 }
                 gameClockLap.restart();
+            }
+
+            // Get the actual time
+            elapsed2 = gameClockTime.getElapsedTime().asSeconds();
+
+            // Check if a second has passed between both timestamps
+            if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
+                // Draw time
+                time--;
+                gameClockTime.restart();
             }
 
             // Update the indicators
@@ -836,9 +837,9 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
 
                 // Update the indicators
                 if (!checkPoint){
-                    lap = (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
-                    lap += (secs < 10) ? "0" + to_string(secs) + " ''" : to_string(secs) + " ''";
-                    lap += (cents_second < 10) ? "0" + to_string(cents_second) : to_string(cents_second);
+                    lapCheckPoint = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
+                    lapCheckPoint += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
+                    lapCheckPoint += to_string(int(cents_second * 100.f));
 
                     // Initialize to zero the time
                     cents_second = 0;
