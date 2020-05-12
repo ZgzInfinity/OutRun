@@ -498,22 +498,13 @@ State Game::play(Config &c) {
                 else if (status == GAME){
                     c.themes[c.currentSoundtrack]->play();
                 }
+                gameClockLap.restart();
             }
 
             // Update the score of the player if the player is not stopped
             if (player.getRealSpeed() > 0.0f) {
                 // Add score
                 score += int(player.getRealSpeed() * scoreMul);
-            }
-
-            // Get the actual time
-            elapsed2 = gameClockTime.getElapsedTime().asSeconds();
-
-            // Check if a second has passed between both timestamps
-            if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
-                // Draw time
-                time--;
-                gameClockTime.restart();
             }
 
             // Get the actual time
@@ -540,6 +531,16 @@ State Game::play(Config &c) {
                     }
                 }
                 gameClockLap.restart();
+            }
+
+            // Get the actual time
+            elapsed2 = gameClockTime.getElapsedTime().asSeconds();
+
+            // Check if a second has passed between both timestamps
+            if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
+                // Draw time
+                time--;
+                gameClockTime.restart();
             }
 
             // Update the indicators
