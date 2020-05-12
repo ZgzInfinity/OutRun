@@ -14,6 +14,7 @@ using namespace sf;
 using namespace std;
 
 int main() {
+
     Config c;
     State state = ANIMATION;
 
@@ -59,6 +60,7 @@ int main() {
                     break;
                 }
                 default: {
+                    sleep(milliseconds(1000));
                     c.w.close();
                     break;
                 }

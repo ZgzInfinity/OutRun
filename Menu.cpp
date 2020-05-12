@@ -101,7 +101,7 @@ State introAnimation(Config& c){
     c.effects[26]->play();
 
     // Load the music soundtracks of the game
-    for (int i = 0; i <= 4; i++){
+    for (int i = 0; i <= 5; i++){
         unique_ptr<Music> music = make_unique<Music>();
         music->openFromFile("resources/Soundtrack/" + to_string(i) + ".ogg");
         music->setVolume(90);

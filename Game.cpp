@@ -93,7 +93,7 @@ void Game::drawHUD(Config &c) {
     s.setTexture(textures[0], true);
     s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
     const float separation = s.getGlobalBounds().width / 3.0f;
-    s.setPosition(separation, up - s.getGlobalBounds().height);
+    s.setPosition(separation, up - 1.1f * s.getGlobalBounds().height);
     float initial = separation + s.getGlobalBounds().width + separation;
     c.w.draw(s);
 
@@ -106,7 +106,7 @@ void Game::drawHUD(Config &c) {
     timeToPlay.setFillColor(Color::Yellow);
     timeToPlay.setOutlineColor(Color::Black);
     timeToPlay.setOutlineThickness(3.0f * c.screenScale);
-    timeToPlay.setPosition(initial, up - float(timeToPlay.getCharacterSize()));
+    timeToPlay.setPosition(initial, up - 1.1f * float(timeToPlay.getCharacterSize()));
     timeToPlay.setString(to_string(time));
     c.w.draw(timeToPlay);
     initial += timeToPlay.getGlobalBounds().width + separation;
@@ -126,7 +126,7 @@ void Game::drawHUD(Config &c) {
     textScore.setFillColor(Color(183, 164, 190));
     textScore.setOutlineColor(Color::Black);
     textScore.setOutlineThickness(3.0f * c.screenScale);
-    textScore.setPosition(initial, up - float(textScore.getCharacterSize()));
+    textScore.setPosition(initial, up - 1.1f * float(textScore.getCharacterSize()));
     textScore.setString(to_string(score));
     c.w.draw(textScore);
 
@@ -140,7 +140,7 @@ void Game::drawHUD(Config &c) {
     textLap.setOutlineColor(Color::Black);
     textLap.setOutlineThickness(3.0f * c.screenScale);
     initial = float(c.w.getSize().x) - separation - textLap.getGlobalBounds().width;
-    textLap.setPosition(initial, up - float(textLap.getCharacterSize()));
+    textLap.setPosition(initial, up - 1.1f * float(textLap.getCharacterSize()));
 
     s.setTexture(textures[2], true);
     s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
@@ -157,7 +157,7 @@ void Game::drawHUD(Config &c) {
     s.setScale(2.f * c.screenScale, 1.5f * c.screenScale);
     const float down = float(c.w.getSize().y) - s.getGlobalBounds().height * 1.5f;
     s.setPosition(separation, float(c.w.getSize().y) - s.getGlobalBounds().height * 1.25f);
-    initial = separation + s.getGlobalBounds().width / 3.0f;
+    initial = separation + s.getGlobalBounds().width / 4.0f;
     textures[6].loadFromFile("resources/GamePanel/7.png",
                              IntRect(0, 0, (player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale), 20.0f * c.screenScale));
     s.setTexture(textures[6], true);
@@ -173,7 +173,7 @@ void Game::drawHUD(Config &c) {
     sText.setFillColor(Color(206, 73, 73));
     sText.setOutlineColor(Color::Black);
     sText.setOutlineThickness(3.0f * c.screenScale);
-    sText.setPosition(initial, down - float(sText.getCharacterSize()));
+    sText.setPosition(initial - (sText.getLocalBounds().width * 0.26f), down - float(sText.getCharacterSize()));
     initial += sText.getGlobalBounds().width;
     string strSpeed = to_string(player.getRealSpeed());
     sText.setString(strSpeed.substr(0, strSpeed.find('.')));
@@ -181,7 +181,7 @@ void Game::drawHUD(Config &c) {
 
     s.setTexture(textures[3], true);
     s.setScale(2.f * c.screenScale, 2.f * c.screenScale);
-    s.setPosition(initial, down - s.getGlobalBounds().height);
+    s.setPosition(initial / 1.2f, down - s.getGlobalBounds().height);
     c.w.draw(s);
 
     s.setTexture(treeMap[mapId.first][mapId.second], true);
@@ -200,7 +200,7 @@ void Game::drawHUD(Config &c) {
     textLevel.setOutlineColor(Color::Black);
     textLevel.setOutlineThickness(3.0f * c.screenScale);
     initial -= separation + textLevel.getGlobalBounds().width;
-    textLevel.setPosition(initial, down - float(textLevel.getCharacterSize()));
+    textLevel.setPosition(initial, down - 1.1f * float(textLevel.getCharacterSize()));
     textLevel.setString(to_string(level));
     c.w.draw(textLevel);
 
@@ -576,11 +576,16 @@ State Game::play(Config &c) {
         c.effects[24]->stop();
         c.effects[24]->play();
         c.w.display();
+        sleep(c.effects[24]->getDuration());
 
         bool startPressed = false;
-        while (!startPressed)
+        c.themes[5]->play();
+        while (!startPressed){
             startPressed = Keyboard::isKeyPressed(c.menuEnterKey);
-
+        }
+        c.themes[5]->stop();
+        c.effects[2]->stop();
+        c.effects[2]->play();
         return START;
     }
     return status;
@@ -803,7 +808,7 @@ void Game::goalAnimation(Config &c) {
         c.w.display();
     }
     c.w.display();
-    sleep(milliseconds(7000));
+    sleep(c.effects[27]->getDuration());
 }
 
 
