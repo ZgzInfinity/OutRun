@@ -129,7 +129,7 @@ class Game {
     // Tree map with levels
     Texture treeMap[5][5];
 
-    string lap;
+    string lap, lapCheckPoint;
 
     void drawHUD(Config &c);
 

@@ -253,7 +253,7 @@ void Game::drawCheckpoint(Config &c, bool visible) {
         textForLap.setFillColor(Color::Transparent);
         textForLap.setOutlineColor(Color::Transparent);
     }
-    textForLap.setString(lap);
+    textForLap.setString(lapCheckPoint);
     c.w.draw(textForLap);
 
     s.setTexture(textures[2], true);
@@ -840,9 +840,9 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
 
                 // Update the indicators
                 if (!checkPoint){
-                    lap = (minutes < 10) ? "0" + to_string(minutes) + " '" : to_string(minutes) + " ''";
-                    lap += (secs < 10) ? "0" + to_string(secs) + " ''" : to_string(secs) + " ''";
-                    lap += (cents_second < 10) ? "0" + to_string(cents_second) : to_string(cents_second);
+                    lapCheckPoint = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
+                    lapCheckPoint += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
+                    lapCheckPoint += to_string(int(cents_second * 100.f));
 
                     // Initialize to zero the time
                     cents_second = 0;
