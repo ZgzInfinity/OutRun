@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * @file    Game.cpp
  * @author  Andrés Gavín Murillo, 716358
@@ -21,7 +20,7 @@ using namespace std;
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
-        "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f),
+        "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f), timeAI(0.0f),
         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
     const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 42, 42, 41, 42};
@@ -422,20 +421,19 @@ unsigned long Game::getScore() const {
     return score;
 }
 
-int Game::getMinutesTrip() const {
+float Game::getMinutesTrip() const {
     return minutesTrip;
 }
 
-int Game::getSecsTrip() const {
+float Game::getSecsTrip() const {
     return secsTrip;
 }
 
-int Game::getCents_SecondTrip() const{
+float Game::getCents_SecondTrip() const{
     return cents_secondTrip;
 }
 
 State Game::play(Config &c) {
-
     if (!inGame) {
         inGame = true;
         initialAnimation(c);
@@ -473,12 +471,6 @@ State Game::play(Config &c) {
         updateAndDraw(c, action, direction);
 
         if (!finalGame) {
-            Event e{};
-            while (c.w.pollEvent(e)) {
-                if (e.type == Event::Closed)
-                    c.w.close();
-            }
-
             if (Keyboard::isKeyPressed(c.menuKey) || onPause){
                 // Pause the game
                 c.effects[1]->stop();
@@ -497,6 +489,9 @@ State Game::play(Config &c) {
                 }
                 else if (status == GAME){
                     c.themes[c.currentSoundtrack]->play();
+                }
+                else if (status == EXIT) {
+                    return EXIT;
                 }
             }
 
@@ -1029,14 +1024,6 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
                                  "Quit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
     while (!startPressed) {
-        // Detect the possible events
-        Event e{};
-        while (c.w.pollEvent(e)) {
-            if (e.type == Event::Closed){
-                c.w.close();
-            }
-        }
-
         // Check if the up or down cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list

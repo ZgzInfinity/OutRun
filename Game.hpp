@@ -31,7 +31,7 @@ class Game {
     std::pair<int, int> mapId; // (Block, num. map), ex: map0 = (0, 0); map1 = (1, 0); map2 = (1, 1); map14 = (4, 4)
     Map *currentMap;
     Map goalMap;
-    int goalFlagger, goalEnd;
+    int goalFlagger = 0, goalEnd = 0;
 
     Player player;
     std::vector<Enemy> cars;
@@ -174,11 +174,11 @@ public:
 
     unsigned long getScore() const;
 
-    int getMinutesTrip() const;
+    float getMinutesTrip() const;
 
-    int getSecsTrip() const;
+    float getSecsTrip() const;
 
-    int getCents_SecondTrip() const;
+    float getCents_SecondTrip() const;
 
     /**
      * Actualiza la lógica del juego y lo actualiza la pantalla hasta que se sale del juego.

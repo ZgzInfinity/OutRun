@@ -45,10 +45,10 @@ int main() {
                 }
                 case RANKING: {
                     unsigned long scorePlayer = engine.getScore();
-                    int minutes = engine.getMinutesTrip();
-                    int secs = engine.getSecsTrip();
-                    int cents_Second = engine.getCents_SecondTrip();
-;                   state = rankingMenu(c, scorePlayer, minutes, secs, cents_Second);
+                    int minutes = int(engine.getMinutesTrip());
+                    int secs = int(engine.getSecsTrip());
+                    int cents_Second = int(engine.getCents_SecondTrip());
+                    state = rankingMenu(c, scorePlayer, minutes, secs, cents_Second);
                     break;
                 }
                 case END: {
