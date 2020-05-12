@@ -32,6 +32,7 @@ using namespace sf;
 Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0) {
     w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar);
     w.setFramerateLimit(FPS);
+    w.setKeyRepeatEnabled(false);
     screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     menuKey = Keyboard::Escape;
@@ -112,7 +113,7 @@ State introAnimation(Config& c){
 }
 
 State startMenu(Config &c, bool startPressed) {
-    const int ELEMENTS = 5;
+    const int ELEMENTS = 8;
 
     // Clean the console window
     c.w.clear();
@@ -152,13 +153,13 @@ State startMenu(Config &c, bool startPressed) {
 
     // Options of the main menu
     Text textElements[ELEMENTS];
-    textElements[0].setString("PRESS START BUTTON");
-    textElements[0].setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 100.0f * c.screenScale);
+    textElements[0].setString("PRESS ENTER KEY");
     textElements[0].setCharacterSize(int(30.0f * c.screenScale));
     textElements[0].setFont(c.timeToPlay);
     textElements[0].setFillColor(Color::Green);
     textElements[0].setOutlineColor(Color::Black);
     textElements[0].setOutlineThickness(3.0f * c.screenScale);
+    textElements[0].setPosition((c.w.getSize().x - textElements[0].getGlobalBounds().width) / 2.f, c.w.getSize().y / 2.f + 100.0f * c.screenScale);
 
     textElements[1].setString("START");
     textElements[1].setPosition((c.w.getSize().x / 2.f) - 50.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale);
@@ -182,7 +183,7 @@ State startMenu(Config &c, bool startPressed) {
     textElements[4].setFillColor(Color::Green);
     textElements[4].setOutlineColor(Color::Black);
     textElements[4].setOutlineThickness(3.0f * c.screenScale);
-    const float initialX = c.w.getSize().x - 2.0f * textElements[4].getGlobalBounds().width, initialY = c.w.getSize().y - 2.0f * float(textElements[4].getCharacterSize());
+    float initialX = c.w.getSize().x - 2.0f * textElements[4].getGlobalBounds().width, initialY = c.w.getSize().y - 2.0f * float(textElements[4].getCharacterSize());
     textElements[4].setPosition(initialX, initialY);
 
     textElements[3].setString("1986");
@@ -192,6 +193,33 @@ State startMenu(Config &c, bool startPressed) {
     textElements[3].setOutlineColor(Color::Black);
     textElements[3].setOutlineThickness(3.0f * c.screenScale);
     textElements[3].setPosition(initialX - 1.5f * textElements[3].getGlobalBounds().width, initialY);
+
+    initialX = textElements[4].getGlobalBounds().width;
+    textElements[5].setString("EXIT / PAUSE: ESC KEY");
+    textElements[5].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[5].setFont(c.timeToPlay);
+    textElements[5].setFillColor(Color::Green);
+    textElements[5].setOutlineColor(Color::Black);
+    textElements[5].setOutlineThickness(3.0f * c.screenScale);
+    textElements[5].setPosition(initialX, initialY);
+
+    initialY -= 2.0f * textElements[5].getGlobalBounds().height;
+    textElements[6].setString("MOVE: ARROW KEYS");
+    textElements[6].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[6].setFont(c.timeToPlay);
+    textElements[6].setFillColor(Color::Green);
+    textElements[6].setOutlineColor(Color::Black);
+    textElements[6].setOutlineThickness(3.0f * c.screenScale);
+    textElements[6].setPosition(initialX, initialY);
+
+    initialY -= 2.0f * textElements[6].getGlobalBounds().height;
+    textElements[7].setString("SELECT: ENTER KEY");
+    textElements[7].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[7].setFont(c.timeToPlay);
+    textElements[7].setFillColor(Color::Green);
+    textElements[7].setOutlineColor(Color::Black);
+    textElements[7].setOutlineThickness(3.0f * c.screenScale);
+    textElements[7].setPosition(initialX, initialY);
 
     // Partial state of the game
     State state = START;
@@ -225,6 +253,9 @@ State startMenu(Config &c, bool startPressed) {
             c.w.draw(textElements[0]);
             c.w.draw(textElements[3]);
             c.w.draw(textElements[4]);
+            c.w.draw(textElements[5]);
+            c.w.draw(textElements[6]);
+            c.w.draw(textElements[7]);
             c.w.display();
             sleep(milliseconds(180));
 
@@ -267,6 +298,8 @@ State startMenu(Config &c, bool startPressed) {
                     state = OPTIONS;
                 }
             }
+            else if (Keyboard::isKeyPressed(Keyboard::Escape))
+                return EXIT;
 
             // Show the menu with the starting and options indicators
             c.w.draw(mainMenu);
@@ -276,6 +309,9 @@ State startMenu(Config &c, bool startPressed) {
             c.w.draw(textElements[2]);
             c.w.draw(textElements[3]);
             c.w.draw(textElements[4]);
+            c.w.draw(textElements[5]);
+            c.w.draw(textElements[6]);
+            c.w.draw(textElements[7]);
             c.w.draw(row);
             c.w.display();
             sleep(milliseconds(180));
@@ -788,6 +824,7 @@ bool Config::graphicsMenu() {
                             w.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
                         }
                         w.setFramerateLimit(FPS);
+                        w.setKeyRepeatEnabled(false);
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;
@@ -801,6 +838,7 @@ bool Config::graphicsMenu() {
                         w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
                                  Style::Titlebar | Style::Close);
                         w.setFramerateLimit(FPS);
+                        w.setKeyRepeatEnabled(false);
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;

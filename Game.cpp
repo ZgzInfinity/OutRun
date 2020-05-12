@@ -995,7 +995,7 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
 
     RectangleShape pauseShape;
     pauseShape.setPosition(c.w.getSize().x / 2.f - 120.0f * c.screenScale, c.w.getSize().y / 2.f - 180.0f * c.screenScale);
-    pauseShape.setSize(sf::Vector2f(250.0f * c.screenScale, 350.0f * c.screenScale));
+    pauseShape.setSize(sf::Vector2f(250.0f * c.screenScale, 400.0f * c.screenScale));
     pauseShape.setFillColor(Color(0, 0, 0));
     pauseShape.setOutlineColor(Color::Green);
     pauseShape.setOutlineThickness(5.0f * c.screenScale);
@@ -1016,14 +1016,17 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     int optionSelected = 0;
 
     // Buttons of the menu
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                                  "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                                  "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Quit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                                 "Home", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             "Exit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
     while (!startPressed) {
         // Check if the up or down cursor keys have been pressed or not
@@ -1091,9 +1094,11 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
         case 1:
             // Options button selected
             return OPTIONS;
-        default:
+        case 2:
             // Quit button selected
             onPause = false;
             return START;
+        default:
+            return EXIT;
     }
 }
