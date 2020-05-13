@@ -30,7 +30,7 @@ using namespace std;
 using namespace sf;
 
 Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0) {
-    w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar);
+    w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
     w.setFramerateLimit(FPS);
     w.setKeyRepeatEnabled(false);
     screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
@@ -234,6 +234,11 @@ State startMenu(Config &c, bool startPressed) {
     while (c.w.isOpen()) {
         // While the ENTER keyword is not pressed
         while (!startPressed){
+            // Detect the possible events
+            Event e{};
+            while( c.w.pollEvent(e))
+                if (e.type == Event::Closed)
+                    return EXIT;
 
             // Change the color of the main text
             if (textElements[0].getFillColor() == Color::Green){
@@ -281,6 +286,12 @@ State startMenu(Config &c, bool startPressed) {
 
         // While the ENTER keyword is not pressed
         while (!startPressed){
+            // Detect the possible events
+            Event e{};
+            while( c.w.pollEvent(e))
+                if (e.type == Event::Closed)
+                    return EXIT;
+
             // Control if the up or down cursor keys are pressed or not
             if (Keyboard::isKeyPressed(c.menuUpKey)){
                 // Up cursor pressed
@@ -437,7 +448,12 @@ void changeCarControllers(Config& c){
 
     // Until the start keyword is not pressed
     while (!startPressed){
+        // Detect the possible events
         Event e{};
+        while( c.w.pollEvent(e))
+            if (e.type == Event::Closed)
+                c.w.close();
+
         c.w.waitEvent(e);
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
@@ -626,7 +642,12 @@ void soundMenu(Config& c) {
 
     // Until the start keyword is not pressed
     while (!startPressed){
+        // Detect the possible events
         Event e{};
+        while(c.w.pollEvent(e))
+            if (e.type == Event::Closed)
+                c.w.close();
+
         c.w.waitEvent(e);
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
@@ -781,7 +802,12 @@ bool Config::graphicsMenu() {
 
         // Until the start keyword is not pressed
         while (!startPressed && !currentResized) {
+            // Detect the possible events
             Event e{};
+            while(w.pollEvent(e))
+                if (e.type == Event::Closed)
+                    return EXIT;
+
             w.waitEvent(e);
             if (Keyboard::isKeyPressed(menuDownKey)) {
                 // Up cursor pressed and change the soundtrack selected in the list
@@ -819,7 +845,7 @@ bool Config::graphicsMenu() {
                                                                                                     : "FULLSCREEN");
                         if (resIndex > -1) {
                             w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
-                                     Style::Titlebar);
+                                     Style::Titlebar | Style::Close);
                         } else {
                             w.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
                         }
@@ -1006,6 +1032,12 @@ State optionsMenu(Config& c, const bool& inGame) {
 
         // Until the start keyword is not pressed
         while (!startPressed && !resized) {
+            // Detect the possible events
+            Event e{};
+            while( c.w.pollEvent(e))
+                if (e.type == Event::Closed)
+                    return EXIT;
+
             // Check if the up or down cursor keys have been pressed or not
             if (Keyboard::isKeyPressed(c.menuDownKey)) {
                 // Up cursor pressed and change the soundtrack selected in the list
@@ -1234,6 +1266,12 @@ State selectMusicSoundtrack(Config &c){
 
     // Control until the Enter key is pressed
     while (!startPressed){
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e))
+            if (e.type == Event::Closed)
+                return EXIT;
+
         // Control if the left or right cursor keys are pressed or not
         if (Keyboard::isKeyPressed(c.leftKey)){
             // Up cursor pressed and change the soundtrack selected in the list
@@ -1433,6 +1471,11 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     c.effects[29]->play();
 
     while (time > 0 && !startPressed){
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e))
+            if (e.type == Event::Closed)
+                return EXIT;
 
         // Get the actual time
         elapsed2 = rankingTime.getElapsedTime().asSeconds();

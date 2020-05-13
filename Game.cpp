@@ -470,6 +470,12 @@ State Game::play(Config &c) {
     State status;
 
     while (!finalGame && !arrival && c.w.isOpen()) {
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e))
+            if (e.type == Event::Closed)
+                return EXIT;
+
         updateAndDraw(c, action, direction);
 
         if (!finalGame) {
@@ -1035,6 +1041,12 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
                              "Exit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
 
     while (!startPressed) {
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e))
+            if (e.type == Event::Closed)
+                return EXIT;
+
         // Check if the up or down cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
