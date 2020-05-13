@@ -1,0 +1,4 @@
+https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/
+MinGW-W64 GCC-7.3.0
+
+g++ -Iinclude -O3 -std=c++14 -mwindows -static -Llib -o Outrun.exe src\* -lsfml-system -lsfml-window -lsfml-graphics -lsfml-audio
