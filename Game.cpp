@@ -23,7 +23,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
         "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f), timeAI(0.0f),
         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 42, 42, 41, 42};
+    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 44, 43, 42, 43};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;

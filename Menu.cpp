@@ -33,6 +33,11 @@ Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SC
     w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
     w.setFramerateLimit(FPS);
     w.setKeyRepeatEnabled(false);
+
+    Image i;
+    i.loadFromFile("resources/Icon/OutRun.png");
+    w.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
+
     screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     menuKey = Keyboard::Escape;
@@ -81,6 +86,7 @@ State introAnimation(Config& c){
         c.effects.push_back(move(effect));
     }
     c.effects[29]->setLoop(true);
+
 
     // Vector of images with the logo of Sega
     Texture t;
@@ -251,9 +257,11 @@ State startMenu(Config &c, bool startPressed) {
         while (!startPressed){
             // Detect the possible events
             Event e{};
-            while( c.w.pollEvent(e))
-                if (e.type == Event::Closed)
+            while( c.w.pollEvent(e)){
+                if (e.type == Event::Closed){
                     return EXIT;
+                }
+            }
 
             // Change the color of the main text
             if (textElements[0].getFillColor() == Color::Green){
@@ -594,7 +602,7 @@ void changeCarControllers(Config& c){
     }
 }
 
-void soundMenu(Config& c) {
+State soundMenu(Config& c, const bool& inGame) {
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     c.w.display();
@@ -659,11 +667,12 @@ void soundMenu(Config& c) {
     while (!startPressed){
         // Detect the possible events
         Event e{};
-        while(c.w.pollEvent(e))
-            if (e.type == Event::Closed)
-                c.w.close();
+        while(c.w.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
 
-        c.w.waitEvent(e);
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1) / 2){
@@ -693,14 +702,28 @@ void soundMenu(Config& c) {
             // Volume music
             // Check if left or right cursor keys have been pressed or not
             if (Keyboard::isKeyPressed(c.leftKey)) {
-                if (c.volumeMusic != 0) {
+                 if (c.volumeMusic != 0){
                     c.volumeMusic--;
+                    for (int i = 0; i <= 5; i++){
+                        c.themes[i]->setVolume(c.volumeMusic);
+                        if (i == 0){
+                            c.themes[i]->pause();
+                            c.themes[i]->play();
+                        }
+                    }
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
             }
             else if (Keyboard::isKeyPressed(c.rightKey)) {
-                if (c.volumeMusic != 100) {
+                if (c.volumeMusic != 100){
                     c.volumeMusic++;
+                    for (int i = 0; i <= 5; i++){
+                        c.themes[i]->setVolume(c.volumeMusic);
+                        if (i == 0){
+                            c.themes[i]->pause();
+                            c.themes[i]->play();
+                        }
+                    }
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
             }
@@ -709,14 +732,20 @@ void soundMenu(Config& c) {
             // Volume effects
             // Check if left or right cursor keys have been pressed or not
             if (Keyboard::isKeyPressed(c.leftKey)) {
-                if (c.volumeEffects != 0) {
+                if (c.volumeEffects != 0){
                     c.volumeEffects--;
+                    for (int i = 0; i < 29; i++){
+                        c.effects[i]->setVolume(c.volumeEffects);
+                    }
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
                 }
             }
             else if (Keyboard::isKeyPressed(c.rightKey)) {
-                if (c.volumeEffects != 100) {
+                if (c.volumeEffects != 100){
                     c.volumeEffects++;
+                    for (int i = 0; i <= 5; i++){
+                        c.effects[i]->setVolume(c.volumeEffects);
+                    }
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
                 }
             }
@@ -743,9 +772,12 @@ void soundMenu(Config& c) {
             c.effects[2]->play();
         }
     }
+    if (startPressed){
+        return OPTIONS;
+    }
 }
 
-bool Config::graphicsMenu() {
+State Config::graphicsMenu() {
     // Control if the start key is pressed or not
     bool startPressed = false;
     bool resized = false;
@@ -819,9 +851,11 @@ bool Config::graphicsMenu() {
         while (!startPressed && !currentResized) {
             // Detect the possible events
             Event e{};
-            while(w.pollEvent(e))
-                if (e.type == Event::Closed)
+            while(w.pollEvent(e)){
+                if (e.type == Event::Closed){
                     return EXIT;
+                }
+            }
 
             w.pollEvent(e);
             if (Keyboard::isKeyPressed(menuDownKey)) {
@@ -848,11 +882,16 @@ bool Config::graphicsMenu() {
                 }
             }
 
+            w.pollEvent(e);
+
             if (optionSelected == 0) {
                 // Volume music
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(leftKey)) {
-                    if (resIndex > -1) {
+                    if (resized){
+                        resized = false;
+                    }
+                    else if (resIndex > -1) {
                         resIndex--;
                         menuButtons[optionSelected + 2].setTextButton(resIndex > -1 ?
                                                                       to_string(resolutions[resIndex].first) + "x" +
@@ -870,8 +909,12 @@ bool Config::graphicsMenu() {
                         currentResized = true;
                         resized = true;
                     }
-                } else if (Keyboard::isKeyPressed(rightKey)) {
-                    if (resIndex < int(resolutions.size()) - 1) {
+                }
+                else if (Keyboard::isKeyPressed(rightKey)){
+                    if (resized){
+                        resized = false;
+                    }
+                    if (resIndex < int(resolutions.size()) - 1 && !resized) {
                         resIndex++;
                         menuButtons[optionSelected + 2].setTextButton(to_string(resolutions[resIndex].first) + "x" +
                                                                       to_string(resolutions[resIndex].second));
@@ -923,7 +966,7 @@ bool Config::graphicsMenu() {
             }
         }
     }
-    return resized;
+    return OPTIONS;
 }
 
 State optionsMenu(Config& c, const bool& inGame) {
@@ -1046,7 +1089,7 @@ State optionsMenu(Config& c, const bool& inGame) {
         int optionSelected = 0;
 
         // Until the start keyword is not pressed
-        while (!startPressed && !resized) {
+        while (!startPressed) {
             // Detect the possible events
             Event e{};
             while( c.w.pollEvent(e))
@@ -1140,7 +1183,10 @@ State optionsMenu(Config& c, const bool& inGame) {
                     if (Keyboard::isKeyPressed(Keyboard::C)) {
                         c.effects[1]->stop();
                         c.effects[1]->play();
-                        soundMenu(c);
+                        State status = soundMenu(c, inGame);
+                        if (status == EXIT){
+                            return status;
+                        }
                         if (c.modifiedConfig) {
                             menuButtons[optionSelected + 5].setTextButton(saved);
                         }
@@ -1156,9 +1202,68 @@ State optionsMenu(Config& c, const bool& inGame) {
                     if (Keyboard::isKeyPressed(Keyboard::C)) {
                         c.effects[1]->stop();
                         c.effects[1]->play();
-                        resized = c.graphicsMenu();
+                        State status = c.graphicsMenu();
+                        if (status == EXIT){
+                            return status;
+                        }
                         if (c.modifiedConfig) {
                             menuButtons[optionSelected + 5].setTextButton(saved);
+                            shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
+                            shape.setSize(sf::Vector2f(710.0f * c.screenScale, 500.0f * c.screenScale));
+                            optionsText.setPosition((c.w.getSize().x / 2.f) - 90.0f * c.screenScale, c.w.getSize().y / 2.f - 230.0f * c.screenScale);
+                            optionsText.setCharacterSize(int(35.0f * c.screenScale));
+
+                            menuButtons.clear();
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+
+                            menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     30.0f * c.screenScale, c.options,
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
                         }
                     }
 
@@ -1203,8 +1308,8 @@ State optionsMenu(Config& c, const bool& inGame) {
             if (Keyboard::isKeyPressed(c.menuEnterKey)) {
                 // Change the controllers of the car
                 startPressed = true;
-                c.effects[1]->stop();
-                c.effects[1]->play();
+                c.effects[2]->stop();
+                c.effects[2]->play();
             }
         }
         c.themes[0]->stop();
@@ -1767,7 +1872,6 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
     return START;
 }
-
 
 
 sf::Font initializeFontTimePlay() {

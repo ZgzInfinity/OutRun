@@ -26,6 +26,17 @@ sf::Font initializeFontOptions();
 const int NUM_SEGA_ICONS = 39;
 const int NUM_SOUNDTRACKS = 4;
 
+enum State {
+    ANIMATION,
+    START,
+    OPTIONS,
+    MUSIC,
+    GAME,
+    END,
+    RANKING,
+    EXIT
+};
+
 enum Difficult {
     PEACEFUL, // Without enemies
     EASY,
@@ -46,7 +57,7 @@ public:
      * Devuelve true si se ha cambiado la resolución de pantalla.
      * @return
      */
-    bool graphicsMenu();
+    State graphicsMenu();
 
     sf::RenderWindow w;
     float screenScale;
@@ -89,17 +100,6 @@ public:
 
     // AI aggressiveness level: probability that the ai will be activated (0 is original game; 100 is only AI)
     int aggressiveness;
-};
-
-enum State {
-    ANIMATION,
-    START,
-    OPTIONS,
-    MUSIC,
-    GAME,
-    END,
-    RANKING,
-    EXIT
 };
 
 State introAnimation(Config& c);
