@@ -68,6 +68,13 @@ Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SC
 State introAnimation(Config& c){
     // Load the game effects
     for (int i = 1; i <= 30; i++){
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
         unique_ptr<Music> effect = make_unique<Music>();
         effect->openFromFile("resources/SoundEffects/" + to_string(i) + ".ogg");
         effect->setVolume(100);
@@ -82,6 +89,14 @@ State introAnimation(Config& c){
 
     // Iterate throughout all the icons of sega
     for (int i = 1; i < NUM_SEGA_ICONS; i++){
+
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
         // Loading the icon texture
         t.loadFromFile("resources/SegaAnimation/segaLogo" + to_string(i) + ".png");
         segaIcons.push_back(t);
@@ -808,7 +823,7 @@ bool Config::graphicsMenu() {
                 if (e.type == Event::Closed)
                     return EXIT;
 
-            w.waitEvent(e);
+            w.pollEvent(e);
             if (Keyboard::isKeyPressed(menuDownKey)) {
                 // Up cursor pressed and change the soundtrack selected in the list
                 if (optionSelected != int(menuButtons.size() - 1) / 2) {
@@ -1336,6 +1351,7 @@ State endMenu(Config &c) {
 
 State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minutes, const int secs, const int cents_Second){
 
+    c.effects[6]->stop();
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     c.w.display();
@@ -1540,6 +1556,15 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 c.w.draw(minutesPlayer);
                 c.w.draw(secondsPlayer);
                 c.w.draw(centsPlayer);
+
+                // Detect the possible events
+                Event e{};
+                while( c.w.pollEvent(e)){
+                    if (e.type == Event::Closed){
+                        return EXIT;
+                    }
+                }
+
             }
         }
         else {
@@ -1682,7 +1707,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
         c.w.draw(start);
         c.w.display();
 
-        if (lettersIntroduced != 3){
+        if (lettersIntroduced != 3 && record != -1){
             // while there are pending events...
             Event event{};
             while (c.w.pollEvent(event)){

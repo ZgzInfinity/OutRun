@@ -31,7 +31,7 @@ class Game {
     std::pair<int, int> mapId; // (Block, num. map), ex: map0 = (0, 0); map1 = (1, 0); map2 = (1, 1); map14 = (4, 4)
     Map *currentMap;
     Map goalMap;
-    int goalFlagger = 0, goalEnd = 0;
+    int goalFlagger, goalEnd;
 
     Player player;
     std::vector<Enemy> cars;
@@ -143,13 +143,13 @@ class Game {
      * Muestra la animación inicial del comienzo de la partida.
      * @param c
      */
-    void initialAnimation(Config &c);
+    State initialAnimation(Config &c);
 
     /**
      * Muestra la animación final de la partida.
      * @param c
      */
-    void goalAnimation(Config &c);
+    State goalAnimation(Config &c);
 
     /**
      * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.

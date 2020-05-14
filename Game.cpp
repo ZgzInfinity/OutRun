@@ -219,48 +219,52 @@ void Game::drawCheckpoint(Config &c, bool visible) {
     checkPointTitle.setFont(c.timeToPlay);
     checkPointTitle.setString("CHECKPOINT!");
     checkPointTitle.setCharacterSize(int(50.0f * c.screenScale));
+
+    checkPointTitle.setOutlineThickness(3.0f * c.screenScale);
+    float initial = c.w.getSize().y / 3.0f + 0.25f * float(checkPointTitle.getCharacterSize());
+    checkPointTitle.setPosition((float(c.w.getSize().x) - checkPointTitle.getGlobalBounds().width) / 2.0f, c.w.getSize().y / 3.0f - float(checkPointTitle.getCharacterSize()));
+
+     // Time inverted by the player for complete the game
+    s.setTexture(textures[5], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setPosition((float(c.w.getSize().x) - s.getGlobalBounds().width) / 2.0f, initial);
+    initial += s.getGlobalBounds().height * 1.25f;
+
     if (visible) {
         checkPointTitle.setFillColor(Color::Yellow);
         checkPointTitle.setOutlineColor(Color(14, 29, 184));
+        c.w.draw(s);
+        c.w.draw(checkPointTitle);
+
     }
     else {
         checkPointTitle.setFillColor(Color::Transparent);
         checkPointTitle.setOutlineColor(Color::Transparent);
     }
-    checkPointTitle.setOutlineThickness(3.0f * c.screenScale);
-    float initial = c.w.getSize().y / 3.0f + 0.25f * float(checkPointTitle.getCharacterSize());
-    checkPointTitle.setPosition((float(c.w.getSize().x) - checkPointTitle.getGlobalBounds().width) / 2.0f, c.w.getSize().y / 3.0f - float(checkPointTitle.getCharacterSize()));
-    c.w.draw(checkPointTitle);
 
-    s.setTexture(textures[5], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    s.setPosition((float(c.w.getSize().x) - s.getGlobalBounds().width) / 2.0f, initial);
-    c.w.draw(s);
-    initial += s.getGlobalBounds().height * 1.25f;
-
-    // Time inverted by the player for complete the game
     Text textForLap;
     textForLap.setFont(c.timeToPlay);
     textForLap.setString("00' 00'' 00");
     textForLap.setCharacterSize(int(35.0f * c.screenScale));
     textForLap.setOutlineThickness(3.0f * c.screenScale);
+
+    s.setTexture(textures[2], true);
+    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    textForLap.setPosition((float(c.w.getSize().x) - textForLap.getGlobalBounds().width - s.getGlobalBounds().width) / 1.7f, initial + 1.1f * s.getGlobalBounds().height);
+    s.setPosition((float(c.w.getSize().x) + textForLap.getGlobalBounds().width / 2.0f) / 2.4f, initial);
+
     if (visible) {
         textForLap.setFillColor(Color(146, 194, 186));
         textForLap.setOutlineColor(Color::Black);
+        c.w.draw(s);
     }
     else {
         textForLap.setFillColor(Color::Transparent);
         textForLap.setOutlineColor(Color::Transparent);
     }
 
-    s.setTexture(textures[2], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    textForLap.setPosition((float(c.w.getSize().x) - textForLap.getGlobalBounds().width - s.getGlobalBounds().width) / 2.0f, initial - s.getGlobalBounds().height / 2.0f);
-    s.setPosition((float(c.w.getSize().x) + textForLap.getGlobalBounds().width / 2.0f) / 2.0f, initial);
-
     textForLap.setString(lapCheckPoint);
     c.w.draw(textForLap);
-    c.w.draw(s);
 }
 
 void Game::drawGameOver(Config &c) {
@@ -587,6 +591,15 @@ State Game::play(Config &c) {
         bool startPressed = false;
         c.themes[5]->play();
         while (!startPressed){
+
+            // Detect the possible events
+            Event e{};
+            while( c.w.pollEvent(e)){
+                if (e.type == Event::Closed){
+                    return EXIT;
+                }
+            }
+
             startPressed = Keyboard::isKeyPressed(c.menuEnterKey);
         }
         c.themes[5]->stop();
@@ -597,7 +610,7 @@ State Game::play(Config &c) {
     return status;
 }
 
-void Game::initialAnimation(Config &c) {
+State Game::initialAnimation(Config &c) {
     c.themes[c.currentSoundtrack]->stop();
     int flagger, semaphore;
     Map *initMap = new Map(*currentMap, flagger, semaphore);
@@ -613,12 +626,31 @@ void Game::initialAnimation(Config &c) {
     c.effects[8]->play();
 
     for (int i = (int) c.w.getSize().x / 2; !end; i -= 3) {
+
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
+
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
         player.drawInitialAnimation(c, float(i), end);
         c.w.display();
     }
+
+    // Detect the possible events
+    Event e{};
+    while( c.w.pollEvent(e)){
+        if (e.type == Event::Closed){
+            return EXIT;
+        }
+    }
+
+
     sleep(milliseconds(250));
 
     // Semaphore and flagger
@@ -629,12 +661,29 @@ void Game::initialAnimation(Config &c) {
     player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
     c.w.display();
 
+    // Detect the possible events
+    while( c.w.pollEvent(e)){
+        if (e.type == Event::Closed){
+            return EXIT;
+        }
+    }
+
+
     // comentaristIntro
     c.effects[11]->stop();
     c.effects[11]->play();
     sleep(c.effects[11]->getDuration() - c.effects[11]->getPlayingOffset());
 
     for (int i = 0; i < 3; i++) {
+
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
+
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
@@ -669,9 +718,10 @@ void Game::initialAnimation(Config &c) {
     currentMap->incrementSpriteIndex(flagger, false, -1);
 
     c.themes[c.currentSoundtrack]->play();
+    return GAME;
 }
 
-void Game::goalAnimation(Config &c) {
+State Game::goalAnimation(Config &c) {
     // Stop music level
     c.themes[c.currentSoundtrack]->stop();
 
@@ -696,6 +746,15 @@ void Game::goalAnimation(Config &c) {
     elapsed11 = bonus.getElapsedTime().asSeconds(); // TODO: Esta marca solo se actualiza aquí ?????
 
     while (int(player.getPosY()) < goalEnd) {
+
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
+
         // Update camera
         currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -715,7 +774,6 @@ void Game::goalAnimation(Config &c) {
                 currentMap->incrementSpriteIndex(goalFlagger, false);
                 increment++;
             }
-
             currentTime = gameClockTime.getElapsedTime().asMilliseconds();
         }
 
@@ -761,6 +819,15 @@ void Game::goalAnimation(Config &c) {
     sleep(milliseconds(20));
 
     while (!end) {
+
+        // Detect the possible events
+        Event e{};
+        while( c.w.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
+
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
@@ -815,6 +882,7 @@ void Game::goalAnimation(Config &c) {
     }
     c.w.display();
     sleep(c.effects[27]->getDuration());
+    return RANKING;
 }
 
 
