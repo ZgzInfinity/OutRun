@@ -1416,17 +1416,20 @@ State selectMusicSoundtrack(Config &c){
 
         // Load the texture of the soundtrack to display in the radio panel
         music.setTexture(textures[c.currentSoundtrack - 1], true);
+        music.setScale(c.screenScale, c.screenScale);
 
         // Get the dial movement to reproduce
         radio.setTexture(textures[c.currentSoundtrack + 2], true);
+        radio.setScale(c.screenScale, float(c.w.getSize().y) / SCREEN_DEFAULT_Y);
 
         // Get the hand movement of the driver
         hand.setTexture(textures[c.currentSoundtrack + 5], true);
+        hand.setScale(c.screenScale, float(c.w.getSize().y) / SCREEN_DEFAULT_Y);
 
         // Control the coordinates X and Y where display the title
         music.setPosition((c.w.getSize().x - music.getGlobalBounds().width) / 2.f, (c.w.getSize().y - music.getGlobalBounds().height) / 2.f);
-        radio.setPosition((c.w.getSize().x / 2.f) - 88.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
-        hand.setPosition((c.w.getSize().x / 2.f) - 120.0f * c.screenScale, c.w.getSize().y / 2.f + 170.0f * c.screenScale);
+        radio.setPosition((c.w.getSize().x - radio.getGlobalBounds().width * 0.5f) / 2.0f, c.w.getSize().y * 0.8725f - radio.getGlobalBounds().height);
+        hand.setPosition((c.w.getSize().x - hand.getGlobalBounds().width * 0.66f) / 2.0f, c.w.getSize().y - hand.getGlobalBounds().height);
 
         // Show the title of the soundtrack
         c.w.draw(radioMenu);
