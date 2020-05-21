@@ -8,6 +8,7 @@
 
 #include "Game.hpp"
 #include <string>
+#include <fstream>
 
 using namespace sf;
 using namespace std;
@@ -41,8 +42,43 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
         maps.emplace_back(vm);
     }
     mapId = make_pair(0, 0);
+
+    // Back door
+    int bdTime = 0;
+    level = 1;
+    ifstream fin("resources/backdoor.info");
+    if (fin.is_open()) {
+        while (!fin.eof()) {
+            string s;
+            fin >> s;
+            if (s == "MAP:" && !fin.eof()) {
+                fin >> level;
+                if (level > 0 && level <= 15) {
+                    for (int i = 1; i < level; i++) {
+                        if (mapId.second < mapId.first) {
+                            mapId.second++;
+                        }
+                        else {
+                            mapId.second = 0;
+                            mapId.first++;
+                        } // Level????????????????????????
+                    }
+                }
+            }
+            else if (s == "TIME:" && !fin.eof()) {
+                fin >> bdTime;
+            }
+        }
+        fin.close();
+    }
+
     currentMap = &maps[mapId.first][mapId.second];
-    currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+    if (mapId.first < 4)
+        currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+    else {
+        goalMap.setColors(*currentMap);
+        currentMap->addNextMap(&goalMap);
+    }
 
     Texture t;
     // Load the textures of the panel and assign them to their sprites
@@ -64,9 +100,8 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
         }
     }
 
-    time = int(float(currentMap->getTime()) * timeMul);
+    time = int(float(currentMap->getTime()) * timeMul) + bdTime;
     score = 0;
-    level = 1;
 
     // Control if the player is still playing
     finalGame = false;
