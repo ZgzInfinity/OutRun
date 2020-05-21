@@ -317,7 +317,6 @@ State startMenu(Config &c, bool startPressed) {
 
         // Control the second menu
         startPressed = false;
-        sleep(milliseconds(500));
         state = MUSIC;
 
         // While the ENTER keyword is not pressed
@@ -384,7 +383,7 @@ State startMenu(Config &c, bool startPressed) {
     return EXIT;
 }
 
-void changeCarControllers(Config& c){
+State changeCarControllers(Config& c){
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     Sprite bufferSprite(c.w.getTexture());
@@ -436,7 +435,7 @@ void changeCarControllers(Config& c){
     info1.setOutlineThickness(3.0f * c.screenScale);
     info1.setCharacterSize(int(15.0f * c.screenScale));
     info1.setStyle(Text::Bold);
-    info1.setPosition(c.w.getSize().x / 2.f - 200.0f * c.screenScale, c.w.getSize().y / 2.f - 160.0f * c.screenScale);
+    info1.setPosition(c.w.getSize().x / 2.f - 235.0f * c.screenScale, c.w.getSize().y / 2.f - 160.0f * c.screenScale);
     info1.setFont(c.options);
     c.w.draw(info1);
 
@@ -513,11 +512,15 @@ void changeCarControllers(Config& c){
 
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e))
-            if (e.type == Event::Closed)
-                c.window.close();
-
+        while(c.window.pollEvent(e)){
+            if (e.type == Event::Closed){
+                return EXIT;
+            }
+        }
         c.window.waitEvent(e);
+        if (e.type == Event::Closed){
+            return EXIT;
+        }
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1) / 2){
@@ -626,6 +629,7 @@ void changeCarControllers(Config& c){
             c.effects[2]->play();
         }
     }
+    return OPTIONS;
 }
 
 State soundMenu(Config& c, const bool& inGame) {
@@ -1334,7 +1338,10 @@ State optionsMenu(Config& c, const bool& inGame) {
                         // Change the controllers of the car
                         c.effects[1]->stop();
                         c.effects[1]->play();
-                        changeCarControllers(c);
+                        State status = changeCarControllers(c);
+                        if (status == EXIT){
+                            return status;
+                        }
                         if (c.modifiedConfig) {
                             menuButtons[optionSelected + 5].setTextButton(saved);
                         }
@@ -1664,9 +1671,11 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     while (time > 0 && !startPressed){
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e))
-            if (e.type == Event::Closed)
+        while( c.window.pollEvent(e)){
+            if (e.type == Event::Closed){
                 return EXIT;
+            }
+        }
 
         // Get the actual time
         elapsed2 = rankingTime.getElapsedTime().asSeconds();

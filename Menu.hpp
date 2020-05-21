@@ -108,7 +108,7 @@ State introAnimation(Config& c);
 
 State optionsMenu(Config& c, const bool& inGame);
 
-void changeCarControllers(Config& c);
+State changeCarControllers(Config& c);
 
 State selectMusicSoundtrack(Config& c);
 
