@@ -462,7 +462,7 @@ void Game::checkDifficulty(Config &c) {
         v.setAI(c.maxAggressiveness);
 
     time = int(float(time) * timeMul);
-    timeAI = !cars.empty() ? float(time) * c.maxAggressiveness / 5.0f : 0.0f;
+    timeAI = !cars.empty() ? float(time) * c.maxAggressiveness / 3.0f : 0.0f;
     time += int(timeAI);
 
     if (time < 0)
@@ -1080,7 +1080,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         }
 
         for (Enemy &v : cars)
-            v.autoControl(player.getPosX(), player.getPosY());
+            v.autoControl(c, player.getPosX(), player.getPosY());
 
         // Check if enemies are displayed on the screen
         for (Enemy &v : cars) {

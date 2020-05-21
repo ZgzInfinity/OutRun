@@ -32,8 +32,8 @@ Vehicle::Direction randomDirection() {
         return Vehicle::Direction::TURNLEFT;
 }
 
-void Enemy::autoControl(float playerPosX, float playerPosY) {
-    if (random_zero_one() >= probAI) {
+void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
+    if (abs(playerPosY - posY) > float(c.renderLen) || random_zero_one() >= probAI) {
         // Original
         if (current_direction_counter < max_direction_counter) {
             current_direction_counter++;
@@ -109,16 +109,24 @@ void Enemy::autoControl(float playerPosX, float playerPosY) {
         }
         else { // INCONSTANT
             if (currentDirection == TURNRIGHT) {
+                const float prevPosX = posX;
                 posX += XINC * speed / maxSpeed;
 
                 if (posX >= 0.9f)
                     currentDirection = TURNLEFT;
+                else if (((prevPosX < -0.5f && posX >= -0.5f) || (prevPosX < 0.0f && posX >= 0.0f) ||
+                          (prevPosX < 0.5f && posX >= 0.5f)) && (random_zero_one() < 0.5f))
+                    currentDirection = TURNRIGHT; // Lane change
             }
             else if (currentDirection == TURNLEFT) {
+                const float prevPosX = posX;
                 posX -= XINC * speed / maxSpeed;
 
                 if (posX <= -0.9f)
                     currentDirection = TURNRIGHT;
+                else if (((prevPosX > -0.5f && posX <= -0.5f) || (prevPosX > 0.0f && posX <= 0.0f) ||
+                          (prevPosX > 0.5f && posX <= 0.5f)) && (random_zero_one() < 0.5f))
+                    currentDirection = TURNLEFT; // Lane change
             }
             else {
                 if (random_zero_one() < 0.5f)
@@ -163,15 +171,22 @@ void Enemy::update(float iniPos, float endPos, float maxAggressiveness) {
 }
 
 void Enemy::setAI(float maxAggressiveness) {
-    probAI = random_float(0.0f, maxAggressiveness);
+    if (maxAggressiveness == 0.0f)
+        probAI = 0.0f;
+    else
+        probAI = random_float(maxAggressiveness / 2.0f, maxAggressiveness);
 
     const float p = random_zero_one();
-    if (p < 0.333f)
+    if (p < 0.333f) {
         typeAI = OBSTACLE;
-    else if (p < 0.666f)
+    }
+    else if (p < 0.666f) {
         typeAI = EVASIVE;
-    else
+    }
+    else {
         typeAI = INCONSTANT;
+        probAI *= 2.0f;
+    }
 }
 
 void Enemy::draw(const Elevation &e, const float camX) {

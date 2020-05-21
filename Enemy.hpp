@@ -47,6 +47,9 @@ public:
     /**
      * Actualiza la lógica del vehículo de manera automática para el movimiento actual.
      *
+     * La IA sólo se activará si la distancia entre el vehículo y el jugador es menor o igual a la distancia
+     * de render (rectángulos que ve el jugador).
+     *
      * La agresividad de la IA está dentro de la clase (probAI). Es un valor entre 0 y 1 que indica la probabilidad de
      * que la IA actúe en este movimiento.
      *
@@ -66,10 +69,11 @@ public:
      *      Si la agresividad de la IA se encuentra entre 0 y 1, realiza una de las dos acciones descritas (original
      *      o IA) con probabilidad p de que actúe la IA y p' = (1 - p) de que sea como en el original.
      *
+     * @param c
      * @param playerPosX
      * @param playerPosY
      */
-    void autoControl(float playerPosX, float playerPosY);
+    void autoControl(const Config &c, float playerPosX, float playerPosY);
 
     /**
      * Inicializa el estado del vehículo. Actualiza la agresividad de la IA del vehículo con un valor aleatorio entre 0
