@@ -409,27 +409,38 @@ void Game::checkDifficulty(Config &c) {
             numCars = 0;
             timeMul = 1.1f;
             scoreMul = 0.25f;
+            if (c.enableAI)
+                c.maxAggressiveness = 0.0f;
             break;
         case EASY:
             numCars = 5;
             timeMul = 1.1f;
             scoreMul = 0.5f;
+            if (c.enableAI)
+                c.maxAggressiveness = 0.1f;
             break;
         case NORMAL:
             numCars = 10;
             timeMul = 1.0f;
             scoreMul = 1.0f;
+            if (c.enableAI)
+                c.maxAggressiveness = 0.25f;
             break;
         case HARD:
             numCars = 15;
             timeMul = 0.9f;
             scoreMul = 1.5f;
+            if (c.enableAI)
+                c.maxAggressiveness = 0.5f;
             break;
         default:
             break;
     }
     if (prevScoreMul < scoreMul) // Keep the least multiplier
         scoreMul = prevScoreMul;
+
+    if (!c.enableAI)
+        c.maxAggressiveness = 0.0f;
 
     // Vehicles
     cars.reserve(numCars);
@@ -447,8 +458,11 @@ void Game::checkDifficulty(Config &c) {
         }
     }
 
+    for (Enemy &v : cars)
+        v.setAI(c.maxAggressiveness);
+
     time = int(float(time) * timeMul);
-    timeAI = !cars.empty() ? float(time) * float(c.aggressiveness) / 100.0f : 0.0f;
+    timeAI = !cars.empty() ? float(time) * c.maxAggressiveness / 5.0f : 0.0f;
     time += int(timeAI);
 
     if (time < 0)
@@ -1018,12 +1032,12 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                 v.setPosition(v.getPosX(), -RECTANGLE * DEL_VEHICLE * 3.0f);
             }
             else if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
-                v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY);
+                v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY, c.maxAggressiveness);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
 
             float posY = v.getPosY();
-            v.draw(c, currentMap->getElevation(posY), currentMap->getCamX());
+            v.draw(currentMap->getElevation(posY), currentMap->getCamX());
         }
 
         // Draw map with cars
@@ -1051,7 +1065,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                                                 player.getMaxScreenX(), crashPos);
             if (!crash)
                 for (int i = 0; !vehicleCrash && i < cars.size(); i++)
-                    vehicleCrash = cars[i].hasCrashed(c, player.getPreviousY(), player.getPosY(),
+                    vehicleCrash = cars[i].hasCrashed(player.getPreviousY(), player.getPosY(),
                                                 player.getMinScreenX(), player.getMaxScreenX(),
                                                 crashPos);
 
@@ -1066,7 +1080,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         }
 
         for (Enemy &v : cars)
-            v.autoControl(c, player.getPosX(), player.getPosY());
+            v.autoControl(player.getPosX(), player.getPosY());
 
         // Check if enemies are displayed on the screen
         for (Enemy &v : cars) {

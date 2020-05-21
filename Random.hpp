@@ -9,10 +9,6 @@
 #ifndef OUTRUN_RANDOM_HPP
 #define OUTRUN_RANDOM_HPP
 
-#include "Vehicle.hpp"
-
-Vehicle::Direction randomDirection();
-
 float random_zero_one();
 
 int random_zero_n(int n);

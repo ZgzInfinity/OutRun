@@ -70,7 +70,8 @@ Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SC
 
     currentSoundtrack = 0;
 
-    aggressiveness = 0;
+    maxAggressiveness = 0.0f;
+    enableAI = false;
 }
 
 State introAnimation(Config& c){
@@ -1076,7 +1077,7 @@ State optionsMenu(Config& c, const bool& inGame) {
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                 "enemies AI", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
@@ -1121,7 +1122,7 @@ State optionsMenu(Config& c, const bool& inGame) {
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0),
+                                 c.enableAI ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0),
                                  0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
@@ -1216,14 +1217,14 @@ State optionsMenu(Config& c, const bool& inGame) {
                     // AI aggressiveness level
                     // Check if left or right cursor keys have been pressed or not
                     if (Keyboard::isKeyPressed(c.leftKey)) {
-                        if (c.aggressiveness >= 5) {
-                            c.aggressiveness -= 5;
-                            menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
+                        if (c.enableAI) {
+                            c.enableAI = false;
+                            menuButtons[optionSelected + 5].setTextButton("DISABLED");
                         }
                     } else if (Keyboard::isKeyPressed(c.rightKey)) {
-                        if (c.aggressiveness <= 95) {
-                            c.aggressiveness += 5;
-                            menuButtons[optionSelected + 5].setTextButton((to_string(c.aggressiveness)));
+                        if (!c.enableAI) {
+                            c.enableAI = true;
+                            menuButtons[optionSelected + 5].setTextButton("ENABLED");
                         }
                     }
 
@@ -1277,7 +1278,7 @@ State optionsMenu(Config& c, const bool& inGame) {
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     "enemies AI", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
@@ -1302,7 +1303,7 @@ State optionsMenu(Config& c, const bool& inGame) {
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     c.enableAI ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,

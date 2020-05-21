@@ -19,11 +19,20 @@ using namespace sf;
 Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY) :
         Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0, random_float(-0.5f, 0.5f),
                 pY, pY, 0, 0, vehicle, ENEMY_TEXTURES, 1, 0), oriX(this->posX),
-                currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0) {}
+                currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0),
+                probAI(0), typeAI(OBSTACLE) {}
 
-void Enemy::autoControl(Config &c, float playerPosX, float playerPosY) {
-    const float probAI = float(c.aggressiveness) / 100.0f;
+Vehicle::Direction randomDirection() {
+    const float p = random_zero_one();
+    if (p < 0.6f)
+        return Vehicle::Direction::RIGHT;
+    else if (p < 0.8f)
+        return Vehicle::Direction::TURNRIGHT;
+    else
+        return Vehicle::Direction::TURNLEFT;
+}
 
+void Enemy::autoControl(float playerPosX, float playerPosY) {
     if (random_zero_one() >= probAI) {
         // Original
         if (current_direction_counter < max_direction_counter) {
@@ -50,31 +59,73 @@ void Enemy::autoControl(Config &c, float playerPosX, float playerPosY) {
     }
     else {
         // AI
-        const float acc = getAcceleration();
-        if (abs(playerPosX - posX) > XINC) { // Rotation control
-            // The vehicle is not in the player's path
-            if (speed < halfMaxSpeed)
-                speed = sqrt(acc + ACC_INC);
+        if (typeAI == OBSTACLE) {
+            const float acc = getAcceleration();
+            if (abs(playerPosX - posX) > XINC) { // Rotation control
+                // The vehicle is not in the player's path
+                if (speed < halfMaxSpeed)
+                    speed = sqrt(acc + ACC_INC);
 
-            if (posX > playerPosX && posX > -0.9f) {
-                posX -= XINC * speed / maxSpeed;
-                currentDirection = TURNLEFT;
+                if (posX > playerPosX && posX > -0.9f) {
+                    posX -= XINC * speed / maxSpeed;
+                    currentDirection = TURNLEFT;
+                }
+                else if (posX < 0.9f) {
+                    posX += XINC * speed / maxSpeed;
+                    currentDirection = TURNRIGHT;
+                }
             }
-            else if (posX < 0.9f) {
+            else { // Acceleration control
+                // The vehicle is in the player's path
+                if (posY <= playerPosY)
+                    speed = sqrt(acc + ACC_INC);
+                else if (acc > ACC_INC)
+                    speed = sqrt(acc - ACC_INC);
+                else
+                    speed = 0.0f;
+
+                currentDirection = RIGHT;
+            }
+        }
+        else if (typeAI == EVASIVE) {
+            if (playerPosX <= -0.75) {
                 posX += XINC * speed / maxSpeed;
                 currentDirection = TURNRIGHT;
             }
+            else if (playerPosX >= 0.75) {
+                posX -= XINC * speed / maxSpeed;
+                currentDirection = TURNLEFT;
+            }
+            else {
+                if (posX > playerPosX) {
+                    posX += XINC * speed / maxSpeed;
+                    currentDirection = TURNRIGHT;
+                }
+                else {
+                    posX -= XINC * speed / maxSpeed;
+                    currentDirection = TURNLEFT;
+                }
+            }
         }
-        else { // Acceleration control
-            // The vehicle is in the player's path
-            if (posY <= playerPosY)
-                speed = sqrt(acc + ACC_INC);
-            else if (acc > ACC_INC)
-                speed = sqrt(acc - ACC_INC);
-            else
-                speed = 0.0f;
+        else { // INCONSTANT
+            if (currentDirection == TURNRIGHT) {
+                posX += XINC * speed / maxSpeed;
 
-            currentDirection = RIGHT;
+                if (posX >= 0.9f)
+                    currentDirection = TURNLEFT;
+            }
+            else if (currentDirection == TURNLEFT) {
+                posX -= XINC * speed / maxSpeed;
+
+                if (posX <= -0.9f)
+                    currentDirection = TURNRIGHT;
+            }
+            else {
+                if (random_zero_one() < 0.5f)
+                    currentDirection = TURNRIGHT;
+                else
+                    currentDirection = TURNLEFT;
+            }
         }
     }
 
@@ -83,11 +134,20 @@ void Enemy::autoControl(Config &c, float playerPosX, float playerPosY) {
     else if (speed < 0)
         speed = 0;
 
+    if (posX > 0.9f) {
+        posX = 0.9f;
+        currentDirection = RIGHT;
+    }
+    else if (posX < -0.9f) {
+        posX = -0.9f;
+        currentDirection = RIGHT;
+    }
+
     previousY = posY;
     posY += speed;
 }
 
-void Enemy::update(float iniPos, float endPos) {
+void Enemy::update(float iniPos, float endPos, float maxAggressiveness) {
     speed = maxSpeed * random_float(0.25f, 1.0f);
 
     posY = random_float(iniPos, endPos);
@@ -98,9 +158,23 @@ void Enemy::update(float iniPos, float endPos) {
 
     minScreenX = 0;
     maxScreenX = 0;
+
+    setAI(maxAggressiveness);
 }
 
-void Enemy::draw(Config &c, const Elevation &e, const float camX) {
+void Enemy::setAI(float maxAggressiveness) {
+    probAI = random_float(0.0f, maxAggressiveness);
+
+    const float p = random_zero_one();
+    if (p < 0.333f)
+        typeAI = OBSTACLE;
+    else if (p < 0.666f)
+        typeAI = EVASIVE;
+    else
+        typeAI = INCONSTANT;
+}
+
+void Enemy::draw(const Elevation &e, const float camX) {
     if (counter_code_image >= maxCounterToChange) {
         counter_code_image = 0;
 
@@ -191,7 +265,7 @@ float Enemy::getScale() const {
     return scale;
 }
 
-bool Enemy::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const {
+bool Enemy::hasCrashed(float prevY, float currentY, float minX, float maxX, float &crashPos) const {
     if (minScreenX != maxScreenX && ((prevY <= posY + 2.5f && currentY >= posY - 2.5f) ||
         (currentY <= posY + 2.5f && prevY >= posY - 2.5f)) && // y matches
         ((minX >= minScreenX && minX <= maxScreenX) ||

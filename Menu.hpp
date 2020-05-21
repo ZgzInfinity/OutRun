@@ -99,8 +99,9 @@ public:
     // Identifier of soundtrack to reproduce
     int currentSoundtrack;
 
-    // AI aggressiveness level: probability that the ai will be activated (0 is original game; 100 is only AI)
-    int aggressiveness;
+    // max AI aggressiveness level: max probability that the ai will be activated
+    float maxAggressiveness;
+    bool enableAI;
 };
 
 State introAnimation(Config& c);

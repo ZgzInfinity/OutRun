@@ -15,16 +15,6 @@ static thread_local random_device rd;
 static thread_local std::mt19937 generator(rd());
 static thread_local uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-Vehicle::Direction randomDirection() {
-    const float p = dist(generator);
-    if (p < 0.6f)
-        return Vehicle::Direction::RIGHT;
-    else if (p < 0.8f)
-        return Vehicle::Direction::TURNRIGHT;
-    else
-        return Vehicle::Direction::TURNLEFT;
-}
-
 float random_zero_one() {
     return dist(generator);
 }
