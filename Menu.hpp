@@ -17,6 +17,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
+#define SCREEN_DEFAULT_X 921
+#define SCREEN_DEFAULT_Y 691
+
 sf::Font initializeFontTimePlay();
 
 sf::Font initializeFontSpeed();
@@ -84,8 +87,8 @@ public:
      // Vector with all the sound effects to reproduce
     vector<unique_ptr<Music>> effects;
 
-    float camD; // Camera depth
-    int renderLen; // Length rendered
+    const float camD; // Camera depth
+    const int renderLen; // Length rendered
 
     // Control the volume of the effects and the music
     int volumeEffects, volumeMusic;
@@ -102,6 +105,8 @@ public:
     // max AI aggressiveness level: max probability that the ai will be activated
     float maxAggressiveness;
     bool enableAI;
+
+    bool enablePixelArt;
 };
 
 State introAnimation(Config& c);

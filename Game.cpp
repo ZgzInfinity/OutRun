@@ -1136,6 +1136,26 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
 }
 
 State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction &d) {
+    c.w.clear();
+
+    // Draw the map
+    currentMap->draw(c, cars);
+
+    // Draw the vehicle of the player
+    player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
+
+    drawHUD(c);
+
+    c.w.display();
+    const Texture bgTexture(c.w.getTexture());
+    Sprite bgSprite(bgTexture);
+    bgSprite.setScale(float(c.window.getSize().x) / float(c.w.getSize().x), float(c.window.getSize().y) / float(c.w.getSize().y));
+
+    c.w.clear();
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+    c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+
     // Start the pause menu of the game
     vector<Button> menuButtons;
 
@@ -1224,13 +1244,7 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
             }
         }
 
-        // Draw the map
-        currentMap->draw(c, cars);
-
-        // Draw the vehicle of the player
-        player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
-
-        drawHUD(c);
+        c.w.draw(bgSprite);
 
         c.w.draw(shape);
 
@@ -1250,6 +1264,12 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
 
     c.effects[2]->stop();
     c.effects[2]->play();
+
+    if (c.enablePixelArt) {
+        c.window.setView(View(Vector2f(c.window.getSize().x / 4.0f, c.window.getSize().y / 4.0f), Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f)));
+        c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+        c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+    }
 
     // Check the option selected by the user
     switch(optionSelected){

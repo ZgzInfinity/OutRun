@@ -13,7 +13,7 @@ Button::Button (float x, float y, float width, float height, Font& f,
     textButton.setString(text);
     textButton.setFont(f);
     textButton.setFillColor(Color::Blue);
-    textButton.setCharacterSize(int(20.0f * screenScale));
+    textButton.setCharacterSize(int(12.0f * screenScale));
     textButton.setPosition(
         shape.getPosition().x + (shape.getGlobalBounds().width / 2.f)  - textButton.getGlobalBounds().width / 2.f,
         shape.getPosition().y + (shape.getGlobalBounds().height / 2.f)  - textButton.getGlobalBounds().height / 2.f - 5

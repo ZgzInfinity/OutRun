@@ -12,8 +12,6 @@
 
 #define FPS 60
 // Screen
-#define SCREEN_DEFAULT_X 921
-#define SCREEN_DEFAULT_Y 691
 #define SCREEN_DEFAULT make_pair(SCREEN_DEFAULT_X, SCREEN_DEFAULT_Y)
 // HD
 #define SCREEN_1 make_pair(1280, 720)
@@ -29,7 +27,8 @@
 using namespace std;
 using namespace sf;
 
-Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0) {
+Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0),
+                   camD(0.84), renderLen(300) {
     window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
     window.setFramerateLimit(FPS);
     window.setKeyRepeatEnabled(false);
@@ -58,9 +57,6 @@ Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SC
 
     options = initializeFontOptions();
 
-    camD = 0.84; // Camera depth
-    renderLen = 300;
-
     volumeEffects = 100;
     volumeMusic = 80;
 
@@ -72,6 +68,8 @@ Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SC
 
     maxAggressiveness = 0.0f;
     enableAI = false;
+
+    enablePixelArt = true;
 }
 
 State introAnimation(Config& c){
@@ -141,6 +139,10 @@ State introAnimation(Config& c){
 }
 
 State startMenu(Config &c, bool startPressed) {
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+    c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+
     const int ELEMENTS = 8;
 
     // Clean the console window
@@ -378,6 +380,13 @@ State startMenu(Config &c, bool startPressed) {
         }
         // Return the state of the game
         c.effects[0]->stop();
+
+        if (c.enablePixelArt) {
+            c.window.setView(View(Vector2f(c.window.getSize().x / 4.0f, c.window.getSize().y / 4.0f), Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f)));
+            c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+            c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+        }
+
         return state;
     }
     return EXIT;
@@ -876,7 +885,7 @@ State Config::graphicsMenu() {
 
         menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
                                  30.0f * screenScale, options,
-                                 "Render Length", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
+                                 "Pixel art", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
 
         // Option configurations
         const string res = resIndex < resolutions.size() ? to_string(resolutions[resIndex].first) + "x" +
@@ -887,7 +896,7 @@ State Config::graphicsMenu() {
 
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
                                  30.0f * screenScale, options,
-                                 to_string(renderLen), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
+                                 enablePixelArt ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
 
         // Control the option selected by the user
         int optionSelected = 0;
@@ -951,7 +960,11 @@ State Config::graphicsMenu() {
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
 
-                        window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+                        if (enablePixelArt)
+                            window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+                        else
+                            window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f), Vector2f(window.getSize().x, window.getSize().y)));
+
                         w.create(window.getView().getSize().x, window.getView().getSize().y);
 
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
@@ -973,7 +986,11 @@ State Config::graphicsMenu() {
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
 
-                        window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+                        if (enablePixelArt)
+                            window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+                        else
+                            window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f), Vector2f(window.getSize().x, window.getSize().y)));
+
                         w.create(window.getView().getSize().x, window.getView().getSize().y);
 
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
@@ -985,14 +1002,14 @@ State Config::graphicsMenu() {
                 // Volume effects
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(leftKey)) {
-                    if (renderLen > 300) {
-                        renderLen--;
-                        menuButtons[optionSelected + 2].setTextButton((to_string(renderLen)));
+                    if (enablePixelArt) {
+                        enablePixelArt = false;
+                        menuButtons[optionSelected + 2].setTextButton("DISABLED");
                     }
                 } else if (Keyboard::isKeyPressed(rightKey)) {
-                    if (renderLen < 400) {
-                        renderLen++;
-                        menuButtons[optionSelected + 2].setTextButton((to_string(renderLen)));
+                    if (!enablePixelArt) {
+                        enablePixelArt = true;
+                        menuButtons[optionSelected + 2].setTextButton("ENABLED");
                     }
                 }
             }
@@ -1026,6 +1043,10 @@ State Config::graphicsMenu() {
 }
 
 State optionsMenu(Config& c, const bool& inGame) {
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+    c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+
     // Control if the start key is pressed or not
     bool startPressed = false;
 
@@ -1378,6 +1399,13 @@ State optionsMenu(Config& c, const bool& inGame) {
             }
         }
         c.themes[0]->stop();
+
+        if (c.enablePixelArt) {
+            c.window.setView(View(Vector2f(c.window.getSize().x / 4.0f, c.window.getSize().y / 4.0f), Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f)));
+            c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+            c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+        }
+
         if (inGame) {
             return GAME;
         } else {
