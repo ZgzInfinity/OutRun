@@ -45,16 +45,16 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
 
     // Back door
     int bdTime = 0;
-    level = 1;
     ifstream fin("resources/backdoor.info");
     if (fin.is_open()) {
+        int bdMap = 1;
         while (!fin.eof()) {
             string s;
             fin >> s;
             if (s == "MAP:" && !fin.eof()) {
-                fin >> level;
-                if (level > 0 && level <= 15) {
-                    for (int i = 1; i < level; i++) {
+                fin >> bdMap;
+                if (bdMap > 0 && bdMap <= 15) {
+                    for (int i = 1; i < bdMap; i++) {
                         if (mapId.second < mapId.first) {
                             mapId.second++;
                         }
@@ -102,6 +102,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
 
     time = int(float(currentMap->getTime()) * timeMul) + bdTime;
     score = 0;
+    level = mapId.first + 1;
 
     // Control if the player is still playing
     finalGame = false;
