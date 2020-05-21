@@ -30,13 +30,16 @@ using namespace std;
 using namespace sf;
 
 Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0) {
-    w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
-    w.setFramerateLimit(FPS);
-    w.setKeyRepeatEnabled(false);
+    window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
+    window.setFramerateLimit(FPS);
+    window.setKeyRepeatEnabled(false);
+
+    window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+    w.create(window.getView().getSize().x, window.getView().getSize().y);
 
     Image i;
     i.loadFromFile("resources/Icon/OutRun.png");
-    w.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
+    window.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
 
     screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
 
@@ -75,7 +78,7 @@ State introAnimation(Config& c){
     for (int i = 1; i <= 30; i++){
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e)){
+        while(c.window.pollEvent(e)){
             if (e.type == Event::Closed){
                 return EXIT;
             }
@@ -98,7 +101,7 @@ State introAnimation(Config& c){
 
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e)){
+        while( c.window.pollEvent(e)){
             if (e.type == Event::Closed){
                 return EXIT;
             }
@@ -115,7 +118,10 @@ State introAnimation(Config& c){
         }
         c.w.draw(segaIcon);
         // Show the logos in the console
+        Sprite bufferSprite(c.w.getTexture());
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
         // Sleep the process to see the menu icons correctly
         sleep(milliseconds(40));
     }
@@ -138,7 +144,10 @@ State startMenu(Config &c, bool startPressed) {
 
     // Clean the console window
     c.w.clear();
+    Sprite bufferSprite(c.w.getTexture());
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     Texture backgroundMenu, gameIcon, rowSelector;
     Sprite mainMenu, nameGame, row;
@@ -175,7 +184,7 @@ State startMenu(Config &c, bool startPressed) {
     // Options of the main menu
     Text textElements[ELEMENTS];
     textElements[0].setString("PRESS ENTER KEY");
-    textElements[0].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[0].setCharacterSize(int(40.0f * c.screenScale));
     textElements[0].setFont(c.timeToPlay);
     textElements[0].setFillColor(Color::Green);
     textElements[0].setOutlineColor(Color::Black);
@@ -252,12 +261,12 @@ State startMenu(Config &c, bool startPressed) {
     int j = 0;
 
     // While the console window is opened
-    while (c.w.isOpen()) {
+    while (c.window.isOpen()) {
         // While the ENTER keyword is not pressed
         while (!startPressed){
             // Detect the possible events
             Event e{};
-            while( c.w.pollEvent(e)){
+            while( c.window.pollEvent(e)){
                 if (e.type == Event::Closed){
                     return EXIT;
                 }
@@ -284,7 +293,10 @@ State startMenu(Config &c, bool startPressed) {
             c.w.draw(textElements[5]);
             c.w.draw(textElements[6]);
             c.w.draw(textElements[7]);
+            bufferSprite.setTexture(c.w.getTexture(), true);
             c.w.display();
+            c.window.draw(bufferSprite);
+            c.window.display();
             sleep(milliseconds(180));
 
             // Check if the start keyword has been pressed
@@ -311,7 +323,7 @@ State startMenu(Config &c, bool startPressed) {
         while (!startPressed){
             // Detect the possible events
             Event e{};
-            while( c.w.pollEvent(e))
+            while( c.window.pollEvent(e))
                 if (e.type == Event::Closed)
                     return EXIT;
 
@@ -347,7 +359,10 @@ State startMenu(Config &c, bool startPressed) {
             c.w.draw(textElements[6]);
             c.w.draw(textElements[7]);
             c.w.draw(row);
+            bufferSprite.setTexture(c.w.getTexture(), true);
             c.w.display();
+            c.window.draw(bufferSprite);
+            c.window.display();
             sleep(milliseconds(180));
             c.effects[0]->stop();
 
@@ -371,13 +386,19 @@ State startMenu(Config &c, bool startPressed) {
 void changeCarControllers(Config& c){
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
+    Sprite bufferSprite(c.w.getTexture());
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     KeywordMapper kM = KeywordMapper();
 
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
+    bufferSprite.setTexture(c.w.getTexture(), true);
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     // Loading the background texture
     Texture segaBackground, textureShape;
@@ -432,35 +453,35 @@ void changeCarControllers(Config& c){
     // Option indicators
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Turning left", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                 "Turning left", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     // Option configurations
 
     int code;
     code = kM.mapperCodeKeyWord[c.leftKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.rightKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.accelerateKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.brakeKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
 
     // Control if the start key is pressed or not
@@ -471,13 +492,31 @@ void changeCarControllers(Config& c){
 
     // Until the start keyword is not pressed
     while (!startPressed){
+        c.w.draw(sprite);
+        c.w.draw(shape);
+        c.w.draw(optionsText);
+        c.w.draw(info1);
+        c.w.draw(info2);
+
+        // Show the buttons of the menu
+        for (auto & menuButton : menuButtons){
+            menuButton.render(&c.w);
+        }
+
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+        sleep(milliseconds(120));
+        c.effects[0]->stop();
+
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e))
+        while( c.window.pollEvent(e))
             if (e.type == Event::Closed)
-                c.w.close();
+                c.window.close();
 
-        c.w.waitEvent(e);
+        c.window.waitEvent(e);
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1) / 2){
@@ -504,7 +543,7 @@ void changeCarControllers(Config& c){
         }
         while (Keyboard::isKeyPressed(Keyboard::Space) && !Keyboard::isKeyPressed(Keyboard::Enter)) {
             // Check if any keyword has been pressed or not
-            c.w.waitEvent(e);
+            c.window.waitEvent(e);
             if (e.type == Event::KeyPressed && e.key.code != -1 && e.key.code != Keyboard::Enter && e.key.code != Keyboard::Space){
                 // Modify the option parameter if it's necessary
                 switch (optionSelected){
@@ -576,20 +615,6 @@ void changeCarControllers(Config& c){
                 }
             }
         }
-        c.w.draw(sprite);
-        c.w.draw(shape);
-        c.w.draw(optionsText);
-        c.w.draw(info1);
-        c.w.draw(info2);
-
-        // Show the buttons of the menu
-        for (auto & menuButton : menuButtons){
-            menuButton.render(&c.w);
-        }
-
-        c.w.display();
-        sleep(milliseconds(120));
-        c.effects[0]->stop();
 
         // Check if left or right cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuEnterKey)){
@@ -605,13 +630,19 @@ void changeCarControllers(Config& c){
 State soundMenu(Config& c, const bool& inGame) {
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
+    Sprite bufferSprite(c.w.getTexture());
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     KeywordMapper kM = KeywordMapper();
 
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
+    bufferSprite.setTexture(c.w.getTexture(), true);
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     // Loading the background texture
     Texture segaBackground, textureShape;
@@ -644,17 +675,17 @@ State soundMenu(Config& c, const bool& inGame) {
     // Option indicators
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             "Music volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                             "Music volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             "Effects volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                             "Effects volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     // Option configurations
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                             to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             to_string(c.volumeEffects), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                             to_string(c.volumeEffects), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
 
     // Control if the start key is pressed or not
@@ -667,7 +698,7 @@ State soundMenu(Config& c, const bool& inGame) {
     while (!startPressed){
         // Detect the possible events
         Event e{};
-        while(c.w.pollEvent(e)){
+        while(c.window.pollEvent(e)){
             if (e.type == Event::Closed){
                 return EXIT;
             }
@@ -759,7 +790,10 @@ State soundMenu(Config& c, const bool& inGame) {
             menuButton.render(&c.w);
         }
 
+        bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
         sleep(milliseconds(120));
         c.effects[0]->stop();
 
@@ -787,13 +821,19 @@ State Config::graphicsMenu() {
 
         // Clean the console window
         w.clear(Color(0, 0, 0));
+        Sprite bufferSprite(w.getTexture());
         w.display();
+        window.draw(bufferSprite);
+        window.display();
 
         KeywordMapper kM = KeywordMapper();
 
         // Clean the console window
         w.clear(Color(0, 0, 0));
+        bufferSprite.setTexture(w.getTexture(), true);
         w.display();
+        window.draw(bufferSprite);
+        window.display();
 
         // Loading the background texture
         Texture segaBackground, textureShape;
@@ -827,22 +867,22 @@ State Config::graphicsMenu() {
 
         menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
                                  200.0f * screenScale, 30.0f * screenScale, options,
-                                 "Resolution", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                 "Resolution", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, screenScale);
 
         menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
                                  30.0f * screenScale, options,
-                                 "Render Length", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Render Length", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
 
         // Option configurations
         const string res = resIndex < resolutions.size() ? to_string(resolutions[resIndex].first) + "x" +
                                                            to_string(resolutions[resIndex].second) : "FULLSCREEN";
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
                                  200.0f * screenScale, 30.0f * screenScale, options,
-                                 res, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                 res, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, screenScale);
 
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
                                  30.0f * screenScale, options,
-                                 to_string(renderLen), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 to_string(renderLen), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
 
         // Control the option selected by the user
         int optionSelected = 0;
@@ -851,13 +891,13 @@ State Config::graphicsMenu() {
         while (!startPressed && !currentResized) {
             // Detect the possible events
             Event e{};
-            while(w.pollEvent(e)){
+            while(window.pollEvent(e)){
                 if (e.type == Event::Closed){
                     return EXIT;
                 }
             }
 
-            w.pollEvent(e);
+            window.pollEvent(e);
             if (Keyboard::isKeyPressed(menuDownKey)) {
                 // Up cursor pressed and change the soundtrack selected in the list
                 if (optionSelected != int(menuButtons.size() - 1) / 2) {
@@ -882,7 +922,7 @@ State Config::graphicsMenu() {
                 }
             }
 
-            w.pollEvent(e);
+            window.pollEvent(e);
 
             if (optionSelected == 0) {
                 // Volume music
@@ -898,13 +938,17 @@ State Config::graphicsMenu() {
                                                                       to_string(resolutions[resIndex].second)
                                                                                                     : "FULLSCREEN");
                         if (resIndex > -1) {
-                            w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
+                            window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
                                      Style::Titlebar | Style::Close);
                         } else {
-                            w.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
+                            window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
                         }
-                        w.setFramerateLimit(FPS);
-                        w.setKeyRepeatEnabled(false);
+                        window.setFramerateLimit(FPS);
+                        window.setKeyRepeatEnabled(false);
+
+                        window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+                        w.create(window.getView().getSize().x, window.getView().getSize().y);
+
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;
@@ -919,10 +963,14 @@ State Config::graphicsMenu() {
                         menuButtons[optionSelected + 2].setTextButton(to_string(resolutions[resIndex].first) + "x" +
                                                                       to_string(resolutions[resIndex].second));
 
-                        w.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
+                        window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
                                  Style::Titlebar | Style::Close);
-                        w.setFramerateLimit(FPS);
-                        w.setKeyRepeatEnabled(false);
+                        window.setFramerateLimit(FPS);
+                        window.setKeyRepeatEnabled(false);
+
+                        window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+                        w.create(window.getView().getSize().x, window.getView().getSize().y);
+
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;
@@ -952,7 +1000,10 @@ State Config::graphicsMenu() {
                 menuButton.render(&w);
             }
 
+            bufferSprite.setTexture(w.getTexture(), true);
             w.display();
+            window.draw(bufferSprite);
+            window.display();
             sleep(milliseconds(120));
             effects[0]->stop();
 
@@ -978,7 +1029,10 @@ State optionsMenu(Config& c, const bool& inGame) {
 
         // Clean the console window
         c.w.clear(Color(0, 0, 0));
+        Sprite bufferSprite(c.w.getTexture());
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
 
         c.themes[0]->play();
 
@@ -1017,27 +1071,27 @@ State optionsMenu(Config& c, const bool& inGame) {
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                 "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         // Option configurations
 
@@ -1062,28 +1116,28 @@ State optionsMenu(Config& c, const bool& inGame) {
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                 difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
                                  to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0),
-                                 0);
+                                 0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
         // Control the option selected by the user
         int optionSelected = 0;
@@ -1092,7 +1146,7 @@ State optionsMenu(Config& c, const bool& inGame) {
         while (!startPressed) {
             // Detect the possible events
             Event e{};
-            while( c.w.pollEvent(e))
+            while( c.window.pollEvent(e))
                 if (e.type == Event::Closed)
                     return EXIT;
 
@@ -1218,52 +1272,52 @@ State optionsMenu(Config& c, const bool& inGame) {
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     "AI aggressiveness", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                                     "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     to_string(c.aggressiveness), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
                         }
                     }
 
@@ -1300,7 +1354,10 @@ State optionsMenu(Config& c, const bool& inGame) {
                 menuButton.render(&c.w);
             }
 
+            bufferSprite.setTexture(c.w.getTexture(), true);
             c.w.display();
+            c.window.draw(bufferSprite);
+            c.window.display();
             sleep(milliseconds(120));
             c.effects[0]->stop();
 
@@ -1324,7 +1381,10 @@ State optionsMenu(Config& c, const bool& inGame) {
 State selectMusicSoundtrack(Config &c){
     // Clean the console window
     c.w.clear();
+    Sprite bufferSprite(c.w.getTexture());
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     Texture backgroundMusic;
     Sprite radioMenu;
@@ -1388,7 +1448,7 @@ State selectMusicSoundtrack(Config &c){
     while (!startPressed){
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e))
+        while( c.window.pollEvent(e))
             if (e.type == Event::Closed)
                 return EXIT;
 
@@ -1436,7 +1496,10 @@ State selectMusicSoundtrack(Config &c){
         c.w.draw(music);
         c.w.draw(radio);
         c.w.draw(hand);
+        bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
 
         sleep(milliseconds(180));
 
@@ -1462,7 +1525,10 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     c.effects[6]->stop();
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
+    Sprite bufferSprite(c.w.getTexture());
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     KeywordMapper kM = KeywordMapper();
 
@@ -1597,7 +1663,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     while (time > 0 && !startPressed){
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e))
+        while( c.window.pollEvent(e))
             if (e.type == Event::Closed)
                 return EXIT;
 
@@ -1667,7 +1733,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
                 // Detect the possible events
                 Event e{};
-                while( c.w.pollEvent(e)){
+                while( c.window.pollEvent(e)){
                     if (e.type == Event::Closed){
                         return EXIT;
                     }
@@ -1813,12 +1879,15 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
         }
 
         c.w.draw(start);
+        bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
 
         if (lettersIntroduced != 3 && record != -1){
             // while there are pending events...
             Event event{};
-            while (c.w.pollEvent(event)){
+            while (c.window.pollEvent(event)){
                 if (event.type == Event::KeyPressed){
                     // Get code of the key
                     int code = event.key.code;

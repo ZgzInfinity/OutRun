@@ -20,14 +20,14 @@ int main() {
     Config c;
     State state = ANIMATION;
 
-    while (c.w.isOpen() && state != EXIT) {
+    while (c.window.isOpen() && state != EXIT) {
         Game engine(c);
 
         sleep(milliseconds(500));
         if (state == START)
             state = startMenu(c);
 
-        while (c.w.isOpen() && state != START) {
+        while (c.window.isOpen() && state != START) {
             switch (state) {
                 case ANIMATION: {
                     state = introAnimation(c);
@@ -63,7 +63,7 @@ int main() {
                 }
                 default: {
                     sleep(milliseconds(1000));
-                    c.w.close();
+                    c.window.close();
                     break;
                 }
             }

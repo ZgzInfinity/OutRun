@@ -4,16 +4,16 @@
 Button::Button(){}
 
 Button::Button (float x, float y, float width, float height, Font& f,
-                string text, Color idleColor, Color hoverColor, Color activeColor, int initialState)
+                string text, Color idleColor, Color hoverColor, Color activeColor, int initialState, float screenScale)
 {
     shape.setPosition(Vector2f(x, y));
     shape.setSize(Vector2f(width, height));
     shape.setOutlineColor(Color::Black);
-    shape.setOutlineThickness(3);
+    shape.setOutlineThickness(3.0f * screenScale);
     textButton.setString(text);
     textButton.setFont(f);
     textButton.setFillColor(Color::Blue);
-    textButton.setCharacterSize(12);
+    textButton.setCharacterSize(int(20.0f * screenScale));
     textButton.setPosition(
         shape.getPosition().x + (shape.getGlobalBounds().width / 2.f)  - textButton.getGlobalBounds().width / 2.f,
         shape.getPosition().y + (shape.getGlobalBounds().height / 2.f)  - textButton.getGlobalBounds().height / 2.f - 5
@@ -56,7 +56,7 @@ void Button::setButtonState(button_states stateButton){
 }
 
 
-void Button::render (RenderWindow* app){
+void Button::render (RenderTexture* app){
     app->draw(shape);
     app->draw(textButton);
 }

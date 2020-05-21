@@ -39,13 +39,13 @@ class Button {
         Button();
 
         Button (float x, float y, float width, float height, Font& f, string text,
-                Color idleColor, Color hoverColor, Color activeColor, int initialState);
+                Color idleColor, Color hoverColor, Color activeColor, int initialState, float screenScale);
 
         void getPressed (Button& otherButton);
 
         void setButtonState(button_states buttonState);
 
-        void render (RenderWindow* app);
+        void render (RenderTexture* app);
 
         void setTextButton(string newString);
 

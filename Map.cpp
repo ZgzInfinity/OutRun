@@ -797,7 +797,7 @@ void Map::Line::project(float camX, float camY, float camZ, float camD, float wi
     W = scale * rW  * width / 2.0f;
 }
 
-void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const vector<float> &hitCoeff,
+void Map::Line::drawSprite(RenderTexture &w, const vector<Texture> &objs, const vector<float> &hitCoeff,
                            const vector<HitCoeffType> &hitCoeffType, const vector<float> &scaleCoeff,
                            SpriteInfo &object, bool left) const {
     Sprite s(objs[object.spriteNum]);
@@ -867,7 +867,7 @@ void Map::Line::drawSprite(RenderWindow &w, const vector<Texture> &objs, const v
     }
 }
 
-void drawQuad(RenderWindow &w, Color c, int x1, int y1, int w1, int x2, int y2, int w2) {
+void drawQuad(RenderTexture &w, Color c, int x1, int y1, int w1, int x2, int y2, int w2) {
     ConvexShape shape(4);
     shape.setFillColor(c);
     shape.setPoint(0, Vector2f(x1, y1));
@@ -910,9 +910,9 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     Sprite sbg;
     sbg.setTexture(bg);
     sbg.setScale(Vector2f(2.0f * (float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
-    sbg.setTextureRect(IntRect(0, 0, 5.0f * sbg.getGlobalBounds().width, bg.getSize().y));
+    sbg.setTextureRect(IntRect(0, 0, 10.0f * sbg.getGlobalBounds().width, bg.getSize().y));
     sbg.setPosition(0, 0);
-    sbg.move(-4.0f * c.w.getSize().x - l->bgX - posX, 0);
+    sbg.move(-8.0f * c.w.getSize().x - l->bgX - posX, 0);
     c.w.draw(sbg);
 
     // Initialize lines

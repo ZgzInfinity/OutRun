@@ -481,7 +481,7 @@ State Game::play(Config &c) {
         initialAnimation(c);
     }
 
-    c.w.setKeyRepeatEnabled(false);
+    c.window.setKeyRepeatEnabled(false);
 
     // Time to update the clock counter
     Time shot_delayTime = seconds(1.0);
@@ -509,10 +509,10 @@ State Game::play(Config &c) {
 
     State status;
 
-    while (!finalGame && !arrival && c.w.isOpen()) {
+    while (!finalGame && !arrival && c.window.isOpen()) {
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e))
+        while(c.window.pollEvent(e))
             if (e.type == Event::Closed)
                 return EXIT;
 
@@ -593,7 +593,10 @@ State Game::play(Config &c) {
 
             drawHUD(c);
 
+            Sprite bufferSprite(c.w.getTexture());
             c.w.display();
+            c.window.draw(bufferSprite);
+            c.window.display();
 
             if (time == 10){
                 c.effects[25]->stop();
@@ -621,7 +624,10 @@ State Game::play(Config &c) {
         c.themes[c.currentSoundtrack]->stop();
         c.effects[24]->stop();
         c.effects[24]->play();
+        Sprite bufferSprite(c.w.getTexture());
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
         sleep(c.effects[24]->getDuration());
 
         bool startPressed = false;
@@ -630,7 +636,7 @@ State Game::play(Config &c) {
 
             // Detect the possible events
             Event e{};
-            while( c.w.pollEvent(e)){
+            while( c.window.pollEvent(e)){
                 if (e.type == Event::Closed){
                     return EXIT;
                 }
@@ -665,7 +671,7 @@ State Game::initialAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e)){
+        while( c.window.pollEvent(e)){
             if (e.type == Event::Closed){
                 return EXIT;
             }
@@ -675,12 +681,15 @@ State Game::initialAnimation(Config &c) {
         c.w.clear();
         currentMap->draw(c, cars);
         player.drawInitialAnimation(c, float(i), end);
+        Sprite bufferSprite(c.w.getTexture());
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
     }
 
     // Detect the possible events
     Event e{};
-    while( c.w.pollEvent(e)){
+    while( c.window.pollEvent(e)){
         if (e.type == Event::Closed){
             return EXIT;
         }
@@ -695,10 +704,13 @@ State Game::initialAnimation(Config &c) {
 
     currentMap->draw(c, cars);
     player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+    Sprite bufferSprite(c.w.getTexture());
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     // Detect the possible events
-    while( c.w.pollEvent(e)){
+    while( c.window.pollEvent(e)){
         if (e.type == Event::Closed){
             return EXIT;
         }
@@ -714,7 +726,7 @@ State Game::initialAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e)){
+        while( c.window.pollEvent(e)){
             if (e.type == Event::Closed){
                 return EXIT;
             }
@@ -724,7 +736,10 @@ State Game::initialAnimation(Config &c) {
         c.w.clear();
         currentMap->draw(c, cars);
         player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+        bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
 
         // Flagger
         if (i == 2) {
@@ -737,7 +752,10 @@ State Game::initialAnimation(Config &c) {
                 c.w.clear();
                 currentMap->draw(c, cars);
                 player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+                bufferSprite.setTexture(c.w.getTexture(), true);
                 c.w.display();
+                c.window.draw(bufferSprite);
+                c.window.display();
             }
         }
 
@@ -785,7 +803,7 @@ State Game::goalAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e)){
+        while( c.window.pollEvent(e)){
             if (e.type == Event::Closed){
                 return EXIT;
             }
@@ -836,7 +854,10 @@ State Game::goalAnimation(Config &c) {
         drawBonus(c, seconds, decs_second);
         drawHUD(c);
 
+        Sprite bufferSprite(c.w.getTexture());
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
     }
 
     // Car animation
@@ -858,7 +879,7 @@ State Game::goalAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e)){
+        while( c.window.pollEvent(e)){
             if (e.type == Event::Closed){
                 return EXIT;
             }
@@ -914,9 +935,15 @@ State Game::goalAnimation(Config &c) {
         // Draw speed
         drawHUD(c);
 
+        Sprite bufferSprite(c.w.getTexture());
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
     }
+    Sprite bufferSprite(c.w.getTexture());
     c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
     sleep(c.effects[27]->getDuration());
     return RANKING;
 }
@@ -1133,21 +1160,21 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
 
     // Buttons of the menu
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1);
+                                 "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Home", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                                 "Home", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             "Exit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0);
+                             "Exit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     while (!startPressed) {
         // Detect the possible events
         Event e{};
-        while( c.w.pollEvent(e))
+        while( c.window.pollEvent(e))
             if (e.type == Event::Closed)
                 return EXIT;
 
@@ -1200,7 +1227,10 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
             b.render(&c.w);
         }
 
+        Sprite bufferSprite(c.w.getTexture());
         c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
         sleep(milliseconds(180));
     }
 

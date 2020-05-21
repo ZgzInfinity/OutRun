@@ -101,7 +101,7 @@ class Map {
          * @param object
          * @param left indica si el objeto está a la izquierda de la pantalla
          */
-        void drawSprite(sf::RenderWindow &w, const std::vector<sf::Texture> &objs, const std::vector<float> &hitCoeff,
+        void drawSprite(sf::RenderTexture &w, const std::vector<sf::Texture> &objs, const std::vector<float> &hitCoeff,
                 const std::vector<HitCoeffType> &hitCoeffType, const std::vector<float> &scaleCoeff,
                 SpriteInfo &object, bool left) const;
     };

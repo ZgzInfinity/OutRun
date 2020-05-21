@@ -59,7 +59,8 @@ public:
      */
     State graphicsMenu();
 
-    sf::RenderWindow w;
+    sf::RenderTexture w;
+    sf::RenderWindow window;
     float screenScale;
 
     sf::Keyboard::Key menuKey;
