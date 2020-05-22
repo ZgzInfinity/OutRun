@@ -263,6 +263,14 @@ State startMenu(Config &c, bool startPressed) {
     // Code of sprite to display
     int j = 0;
 
+    float elapsed1, elapsed2;
+    Clock blinkClcok;
+    Time blink_delay = seconds(1.0);
+
+    blinkClcok.restart().asSeconds();
+    elapsed1 = blinkClcok.restart().asSeconds();
+    bool blink = true;
+
     // While the console window is opened
     while (c.window.isOpen()) {
         // While the ENTER keyword is not pressed
@@ -275,16 +283,21 @@ State startMenu(Config &c, bool startPressed) {
                 }
             }
 
+
+            elapsed2 = blinkClcok.getElapsedTime().asSeconds();
+
             // Change the color of the main text
-            if (textElements[0].getFillColor() == Color::Green){
-                // Change color to transparent
-                textElements[0].setFillColor(Color::Transparent);
-                textElements[0].setOutlineColor(Color::Transparent);
+            if (elapsed2 - elapsed1 >= blink_delay.asSeconds()){
+                blink = !blink;
+                blinkClcok.restart();
             }
-            else {
-                // Change color to transparent
+            if (blink){
                 textElements[0].setFillColor(Color::Green);
                 textElements[0].setOutlineColor(Color::Black);
+            }
+            else {
+                textElements[0].setFillColor(Color::Transparent);
+                textElements[0].setOutlineColor(Color::Transparent);
             }
 
             // Show the press start title in the menu
@@ -300,7 +313,7 @@ State startMenu(Config &c, bool startPressed) {
             c.w.display();
             c.window.draw(bufferSprite);
             c.window.display();
-            sleep(milliseconds(180));
+            // sleep(milliseconds(180));
 
             // Check if the start keyword has been pressed
             if (Keyboard::isKeyPressed(c.menuEnterKey)){
@@ -308,7 +321,7 @@ State startMenu(Config &c, bool startPressed) {
                 startPressed = true;
                 c.effects[1]->stop();
                 c.effects[1]->play();
-                sleep(milliseconds(50));
+                // sleep(milliseconds(50));
             }
             else if (Keyboard::isKeyPressed(Keyboard::Escape))
                 return EXIT;
@@ -320,6 +333,7 @@ State startMenu(Config &c, bool startPressed) {
         // Control the second menu
         startPressed = false;
         state = MUSIC;
+        sleep(milliseconds(200));
 
         // While the ENTER keyword is not pressed
         while (!startPressed){
@@ -333,6 +347,7 @@ State startMenu(Config &c, bool startPressed) {
             if (Keyboard::isKeyPressed(c.menuUpKey)){
                 // Up cursor pressed
                 if (state != MUSIC){
+                    c.effects[0]->stop();
                     c.effects[0]->play();
                     row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale, c.w.getSize().y / 2.f + 75.0f * c.screenScale);
                     state = MUSIC;
@@ -341,6 +356,7 @@ State startMenu(Config &c, bool startPressed) {
             else if (Keyboard::isKeyPressed(c.menuDownKey)){
                 // Down cursor pressed
                 if (state != OPTIONS){
+                    c.effects[0]->stop();
                     c.effects[0]->play();
                     row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale, c.w.getSize().y / 2.f + 125.0f * c.screenScale);
                     state = OPTIONS;
@@ -365,9 +381,6 @@ State startMenu(Config &c, bool startPressed) {
             c.w.display();
             c.window.draw(bufferSprite);
             c.window.display();
-            sleep(milliseconds(180));
-            c.effects[0]->stop();
-
             // Check if the start keyword has been pressed
             if (Keyboard::isKeyPressed(c.menuEnterKey)){
                 // Pass to the second menu
@@ -525,10 +538,6 @@ State changeCarControllers(Config& c){
             if (e.type == Event::Closed){
                 return EXIT;
             }
-        }
-        c.window.waitEvent(e);
-        if (e.type == Event::Closed){
-            return EXIT;
         }
         if (Keyboard::isKeyPressed(c.menuDownKey)){
             // Up cursor pressed and change the soundtrack selected in the list
@@ -1537,7 +1546,7 @@ State selectMusicSoundtrack(Config &c){
         c.window.draw(bufferSprite);
         c.window.display();
 
-        sleep(milliseconds(180));
+        sleep(milliseconds(80));
 
         // Check if the keyword Enter has been pressed or not
         if (Keyboard::isKeyPressed(c.menuEnterKey)){

@@ -1208,9 +1208,11 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     while (!startPressed) {
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e))
-            if (e.type == Event::Closed)
+        while( c.window.pollEvent(e)){
+            if (e.type == Event::Closed){
                 return EXIT;
+            }
+        }
 
         // Check if the up or down cursor keys have been pressed or not
         if (Keyboard::isKeyPressed(c.menuDownKey)){
@@ -1259,7 +1261,7 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
         c.w.display();
         c.window.draw(bufferSprite);
         c.window.display();
-        sleep(milliseconds(180));
+        sleep(milliseconds(100));
     }
 
     c.effects[2]->stop();
