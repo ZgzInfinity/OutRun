@@ -1061,8 +1061,8 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         if (!player.isCrashing()) {
             vehicleCrash = false;
             float crashPos;
-            bool crash = currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getMinScreenX(),
-                                                player.getMaxScreenX(), crashPos);
+            bool crash = currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getPosX(),
+                                                player.getMinScreenX(), player.getMaxScreenX(), crashPos);
             if (!crash)
                 for (int i = 0; !vehicleCrash && i < cars.size(); i++)
                     vehicleCrash = cars[i].hasCrashed(player.getPreviousY(), player.getPosY(),

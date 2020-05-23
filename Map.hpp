@@ -344,17 +344,18 @@ public:
     void draw(Config &c, std::vector<Enemy> &vehicles);
 
     /**
-     * Devuelve true si pos corresponde a algún objeto del fragmento del mapa actual. En caso de que sea true, también
-     * devuelve la posición Y del objeto con el que ha colisionado.
+     * Devuelve true si la posición del vehículo corresponde a algún objeto del fragmento del mapa actual o se ha salido
+     * de los límites del mapa. En caso de que sea true, también devuelve la posición Y de la colisión.
      * @param c
-     * @param currentY
      * @param prevY
+     * @param currentY
+     * @param currentX
      * @param minX
      * @param maxX
      * @param crashPos
      * @return
      */
-    bool hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const;
+    bool hasCrashed(const Config &c, float prevY, float currentY, float currentX, float minX, float maxX, float &crashPos) const;
 
     /**
      * Devuelve true si currentX está fuera de la carretera.

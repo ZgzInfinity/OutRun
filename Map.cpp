@@ -1108,7 +1108,12 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     }
 }
 
-bool Map::hasCrashed(const Config &c, float prevY, float currentY, float minX, float maxX, float &crashPos) const {
+bool Map::hasCrashed(const Config &c, float prevY, float currentY, float currentX, float minX, float maxX, float &crashPos) const {
+    if (!inFork(currentY) && abs(currentX) > 3.0f) { // has left the map
+        crashPos = posY;
+        return true;
+    }
+
     Line l;
     for (int n = int(posY); n < int(posY) + c.renderLen; n++) {
         l = getLine(n);
