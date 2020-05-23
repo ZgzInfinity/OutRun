@@ -794,18 +794,22 @@ State soundMenu(Config& c, const bool& inGame) {
             if (Keyboard::isKeyPressed(c.leftKey)) {
                 if (c.volumeEffects != 0){
                     c.volumeEffects--;
-                    for (int i = 0; i < 29; i++){
+                    for (int i = 0; i <= 29; i++){
                         c.effects[i]->setVolume(c.volumeEffects);
                     }
+                    c.effects[0]->stop();
+                    c.effects[0]->play();
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
                 }
             }
             else if (Keyboard::isKeyPressed(c.rightKey)) {
                 if (c.volumeEffects != 100){
                     c.volumeEffects++;
-                    for (int i = 0; i <= 5; i++){
+                    for (int i = 0; i <= 29; i++){
                         c.effects[i]->setVolume(c.volumeEffects);
                     }
+                    c.effects[0]->stop();
+                    c.effects[0]->play();
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
                 }
             }
@@ -1716,15 +1720,9 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     elapsed3 = blinkStart.getElapsedTime().asSeconds();
 
     c.effects[29]->play();
+    Event e;
 
     while (time > 0 && !startPressed){
-        // Detect the possible events
-        Event e{};
-        while( c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
-                return EXIT;
-            }
-        }
 
         // Get the actual time
         elapsed2 = rankingTime.getElapsedTime().asSeconds();
@@ -1789,15 +1787,11 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 c.w.draw(minutesPlayer);
                 c.w.draw(secondsPlayer);
                 c.w.draw(centsPlayer);
-
-                // Detect the possible events
-                Event e{};
-                while( c.window.pollEvent(e)){
-                    if (e.type == Event::Closed){
-                        return EXIT;
-                    }
+            }
+            while (c.window.pollEvent(e)){
+                if (e.type == Event::Closed){
+                    return EXIT;
                 }
-
             }
         }
         else {
@@ -1947,7 +1941,10 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
             // while there are pending events...
             Event event{};
             while (c.window.pollEvent(event)){
-                if (event.type == Event::KeyPressed){
+                if (event.type == Event::Closed){
+                    return EXIT;
+                }
+                else if (event.type == Event::KeyPressed){
                     // Get code of the key
                     int code = event.key.code;
                     // Check if the key pressed is a letter or not
@@ -1980,7 +1977,6 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 }
             }
         }
-
         if (Keyboard::isKeyPressed(c.menuEnterKey)){
             startPressed = true;
         }

@@ -1019,7 +1019,10 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
     }
 
     if (currentMap->isGoalMap()) {
-        goalAnimation(c);
+        State status = goalAnimation(c);
+        if (status == EXIT){
+            exit(1);
+        }
         arrival = true;
     }
 

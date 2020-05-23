@@ -62,7 +62,6 @@ int main() {
                     break;
                 }
                 default: {
-                    sleep(milliseconds(1000));
                     c.window.close();
                     break;
                 }
