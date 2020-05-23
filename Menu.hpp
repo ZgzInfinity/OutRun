@@ -19,6 +19,8 @@
 
 #define SCREEN_DEFAULT_X 921
 #define SCREEN_DEFAULT_Y 691
+#define SCREEN_HD_X 1280
+#define SCREEN_HD_Y 720
 
 sf::Font initializeFontTimePlay();
 
@@ -65,6 +67,7 @@ public:
     sf::RenderTexture w;
     sf::RenderWindow window;
     float screenScale;
+    bool isDefaultScreen;
 
     sf::Keyboard::Key menuKey;
     sf::Keyboard::Key menuUpKey;

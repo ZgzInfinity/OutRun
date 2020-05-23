@@ -14,7 +14,7 @@
 // Screen
 #define SCREEN_DEFAULT make_pair(SCREEN_DEFAULT_X, SCREEN_DEFAULT_Y)
 // HD
-#define SCREEN_1 make_pair(1280, 720)
+#define SCREEN_1 make_pair(SCREEN_HD_X, SCREEN_HD_Y)
 // HD+
 #define SCREEN_2 make_pair(1366, 768)
 // FULL HD
@@ -24,16 +24,21 @@
 // UHD
 #define SCREEN_5 make_pair(3840, 2160)
 
+#define DEFAULT_VIEW
+
 using namespace std;
 using namespace sf;
 
 Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0),
-                   camD(0.84), renderLen(300) {
+                   isDefaultScreen(true), camD(0.84), renderLen(300) {
     window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
     window.setFramerateLimit(FPS);
     window.setKeyRepeatEnabled(false);
 
-    window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
+    if (isDefaultScreen)
+        window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+    else
+        window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
     w.create(window.getView().getSize().x, window.getView().getSize().y);
 
     Image i;
@@ -395,7 +400,10 @@ State startMenu(Config &c, bool startPressed) {
         c.effects[0]->stop();
 
         if (c.enablePixelArt) {
-            c.window.setView(View(Vector2f(c.window.getSize().x / 4.0f, c.window.getSize().y / 4.0f), Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f)));
+            if (c.isDefaultScreen)
+                c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+            else
+                c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
             c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
             c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
         }
@@ -897,8 +905,8 @@ State Config::graphicsMenu() {
                                  "Pixel art", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
 
         // Option configurations
-        const string res = resIndex < resolutions.size() ? to_string(resolutions[resIndex].first) + "x" +
-                                                           to_string(resolutions[resIndex].second) : "FULLSCREEN";
+        const string res = resIndex > -1 ? to_string(resolutions[resIndex].first) + "x" +
+                           to_string(resolutions[resIndex].second) : "FULLSCREEN";
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
                                  200.0f * screenScale, 30.0f * screenScale, options,
                                  res, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, screenScale);
@@ -969,11 +977,11 @@ State Config::graphicsMenu() {
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
 
-                        if (enablePixelArt)
-                            window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
-                        else
-                            window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f), Vector2f(window.getSize().x, window.getSize().y)));
+                        isDefaultScreen = resIndex == 0;
 
+
+                        window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f),
+                                            Vector2f(window.getSize().x, window.getSize().y)));
                         w.create(window.getView().getSize().x, window.getView().getSize().y);
 
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
@@ -995,11 +1003,11 @@ State Config::graphicsMenu() {
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
 
-                        if (enablePixelArt)
-                            window.setView(View(Vector2f(window.getSize().x / 4.0f, window.getSize().y / 4.0f), Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f)));
-                        else
-                            window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f), Vector2f(window.getSize().x, window.getSize().y)));
+                        isDefaultScreen = resIndex == 0;
 
+
+                        window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f),
+                                            Vector2f(window.getSize().x, window.getSize().y)));
                         w.create(window.getView().getSize().x, window.getView().getSize().y);
 
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
@@ -1410,7 +1418,10 @@ State optionsMenu(Config& c, const bool& inGame) {
         c.themes[0]->stop();
 
         if (c.enablePixelArt) {
-            c.window.setView(View(Vector2f(c.window.getSize().x / 4.0f, c.window.getSize().y / 4.0f), Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f)));
+            if (c.isDefaultScreen)
+                c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+            else
+                c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
             c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
             c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
         }
@@ -1566,6 +1577,9 @@ State endMenu(Config &c) {
 
 
 State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minutes, const int secs, const int cents_Second){
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+    c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     c.effects[6]->stop();
     // Clean the console window
@@ -1988,6 +2002,15 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     c.effects[2]->play();
     c.effects[29]->stop();
     c.themes[4]->stop();
+
+    if (c.enablePixelArt) {
+        if (c.isDefaultScreen)
+            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+        else
+            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+        c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+        c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+    }
 
     return START;
 }

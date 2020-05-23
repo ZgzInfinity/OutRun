@@ -1268,7 +1268,10 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     c.effects[2]->play();
 
     if (c.enablePixelArt) {
-        c.window.setView(View(Vector2f(c.window.getSize().x / 4.0f, c.window.getSize().y / 4.0f), Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f)));
+        if (c.isDefaultScreen)
+            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+        else
+            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
         c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
         c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
     }
