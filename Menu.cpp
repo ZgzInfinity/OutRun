@@ -24,8 +24,6 @@
 // UHD
 #define SCREEN_5 make_pair(3840, 2160)
 
-#define DEFAULT_VIEW
-
 using namespace std;
 using namespace sf;
 
