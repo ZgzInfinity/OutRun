@@ -88,11 +88,11 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
             }
         }
         else if (typeAI == EVASIVE) {
-            if (playerPosX <= -0.75) {
+            if (playerPosX <= -0.5) {
                 posX += XINC * speed / maxSpeed;
                 currentDirection = TURNRIGHT;
             }
-            else if (playerPosX >= 0.75) {
+            else if (playerPosX >= 0.5) {
                 posX -= XINC * speed / maxSpeed;
                 currentDirection = TURNLEFT;
             }
