@@ -17,7 +17,7 @@ using namespace sf;
 #define SEGL 100 // Segment length
 #define ROADW 3000 // Road Width / 2
 #define RUMBLECOEFF 0.0666f // Ruble size = Road size * Rumble coeff
-#define SCREEN_SCALE 266.0f
+#define SCREEN_SCALE 280.0f
 #define FORK_COEFF 0.03f
 #define FORK_RECTANGLES 100 // Multiple of RECTANGLE
 #define END_RECTANGLES 60 // Multiple of RECTANGLE

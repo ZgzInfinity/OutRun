@@ -28,7 +28,7 @@ using namespace std;
 using namespace sf;
 
 Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0),
-                   isDefaultScreen(true), camD(0.84), renderLen(300) {
+                   isDefaultScreen(true), camD(0.87), renderLen(300) {
     window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
     window.setFramerateLimit(FPS);
     window.setKeyRepeatEnabled(false);

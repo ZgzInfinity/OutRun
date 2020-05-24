@@ -156,7 +156,11 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
     skidding = false;
 
     if (speed > 0.0f) {
-        posX -= XINC * curveCoefficient * sqrt(speed) * speed / maxSpeed;
+        if (speed < 0.66f * maxSpeed)
+            posX -= XINC * curveCoefficient * sqrt(speed / 2.0f) * speed / maxSpeed;
+        else
+            posX -= XINC * curveCoefficient * sqrt(speed) * speed / maxSpeed;
+
         if (abs(curveCoefficient) >= 0.33f && speed >= 0.66f * maxSpeed)
             skidding = true;
 
