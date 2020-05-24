@@ -797,7 +797,7 @@ State soundMenu(Config &c, const bool &inGame) {
                 if (c.volumeMusic != 0) {
                     c.volumeMusic--;
                     for (int i = 0; i <= 5; i++) {
-                        c.themes[i]->setVolume(c.volumeMusic);
+                        c.themes[i]->setVolume(float(c.volumeMusic));
                         if (i == 0) {
                             c.themes[i]->pause();
                             c.themes[i]->play();
@@ -809,7 +809,7 @@ State soundMenu(Config &c, const bool &inGame) {
                 if (c.volumeMusic != 100) {
                     c.volumeMusic++;
                     for (int i = 0; i <= 5; i++) {
-                        c.themes[i]->setVolume(c.volumeMusic);
+                        c.themes[i]->setVolume(float(c.volumeMusic));
                         if (i == 0) {
                             c.themes[i]->pause();
                             c.themes[i]->play();
@@ -825,7 +825,7 @@ State soundMenu(Config &c, const bool &inGame) {
                 if (c.volumeEffects != 0) {
                     c.volumeEffects--;
                     for (int i = 0; i <= 29; i++) {
-                        c.effects[i]->setVolume(c.volumeEffects);
+                        c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
                     c.effects[0]->play();
@@ -835,7 +835,7 @@ State soundMenu(Config &c, const bool &inGame) {
                 if (c.volumeEffects != 100) {
                     c.volumeEffects++;
                     for (int i = 0; i <= 29; i++) {
-                        c.effects[i]->setVolume(c.volumeEffects);
+                        c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
                     c.effects[0]->play();
@@ -1786,7 +1786,7 @@ rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minutes, c
     elapsed3 = blinkStart.getElapsedTime().asSeconds();
 
     c.effects[29]->play();
-    Event e;
+    Event e{};
 
     while (time > 0 && !startPressed) {
 
@@ -1877,7 +1877,7 @@ rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minutes, c
             // There is a new record
             // Show all the out runners with a higher score
 
-            for (int i = 0; i <= record - 1; i++ && record != 0) {
+            for (int i = 0; i <= record - 1; i++) {
 
                 index.setString(to_string(i) + ".");
                 index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width,

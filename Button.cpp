@@ -1,10 +1,10 @@
 
 #include "Button.hpp"
 
-Button::Button() {}
+Button::Button() = default;
 
 Button::Button(float x, float y, float width, float height, Font &f,
-               string text, Color idleColor, Color hoverColor, Color activeColor, int initialState, float screenScale) {
+               const string& text, Color idleColor, Color hoverColor, Color activeColor, int initialState, float screenScale) {
     shape.setPosition(Vector2f(x, y));
     shape.setSize(Vector2f(width, height));
     shape.setOutlineColor(Color::Black);
@@ -26,13 +26,13 @@ Button::Button(float x, float y, float width, float height, Font &f,
 
     // Check the initial state of the button
     switch (initialState) {
-        case 0:;
+        case 0:
             shape.setFillColor(idleColorButton);
             break;
-        case 1:;
+        case 1:
             shape.setFillColor(hoverColorButton);
             break;
-        case 2:;
+        case 2:
             shape.setFillColor(activeColorButton);
             break;
         default:
@@ -61,7 +61,7 @@ void Button::render(RenderTexture *app) {
 }
 
 
-void Button::setTextButton(string newString) {
+void Button::setTextButton(const string& newString) {
     textButton.setString(newString);
     textButton.setPosition(
             shape.getPosition().x + (shape.getGlobalBounds().width / 2.f) - textButton.getGlobalBounds().width / 2.f,

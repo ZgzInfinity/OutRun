@@ -124,7 +124,7 @@ State startMenu(Config &c, bool startPressed = false);
 
 State endMenu(Config &c);
 
-State rankingMenu(Config &c, unsigned long scorePlayerGame, const int minutes, const int decs, const int cents_Second);
+State rankingMenu(Config &c, unsigned long scorePlayerGame, int minutes, int decs, int cents_Second);
 
 
 #endif //OUTRUN_MENU_HPP

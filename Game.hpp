@@ -135,7 +135,7 @@ class Game {
 
     void drawCheckpoint(Config &c, bool visible);
 
-    void drawGameOver(Config &c);
+    static void drawGameOver(Config &c);
 
     void drawBonus(Config &c, int seconds, int decs_second);
 

@@ -229,7 +229,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                 c.effects[6]->stop();
                 c.effects[6]->play();
             }
-            c.effects[6]->setVolume((33.0f + 67.0f * speed / maxSpeed) * c.volumeEffects / 100.f);
+            c.effects[6]->setVolume((33.0f + 67.0f * speed / maxSpeed) * float(c.volumeEffects) / 100.f);
             if (skidding && c.effects[8]->getStatus() != SoundSource::Playing) {
                 // Skidding sound
                 c.effects[8]->stop();

@@ -736,7 +736,6 @@ State Game::initialAnimation(Config &c) {
     for (int i = 0; i < 3; i++) {
 
         // Detect the possible events
-        Event e{};
         while (c.window.pollEvent(e)) {
             if (e.type == Event::Closed) {
                 return EXIT;

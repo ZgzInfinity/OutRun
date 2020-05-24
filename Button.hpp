@@ -30,14 +30,14 @@ public:
 
     Button();
 
-    Button(float x, float y, float width, float height, Font &f, string text,
+    Button(float x, float y, float width, float height, Font &f, const string& text,
            Color idleColor, Color hoverColor, Color activeColor, int initialState, float screenScale);
 
     void setButtonState(button_states buttonState);
 
     void render(RenderTexture *app);
 
-    void setTextButton(string newString);
+    void setTextButton(const string& newString);
 
 };
 
