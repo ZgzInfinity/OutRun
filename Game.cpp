@@ -14,7 +14,7 @@ using namespace sf;
 using namespace std;
 
 #define MAX_SPEED 300.0f
-#define SPEED_MUL 90.0f
+#define SPEED_MUL 70.0f
 #define MAX_COUNTER 10
 #define VEHICLE_DENSITY 3.0f // Greater than 0
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies

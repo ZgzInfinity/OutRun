@@ -155,23 +155,9 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
     skidding = false;
 
     if (speed > 0.0f) {
-        if (curveCoefficient != 0.0f) {
-            if (abs(curveCoefficient) >= 0.33f && speed >= 0.75f * maxSpeed) {
-                skidding = true;
-
-                posX -= XINC * curveCoefficient * speed / (8.0f * maxSpeed);
-                if (curveCoefficient < 0.0f)
-                    posX += XINC * speed / maxSpeed;
-                else
-                    posX -= XINC * speed / maxSpeed;
-            }
-            else {
-                if (abs(curveCoefficient) >= 0.33f)
-                    posX -= XINC * curveCoefficient * speed / maxSpeed;
-                else
-                    posX -= 2.0f * XINC * curveCoefficient * speed / maxSpeed;
-            }
-        }
+        posX -= XINC * curveCoefficient * sqrt(speed) * speed / maxSpeed;
+        if (abs(curveCoefficient) >= 0.33f && speed >= 0.66f * maxSpeed)
+            skidding = true;
 
         if (Keyboard::isKeyPressed(c.leftKey)) {
             if (inertia > -MAX_INERTIA)
