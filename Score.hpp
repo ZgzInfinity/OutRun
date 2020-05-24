@@ -22,6 +22,14 @@ struct Score {
     int secs;
     int cents_second;
 
+    /**
+     * Constructor por defecto.
+     * @param score
+     * @param name
+     * @param minutes
+     * @param secs
+     * @param centsSecond
+     */
     Score(unsigned long score, const std::string &name, int minutes, int secs, int centsSecond);
 };
 

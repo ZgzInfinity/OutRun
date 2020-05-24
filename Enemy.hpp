@@ -2,7 +2,7 @@
  * @file    Enemy.hpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
- * @date    Marzo 2020
+ * @date    Mayo 2020
  * @coms    Videojuegos - OutRun
  ******************************************************************************/
 
@@ -57,14 +57,11 @@ public:
      *      a velocidad constante sin salirse de la carretera y siguiendo una trayectoria recta o con giro (elegida
      *      de manera aleatoria) y sin ser influenciado por el jugador.
      *
-     *      Si la agresividad de la IA es 1, el movimiento será controlado por la IA y se verá influenciado por el
-     *      jugador de la siguiente manera:
-     *          Si el vehículo no se encuentra en la trayectoria del jugador, realiza un giro para acercarse a la
-     *          trayectoria del jugador.
-     *          Si el vehículo se encuentra en la trayectoria del jugador y está por detrás suyo, acelera para intentar
-     *          chocarse con el jugaodr.
-     *          Si el vehículo se encuentra en la trayectoria del jugador y está por delante suyo, frena para intentar
-     *          chocarse con el jugaodr.
+     *      Si la agresividad de la IA es 1, el movimiento será controlado por la IA y su movimiento dependerá del tipo
+     *      de IA:
+     *          OBSTACLE: Intenta chocar con el jugador poniéndose en su trayectoria e intentando alcanzarlo.
+     *          EVASIVE: Huye al carril más alejado del jugador para intentar evitarlo.
+     *          INCONSTANT: Cambia de carriles muy a menudo sin tener en cuenta la posición del jugador.
      *
      *      Si la agresividad de la IA se encuentra entre 0 y 1, realiza una de las dos acciones descritas (original
      *      o IA) con probabilidad p de que actúe la IA y p' = (1 - p) de que sea como en el original.
@@ -97,12 +94,28 @@ public:
      */
     void draw(const Elevation &e, float camX);
 
+    /**
+     * Establece la coordenada X mínima que ocupa el vehículo.
+     * @param screenX
+     */
     void setMinScreenX(float screenX);
 
+    /**
+     * Establece la coordenada X máxima que ocupa el vehículo.
+     * @param screenX
+     */
     void setMaxScreenX(float screenX);
 
+    /**
+     * Devuelve la textura actual del vehículo.
+     * @return
+     */
     const sf::Texture *getCurrentTexture() const;
 
+    /**
+     * Devuelve la escala actual del vehículo.
+     * @return
+     */
     float getScale() const;
 
     /**

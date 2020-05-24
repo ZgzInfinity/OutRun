@@ -2,7 +2,7 @@
  * @file    Game.hpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
- * @date    Marzo 2020
+ * @date    Mayo 2020
  * @coms    Videojuegos - OutRun
  ******************************************************************************/
 
@@ -131,12 +131,31 @@ class Game {
 
     std::string lap, lapCheckPoint;
 
+    /**
+     * Dibuja el HUD en pantalla.
+     * @param c
+     */
     void drawHUD(Config &c);
 
+    /**
+     * Muestra el mensaje de checkpoint en pantalla.
+     * @param c
+     * @param visible
+     */
     void drawCheckpoint(Config &c, bool visible);
 
+    /**
+     * Muestra el mensaje de GAME OVER en pantalla.
+     * @param c
+     */
     static void drawGameOver(Config &c);
 
+    /**
+     * Muestra el mensaje de bonus en pantalla.
+     * @param c
+     * @param seconds
+     * @param decs_second
+     */
     void drawBonus(Config &c, int seconds, int decs_second);
 
     /**
@@ -170,14 +189,34 @@ public:
      */
     void checkDifficulty(Config &c);
 
+    /**
+     * Devuelve true si se está en medio de una partida.
+     * @return
+     */
     bool isInGame() const;
 
+    /**
+     * Devuelve la puntuación total.
+     * @return
+     */
     unsigned long getScore() const;
 
+    /**
+     * Devuelve los minutos totales.
+     * @return
+     */
     float getMinutesTrip() const;
 
+    /**
+     * Devuelve los segundos totales.
+     * @return
+     */
     float getSecsTrip() const;
 
+    /**
+     * Devuelve las centésimas de segundo totales.
+     * @return
+     */
     float getCents_SecondTrip() const;
 
     /**
@@ -187,6 +226,13 @@ public:
      */
     State play(Config &c);
 
+    /**
+     * Menú de pausa.
+     * @param c
+     * @param a
+     * @param d
+     * @return
+     */
     State pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction &d);
 };
 

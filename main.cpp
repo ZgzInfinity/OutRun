@@ -2,11 +2,9 @@
  * @file    main.cpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
- * @date    Marzo 2020
+ * @date    Mayo 2020
  * @coms    Videojuegos - OutRun
  ******************************************************************************/
-
-
 
 #include <SFML/Graphics.hpp>
 #include "Menu.hpp"
@@ -55,10 +53,6 @@ int main() {
                     int secs = int(engine.getSecsTrip());
                     int cents_Second = int(engine.getCents_SecondTrip());
                     state = rankingMenu(c, scorePlayer, minutes, secs, cents_Second);
-                    break;
-                }
-                case END: {
-                    state = endMenu(c);
                     break;
                 }
                 default: {

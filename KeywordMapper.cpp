@@ -1,4 +1,10 @@
-
+/******************************************************************************
+ * @file    KeywordMapper.cpp
+ * @author  Andrés Gavín Murillo, 716358
+ * @author  Rubén Rodríguez Esteban, 737215
+ * @date    Mayo 2020
+ * @coms    Videojuegos - OutRun
+ ******************************************************************************/
 
 #include "KeywordMapper.hpp"
 

@@ -2,7 +2,7 @@
  * @file    Menu.cpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
- * @date    Marzo 2020
+ * @date    Mayo 2020
  * @coms    Videojuegos - OutRun
  ******************************************************************************/
 
@@ -1634,11 +1634,6 @@ State selectMusicSoundtrack(Config &c) {
     c.themes[0]->stop();
     return GAME;
 }
-
-State endMenu(Config &c) {
-    return EXIT;
-}
-
 
 State
 rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minutes, const int secs, const int cents_Second) {

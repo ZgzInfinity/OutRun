@@ -2,7 +2,7 @@
  * @file    Menu.hpp
  * @author  Andrés Gavín Murillo, 716358
  * @author  Rubén Rodríguez Esteban, 737215
- * @date    Marzo 2020
+ * @date    Mayo 2020
  * @coms    Videojuegos - OutRun
  ******************************************************************************/
 
@@ -22,10 +22,22 @@
 #define SCREEN_HD_X 1280
 #define SCREEN_HD_Y 720
 
+/**
+ * Devuelve la fuente para el tiempo.
+ * @return
+ */
 sf::Font initializeFontTimePlay();
 
+/**
+ * Devuelve la fuente para la velocidad.
+ * @return
+ */
 sf::Font initializeFontSpeed();
 
+/**
+ * Devuelve la fuente para las opciones.
+ * @return
+ */
 sf::Font initializeFontOptions();
 
 const int NUM_SEGA_ICONS = 39;
@@ -37,7 +49,6 @@ enum State {
     OPTIONS,
     MUSIC,
     GAME,
-    END,
     RANKING,
     EXIT
 };
@@ -56,6 +67,9 @@ private:
     int resIndex;
 
 public:
+    /**
+     * Constructor por defecto.
+     */
     Config();
 
     /**
@@ -112,18 +126,52 @@ public:
     bool enablePixelArt;
 };
 
+/**
+ * Animación inicial.
+ * @param c
+ * @return
+ */
 State introAnimation(Config &c);
 
+/**
+ * Menú de opciones.
+ * @param c
+ * @param inGame
+ * @return
+ */
 State optionsMenu(Config &c, const bool &inGame);
 
+/**
+ * Menú para cambiar los controles.
+ * @param c
+ * @return
+ */
 State changeCarControllers(Config &c);
 
+/**
+ * Animación para saleccionar la música.
+ * @param c
+ * @return
+ */
 State selectMusicSoundtrack(Config &c);
 
+/**
+ * Menú inicial.
+ * @param c
+ * @param startPressed
+ * @return
+ */
 State startMenu(Config &c, bool startPressed = false);
 
-State endMenu(Config &c);
-
+/**
+ * Pantalla del ranking.
+ * @param c
+ * @param scorePlayerGame
+ * @param minutes
+ * @param decs
+ * @param cents_Second
+ * @return
+ */
 State rankingMenu(Config &c, unsigned long scorePlayerGame, int minutes, int decs, int cents_Second);
 
 
