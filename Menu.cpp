@@ -29,15 +29,20 @@ using namespace sf;
 
 Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), resIndex(0),
                    isDefaultScreen(true), camD(0.87), renderLen(300) {
-    window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run", Style::Titlebar | Style::Close);
+    window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
+                            static_cast<unsigned int>(resolutions[resIndex].second)), "Out Run",
+                  Style::Titlebar | Style::Close);
     window.setFramerateLimit(FPS);
     window.setKeyRepeatEnabled(false);
 
     if (isDefaultScreen)
-        window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+        window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f),
+                            Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
     else
-        window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
-    w.create(window.getView().getSize().x, window.getView().getSize().y);
+        window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f),
+                            Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+    w.create(static_cast<unsigned int>(window.getView().getSize().x),
+             static_cast<unsigned int>(window.getView().getSize().y));
 
     Image i;
     i.loadFromFile("resources/Icon/OutRun.png");
@@ -75,13 +80,13 @@ Config::Config() : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SC
     enablePixelArt = true;
 }
 
-State introAnimation(Config& c){
+State introAnimation(Config &c) {
     // Load the game effects
-    for (int i = 1; i <= 30; i++){
+    for (int i = 1; i <= 30; i++) {
         // Detect the possible events
         Event e{};
-        while(c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
@@ -99,12 +104,12 @@ State introAnimation(Config& c){
     Sprite segaIcon;
 
     // Iterate throughout all the icons of sega
-    for (int i = 1; i < NUM_SEGA_ICONS; i++){
+    for (int i = 1; i < NUM_SEGA_ICONS; i++) {
 
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
@@ -112,7 +117,7 @@ State introAnimation(Config& c){
         t.loadFromFile("resources/SegaAnimation/segaLogo" + to_string(i) + ".png");
         segaIcons.push_back(t);
         // Load the texture in the sprite reseting the last texture
-        segaIcon.setTexture(segaIcons.at(i - 1), true);
+        segaIcon.setTexture(segaIcons.at(static_cast<unsigned long>(i - 1)), true);
         segaIcon.setScale(c.screenScale, c.screenScale);
         if (i == 1) {
             segaIcon.setPosition((c.w.getSize().x - segaIcon.getGlobalBounds().width) / 2.0f,
@@ -130,7 +135,7 @@ State introAnimation(Config& c){
     c.effects[26]->play();
 
     // Load the music soundtracks of the game
-    for (int i = 0; i <= 5; i++){
+    for (int i = 0; i <= 5; i++) {
         unique_ptr<Music> music = make_unique<Music>();
         music->openFromFile("resources/Soundtrack/" + to_string(i) + ".ogg");
         music->setVolume(90);
@@ -142,8 +147,10 @@ State introAnimation(Config& c){
 }
 
 State startMenu(Config &c, bool startPressed) {
-    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
-    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
+                          Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+               static_cast<unsigned int>(c.window.getView().getSize().y));
     c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     const int ELEMENTS = 8;
@@ -164,19 +171,21 @@ State startMenu(Config &c, bool startPressed) {
     // Loading the background texture
     backgroundMenu.loadFromFile("resources/MainMenu/LogoMain1.png");
     mainMenu.setTexture(backgroundMenu);
-    mainMenu.setPosition(0 , 0);
-    mainMenu.setScale((float)c.w.getSize().x / backgroundMenu.getSize().x, (float)c.w.getSize().y / backgroundMenu.getSize().y);
+    mainMenu.setPosition(0, 0);
+    mainMenu.setScale((float) c.w.getSize().x / backgroundMenu.getSize().x,
+                      (float) c.w.getSize().y / backgroundMenu.getSize().y);
 
-    for (int i = 2; i <= 7; i++){
+    for (int i = 2; i <= 7; i++) {
         // Loading the texture of the game's name
         gameIcon.loadFromFile("resources/MainMenu/LogoMain" + to_string(i) + ".png");
         gameIcons.push_back(gameIcon);
     }
 
-    for (int i = 0; i < 6; i++){
+    for (int i = 0; i < 6; i++) {
         // Loading the texture of the game's name
         nameGame.setTexture(gameIcons[i], true);
-        nameGame.setPosition((c.w.getSize().x / 2.f) - 180.0f * c.screenScale, c.w.getSize().y / 2.f - 200.0f * c.screenScale);
+        nameGame.setPosition((c.w.getSize().x / 2.f) - 180.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 200.0f * c.screenScale);
         nameGame.setScale(2.0f * c.screenScale, 2.0f * c.screenScale);
         nameGames.push_back(nameGame);
     }
@@ -190,40 +199,44 @@ State startMenu(Config &c, bool startPressed) {
     // Options of the main menu
     Text textElements[ELEMENTS];
     textElements[0].setString("PRESS ENTER KEY");
-    textElements[0].setCharacterSize(int(40.0f * c.screenScale));
+    textElements[0].setCharacterSize(static_cast<unsigned int>(int(40.0f * c.screenScale)));
     textElements[0].setFont(c.timeToPlay);
     textElements[0].setFillColor(Color::Green);
     textElements[0].setOutlineColor(Color::Black);
     textElements[0].setOutlineThickness(3.0f * c.screenScale);
-    textElements[0].setPosition((c.w.getSize().x - textElements[0].getGlobalBounds().width) / 2.f, c.w.getSize().y / 2.f + 100.0f * c.screenScale);
+    textElements[0].setPosition((c.w.getSize().x - textElements[0].getGlobalBounds().width) / 2.f,
+                                c.w.getSize().y / 2.f + 100.0f * c.screenScale);
 
     textElements[1].setString("START");
-    textElements[1].setPosition((c.w.getSize().x / 2.f) - 50.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale);
-    textElements[1].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[1].setPosition((c.w.getSize().x / 2.f) - 50.0f * c.screenScale,
+                                c.w.getSize().y / 2.f + 70.0f * c.screenScale);
+    textElements[1].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[1].setFont(c.timeToPlay);
     textElements[1].setFillColor(Color::Green);
     textElements[1].setOutlineColor(Color::Black);
     textElements[1].setOutlineThickness(3.0f * c.screenScale);
 
     textElements[2].setString("OPTIONS");
-    textElements[2].setPosition(c.w.getSize().x / 2.f - 50.0f * c.screenScale, c.w.getSize().y / 2.f + 120.0f * c.screenScale);
-    textElements[2].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[2].setPosition(c.w.getSize().x / 2.f - 50.0f * c.screenScale,
+                                c.w.getSize().y / 2.f + 120.0f * c.screenScale);
+    textElements[2].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[2].setFont(c.timeToPlay);
     textElements[2].setFillColor(Color::Green);
     textElements[2].setOutlineColor(Color::Black);
     textElements[2].setOutlineThickness(3.0f * c.screenScale);
 
     textElements[4].setString("©SEGA");
-    textElements[4].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[4].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[4].setFont(c.timeToPlay);
     textElements[4].setFillColor(Color::Green);
     textElements[4].setOutlineColor(Color::Black);
     textElements[4].setOutlineThickness(3.0f * c.screenScale);
-    float initialX = c.w.getSize().x - 2.0f * textElements[4].getGlobalBounds().width, initialY = c.w.getSize().y - 2.0f * float(textElements[4].getCharacterSize());
+    float initialX = c.w.getSize().x - 2.0f * textElements[4].getGlobalBounds().width, initialY =
+            c.w.getSize().y - 2.0f * float(textElements[4].getCharacterSize());
     textElements[4].setPosition(initialX, initialY);
 
     textElements[3].setString("1986");
-    textElements[3].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[3].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[3].setFont(c.timeToPlay);
     textElements[3].setFillColor(Color::Green);
     textElements[3].setOutlineColor(Color::Black);
@@ -232,7 +245,7 @@ State startMenu(Config &c, bool startPressed) {
 
     initialX = textElements[4].getGlobalBounds().width;
     textElements[5].setString("EXIT / PAUSE: ESC KEY");
-    textElements[5].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[5].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[5].setFont(c.timeToPlay);
     textElements[5].setFillColor(Color::Green);
     textElements[5].setOutlineColor(Color::Black);
@@ -241,7 +254,7 @@ State startMenu(Config &c, bool startPressed) {
 
     initialY -= 2.0f * textElements[5].getGlobalBounds().height;
     textElements[6].setString("MOVE: ARROW KEYS");
-    textElements[6].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[6].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[6].setFont(c.timeToPlay);
     textElements[6].setFillColor(Color::Green);
     textElements[6].setOutlineColor(Color::Black);
@@ -250,7 +263,7 @@ State startMenu(Config &c, bool startPressed) {
 
     initialY -= 2.0f * textElements[6].getGlobalBounds().height;
     textElements[7].setString("SELECT: ENTER KEY");
-    textElements[7].setCharacterSize(int(30.0f * c.screenScale));
+    textElements[7].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[7].setFont(c.timeToPlay);
     textElements[7].setFillColor(Color::Green);
     textElements[7].setOutlineColor(Color::Black);
@@ -277,11 +290,11 @@ State startMenu(Config &c, bool startPressed) {
     // While the console window is opened
     while (c.window.isOpen()) {
         // While the ENTER keyword is not pressed
-        while (!startPressed){
+        while (!startPressed) {
             // Detect the possible events
             Event e{};
-            while( c.window.pollEvent(e)){
-                if (e.type == Event::Closed){
+            while (c.window.pollEvent(e)) {
+                if (e.type == Event::Closed) {
                     return EXIT;
                 }
             }
@@ -290,15 +303,14 @@ State startMenu(Config &c, bool startPressed) {
             elapsed2 = blinkClcok.getElapsedTime().asSeconds();
 
             // Change the color of the main text
-            if (elapsed2 - elapsed1 >= blink_delay.asSeconds()){
+            if (elapsed2 - elapsed1 >= blink_delay.asSeconds()) {
                 blink = !blink;
                 blinkClcok.restart();
             }
-            if (blink){
+            if (blink) {
                 textElements[0].setFillColor(Color::Green);
                 textElements[0].setOutlineColor(Color::Black);
-            }
-            else {
+            } else {
                 textElements[0].setFillColor(Color::Transparent);
                 textElements[0].setOutlineColor(Color::Transparent);
             }
@@ -319,17 +331,16 @@ State startMenu(Config &c, bool startPressed) {
             // sleep(milliseconds(180));
 
             // Check if the start keyword has been pressed
-            if (Keyboard::isKeyPressed(c.menuEnterKey)){
+            if (Keyboard::isKeyPressed(c.menuEnterKey)) {
                 // Pass to the second menu
                 startPressed = true;
                 c.effects[1]->stop();
                 c.effects[1]->play();
                 // sleep(milliseconds(50));
-            }
-            else if (Keyboard::isKeyPressed(Keyboard::Escape))
+            } else if (Keyboard::isKeyPressed(Keyboard::Escape))
                 return EXIT;
 
-            j = ( j < (int)nameGames.size() - 1) ? j + 1 : 0;
+            j = (j < (int) nameGames.size() - 1) ? j + 1 : 0;
 
         }
 
@@ -339,33 +350,33 @@ State startMenu(Config &c, bool startPressed) {
         sleep(milliseconds(200));
 
         // While the ENTER keyword is not pressed
-        while (!startPressed){
+        while (!startPressed) {
             // Detect the possible events
             Event e{};
-            while( c.window.pollEvent(e))
+            while (c.window.pollEvent(e))
                 if (e.type == Event::Closed)
                     return EXIT;
 
             // Control if the up or down cursor keys are pressed or not
-            if (Keyboard::isKeyPressed(c.menuUpKey)){
+            if (Keyboard::isKeyPressed(c.menuUpKey)) {
                 // Up cursor pressed
-                if (state != MUSIC){
+                if (state != MUSIC) {
                     c.effects[0]->stop();
                     c.effects[0]->play();
-                    row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale, c.w.getSize().y / 2.f + 75.0f * c.screenScale);
+                    row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale,
+                                    c.w.getSize().y / 2.f + 75.0f * c.screenScale);
                     state = MUSIC;
                 }
-            }
-            else if (Keyboard::isKeyPressed(c.menuDownKey)){
+            } else if (Keyboard::isKeyPressed(c.menuDownKey)) {
                 // Down cursor pressed
-                if (state != OPTIONS){
+                if (state != OPTIONS) {
                     c.effects[0]->stop();
                     c.effects[0]->play();
-                    row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale, c.w.getSize().y / 2.f + 125.0f * c.screenScale);
+                    row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale,
+                                    c.w.getSize().y / 2.f + 125.0f * c.screenScale);
                     state = OPTIONS;
                 }
-            }
-            else if (Keyboard::isKeyPressed(Keyboard::Escape))
+            } else if (Keyboard::isKeyPressed(Keyboard::Escape))
                 return EXIT;
 
             // Show the menu with the starting and options indicators
@@ -385,24 +396,27 @@ State startMenu(Config &c, bool startPressed) {
             c.window.draw(bufferSprite);
             c.window.display();
             // Check if the start keyword has been pressed
-            if (Keyboard::isKeyPressed(c.menuEnterKey)){
+            if (Keyboard::isKeyPressed(c.menuEnterKey)) {
                 // Pass to the second menu
                 startPressed = true;
                 c.effects[1]->stop();
                 c.effects[1]->play();
             }
 
-            j = ( j < (int)nameGames.size() - 1) ? j + 1 : 0;
+            j = (j < (int) nameGames.size() - 1) ? j + 1 : 0;
         }
         // Return the state of the game
         c.effects[0]->stop();
 
         if (c.enablePixelArt) {
             if (c.isDefaultScreen)
-                c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+                c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f),
+                                      Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
             else
-                c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
-            c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+                c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f),
+                                      Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+            c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+                       static_cast<unsigned int>(c.window.getView().getSize().y));
             c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
         }
 
@@ -411,7 +425,7 @@ State startMenu(Config &c, bool startPressed) {
     return EXIT;
 }
 
-State changeCarControllers(Config& c){
+State changeCarControllers(Config &c) {
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     Sprite bufferSprite(c.w.getTexture());
@@ -435,7 +449,7 @@ State changeCarControllers(Config& c){
     textureShape.loadFromFile("resources/MenuOptions/outrun.png");
     textureShape.setRepeated(true);
 
-    IntRect background(0, 0, c.w.getSize().x,  c.w.getSize().y);
+    IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
     Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
@@ -450,8 +464,9 @@ State changeCarControllers(Config& c){
     // Main Text of the menu
     Text optionsText;
     optionsText.setString("CONTROLLERS");
-    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale, c.w.getSize().y / 2.f - 220.0f * c.screenScale);
-    optionsText.setCharacterSize(int(35.0f * c.screenScale));
+    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+                            c.w.getSize().y / 2.f - 220.0f * c.screenScale);
+    optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     optionsText.setFont(c.options);
     optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
@@ -461,7 +476,7 @@ State changeCarControllers(Config& c){
     info1.setFillColor(Color(10, 201, 235));
     info1.setOutlineColor(Color(3, 39, 8));
     info1.setOutlineThickness(3.0f * c.screenScale);
-    info1.setCharacterSize(int(15.0f * c.screenScale));
+    info1.setCharacterSize(static_cast<unsigned int>(int(15.0f * c.screenScale)));
     info1.setStyle(Text::Bold);
     info1.setPosition(c.w.getSize().x / 2.f - 235.0f * c.screenScale, c.w.getSize().y / 2.f - 160.0f * c.screenScale);
     info1.setFont(c.options);
@@ -471,7 +486,7 @@ State changeCarControllers(Config& c){
     info2.setString("Then press a key to change its configuration");
     info2.setFillColor(Color(10, 201, 235));
     info2.setOutlineColor(Color(3, 39, 8));
-    info2.setCharacterSize(int(15.0f * c.screenScale));
+    info2.setCharacterSize(static_cast<unsigned int>(int(15.0f * c.screenScale)));
     info2.setOutlineThickness(3.0f * c.screenScale);
     info2.setStyle(Text::Bold);
     info2.setPosition(c.w.getSize().x / 2.f - 265.0f * c.screenScale, c.w.getSize().y / 2.f - 120.0f * c.screenScale);
@@ -480,36 +495,54 @@ State changeCarControllers(Config& c){
 
     // Option indicators
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Turning left", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Turning left", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f,
+                             200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             "Turning right", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Acceleration", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Brake", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     // Option configurations
 
     int code;
     code = kM.mapperCodeKeyWord[c.leftKey];
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1,
+                             c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.rightKey];
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f,
+                             200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                             c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.accelerateKey];
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                             c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.brakeKey];
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                             c.screenScale);
 
 
     // Control if the start key is pressed or not
@@ -519,7 +552,7 @@ State changeCarControllers(Config& c){
     int optionSelected = 0;
 
     // Until the start keyword is not pressed
-    while (!startPressed){
+    while (!startPressed) {
         c.w.draw(sprite);
         c.w.draw(shape);
         c.w.draw(optionsText);
@@ -527,7 +560,7 @@ State changeCarControllers(Config& c){
         c.w.draw(info2);
 
         // Show the buttons of the menu
-        for (auto & menuButton : menuButtons){
+        for (auto &menuButton : menuButtons) {
             menuButton.render(&c.w);
         }
 
@@ -540,14 +573,14 @@ State changeCarControllers(Config& c){
 
         // Detect the possible events
         Event e{};
-        while(c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
-        if (Keyboard::isKeyPressed(c.menuDownKey)){
+        if (Keyboard::isKeyPressed(c.menuDownKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != int(menuButtons.size() - 1) / 2){
+            if (optionSelected != int(menuButtons.size() - 1) / 2) {
                 // Change the color appearance of both buttons
                 c.effects[0]->play();
                 optionSelected++;
@@ -556,10 +589,9 @@ State changeCarControllers(Config& c){
                 menuButtons[optionSelected + 4].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 3].setButtonState(BUTTON_IDLE);
             }
-        }
-        else if (Keyboard::isKeyPressed(c.menuUpKey)){
+        } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != 0){
+            if (optionSelected != 0) {
                 // Change the color appearance of both buttons
                 c.effects[0]->play();
                 optionSelected--;
@@ -572,18 +604,17 @@ State changeCarControllers(Config& c){
         while (Keyboard::isKeyPressed(Keyboard::Space) && !Keyboard::isKeyPressed(Keyboard::Enter)) {
             // Check if any keyword has been pressed or not
             c.window.waitEvent(e);
-            if (e.type == Event::KeyPressed && e.key.code != -1 && e.key.code != Keyboard::Enter && e.key.code != Keyboard::Space){
+            if (e.type == Event::KeyPressed && e.key.code != -1 && e.key.code != Keyboard::Enter &&
+                e.key.code != Keyboard::Space) {
                 // Modify the option parameter if it's necessary
-                switch (optionSelected){
+                switch (optionSelected) {
                     case 0:
                         if (kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
-                        {
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
-                        }
-                        else {
+                        } else {
                             menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.leftKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
@@ -594,12 +625,10 @@ State changeCarControllers(Config& c){
                         // Get the code of the keyword if it's not the up pr down cursor keys
                         if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
-                        {
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
-                        }
-                        else {
+                        } else {
                             menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.rightKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
@@ -610,12 +639,10 @@ State changeCarControllers(Config& c){
                         // Get the code of the keyword if it's not the up pr down cursor keys
                         if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey)
-                        {
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
-                        }
-                        else {
+                        } else {
                             menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.accelerateKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
@@ -626,12 +653,10 @@ State changeCarControllers(Config& c){
                         // Get the code of the keyword if it's not the up pr down cursor keys
                         if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey)
-                        {
+                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
-                        }
-                        else {
+                        } else {
                             menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.brakeKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
@@ -645,7 +670,7 @@ State changeCarControllers(Config& c){
         }
 
         // Check if left or right cursor keys have been pressed or not
-        if (Keyboard::isKeyPressed(c.menuEnterKey)){
+        if (Keyboard::isKeyPressed(c.menuEnterKey)) {
             // Change the controllers of the car
             startPressed = true;
             c.modifiedConfig = true;
@@ -656,15 +681,13 @@ State changeCarControllers(Config& c){
     return OPTIONS;
 }
 
-State soundMenu(Config& c, const bool& inGame) {
+State soundMenu(Config &c, const bool &inGame) {
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
     Sprite bufferSprite(c.w.getTexture());
     c.w.display();
     c.window.draw(bufferSprite);
     c.window.display();
-
-    KeywordMapper kM = KeywordMapper();
 
     // Clean the console window
     c.w.clear(Color(0, 0, 0));
@@ -680,7 +703,7 @@ State soundMenu(Config& c, const bool& inGame) {
     textureShape.loadFromFile("resources/MenuOptions/outrun.png");
     textureShape.setRepeated(true);
 
-    IntRect background(0, 0, c.w.getSize().x,  c.w.getSize().y);
+    IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
     Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
@@ -695,26 +718,36 @@ State soundMenu(Config& c, const bool& inGame) {
     // Main Text of the menu
     Text optionsText;
     optionsText.setString("SOUND MENU");
-    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale, c.w.getSize().y / 2.f - 220.0f * c.screenScale);
-    optionsText.setCharacterSize(int(35.0f * c.screenScale));
+    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+                            c.w.getSize().y / 2.f - 220.0f * c.screenScale);
+    optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     optionsText.setFont(c.options);
     optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
 
     // Option indicators
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
                              "Music volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             "Effects volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f,
+                             200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             "Effects volume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                             c.screenScale);
 
     // Option configurations
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             to_string(c.volumeMusic), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1,
+                             c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             to_string(c.volumeEffects), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f,
+                             200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             to_string(c.volumeEffects), Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                             c.screenScale);
 
 
     // Control if the start key is pressed or not
@@ -724,18 +757,18 @@ State soundMenu(Config& c, const bool& inGame) {
     int optionSelected = 0;
 
     // Until the start keyword is not pressed
-    while (!startPressed){
+    while (!startPressed) {
         // Detect the possible events
         Event e{};
-        while(c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
 
-        if (Keyboard::isKeyPressed(c.menuDownKey)){
+        if (Keyboard::isKeyPressed(c.menuDownKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != int(menuButtons.size() - 1) / 2){
+            if (optionSelected != int(menuButtons.size() - 1) / 2) {
                 // Change the color appearance of both buttons
                 c.effects[0]->play();
                 optionSelected++;
@@ -744,10 +777,9 @@ State soundMenu(Config& c, const bool& inGame) {
                 menuButtons[optionSelected + 2].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
             }
-        }
-        else if (Keyboard::isKeyPressed(c.menuUpKey)){
+        } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != 0){
+            if (optionSelected != 0) {
                 // Change the color appearance of both buttons
                 c.effects[0]->play();
                 optionSelected--;
@@ -762,24 +794,23 @@ State soundMenu(Config& c, const bool& inGame) {
             // Volume music
             // Check if left or right cursor keys have been pressed or not
             if (Keyboard::isKeyPressed(c.leftKey)) {
-                 if (c.volumeMusic != 0){
+                if (c.volumeMusic != 0) {
                     c.volumeMusic--;
-                    for (int i = 0; i <= 5; i++){
+                    for (int i = 0; i <= 5; i++) {
                         c.themes[i]->setVolume(c.volumeMusic);
-                        if (i == 0){
+                        if (i == 0) {
                             c.themes[i]->pause();
                             c.themes[i]->play();
                         }
                     }
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
-            }
-            else if (Keyboard::isKeyPressed(c.rightKey)) {
-                if (c.volumeMusic != 100){
+            } else if (Keyboard::isKeyPressed(c.rightKey)) {
+                if (c.volumeMusic != 100) {
                     c.volumeMusic++;
-                    for (int i = 0; i <= 5; i++){
+                    for (int i = 0; i <= 5; i++) {
                         c.themes[i]->setVolume(c.volumeMusic);
-                        if (i == 0){
+                        if (i == 0) {
                             c.themes[i]->pause();
                             c.themes[i]->play();
                         }
@@ -787,25 +818,23 @@ State soundMenu(Config& c, const bool& inGame) {
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
             }
-        }
-        else {
+        } else {
             // Volume effects
             // Check if left or right cursor keys have been pressed or not
             if (Keyboard::isKeyPressed(c.leftKey)) {
-                if (c.volumeEffects != 0){
+                if (c.volumeEffects != 0) {
                     c.volumeEffects--;
-                    for (int i = 0; i <= 29; i++){
+                    for (int i = 0; i <= 29; i++) {
                         c.effects[i]->setVolume(c.volumeEffects);
                     }
                     c.effects[0]->stop();
                     c.effects[0]->play();
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
                 }
-            }
-            else if (Keyboard::isKeyPressed(c.rightKey)) {
-                if (c.volumeEffects != 100){
+            } else if (Keyboard::isKeyPressed(c.rightKey)) {
+                if (c.volumeEffects != 100) {
                     c.volumeEffects++;
-                    for (int i = 0; i <= 29; i++){
+                    for (int i = 0; i <= 29; i++) {
                         c.effects[i]->setVolume(c.volumeEffects);
                     }
                     c.effects[0]->stop();
@@ -819,7 +848,7 @@ State soundMenu(Config& c, const bool& inGame) {
         c.w.draw(optionsText);
 
         // Show the buttons of the menu
-        for (auto & menuButton : menuButtons){
+        for (auto &menuButton : menuButtons) {
             menuButton.render(&c.w);
         }
 
@@ -831,7 +860,7 @@ State soundMenu(Config& c, const bool& inGame) {
         c.effects[0]->stop();
 
         // Check if left or right cursor keys have been pressed or not
-        if (Keyboard::isKeyPressed(c.menuEnterKey)){
+        if (Keyboard::isKeyPressed(c.menuEnterKey)) {
             // Change the controllers of the car
             startPressed = true;
             c.modifiedConfig = true;
@@ -839,9 +868,7 @@ State soundMenu(Config& c, const bool& inGame) {
             c.effects[2]->play();
         }
     }
-    if (startPressed){
-        return OPTIONS;
-    }
+    return OPTIONS;
 }
 
 State Config::graphicsMenu() {
@@ -858,8 +885,6 @@ State Config::graphicsMenu() {
         w.display();
         window.draw(bufferSprite);
         window.display();
-
-        KeywordMapper kM = KeywordMapper();
 
         // Clean the console window
         w.clear(Color(0, 0, 0));
@@ -891,7 +916,7 @@ State Config::graphicsMenu() {
         Text optionsText;
         optionsText.setString("GRAPHICS MENU");
         optionsText.setPosition(w.getSize().x / 2.f - 160.0f * screenScale, w.getSize().y / 2.f - 220.0f * screenScale);
-        optionsText.setCharacterSize(int(35.0f * screenScale));
+        optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * screenScale)));
         optionsText.setFont(options);
         optionsText.setStyle(Text::Bold | Text::Underlined);
         optionsText.setFillColor(Color::Red);
@@ -908,14 +933,15 @@ State Config::graphicsMenu() {
 
         // Option configurations
         const string res = resIndex > -1 ? to_string(resolutions[resIndex].first) + "x" +
-                           to_string(resolutions[resIndex].second) : "FULLSCREEN";
+                                           to_string(resolutions[resIndex].second) : "FULLSCREEN";
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
                                  200.0f * screenScale, 30.0f * screenScale, options,
                                  res, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, screenScale);
 
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
                                  30.0f * screenScale, options,
-                                 enablePixelArt ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
+                                 enablePixelArt ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0),
+                                 Color(0, 255, 0), 0, screenScale);
 
         // Control the option selected by the user
         int optionSelected = 0;
@@ -924,8 +950,8 @@ State Config::graphicsMenu() {
         while (!startPressed && !currentResized) {
             // Detect the possible events
             Event e{};
-            while(window.pollEvent(e)){
-                if (e.type == Event::Closed){
+            while (window.pollEvent(e)) {
+                if (e.type == Event::Closed) {
                     return EXIT;
                 }
             }
@@ -961,18 +987,19 @@ State Config::graphicsMenu() {
                 // Volume music
                 // Check if left or right cursor keys have been pressed or not
                 if (Keyboard::isKeyPressed(leftKey)) {
-                    if (resized){
+                    if (resized) {
                         resized = false;
-                    }
-                    else if (resIndex > -1) {
+                    } else if (resIndex > -1) {
                         resIndex--;
                         menuButtons[optionSelected + 2].setTextButton(resIndex > -1 ?
                                                                       to_string(resolutions[resIndex].first) + "x" +
                                                                       to_string(resolutions[resIndex].second)
-                                                                                                    : "FULLSCREEN");
+                                                                                    : "FULLSCREEN");
                         if (resIndex > -1) {
-                            window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
-                                     Style::Titlebar | Style::Close);
+                            window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
+                                                    static_cast<unsigned int>(resolutions[resIndex].second)),
+                                          "Out Run",
+                                          Style::Titlebar | Style::Close);
                         } else {
                             window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
                         }
@@ -984,15 +1011,15 @@ State Config::graphicsMenu() {
 
                         window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f),
                                             Vector2f(window.getSize().x, window.getSize().y)));
-                        w.create(window.getView().getSize().x, window.getView().getSize().y);
+                        w.create(static_cast<unsigned int>(window.getView().getSize().x),
+                                 static_cast<unsigned int>(window.getView().getSize().y));
 
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;
                     }
-                }
-                else if (Keyboard::isKeyPressed(rightKey)){
-                    if (resized){
+                } else if (Keyboard::isKeyPressed(rightKey)) {
+                    if (resized) {
                         resized = false;
                     }
                     if (resIndex < int(resolutions.size()) - 1 && !resized) {
@@ -1000,8 +1027,9 @@ State Config::graphicsMenu() {
                         menuButtons[optionSelected + 2].setTextButton(to_string(resolutions[resIndex].first) + "x" +
                                                                       to_string(resolutions[resIndex].second));
 
-                        window.create(VideoMode(resolutions[resIndex].first, resolutions[resIndex].second), "Out Run",
-                                 Style::Titlebar | Style::Close);
+                        window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
+                                                static_cast<unsigned int>(resolutions[resIndex].second)), "Out Run",
+                                      Style::Titlebar | Style::Close);
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
 
@@ -1010,7 +1038,8 @@ State Config::graphicsMenu() {
 
                         window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f),
                                             Vector2f(window.getSize().x, window.getSize().y)));
-                        w.create(window.getView().getSize().x, window.getView().getSize().y);
+                        w.create(static_cast<unsigned int>(window.getView().getSize().x),
+                                 static_cast<unsigned int>(window.getView().getSize().y));
 
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
@@ -1061,16 +1090,17 @@ State Config::graphicsMenu() {
     return OPTIONS;
 }
 
-State optionsMenu(Config& c, const bool& inGame) {
-    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
-    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+State optionsMenu(Config &c, const bool &inGame) {
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
+                          Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+               static_cast<unsigned int>(c.window.getView().getSize().y));
     c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     // Control if the start key is pressed or not
     bool startPressed = false;
 
     while (!startPressed) {
-        bool resized = false;
 
         // Clean the console window
         c.w.clear(Color(0, 0, 0));
@@ -1106,7 +1136,7 @@ State optionsMenu(Config& c, const bool& inGame) {
         optionsText.setString("OPTIONS");
         optionsText.setPosition((c.w.getSize().x / 2.f) - 90.0f * c.screenScale,
                                 c.w.getSize().y / 2.f - 230.0f * c.screenScale);
-        optionsText.setCharacterSize(int(35.0f * c.screenScale));
+        optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
         optionsText.setFont(c.options);
         optionsText.setStyle(Text::Bold | Text::Underlined);
         optionsText.setFillColor(Color::Red);
@@ -1116,12 +1146,14 @@ State optionsMenu(Config& c, const bool& inGame) {
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+                                 "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1,
+                                 c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "enemies AI", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                 "enemies AI", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                                 c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
@@ -1136,7 +1168,8 @@ State optionsMenu(Config& c, const bool& inGame) {
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                 "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                                 c.screenScale);
 
         // Option configurations
 
@@ -1166,7 +1199,8 @@ State optionsMenu(Config& c, const bool& inGame) {
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,
-                                 c.enableAI ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0),
+                                 c.enableAI ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0),
+                                 Color(0, 255, 0),
                                  0, c.screenScale);
 
         menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
@@ -1191,7 +1225,7 @@ State optionsMenu(Config& c, const bool& inGame) {
         while (!startPressed) {
             // Detect the possible events
             Event e{};
-            while( c.window.pollEvent(e))
+            while (c.window.pollEvent(e))
                 if (e.type == Event::Closed)
                     return EXIT;
 
@@ -1283,7 +1317,7 @@ State optionsMenu(Config& c, const bool& inGame) {
                         c.effects[1]->stop();
                         c.effects[1]->play();
                         State status = soundMenu(c, inGame);
-                        if (status == EXIT){
+                        if (status == EXIT) {
                             return status;
                         }
                         if (c.modifiedConfig) {
@@ -1302,67 +1336,89 @@ State optionsMenu(Config& c, const bool& inGame) {
                         c.effects[1]->stop();
                         c.effects[1]->play();
                         State status = c.graphicsMenu();
-                        if (status == EXIT){
+                        if (status == EXIT) {
                             return status;
                         }
                         if (c.modifiedConfig) {
                             menuButtons[optionSelected + 5].setTextButton(saved);
-                            shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
+                            shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale,
+                                              c.w.getSize().y / 2.f - 250.0f * c.screenScale);
                             shape.setSize(sf::Vector2f(710.0f * c.screenScale, 500.0f * c.screenScale));
-                            optionsText.setPosition((c.w.getSize().x / 2.f) - 90.0f * c.screenScale, c.w.getSize().y / 2.f - 230.0f * c.screenScale);
-                            optionsText.setCharacterSize(int(35.0f * c.screenScale));
+                            optionsText.setPosition((c.w.getSize().x / 2.f) - 90.0f * c.screenScale,
+                                                    c.w.getSize().y / 2.f - 230.0f * c.screenScale);
+                            optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
 
                             menuButtons.clear();
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 130.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Difficulty", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     "Difficulty", Color(0, 255, 0), Color(255, 255, 0),
+                                                     Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 60.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "enemies AI", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     "enemies AI", Color(0, 255, 0), Color(255, 255, 0),
+                                                     Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 10.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     "Sound", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                                                     c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 80.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+                                                     "Graphics", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0),
+                                                     1, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 150.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Controllers", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     "Controllers", Color(0, 255, 0), Color(255, 255, 0),
+                                                     Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 130.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     difficulty, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0),
+                                                     0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f - 60.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f - 60.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     c.enableAI ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     c.enableAI ? "ENABLED" : "DISABLED", Color(0, 255, 0),
+                                                     Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f + 10.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 10.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                                                     c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f + 80.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 80.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1,
+                                                     c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                                                     c.w.getSize().y / 2.f + 150.0f * c.screenScale, 200.0f * c.screenScale,
+                                                     c.w.getSize().y / 2.f + 150.0f * c.screenScale,
+                                                     200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     submenu, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0,
+                                                     c.screenScale);
                         }
                     }
 
@@ -1379,7 +1435,7 @@ State optionsMenu(Config& c, const bool& inGame) {
                         c.effects[1]->stop();
                         c.effects[1]->play();
                         State status = changeCarControllers(c);
-                        if (status == EXIT){
+                        if (status == EXIT) {
                             return status;
                         }
                         if (c.modifiedConfig) {
@@ -1421,22 +1477,25 @@ State optionsMenu(Config& c, const bool& inGame) {
 
         if (c.enablePixelArt) {
             if (c.isDefaultScreen)
-                c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+                c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f),
+                                      Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
             else
-                c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
-            c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+                c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f),
+                                      Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+            c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+                       static_cast<unsigned int>(c.window.getView().getSize().y));
             c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
         }
+    }
 
-        if (inGame) {
-            return GAME;
-        } else {
-            return startMenu(c, true);
-        }
+    if (inGame) {
+        return GAME;
+    } else {
+        return startMenu(c, true);
     }
 }
 
-State selectMusicSoundtrack(Config &c){
+State selectMusicSoundtrack(Config &c) {
     // Clean the console window
     c.w.clear();
     Sprite bufferSprite(c.w.getTexture());
@@ -1465,25 +1524,26 @@ State selectMusicSoundtrack(Config &c){
     // Loading the background texture of the panel radio
     backgroundMusic.loadFromFile("resources/MusicMenu/radioBackground.png");
     radioMenu.setTexture(backgroundMusic);
-    radioMenu.setPosition(0 , 0);
-    radioMenu.setScale((float)c.w.getSize().x / backgroundMusic.getSize().x, (float)c.w.getSize().y / backgroundMusic.getSize().y);
+    radioMenu.setPosition(0, 0);
+    radioMenu.setScale((float) c.w.getSize().x / backgroundMusic.getSize().x,
+                       (float) c.w.getSize().y / backgroundMusic.getSize().y);
 
     // Load the titles of the soundtracks
-    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++){
+    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++) {
         // Loading the icon texture
         t.loadFromFile("resources/MusicMenu/soundtrack" + to_string(i + 1) + ".png");
         textures.push_back(t);
     }
 
     // Load the titles of the soundtracks
-    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++){
+    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++) {
         // Loading the icon texture
         t.loadFromFile("resources/MusicMenu/radio" + to_string(i + 1) + ".png");
         textures.push_back(t);
     }
 
     // Load the titles of the soundtracks
-    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++){
+    for (int i = 0; i < NUM_SOUNDTRACKS - 1; i++) {
         // Loading the icon texture
         t.loadFromFile("resources/MusicMenu/hand" + to_string(i + 1) + ".png");
         textures.push_back(t);
@@ -1503,27 +1563,26 @@ State selectMusicSoundtrack(Config &c){
     c.effects[29]->play();
 
     // Control until the Enter key is pressed
-    while (!startPressed){
+    while (!startPressed) {
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e))
+        while (c.window.pollEvent(e))
             if (e.type == Event::Closed)
                 return EXIT;
 
         // Control if the left or right cursor keys are pressed or not
-        if (Keyboard::isKeyPressed(c.leftKey)){
+        if (Keyboard::isKeyPressed(c.leftKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
-            if (c.currentSoundtrack != 1){
+            if (c.currentSoundtrack != 1) {
                 c.effects[1]->stop();
                 c.effects[1]->play();
                 c.themes[c.currentSoundtrack]->stop();
                 c.currentSoundtrack--;
                 c.themes[c.currentSoundtrack]->play();
             }
-        }
-        else if (Keyboard::isKeyPressed(c.rightKey)){
+        } else if (Keyboard::isKeyPressed(c.rightKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
-            if (c.currentSoundtrack != NUM_SOUNDTRACKS - 1){
+            if (c.currentSoundtrack != NUM_SOUNDTRACKS - 1) {
                 c.effects[1]->stop();
                 c.effects[1]->play();
                 c.themes[c.currentSoundtrack]->stop();
@@ -1545,9 +1604,12 @@ State selectMusicSoundtrack(Config &c){
         hand.setScale(c.screenScale, float(c.w.getSize().y) / SCREEN_DEFAULT_Y);
 
         // Control the coordinates X and Y where display the title
-        music.setPosition((c.w.getSize().x - music.getGlobalBounds().width) / 2.f, (c.w.getSize().y - music.getGlobalBounds().height) / 2.f);
-        radio.setPosition((c.w.getSize().x - radio.getGlobalBounds().width * 0.5f) / 2.0f, c.w.getSize().y * 0.8725f - radio.getGlobalBounds().height);
-        hand.setPosition((c.w.getSize().x - hand.getGlobalBounds().width * 0.66f) / 2.0f, c.w.getSize().y - hand.getGlobalBounds().height);
+        music.setPosition((c.w.getSize().x - music.getGlobalBounds().width) / 2.f,
+                          (c.w.getSize().y - music.getGlobalBounds().height) / 2.f);
+        radio.setPosition((c.w.getSize().x - radio.getGlobalBounds().width * 0.5f) / 2.0f,
+                          c.w.getSize().y * 0.8725f - radio.getGlobalBounds().height);
+        hand.setPosition((c.w.getSize().x - hand.getGlobalBounds().width * 0.66f) / 2.0f,
+                         c.w.getSize().y - hand.getGlobalBounds().height);
 
         // Show the title of the soundtrack
         c.w.draw(radioMenu);
@@ -1562,7 +1624,7 @@ State selectMusicSoundtrack(Config &c){
         sleep(milliseconds(80));
 
         // Check if the keyword Enter has been pressed or not
-        if (Keyboard::isKeyPressed(c.menuEnterKey)){
+        if (Keyboard::isKeyPressed(c.menuEnterKey)) {
             startPressed = true;
             c.effects[2]->stop();
             c.effects[2]->play();
@@ -1578,9 +1640,12 @@ State endMenu(Config &c) {
 }
 
 
-State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minutes, const int secs, const int cents_Second){
-    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
-    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+State
+rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minutes, const int secs, const int cents_Second) {
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
+                          Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+               static_cast<unsigned int>(c.window.getView().getSize().y));
     c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     c.effects[6]->stop();
@@ -1608,7 +1673,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     rankingTitle.setFont(c.timeToPlay);
     rankingTitle.setPosition(c.w.getSize().x / 4.f, c.w.getSize().y / 17.f);
     rankingTitle.setString("BEST OUTRUNNERS");
-    rankingTitle.setCharacterSize(int(65.0f * c.screenScale));
+    rankingTitle.setCharacterSize(static_cast<unsigned int>(int(65.0f * c.screenScale)));
     rankingTitle.setFillColor(Color::Yellow);
     rankingTitle.setOutlineColor(Color(12, 12, 12));
     rankingTitle.setOutlineThickness(3.0f * c.screenScale);
@@ -1617,7 +1682,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     scoreIndicator.setFont(c.timeToPlay);
     scoreIndicator.setPosition(c.w.getSize().x / 8.f, c.w.getSize().y / 6.0f);
     scoreIndicator.setString("SCORE");
-    scoreIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    scoreIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
     scoreIndicator.setFillColor(Color(146, 194, 186));
     scoreIndicator.setOutlineColor(Color(12, 12, 12));
     scoreIndicator.setOutlineThickness(3.0f * c.screenScale);
@@ -1626,7 +1691,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     playerIndicator.setFont(c.timeToPlay);
     playerIndicator.setPosition(c.w.getSize().x / 2.2f, c.w.getSize().y / 6.0f);
     playerIndicator.setString("NAME");
-    playerIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    playerIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
     playerIndicator.setFillColor(Color(146, 194, 186));
     playerIndicator.setOutlineColor(Color(12, 12, 12));
     playerIndicator.setOutlineThickness(3.0f * c.screenScale);
@@ -1635,64 +1700,65 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     recordIndicator.setFont(c.timeToPlay);
     recordIndicator.setPosition((c.w.getSize().x / 2.f) * 1.5f, c.w.getSize().y / 6.0f);
     recordIndicator.setString("RECORD");
-    recordIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    recordIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
     recordIndicator.setFillColor(Color(146, 194, 186));
     recordIndicator.setOutlineColor(Color(12, 12, 12));
     recordIndicator.setOutlineThickness(3.0f * c.screenScale);
 
     Text timeCounter;
     timeCounter.setFont(c.timeToPlay);
-    timeCounter.setCharacterSize(int(62.0f * c.screenScale));
+    timeCounter.setCharacterSize(static_cast<unsigned int>(int(62.0f * c.screenScale)));
     timeCounter.setString(to_string(time));
-    timeCounter.setPosition((c.w.getSize().x / 2.f) * 1.7f - timeCounter.getLocalBounds().width, c.w.getSize().y / 15.7f);
+    timeCounter.setPosition((c.w.getSize().x / 2.f) * 1.7f - timeCounter.getLocalBounds().width,
+                            c.w.getSize().y / 15.7f);
     timeCounter.setFillColor(Color::Red);
     timeCounter.setOutlineColor(Color(12, 12, 12));
     timeCounter.setOutlineThickness(3.0f * c.screenScale);
 
     Text scorePlayer;
     scorePlayer.setFont(c.timeToPlay);
-    scorePlayer.setCharacterSize(int(35.0f * c.screenScale));
+    scorePlayer.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     scorePlayer.setFillColor(Color(146, 194, 186));
     scorePlayer.setOutlineColor(Color::Black);
     scorePlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text namePlayer;
     namePlayer.setFont(c.timeToPlay);
-    namePlayer.setCharacterSize(int(35.0f * c.screenScale));
+    namePlayer.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     namePlayer.setFillColor(Color(146, 194, 186));
     namePlayer.setOutlineColor(Color(12, 12, 12));
     namePlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text minutesPlayer;
     minutesPlayer.setFont(c.timeToPlay);
-    minutesPlayer.setCharacterSize(int(35.0f * c.screenScale));
+    minutesPlayer.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     minutesPlayer.setFillColor(Color(146, 194, 186));
     minutesPlayer.setOutlineColor(Color::Black);
     minutesPlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text secondsPlayer;
     secondsPlayer.setFont(c.timeToPlay);
-    secondsPlayer.setCharacterSize(int(35.0f * c.screenScale));
+    secondsPlayer.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     secondsPlayer.setFillColor(Color(146, 194, 186));
     secondsPlayer.setOutlineColor(Color::Black);
     secondsPlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text centsPlayer;
     centsPlayer.setFont(c.timeToPlay);
-    centsPlayer.setCharacterSize(int(35.0f * c.screenScale));
+    centsPlayer.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     centsPlayer.setFillColor(Color(146, 194, 186));
     centsPlayer.setOutlineColor(Color::Black);
     centsPlayer.setOutlineThickness(3.0f * c.screenScale);
 
     Text index;
     index.setFont(c.timeToPlay);
-    index.setCharacterSize(int(35.0f * c.screenScale));
+    index.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     index.setFillColor(Color(180, 130, 211));
     index.setOutlineColor(Color::Black);
     index.setOutlineThickness(3.0f * c.screenScale);
 
     Text start;
-    start.setCharacterSize(int(45.0f * c.screenScale));
+    start.setCharacterSize(static_cast<unsigned int>(int(45.0f * c.screenScale)));
     start.setFont(c.timeToPlay);
     start.setFillColor(Color::Green);
     start.setOutlineColor(Color::Black);
@@ -1702,14 +1768,14 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     Texture rankingBackground;
     rankingBackground.loadFromFile("resources/RankingMenu/bg.png");
     Sprite palm_trees(rankingBackground);
-    palm_trees.setScale((float)c.w.getSize().x / rankingBackground.getSize().x, (float)c.w.getSize().y / rankingBackground.getSize().y);
+    palm_trees.setScale((float) c.w.getSize().x / rankingBackground.getSize().x,
+                        (float) c.w.getSize().y / rankingBackground.getSize().y);
 
     // Get the best seventh out runners
     vector<Score> scoreRankingPlayer = getGlobalScores();
 
     // Check if there is a new record
     int record = isNewRecord(scoreRankingPlayer, scorePlayerGame);
-    bool shownPlayers = false;
     bool startPressed = false;
     bool blink = false;
     int lettersIntroduced = 0;
@@ -1722,7 +1788,7 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
     c.effects[29]->play();
     Event e;
 
-    while (time > 0 && !startPressed){
+    while (time > 0 && !startPressed) {
 
         // Get the actual time
         elapsed2 = rankingTime.getElapsedTime().asSeconds();
@@ -1733,7 +1799,8 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
             time--;
             rankingTime.restart();
             timeCounter.setString(to_string(time));
-            timeCounter.setPosition((c.w.getSize().x / 2.f) * 1.7f - timeCounter.getLocalBounds().width, c.w.getSize().y / 15.7f);
+            timeCounter.setPosition((c.w.getSize().x / 2.f) * 1.7f - timeCounter.getLocalBounds().width,
+                                    c.w.getSize().y / 15.7f);
         }
 
         c.w.draw(palm_trees);
@@ -1744,42 +1811,46 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
         c.w.draw(recordIndicator);
 
         // There is no new record
-        if (record == -1){
+        if (record == -1) {
 
             start.setString("PRESS START!");
             start.setPosition(c.w.getSize().x / 2.5f, (c.w.getSize().y / 4.5f) + 400.0f);
 
             // There is not a new record
-            for (int i = 1; i <= 7; i++){
+            for (int i = 1; i <= 7; i++) {
 
                 index.setString(to_string(i) + ".");
-                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
+                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width,
+                                  (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
-                scorePlayer.setString(to_string(scoreRankingPlayer[i -1].score));
-                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
+                scorePlayer.setString(to_string(scoreRankingPlayer[i - 1].score));
+                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
+                                        (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
-                namePlayer.setString(scoreRankingPlayer[i -1].name);
-                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
+                namePlayer.setString(scoreRankingPlayer[i - 1].name);
+                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
+                                       (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
-                minutesPlayer.setString(to_string(scoreRankingPlayer[i -1].minutes) + "'");
-                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
+                minutesPlayer.setString(to_string(scoreRankingPlayer[i - 1].minutes) + "'");
+                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
+                                          (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
-                if (scoreRankingPlayer[i -1].secs >= 10){
-                    secondsPlayer.setString(to_string(scoreRankingPlayer[i -1].secs) + "''");
+                if (scoreRankingPlayer[i - 1].secs >= 10) {
+                    secondsPlayer.setString(to_string(scoreRankingPlayer[i - 1].secs) + "''");
+                } else {
+                    secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i - 1].secs) + "''");
                 }
-                else {
-                    secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i -1].secs) + "''");
-                }
-                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
+                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
+                                          (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
 
-                if (scoreRankingPlayer[i -1].cents_second >= 10){
-                    centsPlayer.setString(to_string(scoreRankingPlayer[i -1].cents_second));
+                if (scoreRankingPlayer[i - 1].cents_second >= 10) {
+                    centsPlayer.setString(to_string(scoreRankingPlayer[i - 1].cents_second));
+                } else {
+                    centsPlayer.setString("0" + to_string(scoreRankingPlayer[i - 1].cents_second));
                 }
-                else {
-                    centsPlayer.setString("0" + to_string(scoreRankingPlayer[i -1].cents_second));
-                }
-                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
+                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
+                                        (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * float(i));
 
                 c.w.draw(index);
                 c.w.draw(scorePlayer);
@@ -1788,19 +1859,17 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
                 c.w.draw(secondsPlayer);
                 c.w.draw(centsPlayer);
             }
-            while (c.window.pollEvent(e)){
-                if (e.type == Event::Closed){
+            while (c.window.pollEvent(e)) {
+                if (e.type == Event::Closed) {
                     return EXIT;
                 }
             }
-        }
-        else {
+        } else {
 
-            if (lettersIntroduced != 3){
+            if (lettersIntroduced != 3) {
                 start.setString("ENTER YOUR NAME!");
                 start.setPosition(c.w.getSize().x / 3.0f, (c.w.getSize().y / 4.5f) + 400.0f);
-            }
-            else {
+            } else {
                 start.setString("PRESS START!");
                 start.setPosition(c.w.getSize().x / 2.5f, (c.w.getSize().y / 4.5f) + 400.0f);
             }
@@ -1808,36 +1877,40 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
             // There is a new record
             // Show all the out runners with a higher score
 
-            for (int i = 0; i <= record - 1; i++ && record != 0){
+            for (int i = 0; i <= record - 1; i++ && record != 0) {
 
                 index.setString(to_string(i) + ".");
-                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) i);
+                index.setPosition((c.w.getSize().x / 13.f) - index.getLocalBounds().width,
+                                  (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) i);
 
                 scorePlayer.setString(to_string(scoreRankingPlayer[i].score));
-                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
+                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
+                                        (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
                 namePlayer.setString(scoreRankingPlayer[i].name);
-                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
+                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
+                                       (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i].minutes) + "'");
-                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
+                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
+                                          (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
-                if (scoreRankingPlayer[i].secs >= 10){
+                if (scoreRankingPlayer[i].secs >= 10) {
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i].secs) + "''");
-                }
-                else {
+                } else {
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i].secs) + "''");
                 }
-                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
+                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
+                                          (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
 
-                if (scoreRankingPlayer[i].cents_second >= 10){
+                if (scoreRankingPlayer[i].cents_second >= 10) {
                     centsPlayer.setString(to_string(scoreRankingPlayer[i].cents_second));
-                }
-                else {
+                } else {
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i].cents_second));
                 }
-                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
+                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
+                                        (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 1));
 
                 c.w.draw(scorePlayer);
                 c.w.draw(namePlayer);
@@ -1850,30 +1923,33 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
             // Show the actual player
             scorePlayer.setString(to_string(scorePlayerGame));
-            scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
+            scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
+                                    (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
             namePlayer.setString(name);
-            namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
+            namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
+                                   (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
             minutesPlayer.setString(to_string(minutes) + "'");
-            minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
+            minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
+                                      (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
-            if (secs >= 10){
+            if (secs >= 10) {
                 secondsPlayer.setString(to_string(secs) + "''");
-            }
-            else {
+            } else {
                 secondsPlayer.setString("0" + to_string(secs) + "''");
             }
-            secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
+            secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
+                                      (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
 
-            if (cents_Second >= 10){
+            if (cents_Second >= 10) {
                 centsPlayer.setString(to_string(cents_Second));
-            }
-            else {
+            } else {
                 centsPlayer.setString("0" + to_string(cents_Second));
             }
-            centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
+            centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
+                                    (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) offset);
 
             c.w.draw(scorePlayer);
             c.w.draw(namePlayer);
@@ -1883,32 +1959,35 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
             // Show the rest of out runners
 
-            for (int i = record; i < 6 && i < scoreRankingPlayer.size(); i++){
+            for (int i = record; i < 6 && i < scoreRankingPlayer.size(); i++) {
                 scorePlayer.setString(to_string(scoreRankingPlayer[i].score));
-                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
+                scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
+                                        (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
                 namePlayer.setString(scoreRankingPlayer[i].name);
-                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
+                namePlayer.setPosition((c.w.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
+                                       (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i].minutes) + "'");
-                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
+                minutesPlayer.setPosition((c.w.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
+                                          (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
-                if (scoreRankingPlayer[i].secs >= 10){
+                if (scoreRankingPlayer[i].secs >= 10) {
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i].secs) + "''");
-                }
-                else {
+                } else {
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i].secs) + "''");
                 }
-                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
+                secondsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
+                                          (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
 
-                if (scoreRankingPlayer[i].cents_second >= 10){
+                if (scoreRankingPlayer[i].cents_second >= 10) {
                     centsPlayer.setString(to_string(scoreRankingPlayer[i].cents_second));
-                }
-                else {
+                } else {
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i].cents_second));
                 }
-                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width, (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
+                centsPlayer.setPosition((c.w.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
+                                        (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
 
                 c.w.draw(scorePlayer);
                 c.w.draw(namePlayer);
@@ -1918,15 +1997,14 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
             }
         }
         elapsed4 = blinkStart.getElapsedTime().asSeconds();
-        if (elapsed4 - elapsed3 >= ranking_delay.asSeconds()){
+        if (elapsed4 - elapsed3 >= ranking_delay.asSeconds()) {
             blink = !blink;
             blinkStart.restart();
         }
-        if (blink){
+        if (blink) {
             start.setFillColor(Color::Green);
             start.setOutlineColor(Color::Black);
-        }
-        else {
+        } else {
             start.setFillColor(Color::Transparent);
             start.setOutlineColor(Color::Transparent);
         }
@@ -1937,55 +2015,51 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
         c.window.draw(bufferSprite);
         c.window.display();
 
-        if (lettersIntroduced != 3 && record != -1){
+        if (lettersIntroduced != 3 && record != -1) {
             // while there are pending events...
             Event event{};
-            while (c.window.pollEvent(event)){
-                if (event.type == Event::Closed){
+            while (c.window.pollEvent(event)) {
+                if (event.type == Event::Closed) {
                     return EXIT;
-                }
-                else if (event.type == Event::KeyPressed){
+                } else if (event.type == Event::KeyPressed) {
                     // Get code of the key
                     int code = event.key.code;
                     // Check if the key pressed is a letter or not
-                    if (code >= 0 && code <= 25){
+                    if (code >= 0 && code <= 25) {
                         lettersIntroduced++;
                         string keyLetter = kM.mapperIdKeyWord[code];
-                        if (name == "_"){
+                        if (name == "_") {
                             name = keyLetter;
                             c.effects[1]->stop();
                             c.effects[1]->play();
-                        }
-                        else {
-                            if (lettersIntroduced == 3){
+                        } else {
+                            if (lettersIntroduced == 3) {
                                 name = name.substr(0, name.size() - 1);
                                 name += keyLetter;
                                 c.effects[2]->stop();
                                 c.effects[2]->play();
-                            }
-                            else {
+                            } else {
                                 name += keyLetter + "_";
                                 c.effects[1]->stop();
                                 c.effects[1]->play();
                             }
                         }
-                    }
-                    else {
+                    } else {
                         c.effects[3]->stop();
                         c.effects[3]->play();
                     }
                 }
             }
         }
-        if (Keyboard::isKeyPressed(c.menuEnterKey)){
+        if (Keyboard::isKeyPressed(c.menuEnterKey)) {
             startPressed = true;
         }
     }
 
     // Store the record
-    if (record != -1){
+    if (record != -1) {
         // If the was record and the name is uncompleted
-        if (lettersIntroduced != 3){
+        if (lettersIntroduced != 3) {
             name = "   ";
         }
         Score s = Score(scorePlayerGame, name, minutes, secs, cents_Second);
@@ -1999,10 +2073,13 @@ State rankingMenu(Config& c, const unsigned long scorePlayerGame, const int minu
 
     if (c.enablePixelArt) {
         if (c.isDefaultScreen)
-            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f),
+                                  Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
         else
-            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
-        c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f),
+                                  Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+        c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+                   static_cast<unsigned int>(c.window.getView().getSize().y));
         c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
     }
 
@@ -2022,7 +2099,7 @@ sf::Font initializeFontSpeed() {
     return f;
 }
 
-sf::Font initializeFontOptions(){
+sf::Font initializeFontOptions() {
     Font f;
     if (!f.loadFromFile("resources/fonts/needForSpeed.ttf")) exit(1);
     return f;

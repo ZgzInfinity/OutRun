@@ -52,23 +52,23 @@ protected:
     int counter_code_image; // Counter to change actual_code_image
 
 public:
-     /**
-      * Inicializa el vehículo.
-      * @param maxSpeed
-      * @param scale
-      * @param maxCounterToChange
-      * @param speed
-      * @param posX
-      * @param posY
-      * @param previousY
-      * @param minScreenX
-      * @param maxScreenX
-      * @param vehicle
-      * @param numTextures
-      * @param currentCodeImage
-      * @param counterCodeImage
-      */
-    Vehicle(float maxSpeed, float scale, int maxCounterToChange, float speed, float posX, float posY,  float previousY,
+    /**
+     * Inicializa el vehículo.
+     * @param maxSpeed
+     * @param scale
+     * @param maxCounterToChange
+     * @param speed
+     * @param posX
+     * @param posY
+     * @param previousY
+     * @param minScreenX
+     * @param maxScreenX
+     * @param vehicle
+     * @param numTextures
+     * @param currentCodeImage
+     * @param counterCodeImage
+     */
+    Vehicle(float maxSpeed, float scale, int maxCounterToChange, float speed, float posX, float posY, float previousY,
             float minScreenX, float maxScreenX, const std::string &vehicle, int numTextures, int currentCodeImage,
             int counterCodeImage);
 

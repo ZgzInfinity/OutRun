@@ -37,7 +37,7 @@ public:
      * @param pY
      */
     Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
-            const std::string &vehicle, float pX, float pY);
+           const std::string &vehicle, float pX, float pY);
 
     /**
      * Devuelve la posición previa Y.

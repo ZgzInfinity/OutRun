@@ -92,7 +92,7 @@ class Game {
     // Time to reproduce a new traffic car sound
     Time blink_delay;
 
-     // Time to reproduce a discount the time bonus
+    // Time to reproduce a discount the time bonus
     Time bonus_delay;
 
     // Actual level
@@ -120,8 +120,8 @@ class Game {
 
     // Counter time to update the HUD indicators
     float elapsed1, elapsed2, elapsed3, elapsed4,
-          elapsed5, elapsed6, elapsed7, elapsed8,
-          elapsed9, elapsed10, elapsed11, elapsed12;
+            elapsed5, elapsed6, elapsed7, elapsed8,
+            elapsed9, elapsed10, elapsed11, elapsed12;
 
     // Vector of textures for represent the game panel
     vector<Texture> textures;
@@ -155,7 +155,7 @@ class Game {
      * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
      * @param c
      */
-    void updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction);
+    void updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction);
 
 public:
     /**
@@ -187,7 +187,7 @@ public:
      */
     State play(Config &c);
 
-    State pause(Config &c, const Vehicle::Action& a, const Vehicle::Direction &d);
+    State pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction &d);
 };
 
 

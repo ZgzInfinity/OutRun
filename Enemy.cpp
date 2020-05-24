@@ -19,8 +19,8 @@ using namespace sf;
 Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY) :
         Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0, random_float(-0.5f, 0.5f),
                 pY, pY, 0, 0, vehicle, ENEMY_TEXTURES, 1, 0), oriX(this->posX),
-                currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0),
-                probAI(0), typeAI(OBSTACLE) {}
+        currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0),
+        probAI(0), typeAI(OBSTACLE) {}
 
 Vehicle::Direction randomDirection() {
     const float p = random_zero_one();
@@ -37,8 +37,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
         // Original
         if (current_direction_counter < max_direction_counter) {
             current_direction_counter++;
-        }
-        else {
+        } else {
             max_direction_counter = random_zero_n(MAX_AUTO_DIRECTION_COUNTER);
             current_direction_counter = 0;
             calculatedPath = randomDirection();
@@ -56,8 +55,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
             posX = newX;
 
         currentDirection = calculatedPath;
-    }
-    else {
+    } else {
         // AI
         if (typeAI == OBSTACLE) {
             const float acc = getAcceleration();
@@ -69,13 +67,11 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
                 if (posX > playerPosX && posX > -0.9f) {
                     posX -= XINC * speed / maxSpeed;
                     currentDirection = TURNLEFT;
-                }
-                else if (posX < 0.9f) {
+                } else if (posX < 0.9f) {
                     posX += XINC * speed / maxSpeed;
                     currentDirection = TURNRIGHT;
                 }
-            }
-            else { // Acceleration control
+            } else { // Acceleration control
                 // The vehicle is in the player's path
                 if (posY <= playerPosY)
                     speed = sqrt(acc + ACC_INC);
@@ -86,28 +82,23 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
 
                 currentDirection = RIGHT;
             }
-        }
-        else if (typeAI == EVASIVE) {
+        } else if (typeAI == EVASIVE) {
             if (playerPosX <= -0.5) {
                 posX += XINC * speed / maxSpeed;
                 currentDirection = TURNRIGHT;
-            }
-            else if (playerPosX >= 0.5) {
+            } else if (playerPosX >= 0.5) {
                 posX -= XINC * speed / maxSpeed;
                 currentDirection = TURNLEFT;
-            }
-            else {
+            } else {
                 if (posX > playerPosX) {
                     posX += XINC * speed / maxSpeed;
                     currentDirection = TURNRIGHT;
-                }
-                else {
+                } else {
                     posX -= XINC * speed / maxSpeed;
                     currentDirection = TURNLEFT;
                 }
             }
-        }
-        else { // INCONSTANT
+        } else { // INCONSTANT
             if (currentDirection == TURNRIGHT) {
                 const float prevPosX = posX;
                 posX += XINC * speed / maxSpeed;
@@ -117,8 +108,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
                 else if (((prevPosX < -0.5f && posX >= -0.5f) || (prevPosX < 0.0f && posX >= 0.0f) ||
                           (prevPosX < 0.5f && posX >= 0.5f)) && (random_zero_one() < 0.5f))
                     currentDirection = TURNRIGHT; // Lane change
-            }
-            else if (currentDirection == TURNLEFT) {
+            } else if (currentDirection == TURNLEFT) {
                 const float prevPosX = posX;
                 posX -= XINC * speed / maxSpeed;
 
@@ -127,8 +117,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
                 else if (((prevPosX > -0.5f && posX <= -0.5f) || (prevPosX > 0.0f && posX <= 0.0f) ||
                           (prevPosX > 0.5f && posX <= 0.5f)) && (random_zero_one() < 0.5f))
                     currentDirection = TURNLEFT; // Lane change
-            }
-            else {
+            } else {
                 if (random_zero_one() < 0.5f)
                     currentDirection = TURNRIGHT;
                 else
@@ -145,8 +134,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
     if (posX > 0.9f) {
         posX = 0.9f;
         currentDirection = RIGHT;
-    }
-    else if (posX < -0.9f) {
+    } else if (posX < -0.9f) {
         posX = -0.9f;
         currentDirection = RIGHT;
     }
@@ -179,11 +167,9 @@ void Enemy::setAI(float maxAggressiveness) {
     const float p = random_zero_one();
     if (p < 0.333f) {
         typeAI = OBSTACLE;
-    }
-    else if (p < 0.666f) {
+    } else if (p < 0.666f) {
         typeAI = EVASIVE;
-    }
-    else {
+    } else {
         typeAI = INCONSTANT;
         probAI *= 2.0f;
     }
@@ -202,64 +188,52 @@ void Enemy::draw(const Elevation &e, const float camX) {
                     if (posX <= camX) {
                         if (current_code_image < 1 || current_code_image > 2)
                             current_code_image = 1;
-                    }
-                    else {
+                    } else {
                         if (current_code_image < 3 || current_code_image > 4)
                             current_code_image = 3;
                     }
-                }
-                else if (currentDirection == TURNLEFT) {
+                } else if (currentDirection == TURNLEFT) {
                     if (current_code_image < 7 || current_code_image > 8)
                         current_code_image = 7;
-                }
-                else { // Turn right
+                } else { // Turn right
                     if (current_code_image < 5 || current_code_image > 6)
                         current_code_image = 5;
                 }
-            }
-            else if (e == UP) {
+            } else if (e == UP) {
                 if (currentDirection == RIGHT) {
                     if (posX <= camX) {
                         if (current_code_image < 13 || current_code_image > 14)
                             current_code_image = 13;
-                    }
-                    else {
+                    } else {
                         if (current_code_image < 15 || current_code_image > 16)
                             current_code_image = 15;
                     }
-                }
-                else if (currentDirection == TURNLEFT) {
+                } else if (currentDirection == TURNLEFT) {
                     if (current_code_image < 15 || current_code_image > 16)
                         current_code_image = 15;
-                }
-                else { // Turn right
+                } else { // Turn right
                     if (current_code_image < 13 || current_code_image > 14)
                         current_code_image = 13;
                 }
-            }
-            else { // Down
+            } else { // Down
                 if (currentDirection == RIGHT) {
                     if (posX <= camX) {
                         if (current_code_image < 9 || current_code_image > 10)
                             current_code_image = 9;
-                    }
-                    else {
+                    } else {
                         if (current_code_image < 11 || current_code_image > 12)
                             current_code_image = 11;
                     }
-                }
-                else if (currentDirection == TURNLEFT) {
+                } else if (currentDirection == TURNLEFT) {
                     if (current_code_image < 11 || current_code_image > 12)
                         current_code_image = 11;
-                }
-                else { // Turn right
+                } else { // Turn right
                     if (current_code_image < 9 || current_code_image > 10)
                         current_code_image = 9;
                 }
             }
         }
-    }
-    else {
+    } else {
         counter_code_image++;
     }
 }
@@ -282,7 +256,7 @@ float Enemy::getScale() const {
 
 bool Enemy::hasCrashed(float prevY, float currentY, float minX, float maxX, float &crashPos) const {
     if (minScreenX != maxScreenX && ((prevY <= posY + 2.5f && currentY >= posY - 2.5f) ||
-        (currentY <= posY + 2.5f && prevY >= posY - 2.5f)) && // y matches
+                                     (currentY <= posY + 2.5f && prevY >= posY - 2.5f)) && // y matches
         ((minX >= minScreenX && minX <= maxScreenX) ||
          (maxX >= minScreenX && maxX <= maxScreenX) ||
          (minScreenX >= minX && minScreenX <= maxX) ||
@@ -293,11 +267,11 @@ bool Enemy::hasCrashed(float prevY, float currentY, float minX, float maxX, floa
     return false;
 }
 
-bool Enemy::isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const {
+bool
+Enemy::isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const {
     if (posY < minY || posY > minY + float(c.renderLen) || minScreenX < 0 || maxScreenX > c.w.getSize().y) {
         return false;
-    }
-    else {
+    } else {
         distanceX = abs(playerX - posX);
         distanceY = abs(playerY - posY);
         return true;

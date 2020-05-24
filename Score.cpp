@@ -13,7 +13,11 @@
 using namespace std;
 
 Score::Score(unsigned long score, const string &name, int minutes, int secs, int centsSecond) : score(score),
-        name(name), minutes(minutes), secs(secs), cents_second(centsSecond) {}
+                                                                                                name(name),
+                                                                                                minutes(minutes),
+                                                                                                secs(secs),
+                                                                                                cents_second(
+                                                                                                        centsSecond) {}
 
 vector<Score> getGlobalScores() {
     vector<Score> globalScores;
@@ -59,12 +63,11 @@ bool saveNewRecord(const vector<Score> &globalScores, const Score &newRecord) {
         int i = 0;
         for (int j = 0; !end && j < 7; j++) {
             if (!saved && ((i < globalScores.size() && globalScores[i].score < newRecord.score) ||
-                    (i >= globalScores.size()))) {
+                           (i >= globalScores.size()))) {
                 saved = true;
                 fout << newRecord.score << " " << newRecord.name << " " << newRecord.minutes << " " << newRecord.secs
                      << " " << newRecord.cents_second << endl;
-            }
-            else {
+            } else {
                 fout << globalScores[i].score << " " << globalScores[i].name << " " << globalScores[i].minutes << " "
                      << globalScores[i].secs << " " << globalScores[i].cents_second << endl;
                 i++;

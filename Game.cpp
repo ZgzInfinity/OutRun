@@ -7,7 +7,6 @@
  ******************************************************************************/
 
 #include "Game.hpp"
-#include <string>
 #include <fstream>
 
 using namespace sf;
@@ -21,8 +20,9 @@ using namespace std;
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
-        "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f), scoreMul(1.0f), timeAI(0.0f),
-        goalMap(goalFlagger, goalEnd) {
+                               "Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f),
+                        scoreMul(1.0f), timeAI(0.0f),
+                        goalMap(goalFlagger, goalEnd) {
     int nm = 0;
     const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 42, 42, 41, 42};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
@@ -30,7 +30,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
             vector<string> objectNames;
-            objectNames.reserve(nobjects[nm]);
+            objectNames.reserve((unsigned long) nobjects[nm]);
             for (int no = 1; no <= nobjects[nm]; no++)
                 objectNames.push_back(to_string(no) + ".png");
 
@@ -57,15 +57,13 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
                     for (int i = 1; i < bdMap; i++) {
                         if (mapId.second < mapId.first) {
                             mapId.second++;
-                        }
-                        else {
+                        } else {
                             mapId.second = 0;
                             mapId.first++;
                         } // Level????????????????????????
                     }
                 }
-            }
-            else if (s == "TIME:" && !fin.eof()) {
+            } else if (s == "TIME:" && !fin.eof()) {
                 fin >> bdTime;
             }
         }
@@ -82,7 +80,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
 
     Texture t;
     // Load the textures of the panel and assign them to their sprites
-    for (int i = 1; i <= 6; i++){
+    for (int i = 1; i <= 6; i++) {
         // Load the texture from the file
         t.loadFromFile("resources/GamePanel/" + to_string(i) + ".png");
         textures.push_back(t);
@@ -92,8 +90,8 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MA
     int idFirstMap = 8;
 
     // Fill the matrix with the tree maps
-    for (int i = 0; i <= 4; i++){
-        for(int j = 0; j <= i; j++){
+    for (int i = 0; i <= 4; i++) {
+        for (int j = 0; j <= i; j++) {
             t.loadFromFile("resources/GamePanel/" + to_string(idFirstMap) + ".png");
             treeMap[i][j] = t;
             idFirstMap++;
@@ -138,7 +136,7 @@ void Game::drawHUD(Config &c) {
     Text timeToPlay;
     timeToPlay.setString("000");
     timeToPlay.setFont(c.timeToPlay);
-    timeToPlay.setCharacterSize(int(50.0f * c.screenScale));
+    timeToPlay.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
     timeToPlay.setFillColor(Color::Yellow);
     timeToPlay.setOutlineColor(Color::Black);
     timeToPlay.setOutlineThickness(3.0f * c.screenScale);
@@ -158,7 +156,7 @@ void Game::drawHUD(Config &c) {
     Text textScore;
     textScore.setString(to_string(int(SCORE_BONIFICATION) * 100));
     textScore.setFont(c.timeToPlay);
-    textScore.setCharacterSize(int(35.0f * c.screenScale));
+    textScore.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     textScore.setFillColor(Color(183, 164, 190));
     textScore.setOutlineColor(Color::Black);
     textScore.setOutlineThickness(3.0f * c.screenScale);
@@ -171,7 +169,7 @@ void Game::drawHUD(Config &c) {
     Text textLap;
     textLap.setFont(c.timeToPlay);
     textLap.setString("00' 00'' 00");
-    textLap.setCharacterSize(int(35.0f * c.screenScale));
+    textLap.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     textLap.setFillColor(Color(146, 194, 186));
     textLap.setOutlineColor(Color::Black);
     textLap.setOutlineThickness(3.0f * c.screenScale);
@@ -195,7 +193,8 @@ void Game::drawHUD(Config &c) {
     s.setPosition(separation, float(c.w.getSize().y) - s.getGlobalBounds().height * 1.25f);
     initial = separation + s.getGlobalBounds().width / 4.0f;
     textures[6].loadFromFile("resources/GamePanel/7.png",
-                             IntRect(0, 0, (player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale), 20.0f * c.screenScale));
+                             IntRect(0, 0, static_cast<int>(player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale),
+                                     static_cast<int>(20.0f * c.screenScale)));
     s.setTexture(textures[6], true);
     if (player.getRealSpeed() > 0.0f)
         c.w.draw(s);
@@ -205,7 +204,7 @@ void Game::drawHUD(Config &c) {
     Text sText;
     sText.setFont(c.speedVehicle);
     sText.setString("0001");
-    sText.setCharacterSize(int(70.0f * c.screenScale));
+    sText.setCharacterSize(static_cast<unsigned int>(int(70.0f * c.screenScale)));
     sText.setFillColor(Color(206, 73, 73));
     sText.setOutlineColor(Color::Black);
     sText.setOutlineThickness(3.0f * c.screenScale);
@@ -231,7 +230,7 @@ void Game::drawHUD(Config &c) {
     Text textLevel;
     textLevel.setFont(c.timeToPlay);
     textLevel.setString("0");
-    textLevel.setCharacterSize(int(40.0f * c.screenScale));
+    textLevel.setCharacterSize(static_cast<unsigned int>(int(40.0f * c.screenScale)));
     textLevel.setFillColor(Color(146, 194, 186));
     textLevel.setOutlineColor(Color::Black);
     textLevel.setOutlineThickness(3.0f * c.screenScale);
@@ -254,13 +253,14 @@ void Game::drawCheckpoint(Config &c, bool visible) {
     Text checkPointTitle;
     checkPointTitle.setFont(c.timeToPlay);
     checkPointTitle.setString("CHECKPOINT!");
-    checkPointTitle.setCharacterSize(int(50.0f * c.screenScale));
+    checkPointTitle.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
 
     checkPointTitle.setOutlineThickness(3.0f * c.screenScale);
     float initial = c.w.getSize().y / 3.0f + 0.25f * float(checkPointTitle.getCharacterSize());
-    checkPointTitle.setPosition((float(c.w.getSize().x) - checkPointTitle.getGlobalBounds().width) / 2.0f, c.w.getSize().y / 3.0f - float(checkPointTitle.getCharacterSize()));
+    checkPointTitle.setPosition((float(c.w.getSize().x) - checkPointTitle.getGlobalBounds().width) / 2.0f,
+                                c.w.getSize().y / 3.0f - float(checkPointTitle.getCharacterSize()));
 
-     // Time inverted by the player for complete the game
+    // Time inverted by the player for complete the game
     s.setTexture(textures[5], true);
     s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
     s.setPosition((float(c.w.getSize().x) - s.getGlobalBounds().width) / 2.0f, initial);
@@ -272,8 +272,7 @@ void Game::drawCheckpoint(Config &c, bool visible) {
         c.w.draw(s);
         c.w.draw(checkPointTitle);
 
-    }
-    else {
+    } else {
         checkPointTitle.setFillColor(Color::Transparent);
         checkPointTitle.setOutlineColor(Color::Transparent);
     }
@@ -281,20 +280,21 @@ void Game::drawCheckpoint(Config &c, bool visible) {
     Text textForLap;
     textForLap.setFont(c.timeToPlay);
     textForLap.setString("00' 00'' 00");
-    textForLap.setCharacterSize(int(35.0f * c.screenScale));
+    textForLap.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     textForLap.setOutlineThickness(3.0f * c.screenScale);
 
     s.setTexture(textures[2], true);
     s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    textForLap.setPosition((float(c.w.getSize().x) - textForLap.getGlobalBounds().width - s.getGlobalBounds().width) / 1.7f, initial + 1.1f * s.getGlobalBounds().height);
+    textForLap.setPosition(
+            (float(c.w.getSize().x) - textForLap.getGlobalBounds().width - s.getGlobalBounds().width) / 1.7f,
+            initial + 1.1f * s.getGlobalBounds().height);
     s.setPosition((float(c.w.getSize().x) + textForLap.getGlobalBounds().width / 2.0f) / 2.4f, initial);
 
     if (visible) {
         textForLap.setFillColor(Color(146, 194, 186));
         textForLap.setOutlineColor(Color::Black);
         c.w.draw(s);
-    }
-    else {
+    } else {
         textForLap.setFillColor(Color::Transparent);
         textForLap.setOutlineColor(Color::Transparent);
     }
@@ -308,11 +308,12 @@ void Game::drawGameOver(Config &c) {
     Text gameOver;
     gameOver.setFont(c.timeToPlay);
     gameOver.setString("GAME OVER");
-    gameOver.setCharacterSize(int(60.0f * c.screenScale));
+    gameOver.setCharacterSize(static_cast<unsigned int>(int(60.0f * c.screenScale)));
     gameOver.setFillColor(Color::Yellow);
     gameOver.setOutlineColor(Color(14, 29, 184));
     gameOver.setOutlineThickness(3.0f * c.screenScale);
-    gameOver.setPosition((float(c.w.getSize().x) - gameOver.getGlobalBounds().width) / 2.0f, (float(c.w.getSize().y) - float(gameOver.getCharacterSize())) / 2.0f);
+    gameOver.setPosition((float(c.w.getSize().x) - gameOver.getGlobalBounds().width) / 2.0f,
+                         (float(c.w.getSize().y) - float(gameOver.getCharacterSize())) / 2.0f);
     c.w.draw(gameOver);
 }
 
@@ -327,7 +328,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     Text bonification;
     bonification.setFont(c.timeToPlay);
     bonification.setString("BONUS POINTS!");
-    bonification.setCharacterSize(int(65.0f * c.screenScale));
+    bonification.setCharacterSize(static_cast<unsigned int>(int(65.0f * c.screenScale)));
     bonification.setFillColor(Color::Yellow);
     bonification.setOutlineColor(Color(12, 12, 12));
     bonification.setOutlineThickness(3.0f * c.screenScale);
@@ -340,7 +341,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     Text timeBonus;
     timeBonus.setFont(c.timeToPlay);
     timeBonus.setString("000.0");
-    timeBonus.setCharacterSize(int(55.0f * c.screenScale));
+    timeBonus.setCharacterSize(static_cast<unsigned int>(int(55.0f * c.screenScale)));
     timeBonus.setFillColor(Color::Yellow);
     timeBonus.setOutlineColor(Color(12, 12, 12));
     timeBonus.setOutlineThickness(3.0f * c.screenScale);
@@ -355,7 +356,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     Text secondsIndicator;
     secondsIndicator.setFont(c.timeToPlay);
     secondsIndicator.setString("SEC");
-    secondsIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    secondsIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
     secondsIndicator.setFillColor(Color(183, 164, 190));
     secondsIndicator.setOutlineColor(Color::Black);
     secondsIndicator.setOutlineThickness(3.0f * c.screenScale);
@@ -367,7 +368,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     Text crossSign;
     crossSign.setFont(c.timeToPlay);
     crossSign.setString("x");
-    crossSign.setCharacterSize(int(40.0f * c.screenScale));
+    crossSign.setCharacterSize(static_cast<unsigned int>(int(40.0f * c.screenScale)));
     crossSign.setFillColor(Color(232, 191, 157));
     crossSign.setOutlineColor(Color::Black);
     crossSign.setOutlineThickness(3.0f * c.screenScale);
@@ -379,7 +380,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     Text scoreMultiply;
     scoreMultiply.setFont(c.timeToPlay);
     scoreMultiply.setString(to_string((long long) SCORE_BONIFICATION));
-    scoreMultiply.setCharacterSize(int(55.0f * c.screenScale));
+    scoreMultiply.setCharacterSize(static_cast<unsigned int>(int(55.0f * c.screenScale)));
     scoreMultiply.setFillColor(Color::Yellow);
     scoreMultiply.setOutlineColor(Color(12, 12, 12));
     scoreMultiply.setOutlineThickness(3.0f * c.screenScale);
@@ -391,7 +392,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     Text pointsIndicator;
     pointsIndicator.setFont(c.timeToPlay);
     pointsIndicator.setString("PTS");
-    pointsIndicator.setCharacterSize(int(50.0f * c.screenScale));
+    pointsIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
     pointsIndicator.setFillColor(Color(183, 164, 190));
     pointsIndicator.setOutlineColor(Color::Black);
     pointsIndicator.setOutlineThickness(3.0f * c.screenScale);
@@ -400,7 +401,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
 }
 
 void Game::checkDifficulty(Config &c) {
-    int numCars = cars.size(); // Number of vehicles simultaneously
+    int numCars = static_cast<int>(cars.size()); // Number of vehicles simultaneously
     time = int(float(time - int(timeAI)) / timeMul); // Restore original time
 
     float prevScoreMul = scoreMul;
@@ -443,15 +444,14 @@ void Game::checkDifficulty(Config &c) {
         c.maxAggressiveness = 0.0f;
 
     // Vehicles
-    cars.reserve(numCars);
+    cars.reserve(static_cast<unsigned long>(numCars));
     if (cars.size() > numCars) {
         while (cars.size() > numCars)
             cars.pop_back();
-    }
-    else if (cars.size() < numCars) {
+    } else if (cars.size() < numCars) {
         const int maxSprites = 6;
         const float vehicleScales[maxSprites] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
-        for (int i = cars.size(); i < numCars; i++) {
+        for (int i = static_cast<int>(cars.size()); i < numCars; i++) {
             Enemy v(MAX_SPEED, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
                     "car" + to_string(1 + i % maxSprites), -RECTANGLE * DEL_VEHICLE * 3.0f);
             cars.push_back(v);
@@ -474,7 +474,7 @@ bool Game::isInGame() const {
 }
 
 unsigned long Game::getScore() const {
-    return score;
+    return static_cast<unsigned long>(score);
 }
 
 float Game::getMinutesTrip() const {
@@ -485,7 +485,7 @@ float Game::getSecsTrip() const {
     return secsTrip;
 }
 
-float Game::getCents_SecondTrip() const{
+float Game::getCents_SecondTrip() const {
     return cents_secondTrip;
 }
 
@@ -526,33 +526,30 @@ State Game::play(Config &c) {
     while (!finalGame && !arrival && c.window.isOpen()) {
         // Detect the possible events
         Event e{};
-        while(c.window.pollEvent(e))
+        while (c.window.pollEvent(e))
             if (e.type == Event::Closed)
                 return EXIT;
 
         updateAndDraw(c, action, direction);
 
         if (!finalGame) {
-            if (Keyboard::isKeyPressed(c.menuKey) || onPause){
+            if (Keyboard::isKeyPressed(c.menuKey) || onPause) {
                 // Pause the game
                 c.effects[1]->stop();
                 c.effects[1]->play();
                 status = pause(c, action, direction);
 
                 // Control the exit of the game
-                if (status == OPTIONS){
+                if (status == OPTIONS) {
                     comeFromOptions = true;
                     finalGame = true;
-                }
-                else if (status == START){
+                } else if (status == START) {
                     finalGame = true;
                     inGame = false;
                     return START;
-                }
-                else if (status == GAME){
+                } else if (status == GAME) {
                     c.themes[c.currentSoundtrack]->play();
-                }
-                else if (status == EXIT) {
+                } else if (status == EXIT) {
                     return EXIT;
                 }
                 gameClockLap.restart();
@@ -570,19 +567,19 @@ State Game::play(Config &c) {
             // Check if a tenth of second has passed between both timestamps
             if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
                 cents_second += elapsed4;
-                if (cents_second >= 1.f){
+                if (cents_second >= 1.f) {
                     cents_second -= 1.f;
                     secs++;
-                    if (secs == 60.f){
+                    if (secs == 60.f) {
                         secs = 0;
                         minutes++;
                     }
                 }
                 cents_secondTrip += elapsed4;
-                if (cents_secondTrip >= 1.f){
+                if (cents_secondTrip >= 1.f) {
                     cents_secondTrip -= 1.f;
                     secsTrip++;
-                    if (secsTrip == 60.f){
+                    if (secsTrip == 60.f) {
                         secsTrip = 0;
                         minutesTrip++;
                     }
@@ -612,7 +609,7 @@ State Game::play(Config &c) {
             c.window.draw(bufferSprite);
             c.window.display();
 
-            if (time == 10){
+            if (time == 10) {
                 c.effects[25]->stop();
                 c.effects[25]->play();
             }
@@ -627,7 +624,7 @@ State Game::play(Config &c) {
 
     finalGame = false;
 
-    if (arrival){
+    if (arrival) {
         arrival = false;
         return RANKING;
     }
@@ -646,12 +643,12 @@ State Game::play(Config &c) {
 
         bool startPressed = false;
         c.themes[5]->play();
-        while (!startPressed){
+        while (!startPressed) {
 
             // Detect the possible events
             Event e{};
-            while( c.window.pollEvent(e)){
-                if (e.type == Event::Closed){
+            while (c.window.pollEvent(e)) {
+                if (e.type == Event::Closed) {
                     return EXIT;
                 }
             }
@@ -685,8 +682,8 @@ State Game::initialAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
@@ -703,8 +700,8 @@ State Game::initialAnimation(Config &c) {
 
     // Detect the possible events
     Event e{};
-    while( c.window.pollEvent(e)){
-        if (e.type == Event::Closed){
+    while (c.window.pollEvent(e)) {
+        if (e.type == Event::Closed) {
             return EXIT;
         }
     }
@@ -724,8 +721,8 @@ State Game::initialAnimation(Config &c) {
     c.window.display();
 
     // Detect the possible events
-    while( c.window.pollEvent(e)){
-        if (e.type == Event::Closed){
+    while (c.window.pollEvent(e)) {
+        if (e.type == Event::Closed) {
             return EXIT;
         }
     }
@@ -740,8 +737,8 @@ State Game::initialAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
@@ -765,7 +762,8 @@ State Game::initialAnimation(Config &c) {
                 // Draw map
                 c.w.clear();
                 currentMap->draw(c, cars);
-                player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+                player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT,
+                            currentMap->getElevation(player.getPosY()));
                 bufferSprite.setTexture(c.w.getTexture(), true);
                 c.w.display();
                 c.window.draw(bufferSprite);
@@ -817,8 +815,8 @@ State Game::goalAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
@@ -830,15 +828,15 @@ State Game::goalAnimation(Config &c) {
         c.w.clear();
         currentMap->draw(c, cars);
         player.setPosition(player.getPosX(), player.getPosY() + 1);
-        player.draw(c, Vehicle::Action::ACCELERATE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()), false);
+        player.draw(c, Vehicle::Action::ACCELERATE, Vehicle::Direction::RIGHT,
+                    currentMap->getElevation(player.getPosY()), false);
 
         // Flager animation
         if (gameClockTime.getElapsedTime().asMilliseconds() - currentTime >= 200.0f) {
             if (increment >= 5) {
                 increment = 0;
                 currentMap->incrementSpriteIndex(goalFlagger, false, -5);
-            }
-            else {
+            } else {
                 currentMap->incrementSpriteIndex(goalFlagger, false);
                 increment++;
             }
@@ -851,7 +849,7 @@ State Game::goalAnimation(Config &c) {
         if (elapsed12 - elapsed11 >= bonus_delay.asSeconds()) {
             // Decrement one Tenth of a second
 
-            if (decsTime > 0){
+            if (decsTime > 0) {
                 decsTime--;
 
                 seconds = decsTime / 10;
@@ -893,8 +891,8 @@ State Game::goalAnimation(Config &c) {
 
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
@@ -905,19 +903,18 @@ State Game::goalAnimation(Config &c) {
 
         if (!firstEnd) {
             player.drawGoalAnimation(c, step, end);
-        }
-        else {
+        } else {
             player.drawGoalAnimation(c, lastStep, end, false);
         }
 
-        if (end && !firstEnd){
+        if (end && !firstEnd) {
             firstEnd = true;
         }
-        if (firstEnd){
+        if (firstEnd) {
             lastStep = step - 1;
         }
 
-        if (decsTime > 0){
+        if (decsTime > 0) {
             elapsed12 = bonus.getElapsedTime().asSeconds();
 
             // Check if a second has passed between both timestamps
@@ -963,7 +960,7 @@ State Game::goalAnimation(Config &c) {
 }
 
 
-void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction &direction) {
+void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -993,15 +990,16 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                 time += int(float(currentMap->getTime()) * timeMul);
 
                 // Update the indicators
-                if (!checkPoint){
-                    lapCheckPoint = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
+                if (!checkPoint) {
+                    lapCheckPoint = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) +
+                                                                                            " ''";
                     lapCheckPoint += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
                     lapCheckPoint += to_string(int(cents_second * 100.f));
 
                     // Initialize to zero the time
                     cents_second = 0;
                     secs = 0;
-                    minutes= 0;
+                    minutes = 0;
                 }
                 checkPoint = true;
                 timeCheck = time;
@@ -1012,15 +1010,14 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
             lastY = currentMap->getCamY();
-        }
-        else {
+        } else {
             finalGame = true;
         }
     }
 
     if (currentMap->isGoalMap()) {
         State status = goalAnimation(c);
-        if (status == EXIT){
+        if (status == EXIT) {
             exit(1);
         }
         arrival = true;
@@ -1033,8 +1030,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         for (Enemy &v : cars) {
             if (currentMap->inFork(v.getPosY())) {
                 v.setPosition(v.getPosX(), -RECTANGLE * DEL_VEHICLE * 3.0f);
-            }
-            else if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+            } else if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
                 v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY, c.maxAggressiveness);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
@@ -1054,8 +1050,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
         if (!player.isCrashing()) { // If not has crashed
             action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
-        }
-        else {
+        } else {
             player.hitControl(vehicleCrash);
         }
 
@@ -1069,8 +1064,8 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
             if (!crash)
                 for (int i = 0; !vehicleCrash && i < cars.size(); i++)
                     vehicleCrash = cars[i].hasCrashed(player.getPreviousY(), player.getPosY(),
-                                                player.getMinScreenX(), player.getMaxScreenX(),
-                                                crashPos);
+                                                      player.getMinScreenX(), player.getMaxScreenX(),
+                                                      crashPos);
 
             if (crash || vehicleCrash) {
                 player.setPosition(player.getPosX(), crashPos);
@@ -1090,10 +1085,10 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
             float distX, distY;
             bool visible = v.isVisible(c, currentMap->getCamY(), player.getPosX(), player.getPosY(), distX, distY);
             if (visible) {
-                if (distY <= 20.f && distX <= 0.3f){
+                if (distY <= 20.f && distX <= 0.3f) {
                     // Thread with sound of the woman
                     elapsed6 = womanShot.getElapsedTime().asSeconds();
-                    if (elapsed6 - elapsed5 >= woman_delay.asSeconds()){
+                    if (elapsed6 - elapsed5 >= woman_delay.asSeconds()) {
                         // WomanSound
                         c.effects[13]->stop();
                         c.effects[14]->stop();
@@ -1102,10 +1097,10 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                         womanShot.restart();
                     }
                 }
-                if (distY <= 30.f && distX <= 1.2f){
+                if (distY <= 30.f && distX <= 1.2f) {
                     // Thread with sound of the woman
                     elapsed8 = trafficCarSound.getElapsedTime().asSeconds();
-                    if (elapsed8 - elapsed7 >= traffic_delay.asSeconds()){
+                    if (elapsed8 - elapsed7 >= traffic_delay.asSeconds()) {
                         // makeCarTrafficSound
                         c.effects[20]->stop();
                         c.effects[21]->stop();
@@ -1115,30 +1110,29 @@ void Game::updateAndDraw(Config &c, Vehicle::Action& action, Vehicle::Direction 
                 }
             }
         }
-        if (checkPoint){
-             elapsed10 = blinkTime.getElapsedTime().asSeconds();
-             if (elapsed10 - elapsed9 >= blink_delay.asSeconds()){
+        if (checkPoint) {
+            elapsed10 = blinkTime.getElapsedTime().asSeconds();
+            if (elapsed10 - elapsed9 >= blink_delay.asSeconds()) {
                 blink = !blink;
                 blinkTime.restart();
-             }
-             if (blink){
-                 drawCheckpoint(c, true);
+            }
+            if (blink) {
+                drawCheckpoint(c, true);
                 // BeepSound
                 c.effects[22]->stop();
                 c.effects[22]->play();
-             }
-             else {
-                 drawCheckpoint(c, false);
-             }
+            } else {
+                drawCheckpoint(c, false);
+            }
 
-             if (timeCheck - time > 5){
+            if (timeCheck - time > 5) {
                 checkPoint = false;
-             }
+            }
         }
     }
 }
 
-State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction &d) {
+State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction &d) {
     c.w.clear();
 
     // Draw the map
@@ -1152,11 +1146,14 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     c.w.display();
     const Texture bgTexture(c.w.getTexture());
     Sprite bgSprite(bgTexture);
-    bgSprite.setScale(float(c.window.getSize().x) / float(c.w.getSize().x), float(c.window.getSize().y) / float(c.w.getSize().y));
+    bgSprite.setScale(float(c.window.getSize().x) / float(c.w.getSize().x),
+                      float(c.window.getSize().y) / float(c.w.getSize().y));
 
     c.w.clear();
-    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f), Vector2f(c.window.getSize().x, c.window.getSize().y)));
-    c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
+                          Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+               static_cast<unsigned int>(c.window.getView().getSize().y));
     c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     // Start the pause menu of the game
@@ -1169,12 +1166,13 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     c.themes[c.currentSoundtrack]->pause();
 
     RectangleShape shape;
-    shape.setPosition(0 , 0);
+    shape.setPosition(0, 0);
     shape.setSize(Vector2f(c.w.getSize().x, c.w.getSize().y));
     shape.setFillColor(Color(0, 0, 0, 200));
 
     RectangleShape pauseShape;
-    pauseShape.setPosition(c.w.getSize().x / 2.f - 120.0f * c.screenScale, c.w.getSize().y / 2.f - 180.0f * c.screenScale);
+    pauseShape.setPosition(c.w.getSize().x / 2.f - 120.0f * c.screenScale,
+                           c.w.getSize().y / 2.f - 180.0f * c.screenScale);
     pauseShape.setSize(sf::Vector2f(250.0f * c.screenScale, 400.0f * c.screenScale));
     pauseShape.setFillColor(Color(0, 0, 0));
     pauseShape.setOutlineColor(Color::Green);
@@ -1186,7 +1184,7 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     textMenu.setFillColor(Color(214, 234, 12));
     textMenu.setOutlineColor(Color(12, 72, 234));
     textMenu.setOutlineThickness(2.0f * c.screenScale);
-    textMenu.setCharacterSize(int(35.0f * c.screenScale));
+    textMenu.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     textMenu.setString("PAUSE");
 
     // Control if the start key is pressed or not
@@ -1196,31 +1194,38 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
     int optionSelected = 0;
 
     // Buttons of the menu
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f,
+                             200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+                             "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                                 "Home", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Home", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
                              "Exit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
 
     while (!startPressed) {
         // Detect the possible events
         Event e{};
-        while( c.window.pollEvent(e)){
-            if (e.type == Event::Closed){
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
                 return EXIT;
             }
         }
 
         // Check if the up or down cursor keys have been pressed or not
-        if (Keyboard::isKeyPressed(c.menuDownKey)){
+        if (Keyboard::isKeyPressed(c.menuDownKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != int(menuButtons.size() - 1)){
+            if (optionSelected != int(menuButtons.size() - 1)) {
                 // Change the color appearance of both buttons
                 c.effects[0]->stop();
                 c.effects[0]->play();
@@ -1228,10 +1233,9 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
             }
-        }
-        else if (Keyboard::isKeyPressed(c.menuUpKey)){
+        } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
-            if (optionSelected != 0){
+            if (optionSelected != 0) {
                 c.effects[0]->stop();
                 c.effects[0]->play();
                 optionSelected--;
@@ -1239,12 +1243,10 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
             }
-        }
-        else if (Keyboard::isKeyPressed(c.menuEnterKey)){
-            if (comeFromOptions){
+        } else if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+            if (comeFromOptions) {
                 comeFromOptions = false;
-            }
-            else {
+            } else {
                 startPressed = true;
             }
         }
@@ -1256,7 +1258,7 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
         c.w.draw(pauseShape);
         c.w.draw(textMenu);
 
-        for (Button b : menuButtons){
+        for (Button b : menuButtons) {
             b.render(&c.w);
         }
 
@@ -1272,15 +1274,18 @@ State Game::pause(Config& c, const Vehicle::Action& a, const Vehicle::Direction 
 
     if (c.enablePixelArt) {
         if (c.isDefaultScreen)
-            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f), Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f),
+                                  Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
         else
-            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f), Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
-        c.w.create(c.window.getView().getSize().x, c.window.getView().getSize().y);
+            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f),
+                                  Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+        c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+                   static_cast<unsigned int>(c.window.getView().getSize().y));
         c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
     }
 
     // Check the option selected by the user
-    switch(optionSelected){
+    switch (optionSelected) {
         case 0:
             // Resume button selected and reanudate the music
             onPause = false;

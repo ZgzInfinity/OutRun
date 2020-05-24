@@ -1,7 +1,7 @@
 /******************************************************************************
  * @file    Game.hpp
- * @author  Andrés Gavín Murillo, 716358
- * @author  Rubén Rodríguez Esteban, 737215
+ * @author  AndrÃ©s GavÃ­n Murillo, 716358
+ * @author  RubÃ©n RodrÃ­guez Esteban, 737215
  * @date    Marzo 2020
  * @coms    Videojuegos - OutRun
  ******************************************************************************/
@@ -25,7 +25,6 @@ struct KeywordMapper {
 
     KeywordMapper();
 
-    int lookForIdKeyWord(const Keyboard::Key codeKey);
 };
 
 #endif // KEYWORD_MAPPER_H

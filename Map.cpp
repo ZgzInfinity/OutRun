@@ -35,8 +35,8 @@ Map::Line::Line() {
 }
 
 void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
-        const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight, float &bgX, float &offsetX,
-        const float offsetInc) {
+                  const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight, float &bgX, float &offsetX,
+                  const float offsetInc) {
     float yInc = (y - prevY) / float(RECTANGLE); // RECTANGLE is total lines number will be added
 
     Line line, lineAux;
@@ -133,7 +133,7 @@ Map::Line Map::getPreviousLine(const int n) const {
         return next->lines[(n - 1 - lines.size()) % next->lines.size()];
 }
 
-void fileError(const string &error="") {
+void fileError(const string &error = "") {
     cerr << "Error: Formato de fichero incorrecto." << endl;
     if (!error.empty())
         cerr << "\t" + error << endl;
@@ -179,7 +179,7 @@ vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIn
                     inst.emplace_back("+");
                 }
 
-                uniform_int_distribution<int> distObj(0, objectIndexes.size() - 1);
+                uniform_int_distribution<int> distObj(0, static_cast<int>(objectIndexes.size() - 1));
                 inst.push_back(to_string(objectIndexes[distObj(generator)]));
                 if (dist(generator) > 0.75f) {
                     // Offset
@@ -196,7 +196,7 @@ vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIn
                     inst.emplace_back("+");
                 }
 
-                uniform_int_distribution<int> distObj(0, objectIndexes.size() - 1);
+                uniform_int_distribution<int> distObj(0, static_cast<int>(objectIndexes.size() - 1));
                 inst.push_back(to_string(objectIndexes[distObj(generator)]));
                 if (dist(generator) > 0.75f) {
                     // Offset
@@ -205,22 +205,18 @@ vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIn
             }
 
             line++;
-        }
-        else if (prob < 0.92f) {
+        } else if (prob < 0.92f) {
             // Curve
             inst.emplace_back("CURVE");
             inst.push_back(to_string(dist(generator) / 2.0f));
-        }
-        else if (prob < 0.94f) {
+        } else if (prob < 0.94f) {
             // Curve
             inst.emplace_back("CURVE");
             inst.push_back(to_string(-dist(generator) / 2.0f));
-        }
-        else if (prob < 0.96f) {
+        } else if (prob < 0.96f) {
             // Straight
             inst.emplace_back("STRAIGHT");
-        }
-        else if (prob < 0.98f) {
+        } else if (prob < 0.98f) {
             // Climb
             inst.emplace_back("CLIMB");
 
@@ -229,8 +225,7 @@ vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIn
 
             inst.push_back(to_string(dist(generator) * float(untilLine - line) * 100.0f));
             inst.push_back(to_string(untilLine - line));
-        }
-        else {
+        } else {
             // Drop
             inst.emplace_back("DROP");
 
@@ -265,8 +260,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
             if (comment) {
                 if (s.size() >= 2 && s[s.size() - 1] == '/' && s[s.size() - 2] == '*')
                     comment = false;
-            }
-            else {
+            } else {
                 buffer.push_back(s);
 
                 if (!road) {
@@ -276,41 +270,37 @@ vector<vector<string>> readMapFile(const std::string &file) {
                         buffer.clear();
                         road = true;
                     }
-                }
-                else if (!grass) {
+                } else if (!grass) {
                     if (buffer.size() == 6) {
                         instructions.push_back({buffer[0], buffer[1], buffer[2]});
                         instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
                         grass = true;
                     }
-                }
-                else if (!rumbleAndDash) {
+                } else if (!rumbleAndDash) {
                     if (buffer.size() == 6) {
                         instructions.push_back({buffer[0], buffer[1], buffer[2]});
                         instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
                         rumbleAndDash = true;
                     }
-                }
-                else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
-                                               s == "FLAT" || s == "DROP" || s == "RANDOM" || s  == "END")) {
+                } else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
+                                                 s == "FLAT" || s == "DROP" || s == "RANDOM" || s == "END")) {
                     if (buffer[0] == "CLIMB" || buffer[0] == "DROP" || buffer[0] == "FLAT") {
                         if (lastInclinationIndex > -1 && (instructions[lastInclinationIndex][0] == "CLIMB" ||
-                                instructions[lastInclinationIndex][0] == "DROP")) {
+                                                          instructions[lastInclinationIndex][0] == "DROP")) {
                             instructions[lastInclinationIndex].push_back(to_string(lines));
                             lastInclinationIndex = -1;
                         }
 
                         if (buffer[0] == "CLIMB" || buffer[0] == "DROP") {
                             lines = 0;
-                            lastInclinationIndex = instructions.size();
+                            lastInclinationIndex = static_cast<int>(instructions.size());
 
                             buffer.pop_back();
                             instructions.push_back(buffer);
                         }
-                    }
-                    else if (buffer[0] == "RANDOM") {
+                    } else if (buffer[0] == "RANDOM") {
                         if (buffer.size() < 3)
                             fileError(buffer[0] + " necesita argumentos.");
 
@@ -322,8 +312,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
                         for (int i = 6; i < randomInstructions.size(); i++) {
                             instructions.push_back(randomInstructions[i]);
                         }
-                    }
-                    else {
+                    } else {
                         if (s == "ROAD")
                             lines++;
 
@@ -354,12 +343,20 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
 
     // Colors
     try {
-        roadColor[0] = Color(stoi(instructions[0][0]), stoi(instructions[0][1]), stoi(instructions[0][2]));
-        roadColor[1] = Color(stoi(instructions[1][0]), stoi(instructions[1][1]), stoi(instructions[1][2]));
-        grassColor[0] = Color(stoi(instructions[2][0]), stoi(instructions[2][1]), stoi(instructions[2][2]));
-        grassColor[1] = Color(stoi(instructions[3][0]), stoi(instructions[3][1]), stoi(instructions[3][2]));
-        rumbleColor = Color(stoi(instructions[4][0]), stoi(instructions[4][1]), stoi(instructions[4][2]));
-        dashColor = Color(stoi(instructions[5][0]), stoi(instructions[5][1]), stoi(instructions[5][2]));
+        roadColor[0] = Color(static_cast<Uint8>(stoi(instructions[0][0])), static_cast<Uint8>(stoi(instructions[0][1])),
+                             static_cast<Uint8>(stoi(instructions[0][2])));
+        roadColor[1] = Color(static_cast<Uint8>(stoi(instructions[1][0])), static_cast<Uint8>(stoi(instructions[1][1])),
+                             static_cast<Uint8>(stoi(instructions[1][2])));
+        grassColor[0] = Color(static_cast<Uint8>(stoi(instructions[2][0])),
+                              static_cast<Uint8>(stoi(instructions[2][1])),
+                              static_cast<Uint8>(stoi(instructions[2][2])));
+        grassColor[1] = Color(static_cast<Uint8>(stoi(instructions[3][0])),
+                              static_cast<Uint8>(stoi(instructions[3][1])),
+                              static_cast<Uint8>(stoi(instructions[3][2])));
+        rumbleColor = Color(static_cast<Uint8>(stoi(instructions[4][0])), static_cast<Uint8>(stoi(instructions[4][1])),
+                            static_cast<Uint8>(stoi(instructions[4][2])));
+        dashColor = Color(static_cast<Uint8>(stoi(instructions[5][0])), static_cast<Uint8>(stoi(instructions[5][1])),
+                          static_cast<Uint8>(stoi(instructions[5][2])));
     }
     catch (const exception &e) {
         fileError("Faltan colores al declarar el mapa.");
@@ -372,32 +369,29 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
             if (inst.size() < 2)
                 fileError(inst[0] + " necesita argumentos.");
             curveCoeff = stof(inst[1]);
-        }
-        else if (inst[0] == "STRAIGHT") {
+        } else if (inst[0] == "STRAIGHT") {
             curveCoeff = 0.0f;
-        }
-        else if (inst[0] == "CLIMB") {
+        } else if (inst[0] == "CLIMB") {
             if (inst.size() < 3)
                 fileError(inst[0] + " necesita argumentos.");
             elevation = stof(inst[1]);
             elevationLines = stoi(inst[2]);
             elevationIndex = 0;
-        }
-        else if (inst[0] == "DROP") {
+        } else if (inst[0] == "DROP") {
             if (inst.size() < 3)
                 fileError(inst[0] + " necesita argumentos.");
             elevation = -stof(inst[1]);
             elevationLines = stoi(inst[2]);
             elevationIndex = 0;
-        }
-        else if (inst[0] == "ROAD") {
+        } else if (inst[0] == "ROAD") {
             SpriteInfo spriteLeft, spriteRight;
 
             // Elevation
             float yAux = y;
             if (elevationIndex < elevationLines) {
-                yAux += float(elevation) / 2.0f +
-                        (float(elevation) / 2.0f) * cosf(M_PI + (M_PI / float(elevationLines)) * float(elevationIndex));
+                yAux += elevation / 2.0f +
+                        (elevation / 2.0f) * cosf(
+                                static_cast<float>(M_PI + (M_PI / float(elevationLines)) * float(elevationIndex)));
                 elevationIndex++;
             }
             if (!lines.empty() && elevationIndex == elevationLines) {
@@ -476,23 +470,18 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
                 if (s == "HIT:" && !fin.eof()) {
                     fin >> hitC;
                     hitCoeffType = Line::HIT_CENTER;
-                }
-                else if (s == "HIT_LEFT:" && !fin.eof()) {
+                } else if (s == "HIT_LEFT:" && !fin.eof()) {
                     fin >> hitC;
                     hitCoeffType = Line::HIT_LEFT;
-                }
-                else if (s == "HIT_RIGHT:" && !fin.eof()) {
+                } else if (s == "HIT_RIGHT:" && !fin.eof()) {
                     fin >> hitC;
                     hitCoeffType = Line::HIT_RIGHT;
-                }
-                else if (s == "HIT_SIDES:" && !fin.eof()) {
+                } else if (s == "HIT_SIDES:" && !fin.eof()) {
                     fin >> hitC;
                     hitCoeffType = Line::HIT_SIDES;
-                }
-                else if (s == "SCALE:" && !fin.eof()) {
+                } else if (s == "SCALE:" && !fin.eof()) {
                     fin >> scaleC;
-                }
-                else if (!s.empty()) {
+                } else if (!s.empty()) {
                     cerr << "WARNING: '" << s << "' at file " << path + objName + ".info" << endl;
                 }
             }
@@ -505,8 +494,9 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
 }
 
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
-        const std::vector<std::string> &objectNames, bool random, const int time) : posX(0), posY(0), next(nullptr),
-        nextRight(nullptr), initMap(false), goalMap(false), maxTime(time) {
+         const std::vector<std::string> &objectNames, bool random, const int time) : posX(0), posY(0), next(nullptr),
+                                                                                     nextRight(nullptr), initMap(false),
+                                                                                     goalMap(false), maxTime(time) {
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -519,8 +509,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     float bgX = 0; // Background position
     if (random) { // Random generation
         addLines(0, 0, z, bgX, randomMap(1000, objectIndexes));
-    }
-    else { // Predefined map
+    } else { // Predefined map
         addLines(0, 0, z, bgX, readMapFile(path + "map.info"));
     }
 
@@ -587,8 +576,7 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
             leftSprites[i].offset = -0.15f;
             rightSprites[i].spriteNum = 35;
             rightSprites[i].offset = -0.15f;
-        }
-        else if (i % 2 == 0) {
+        } else if (i % 2 == 0) {
             // People
             leftSprites[i].spriteNum = 31;
         }
@@ -790,11 +778,12 @@ float Map::getCamY() const {
     return this->posY;
 }
 
-void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
+void
+Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
     scale = camD / (1.0f + z + zOffset - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
     Y = (1.0f - scale * (y - camY)) * height / 2.0f;
-    W = scale * rW  * width / 2.0f;
+    W = scale * rW * width / 2.0f;
 }
 
 void Map::Line::drawSprite(RenderTexture &w, const vector<Texture> &objs, const vector<float> &hitCoeff,
@@ -828,20 +817,17 @@ void Map::Line::drawSprite(RenderTexture &w, const vector<Texture> &objs, const 
         if (hitCoeffType[object.spriteNum] == HIT_CENTER) {
             object.spriteMinX =
                     destX + (s.getGlobalBounds().width - s.getGlobalBounds().width * hitCoeff[object.spriteNum]) / 2.0f;
-        }
-        else if (hitCoeffType[object.spriteNum] == HIT_RIGHT) {
+        } else if (hitCoeffType[object.spriteNum] == HIT_RIGHT) {
             object.spriteMinX =
                     destX + s.getGlobalBounds().width - s.getGlobalBounds().width * hitCoeff[object.spriteNum];
-        }
-        else { // HIT_LEFT and HIT_SIDES
+        } else { // HIT_LEFT and HIT_SIDES
             object.spriteMinX = destX;
         }
         object.spriteMaxX = object.spriteMinX + s.getGlobalBounds().width * hitCoeff[object.spriteNum];
 
         if (hitCoeffType[object.spriteNum] != HIT_SIDES) {
             object.spriteToSideX = 0.0f;
-        }
-        else {
+        } else {
             object.spriteToSideX = s.getGlobalBounds().width - (object.spriteMaxX - object.spriteMinX);
         }
 
@@ -854,8 +840,7 @@ void Map::Line::drawSprite(RenderTexture &w, const vector<Texture> &objs, const 
             }
             if (hitCoeff[object.spriteNum] > 0.0f)
                 object.spriteMinX = 0.0f;
-        }
-        else if (!left && object.repetitive) {
+        } else if (!left && object.repetitive) {
             while (destX <= w.getSize().x) {
                 destX += s.getGlobalBounds().width;
                 s.setPosition(destX, destY);
@@ -882,7 +867,7 @@ bool ascendingSort(const Enemy *v1, const Enemy *v2) {
 }
 
 void Map::draw(Config &c, vector<Enemy> &vehicles) {
-    const int N = lines.size();
+    const int N = static_cast<const int>(lines.size());
     const int startPos = int(posY) % N;
     const int lastPos = startPos + c.renderLen - 1;
     Line *l = getLine(startPos), *p;
@@ -894,7 +879,7 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     }
 
     // Sort vehicles
-    vector<Enemy*> sortedVehicles;
+    vector<Enemy *> sortedVehicles;
     sortedVehicles.reserve(vehicles.size());
     for (Enemy &v : vehicles)
         sortedVehicles.push_back(&v);
@@ -902,15 +887,16 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
 
     // Discard out of range back vehicles
     while (!sortedVehicles.empty() && (int(sortedVehicles.back()->getPosY()) < int(posY) ||
-            int(sortedVehicles.back()->getPosY()) > int(posY) + c.renderLen - 1))
+                                       int(sortedVehicles.back()->getPosY()) > int(posY) + c.renderLen - 1))
         sortedVehicles.pop_back();
 
     // Background
     drawQuad(c.w, grassColor[0], 0, 0, c.w.getSize().x, 0, c.w.getSize().y, c.w.getSize().x);
     Sprite sbg;
     sbg.setTexture(bg);
-    sbg.setScale(Vector2f(2.0f * (float)c.w.getSize().x / bg.getSize().x, (float)c.w.getSize().y * BGS / bg.getSize().y));
-    sbg.setTextureRect(IntRect(0, 0, 10.0f * sbg.getGlobalBounds().width, bg.getSize().y));
+    sbg.setScale(
+            Vector2f(2.0f * (float) c.w.getSize().x / bg.getSize().x, (float) c.w.getSize().y * BGS / bg.getSize().y));
+    sbg.setTextureRect(IntRect(0, 0, static_cast<int>(10.0f * sbg.getGlobalBounds().width), bg.getSize().y));
     sbg.setPosition(0, 0);
     sbg.move(-8.0f * c.w.getSize().x - l->bgX - posX, 0);
     c.w.draw(sbg);
@@ -958,7 +944,8 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
             visibleLines.pop_back();
 
             Color grassRight, grass, roadRight, road, rumbleRight, rumble, dashRight, dash;
-            if ((initMap && n < N) || (!initMap && n < N - (END_RECTANGLES + FORK_RECTANGLES) * RECTANGLE) || next == nullptr) {
+            if ((initMap && n < N) || (!initMap && n < N - (END_RECTANGLES + FORK_RECTANGLES) * RECTANGLE) ||
+                next == nullptr) {
                 grassRight = grassColor[l->mainColor];
                 roadRight = roadColor[l->mainColor];
                 rumbleRight = l->mainColor ? roadRight : rumbleColor;
@@ -968,8 +955,7 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                 road = roadRight;
                 rumble = rumbleRight;
                 dash = dashRight;
-            }
-            else {
+            } else {
                 grass = next->grassColor[l->mainColor];
                 road = next->roadColor[l->mainColor];
                 rumble = l->mainColor ? road : next->rumbleColor;
@@ -979,8 +965,7 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                     roadRight = nextRight->roadColor[l->mainColor];
                     rumbleRight = l->mainColor ? roadRight : nextRight->rumbleColor;
                     dashRight = l->mainColor ? nextRight->dashColor : roadRight;
-                }
-                else {
+                } else {
                     grassRight = grass;
                     roadRight = road;
                     rumbleRight = rumble;
@@ -1041,16 +1026,20 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
 
                     // Right road
                     drawQuad(c.w, roadRight, x1right, y1, w1, x2right, y2, w2);
-                    drawQuad(c.w, rumbleRight, x1right + w1 - rw1, y1, rw1, x2right + w2 - rw2, y2, rw2); // Right rumble
-                    drawQuad(c.w, dashRight, x1right + w1 - rw1 - dw1, y1, dw1, x2right + w2 - rw2 - dw2, y2, dw2); // First right dash
-                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.75f), y1, dw1, x2right + int(float(w2) * 0.75f), y2,
+                    drawQuad(c.w, rumbleRight, x1right + w1 - rw1, y1, rw1, x2right + w2 - rw2, y2,
+                             rw2); // Right rumble
+                    drawQuad(c.w, dashRight, x1right + w1 - rw1 - dw1, y1, dw1, x2right + w2 - rw2 - dw2, y2,
+                             dw2); // First right dash
+                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.75f), y1, dw1,
+                             x2right + int(float(w2) * 0.75f), y2,
                              dw2); // Second right dash
-                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.5f), y1, dw1, x2right + int(float(w2) * 0.5f), y2,
+                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.5f), y1, dw1, x2right + int(float(w2) * 0.5f),
+                             y2,
                              dw2); // Third right dash
-                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.25f), y1, dw1, x2right + int(float(w2) * 0.25f), y2,
+                    drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.25f), y1, dw1,
+                             x2right + int(float(w2) * 0.25f), y2,
                              dw2); // Fourth right dash
-                }
-                else {
+                } else {
                     // Draw grass
                     drawQuad(c.w, grass, 0, int(prevY), int(prevX), 0, int(l->Y), int(l->X));
 
@@ -1075,13 +1064,15 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
             if (n < N || next == nullptr)
                 l->drawSprite(c.w, objects, hitCoeffs, hitCoeffTypes, scaleCoeffs, l->spriteLeft, true);
             else
-                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs, l->spriteLeft, true);
+                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs,
+                              l->spriteLeft, true);
         }
         if (l->spriteRight.spriteNum > -1) {
             if (n < N || next == nullptr)
                 l->drawSprite(c.w, objects, hitCoeffs, hitCoeffTypes, scaleCoeffs, l->spriteRight, false);
             else
-                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs, l->spriteRight, false);
+                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs,
+                              l->spriteRight, false);
         }
 
         // Draw vehicles
@@ -1108,7 +1099,8 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     }
 }
 
-bool Map::hasCrashed(const Config &c, float prevY, float currentY, float currentX, float minX, float maxX, float &crashPos) const {
+bool Map::hasCrashed(const Config &c, float prevY, float currentY, float currentX, float minX, float maxX,
+                     float &crashPos) const {
     if (!inFork(currentY) && abs(currentX) > 3.0f) { // has left the map
         crashPos = posY;
         return true;
@@ -1125,27 +1117,25 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float current
                 spriteNum = l.spriteLeft.spriteNum;
                 spriteMinX = l.spriteLeft.spriteMinX;
                 spriteMaxX = l.spriteLeft.spriteMaxX;
-            }
-            else if (i == 1) {
+            } else if (i == 1) {
                 spriteNum = l.spriteLeft.spriteNum;
                 spriteMinX = l.spriteLeft.spriteMinX + l.spriteLeft.spriteToSideX;
                 spriteMaxX = l.spriteLeft.spriteMaxX + l.spriteLeft.spriteToSideX;
-            }
-            else if (i == 2) {
+            } else if (i == 2) {
                 spriteNum = l.spriteRight.spriteNum;
                 spriteMinX = l.spriteRight.spriteMinX;
                 spriteMaxX = l.spriteRight.spriteMaxX;
-            }
-            else {
+            } else {
                 spriteNum = l.spriteRight.spriteNum;
                 spriteMinX = l.spriteRight.spriteMinX + l.spriteRight.spriteToSideX;
                 spriteMaxX = l.spriteRight.spriteMaxX + l.spriteRight.spriteToSideX;
             }
 
             if (spriteNum != -1 && spriteMinX != spriteMaxX && // l has an object that can crash
-                    prevY <= float(n) && currentY >= float(n) && // y matches
-                    ((minX >= spriteMinX && minX <= spriteMaxX) || (maxX >= spriteMinX && maxX <= spriteMaxX) ||
-                     (spriteMinX >= minX && spriteMinX <= maxX) || (spriteMaxX >= minX && spriteMaxX <= maxX))) { // x matches
+                prevY <= float(n) && currentY >= float(n) && // y matches
+                ((minX >= spriteMinX && minX <= spriteMaxX) || (maxX >= spriteMinX && maxX <= spriteMaxX) ||
+                 (spriteMinX >= minX && spriteMinX <= maxX) ||
+                 (spriteMaxX >= minX && spriteMaxX <= maxX))) { // x matches
                 crashPos = float(n);
                 return true;
             }

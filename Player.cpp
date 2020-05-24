@@ -17,11 +17,15 @@ using namespace sf;
 #define MAX_INERTIA 10
 
 Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
-        const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange, 0.0f, pX, pY, pY, 0, 0,
-                       vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
-                       maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc), scaleY(scaleY), acceleration(0),
-                       minCrashAcc(0), xDest(0), inertia(0), crashing(false), smoking(false), skidding(false),
-                       firstCrash(true), firstTurnLeft(true), firstTurnRight(true) {}
+               const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange,
+                                                                    0.0f, pX, pY, pY, 0, 0,
+                                                                    vehicle, PLAYER_TEXTURES, 1, 0), speedMul(speedMul),
+                                                            maxAcc(pow(maxSpeed / speedMul, 2.0f)), accInc(accInc),
+                                                            scaleY(scaleY), acceleration(0),
+                                                            minCrashAcc(0), xDest(0), inertia(0), crashing(false),
+                                                            smoking(false), skidding(false),
+                                                            firstCrash(true), firstTurnLeft(true),
+                                                            firstTurnRight(true) {}
 
 float Player::getPreviousY() const {
     return previousY;
@@ -37,10 +41,10 @@ void Player::hitControl(const bool vehicleCrash) {
             posX -= XINC;
         else if (posX < -XINC)
             posX += XINC;
-    }
-    else {
+    } else {
         if (minCrashAcc <= 0.0f) { // Only first time
-            minCrashAcc = (speed * 0.333f) * (speed * 0.333f); // In case of car crash, speed will be drop to 1/3. Otherwise it will be drop to 0.
+            minCrashAcc = (speed * 0.333f) * (speed *
+                                              0.333f); // In case of car crash, speed will be drop to 1/3. Otherwise it will be drop to 0.
             acceleration = (speed * 0.5f) * (speed * 0.5f); // At the moment of the crash, speed drops to 1/2.
 
             if (posX < 0.0f)
@@ -113,8 +117,7 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
                 acceleration += accInc / 3.0f;
             else
                 acceleration -= accInc * 1.5f;
-        }
-        else {
+        } else {
             if (acceleration < maxAcc)
                 acceleration += accInc;
         }
@@ -123,8 +126,7 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
             acceleration = maxAcc;
 
         smoking = acceleration < maxAcc * 0.1f;
-    }
-    else {
+    } else {
         float mul = 2.0f;
         if (a == BRAKE)
             mul *= 2.0f;
@@ -181,8 +183,7 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
 
                 return TURNLEFT;
             }
-        }
-        else if (Keyboard::isKeyPressed(c.rightKey)) {
+        } else if (Keyboard::isKeyPressed(c.rightKey)) {
             if (inertia < MAX_INERTIA)
                 inertia++;
 
@@ -199,11 +200,9 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
 
                 return TURNRIGHT;
             }
-        }
-        else if (inertia > 0) {
+        } else if (inertia > 0) {
             inertia--;
-        }
-        else if (inertia < 0) {
+        } else if (inertia < 0) {
             inertia++;
         }
 
@@ -236,8 +235,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                 c.effects[8]->stop();
                 c.effects[8]->play();
             }
-        }
-        else {
+        } else {
             c.effects[12]->stop();
             c.effects[6]->stop();
             c.effects[8]->stop();
@@ -251,8 +249,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
             c.effects[17]->play();
             c.effects[random_int(18, 19)]->play();
         }
-    }
-    else {
+    } else {
         c.effects[12]->stop();
         c.effects[6]->stop();
         c.effects[8]->stop();
@@ -280,233 +277,198 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                         if (d == RIGHT) {
                             if (current_code_image < 1 || current_code_image > 4)
                                 current_code_image = 1;
-                        }
-                        else if (d == TURNLEFT) {
+                        } else if (d == TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 5 || current_code_image > 8)
                                     current_code_image = 5;
                                 if (current_code_image == 8)
                                     firstTurnLeft = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 9 || current_code_image > 12)
                                     current_code_image = 9;
                             }
-                        }
-                        else { // Turn right
+                        } else { // Turn right
                             if (firstTurnRight) {
                                 if (current_code_image < 13 || current_code_image > 16)
                                     current_code_image = 13;
                                 if (current_code_image == 16)
                                     firstTurnRight = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 17 || current_code_image > 20)
                                     current_code_image = 17;
                             }
                         }
-                    }
-                    else if (e == UP) {
+                    } else if (e == UP) {
                         if (d == RIGHT) {
                             if (current_code_image < 21 || current_code_image > 24)
                                 current_code_image = 21;
-                        }
-                        else if (d == TURNLEFT) {
+                        } else if (d == TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 25 || current_code_image > 28)
                                     current_code_image = 25;
                                 if (current_code_image == 28)
                                     firstTurnLeft = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 29 || current_code_image > 32)
                                     current_code_image = 29;
                             }
-                        }
-                        else { // Turn right
+                        } else { // Turn right
                             if (firstTurnRight) {
                                 if (current_code_image < 33 || current_code_image > 36)
                                     current_code_image = 33;
                                 if (current_code_image == 36)
                                     firstTurnRight = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 37 || current_code_image > 40)
                                     current_code_image = 37;
                             }
                         }
-                    }
-                    else { // Down
+                    } else { // Down
                         if (d == RIGHT) {
                             if (current_code_image < 41 || current_code_image > 44)
                                 current_code_image = 41;
-                        }
-                        else if (d == TURNLEFT) {
+                        } else if (d == TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 45 || current_code_image > 48)
                                     current_code_image = 45;
                                 if (current_code_image == 48)
                                     firstTurnLeft = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 49 || current_code_image > 52)
                                     current_code_image = 49;
                             }
-                        }
-                        else { // Turn right
+                        } else { // Turn right
                             if (firstTurnRight) {
                                 if (current_code_image < 53 || current_code_image > 56)
                                     current_code_image = 53;
                                 if (current_code_image == 56)
                                     firstTurnRight = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 57 || current_code_image > 60)
                                     current_code_image = 57;
                             }
                         }
                     }
-                }
-                else if (a == BRAKE) {
+                } else if (a == BRAKE) {
                     if (e == FLAT) {
                         if (d == RIGHT) {
                             if (current_code_image < 61 || current_code_image > 64)
                                 current_code_image = 61;
-                        }
-                        else if (d == TURNLEFT) {
+                        } else if (d == TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 65 || current_code_image > 68)
                                     current_code_image = 65;
                                 if (current_code_image == 68)
                                     firstTurnLeft = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 69 || current_code_image > 72)
                                     current_code_image = 69;
                             }
-                        }
-                        else { // Turn right
+                        } else { // Turn right
                             if (firstTurnRight) {
                                 if (current_code_image < 73 || current_code_image > 76)
                                     current_code_image = 73;
                                 if (current_code_image == 76)
                                     firstTurnRight = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 77 || current_code_image > 80)
                                     current_code_image = 77;
                             }
                         }
-                    }
-                    else if (e == UP) {
+                    } else if (e == UP) {
                         if (d == RIGHT) {
                             if (current_code_image < 81 || current_code_image > 84)
                                 current_code_image = 81;
-                        }
-                        else if (d == TURNLEFT) {
+                        } else if (d == TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 85 || current_code_image > 88)
                                     current_code_image = 85;
                                 if (current_code_image == 88)
                                     firstTurnLeft = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 89 || current_code_image > 92)
                                     current_code_image = 89;
                             }
-                        }
-                        else { // Turn right
+                        } else { // Turn right
                             if (firstTurnRight) {
                                 if (current_code_image < 93 || current_code_image > 96)
                                     current_code_image = 93;
                                 if (current_code_image == 96)
                                     firstTurnRight = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 97 || current_code_image > 100)
                                     current_code_image = 97;
                             }
                         }
-                    }
-                    else { // Down
+                    } else { // Down
                         if (d == RIGHT) {
                             if (current_code_image < 101 || current_code_image > 104)
                                 current_code_image = 101;
-                        }
-                        else if (d == TURNLEFT) {
+                        } else if (d == TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 105 || current_code_image > 108)
                                     current_code_image = 105;
                                 if (current_code_image == 108)
                                     firstTurnLeft = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 109 || current_code_image > 112)
                                     current_code_image = 109;
                             }
-                        }
-                        else { // Turn right
+                        } else { // Turn right
                             if (firstTurnRight) {
                                 if (current_code_image < 113 || current_code_image > 116)
                                     current_code_image = 113;
                                 if (current_code_image == 116)
                                     firstTurnRight = false;
-                            }
-                            else {
+                            } else {
                                 if (current_code_image < 117 || current_code_image > 120)
                                     current_code_image = 117;
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     // Crash
                     if (posX > 0.0f) {
                         if (posX > XINC) {
                             if (current_code_image < 121 || current_code_image > 124)
                                 current_code_image = 121;
-                        }
-                        else {
+                        } else {
                             if (current_code_image < 129 || current_code_image > 130)
                                 current_code_image = 129;
                         }
-                    }
-                    else {
+                    } else {
                         if (posX < -XINC) {
                             if (current_code_image < 125 || current_code_image > 128)
                                 current_code_image = 125;
-                        }
-                        else {
+                        } else {
                             if (current_code_image < 131 || current_code_image > 132)
                                 current_code_image = 131;
                         }
                     }
                 }
             }
-        }
-        else {
+        } else {
             counter_code_image++;
         }
-    }
-    else {
+    } else {
         current_code_image = 1;
     }
 
     sprite.setTexture(textures[current_code_image - 1], true);
     sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
-    minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
+    minScreenX = ((float) c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
     maxScreenX = minScreenX + sprite.getGlobalBounds().width;
-    sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
+    sprite.setPosition(minScreenX, ((float) c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
     c.w.draw(sprite);
 
     if (smoking || skidding) {
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
         sprite.setTexture(textures[132 + current_code_image % 4], true);
         sprite.setScale(4.0f * c.screenScale, 4.0f * c.screenScale);
-        sprite.setPosition(((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width,
-                j - sprite.getGlobalBounds().height);
+        sprite.setPosition(((float) c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width,
+                           j - sprite.getGlobalBounds().height);
         c.w.draw(sprite);
-        sprite.setPosition(((float)c.w.getSize().x) / 2.0f , j - sprite.getGlobalBounds().height);
+        sprite.setPosition(((float) c.w.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height);
         c.w.draw(sprite);
     }
 }
@@ -521,19 +483,19 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end) {
             current_code_image = 132;
 
         int index = 125;
-        if (float(x) < ((float)c.w.getSize().x) * 0.45f)
+        if (x < ((float) c.w.getSize().x) * 0.45f)
             index = 124;
-        end = float(x) < ((float)c.w.getSize().x) * 0.4f || x >= c.w.getSize().x;
+        end = x < ((float) c.w.getSize().x) * 0.4f || x >= c.w.getSize().x;
 
         // Vehicle
         sprite.setTexture(textures[index], true);
         sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
-        sprite.setPosition(x, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
+        sprite.setPosition(x, ((float) c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
         c.w.draw(sprite);
 
         // Smoke
         float i = x - sprite.getGlobalBounds().width / 3, j = sprite.getPosition().y + sprite.getGlobalBounds().height;
-        while (i < (float)c.w.getSize().x) {
+        while (i < (float) c.w.getSize().x) {
             index = current_code_image;
             sprite.setTexture(textures[index], true);
             sprite.setScale(4.0f * c.screenScale, 4.0f * c.screenScale);
@@ -546,8 +508,7 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end) {
         if (end) {
             current_code_image = 0;
             counter_code_image = 0;
-        }
-        else {
+        } else {
             counter_code_image++;
         }
     }
@@ -572,9 +533,9 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
         // Vehicle
         sprite.setTexture(textures[index], true);
         sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
-        minScreenX = ((float)c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
+        minScreenX = ((float) c.w.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
         maxScreenX = minScreenX + sprite.getGlobalBounds().width;
-        sprite.setPosition(minScreenX, ((float)c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
+        sprite.setPosition(minScreenX, ((float) c.w.getSize().y) * c.camD - sprite.getGlobalBounds().height / 2.0f);
         c.w.draw(sprite);
 
         // Smoke
@@ -598,8 +559,7 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
         if (end) {
             current_code_image = 0;
             counter_code_image = 0;
-        }
-        else {
+        } else {
             counter_code_image++;
         }
     }

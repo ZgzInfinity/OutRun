@@ -87,7 +87,7 @@ public:
     // Vector with all the soundtracks to reproduce
     vector<unique_ptr<Music>> themes;
 
-     // Vector with all the sound effects to reproduce
+    // Vector with all the sound effects to reproduce
     vector<unique_ptr<Music>> effects;
 
     const float camD; // Camera depth
@@ -112,19 +112,19 @@ public:
     bool enablePixelArt;
 };
 
-State introAnimation(Config& c);
+State introAnimation(Config &c);
 
-State optionsMenu(Config& c, const bool& inGame);
+State optionsMenu(Config &c, const bool &inGame);
 
-State changeCarControllers(Config& c);
+State changeCarControllers(Config &c);
 
-State selectMusicSoundtrack(Config& c);
+State selectMusicSoundtrack(Config &c);
 
 State startMenu(Config &c, bool startPressed = false);
 
 State endMenu(Config &c);
 
-State rankingMenu(Config& c, unsigned long scorePlayerGame, const int minutes, const int decs, const int cents_Second);
+State rankingMenu(Config &c, unsigned long scorePlayerGame, const int minutes, const int decs, const int cents_Second);
 
 
 #endif //OUTRUN_MENU_HPP

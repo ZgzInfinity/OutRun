@@ -10,6 +10,7 @@
 #define OUTRUN_MAP_HPP
 
 #include <cmath>
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -82,7 +83,8 @@ class Map {
          * @param rW
          * @param zOffset
          */
-        void project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset);
+        void
+        project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset);
 
         enum HitCoeffType {
             HIT_CENTER,
@@ -102,8 +104,8 @@ class Map {
          * @param left indica si el objeto está a la izquierda de la pantalla
          */
         void drawSprite(sf::RenderTexture &w, const std::vector<sf::Texture> &objs, const std::vector<float> &hitCoeff,
-                const std::vector<HitCoeffType> &hitCoeffType, const std::vector<float> &scaleCoeff,
-                SpriteInfo &object, bool left) const;
+                        const std::vector<HitCoeffType> &hitCoeffType, const std::vector<float> &scaleCoeff,
+                        SpriteInfo &object, bool left) const;
     };
 
     // Circles info for forks (with different centers):
@@ -111,7 +113,7 @@ class Map {
     // Circle 2: y = sqrt(r² - (x - a)²) + b
     const float aOffsetX = sqrt(2.0f) * FORK_RADIUS; // a value for C1
     const float bOffsetX = FORK_RADIUS - sqrt(2.0f) * FORK_RADIUS; // b value for C1
-    const float xChange = FORK_RADIUS * sin(0.75f * M_PI); // x increment
+    const float xChange = static_cast<const float>(FORK_RADIUS * sin(0.75f * M_PI)); // x increment
 
     // Background
     sf::Texture bg;
@@ -142,7 +144,7 @@ class Map {
      * @param n
      * @return
      */
-    Line* getLine(int n);
+    Line *getLine(int n);
 
     /**
      * Devuelve Line n
@@ -156,7 +158,7 @@ class Map {
      * @param n
      * @return
      */
-    Line* getPreviousLine(int n);
+    Line *getPreviousLine(int n);
 
     /**
      * Devuelve Line anterior a n
@@ -179,7 +181,7 @@ class Map {
      * @param offsetInc
      */
     void addLine(float x, float y, float &z, float prevY, float curve, bool mainColor, const SpriteInfo &spriteLeft,
-            const SpriteInfo &spriteRight, float &bgX, float &offsetX, float offsetInc = 0.0f);
+                 const SpriteInfo &spriteRight, float &bgX, float &offsetX, float offsetInc = 0.0f);
 
     /**
      * Añade rectángulos desde las instrucciones al mapa desde (x, y, z). Actualiza z para una nueva línea.
@@ -264,7 +266,7 @@ public:
      * @param time
      */
     Map(Config &c, const std::string &path, const std::string &bgName,
-            const std::vector<std::string> &objectNames, bool random, int time);
+        const std::vector<std::string> &objectNames, bool random, int time);
 
     /**
      * Crea un mapa recto y llano con la configuración de map y partiendo de los objetos comunes de mapCommon para
@@ -355,7 +357,8 @@ public:
      * @param crashPos
      * @return
      */
-    bool hasCrashed(const Config &c, float prevY, float currentY, float currentX, float minX, float maxX, float &crashPos) const;
+    bool hasCrashed(const Config &c, float prevY, float currentY, float currentX, float minX, float maxX,
+                    float &crashPos) const;
 
     /**
      * Devuelve true si currentX está fuera de la carretera.
@@ -409,7 +412,7 @@ public:
      * Devuelve el siguiente mapa o NULL si es el final.
      * @return
      */
-    Map* getNext() const;
+    Map *getNext() const;
 
     /**
      * Devuelve true si es el mapa inicial con la animación.
