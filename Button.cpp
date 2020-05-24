@@ -1,10 +1,21 @@
+/******************************************************************************
+ * @file    Button.cpp
+ * @author  Andrés Gavín Murillo, 716358
+ * @author  Rubén Rodríguez Esteban, 737215
+ * @date    Marzo 2020
+ * @coms    Videojuegos - OutRun
+ ******************************************************************************/
 
 #include "Button.hpp"
+
+using namespace std;
+using namespace sf;
 
 Button::Button() = default;
 
 Button::Button(float x, float y, float width, float height, Font &f,
-               const string& text, Color idleColor, Color hoverColor, Color activeColor, int initialState, float screenScale) {
+               const string &text, Color idleColor, Color hoverColor, Color activeColor, int initialState,
+               float screenScale) {
     shape.setPosition(Vector2f(x, y));
     shape.setSize(Vector2f(width, height));
     shape.setOutlineColor(Color::Black);
@@ -61,7 +72,7 @@ void Button::render(RenderTexture *app) {
 }
 
 
-void Button::setTextButton(const string& newString) {
+void Button::setTextButton(const string &newString) {
     textButton.setString(newString);
     textButton.setPosition(
             shape.getPosition().x + (shape.getGlobalBounds().width / 2.f) - textButton.getGlobalBounds().width / 2.f,

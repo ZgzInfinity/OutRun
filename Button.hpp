@@ -1,15 +1,17 @@
-
+/******************************************************************************
+ * @file    Button.cpp
+ * @author  Andrés Gavín Murillo, 716358
+ * @author  Rubén Rodríguez Esteban, 737215
+ * @date    Marzo 2020
+ * @coms    Videojuegos - OutRun
+ ******************************************************************************/
 
 #ifndef BUTTON_H
 #define BUTTON_H
 
-
 #include <iostream>
 #include <cstring>
 #include "SFML/Graphics.hpp"
-
-using namespace std;
-using namespace sf;
 
 enum button_states {
     BUTTON_IDLE = 0,
@@ -19,25 +21,25 @@ enum button_states {
 
 class Button {
 private:
-    RectangleShape shape;
-    Text textButton;
+    sf::RectangleShape shape;
+    sf::Text textButton;
 
-    Color idleColorButton;
-    Color hoverColorButton;
-    Color activeColorButton;
+    sf::Color idleColorButton;
+    sf::Color hoverColorButton;
+    sf::Color activeColorButton;
 
 public:
 
     Button();
 
-    Button(float x, float y, float width, float height, Font &f, const string& text,
-           Color idleColor, Color hoverColor, Color activeColor, int initialState, float screenScale);
+    Button(float x, float y, float width, float height, sf::Font &f, const std::string &text,
+           sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, int initialState, float screenScale);
 
     void setButtonState(button_states buttonState);
 
-    void render(RenderTexture *app);
+    void render(sf::RenderTexture *app);
 
-    void setTextButton(const string& newString);
+    void setTextButton(const std::string &newString);
 
 };
 

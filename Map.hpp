@@ -126,7 +126,7 @@ class Map {
     std::vector<Line> lines;
 
     // Colors
-    Color roadColor[2], grassColor[2], rumbleColor, dashColor;
+    sf::Color roadColor[2], grassColor[2], rumbleColor, dashColor;
 
     // Camera
     float posX, posY;
@@ -199,7 +199,8 @@ class Map {
      * @param objectNames
      * @param objectIndexes
      */
-    void loadObjects(const std::string &path, const std::vector<std::string> &objectNames, vector<int> &objectIndexes);
+    void
+    loadObjects(const std::string &path, const std::vector<std::string> &objectNames, std::vector<int> &objectIndexes);
 
 public:
     // Crea un mapa con un paisaje dado el nombre del fichero de la imagen y con unos objetos dados los nombres de los

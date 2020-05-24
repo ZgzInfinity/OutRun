@@ -66,34 +66,34 @@ class Game {
     float cents_secondTrip = 0;
 
     // Clock counter of time
-    Clock gameClockTime;
+    sf::Clock gameClockTime;
 
     // Clock counter of time
-    Clock gameClockLap;
+    sf::Clock gameClockLap;
 
     // Clock to control the woman shout
-    Clock womanShot;
+    sf::Clock womanShot;
 
     // Control the sound of the traffic
-    Clock trafficCarSound;
+    sf::Clock trafficCarSound;
 
     // Control the
-    Clock blinkTime;
+    sf::Clock blinkTime;
 
     // Discount time bonus
-    Clock bonus;
+    sf::Clock bonus;
 
     // Time to update the clock counter lap
-    Time woman_delay;
+    sf::Time woman_delay;
 
     // Time to reproduce a new traffic car sound
-    Time traffic_delay;
+    sf::Time traffic_delay;
 
     // Time to reproduce a new traffic car sound
-    Time blink_delay;
+    sf::Time blink_delay;
 
     // Time to reproduce a discount the time bonus
-    Time bonus_delay;
+    sf::Time bonus_delay;
 
     // Actual level
     int level;
@@ -124,12 +124,12 @@ class Game {
             elapsed9, elapsed10, elapsed11, elapsed12;
 
     // Vector of textures for represent the game panel
-    vector<Texture> textures;
+    std::vector<sf::Texture> textures;
 
     // Tree map with levels
-    Texture treeMap[5][5];
+    sf::Texture treeMap[5][5];
 
-    string lap, lapCheckPoint;
+    std::string lap, lapCheckPoint;
 
     void drawHUD(Config &c);
 

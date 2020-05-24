@@ -85,10 +85,10 @@ public:
     sf::Font options;
 
     // Vector with all the soundtracks to reproduce
-    vector<unique_ptr<Music>> themes;
+    std::vector<std::unique_ptr<sf::Music>> themes;
 
     // Vector with all the sound effects to reproduce
-    vector<unique_ptr<Music>> effects;
+    std::vector<std::unique_ptr<sf::Music>> effects;
 
     const float camD; // Camera depth
     const int renderLen; // Length rendered

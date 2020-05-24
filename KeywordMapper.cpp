@@ -2,6 +2,8 @@
 
 #include "KeywordMapper.hpp"
 
+using namespace std;
+using namespace sf;
 
 KeywordMapper::KeywordMapper() {
 

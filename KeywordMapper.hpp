@@ -14,14 +14,11 @@
 
 const int KEYWORDS_MAPPED = 75;
 
-using namespace std;
-using namespace sf;
-
 struct KeywordMapper {
 
     // Maps of the keywords available in the game
-    Keyboard::Key mapperCodeKeyWord[KEYWORDS_MAPPED];
-    string mapperIdKeyWord[KEYWORDS_MAPPED];
+    sf::Keyboard::Key mapperCodeKeyWord[KEYWORDS_MAPPED];
+    std::string mapperIdKeyWord[KEYWORDS_MAPPED];
 
     KeywordMapper();
 

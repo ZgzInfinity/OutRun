@@ -101,7 +101,7 @@ public:
 
     void setMaxScreenX(float screenX);
 
-    const Texture *getCurrentTexture() const;
+    const sf::Texture *getCurrentTexture() const;
 
     float getScale() const;
 
