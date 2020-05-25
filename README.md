@@ -11,9 +11,9 @@
 ![State](https://img.shields.io/badge/Context-Up%20to%20date-%20%2329f305)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 
 [![windows](https://img.shields.io/badge/Windows%20-compatible-f305b2.svg)](https://www.microsoft.com/es-es/windows) 
-[![Version](https://img.shields.io/badge/Version%20-1.0-0fd5f9.svg)](https://github.com/ZgzInfinity/Vortimux/releases)
-[![made-with-C++](https://img.shields.io/badge/Made%20with-C++-600ff9.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/Requeriment%20-SFML-f9720f.svg)](https://github.com/ZgzInfinity/Vortimux/releases)
+[![Version](https://img.shields.io/badge/Version%20-1.0-0fd5f9.svg)](https://github.com/ZgzInfinity/OutRun/releases)
+![made-with-C++](https://img.shields.io/badge/Made%20with-C++-600ff9.svg)
+[![SFML](https://img.shields.io/badge/Requeriment%20-SFML-f9720f.svg)](https://www.sfml-dev.org/)
 
 # Introduction
 
@@ -40,6 +40,15 @@ This new the following features with respect to the original versions:
 * Clion 2020.1
 * CodeBlocks 17.02
 * MinGW 
+
+# Controllers
+
+These are the default controllers of the game, but the player can change them whenever he wants
+
+* Acceleration: Left Control.
+* Braking: Left Alt.
+* Turning left: left arrow of the cursor.
+* Turning right: right arrow of the cursor.
 
 # Compilation project
 
