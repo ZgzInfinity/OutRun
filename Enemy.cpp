@@ -144,7 +144,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
 }
 
 void Enemy::update(float iniPos, float endPos, float maxAggressiveness) {
-    speed = maxSpeed * random_float(0.25f, 1.0f);
+    speed = maxSpeed * random_float(0.25f, 0.75f);
 
     posY = random_float(iniPos, endPos);
     previousY = posY;
