@@ -43,7 +43,7 @@ This new the following features with respect to the original versions:
 
 # Controllers
 
-These are the default controllers of the game, but the player can change them whenever he wants
+These are the default controllers of the game, but the player can change them whenever he wants:
 
 * Acceleration: Left Control.
 * Braking: Left Alt.
