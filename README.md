@@ -123,6 +123,8 @@ Below are some captures of the video game developed:
 
 The following link shows the trailer of the videogame published in Youtube.
 
+https://youtu.be/RNeCies3obM
+
 # Authors
 
 This version of **Out Run** has been programmed by the following developers:
