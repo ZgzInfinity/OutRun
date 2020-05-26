@@ -64,7 +64,8 @@ https://www.sfml-dev.org/download.php
 In order to run Out Run on your personal computer you can either compile and run the project you have created locally 
 on your computer or make use of the executable provided in the Release section of the repository. The executable file has
 been prepared and tested in losts of computers with Windows x64 OS installed. Besides, the executable has been prepared to br
-executed without installation of any kind of dependency in your system.
+executed without installation of any kind of dependency in your system and in MAC and Linux can be executed correctly using 
+wine.
 
 # Screenshoots
 
