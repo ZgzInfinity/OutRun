@@ -48,9 +48,8 @@ These are the default controllers of the game, but the player can change them wh
 * Braking: Left Alt.
 * Turning left: left arrow of the cursor.
 * Turning right: right arrow of the cursor.
-* Enter: select an option.
-* Esc: exit the game during the navigation in the interface, 
-       pause the game while the player is driving.
+* Select an option: enter.
+* exit the game during the navigation in the interface, pause the game while the player is driving: esc.
 
 # Compilation project
 
