@@ -15,6 +15,10 @@
 ![made-with-C++](https://img.shields.io/badge/Made%20with-C++-600ff9.svg)
 [![SFML](https://img.shields.io/badge/Requeriment%20-SFML-f9720f.svg)](https://www.sfml-dev.org/)
 
+![GitHub All Releases](https://img.shields.io/github/downloads/ZgzInfinity/OutRun/total?color=%20%23f34605&label=Release%20downloads&logoColor=%20)
+[![Github Stars](https://img.shields.io/github/stars/ZgzInfinity/OutRun?logo=github)](https://github.com/ZgzInfinity/OutRun/stargazers)
+[![Github forks](https://img.shields.io/github/forks/ZgzInfinity/OutRun?logo=github)](https://github.com/ZgzInfinity/OutRun/network/members)
+
 # Introduction
 
 This is an open source **Out Run** remake project. This new version. This new version has been inspired by its earlier versions,
