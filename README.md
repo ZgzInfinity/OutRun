@@ -21,7 +21,7 @@
 
 # Introduction
 
-This is an open source **Out Run** remake project. This new version. This new version has been inspired by its earlier versions,
+This is an open source **Out Run** remake project. This new version has been inspired by its earlier versions,
 which correspond to the 1986 arcade machine version and the 1991 Sega Mega Drive version.
 
 # Outstanding features
