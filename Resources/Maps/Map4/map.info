@@ -1,0 +1,962 @@
+/* Mapa 2 */
+
+107 107 107  /* Road RGB color 1 */
+105 105 105  /* Road RGB color 2 */
+235 116 10   /* Grass RGB color 1 */
+245 130 27   /* Grass RGB color 2 */
+255 255 255  /* Rumble RGB color */
+255 255 255  /* Dash RGB color */
+
+/* 
+ * ROAD:
+ *   1º Opcional: +   ;Indica que es un objeto repetido infinitamente hacia la izquierda. Por defecto no se repite.
+ *   2º Opcional: #   ;Indica el índice del objeto colocado a la izquierda de la carretera (#.png). Por defecto no hay objeto.
+ *   3º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
+ *   4º Obligado: -   ;Representa la carretera
+ *   5º Opcional: +   ;Indica que es un objeto repetido infinitamente hacia la derecha. Por defecto no se repite.
+ *   6º Opcional: #   ;Indica el índice del objeto colocado a la derecha de la carretera (#.png). Por defecto no hay objeto.
+ *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
+ */
+
+ROAD  1 -  
+ROAD    - 
+ROAD    - 
+ROAD    - 1 
+ROAD    -  
+ROAD    - 
+ROAD  1 - 
+ROAD    - 
+ROAD    - 
+ROAD    - 1
+ROAD    - 
+ROAD    - 
+ROAD  1 -  
+ROAD    - 
+ROAD    - 
+ROAD    - 1
+ROAD    - 
+ROAD    - 
+ROAD    -   
+
+CURVE	0.7
+
+ROAD    -  
+ROAD    - 
+ROAD  3 - 
+ROAD    -  
+ROAD    -  
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 8
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    -  
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD  3 - 
+ROAD    - 
+ROAD    -  
+ROAD    -  
+ROAD    - 
+ROAD    - 
+ROAD    - 8 
+ROAD    -  
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD  3 - 
+ROAD    - 
+ROAD    -  
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 8
+ROAD    - 
+ROAD    -  
+ROAD    -  
+ROAD    - 
+ROAD    - 
+ROAD    -  
+ROAD  3 -  
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 
+ROAD    - 8 
+ROAD    -   
+
+CURVE	-0.7
+
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    - 2
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD    - 
+ROAD    -   
+ROAD  8 -
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD    - 2  
+ROAD    -
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD  8 -   
+ROAD    -
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD    -   
+ROAD    - 2
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD    -   
+ROAD  8 -
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD    -   
+ROAD    - 2
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD    -   
+ROAD    -
+ROAD    -
+ROAD  8 -   
+ROAD    -
+ROAD    -  
+
+STRAIGHT  /* Recta */
+
+ROAD     -
+ROAD  11 -
+ROAD     -
+ROAD     - 12
+ROAD     -
+ROAD  11 -
+ROAD     -
+ROAD     - 12
+ROAD     -
+ROAD  11 -
+ROAD     -
+ROAD     - 12
+ROAD     -
+ROAD  11 -
+ROAD     -
+
+CLIMB 2000
+
+ROAD     -   
+ROAD     -
+ROAD  11 -
+ROAD     -   
+ROAD     - 12
+ROAD     -
+ROAD  11 -   
+ROAD     -
+ROAD     - 12
+ROAD     -   
+ROAD  11 -
+ROAD     -
+ROAD     - 12
+ROAD     -
+ROAD  11 -
+ROAD     -   
+ROAD     - 12
+ROAD     -
+ROAD  11 -   
+ROAD     -
+ROAD     - 12
+ROAD     -   
+ROAD  11 -
+ROAD     -
+ROAD     - 12   
+ROAD     -
+ROAD  11 -
+ROAD     -   
+ROAD     - 12
+ROAD     -
+ROAD  11 -   
+ROAD     -
+ROAD     - 12
+ROAD     -   
+ROAD  11 -
+ROAD     -
+ROAD     - 12
+ROAD     -
+ROAD  11 -
+ROAD     -   
+ROAD     - 12
+ROAD     -   
+ROAD  11 -
+ROAD     -
+ROAD     -   
+ROAD     - 12
+ROAD     -
+ROAD  11 -   
+ROAD     -
+ROAD     -
+ROAD     - 12 
+ROAD     -
+ROAD  11 -
+ROAD     -   
+ROAD     -
+ROAD     - 12
+ROAD     -   
+ROAD  11 -
+ROAD     -
+ROAD     -   
+ROAD     - 12
+ROAD     -  
+ROAD  11 -
+ROAD     -
+ROAD     -
+ROAD     -  
+
+
+DROP 5000
+
+ROAD     -   
+ROAD     -
+ROAD   3 -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 6 
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   3 -
+ROAD     -   
+
+CURVE 0.4
+
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     - 6
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   3 - 
+
+CURVE -0.8
+
+ROAD     -
+ROAD   6 -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 2
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   6 -
+ROAD     -
+ROAD     - 
+ROAD     -
+ROAD     -
+ROAD     - 2
+ROAD     -
+ROAD     -
+
+CLIMB 7000
+
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   5 -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 5 
+
+CURVE 0.4
+
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   4 -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+
+CURVE -0.8
+
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 4 
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+
+STRAIGHT
+
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD   4 -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     - 4
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+
+FLAT
+
+RANDOM 100 15 1
+
+CURVE -0.9
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   7 -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     - 7
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -  
+
+CURVE 0.9
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD   7 -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     - 7
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -    
+
+RANDOM 200 1 10
+
+CLIMB 3000
+
+CURVE 0.6
+
+ROAD     -
+ROAD     -   
+ROAD  10 -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 10  
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  10 -   
+ROAD     -
+ROAD     -
+ROAD     -  
+
+CURVE -0.6
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 10
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+
+DROP 400
+
+CURVE 0.5
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   9 - 9
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   9 - 9  
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   9 - 9  
+ROAD     -
+ROAD     -
+ROAD     -  
+
+STRAIGHT
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   9 - 9
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 
+
+FLAT
+
+CURVE 0.85
+
+ROAD   9 - 9
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 14
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     - 14
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 14
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   3 -
+ROAD     -   
+ROAD     -
+ROAD     -
+
+CLIMB 500
+
+ROAD     -
+ROAD     -   
+ROAD     - 13
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD  14 -
+ROAD     -
+ROAD     - 
+
+DROP 500
+
+ROAD     -
+ROAD     - 13  
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD  14 -   
+ROAD     -
+ROAD     -
+ROAD     - 
+
+CLIMB 500
+
+CURVE 0.4
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 7
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   7 -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 
+
+CURVE -0.4
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  6  - 6
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   6 - 6
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 
+
+FLAT
+
+RANDOM 50 11 12
+
+STRAIGHT 
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   6 - 6
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD   6 - 6
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   6 - 6
+
+DROP 500
+
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD  15 -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     - 15
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  15 -
+ROAD     -
+ 
+FLAT
+
+CURVE -0.85
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 2
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     - 2
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+
+CURVE 0.85
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  3  -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+
+RANDOM 100
+
+FLAT
+
+CLIMB 600
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  13 - 13
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD  13 - 13
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD  13 - 13
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+
+DROP 600
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  11 -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 
+ROAD     -   
+ROAD     - 12
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  11 -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 12
+
+FLAT
+
+STRAIGHT
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   1 - 1
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   9 - 9
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD   1 - 1
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD   9 - 9
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   1 - 1  
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   9 - 9
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   1 - 1
+ROAD     -
+
+DROP 3000
+
+CURVE 0.9
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     - 4
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 4
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     - 4
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     - 4
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD   3 -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     - 4
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   3 -   
+ROAD     -
+ROAD     -
+
+CLIMB 3000
+
+CURVE -0.9
+
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD   8 - 
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     - 8
+ROAD     -   
+ROAD     -
+ROAD    - 
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD   8 -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     - 8
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD  11 - 12
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD  11 - 12
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD  11 - 12
+ROAD     -
+ROAD     -
+ROAD     -   
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD     -
+ROAD  15 - 15   
+ROAD     -
+ROAD     -
+
+FLAT
+
+RANDOM 100
+
+END  /* Obligatorio */
