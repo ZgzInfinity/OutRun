@@ -216,7 +216,7 @@ class Game {
      * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
      * @param c
      */
-    void updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction);
+    void updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction, const int terrain);
 
 public:
     /**

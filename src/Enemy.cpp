@@ -28,11 +28,11 @@ using namespace sf;
 #define ENEMY_TEXTURES 16
 #define MAX_AUTO_DIRECTION_COUNTER 1000
 
-Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY) :
+Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY, int idCar) :
         Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0, random_float(-0.5f, 0.5f),
                 pY, pY, 0, 0, vehicle, ENEMY_TEXTURES, 1, 0), oriX(this->posX),
         currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0),
-        probAI(0), typeAI(OBSTACLE) {}
+        probAI(0), typeAI(OBSTACLE), id(idCar) {}
 
 Vehicle::Direction randomDirection() {
     const float p = random_zero_one();
@@ -267,8 +267,8 @@ float Enemy::getScale() const {
 }
 
 bool Enemy::hasCrashed(float prevY, float currentY, float minX, float maxX, float &crashPos) const {
-    if (minScreenX != maxScreenX && ((prevY <= posY + 2.5f && currentY >= posY - 2.5f) ||
-                                     (currentY <= posY + 2.5f && prevY >= posY - 2.5f)) && // y matches
+    if (minScreenX != maxScreenX && ((prevY <= posY + 10.f && currentY >= posY - 10.f) ||
+                                     (currentY <= posY + 10.f && prevY >= posY - 10.f)) && // y matches
         ((minX >= minScreenX && minX <= maxScreenX) ||
          (maxX >= minScreenX && maxX <= maxScreenX) ||
          (minScreenX >= minX && minScreenX <= maxX) ||
@@ -279,8 +279,7 @@ bool Enemy::hasCrashed(float prevY, float currentY, float minX, float maxX, floa
     return false;
 }
 
-bool
-Enemy::isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const {
+bool Enemy::isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const {
     if (posY < minY || posY > minY + float(c.renderLen) || minScreenX < 0 || maxScreenX > c.w.getSize().y) {
         return false;
     } else {
@@ -288,4 +287,11 @@ Enemy::isVisible(const Config &c, float minY, float playerX, float playerY, floa
         distanceY = abs(playerY - posY);
         return true;
     }
+}
+
+
+
+
+int Enemy::getId() const {
+    return id;
 }

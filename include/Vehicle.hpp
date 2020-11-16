@@ -20,12 +20,14 @@
 #ifndef OUTRUN_VEHICLE_HPP
 #define OUTRUN_VEHICLE_HPP
 
-#include <SFML/Graphics.hpp>
 #include <vector>
 #include "Menu.hpp"
+#include "Globals.hpp"
+#include <SFML/Graphics.hpp>
 
 #define XINC 0.033f // x increment
 #define ACC_INC 0.01f
+#define COUNTER 2
 
 /**
  * La información del vehículo está compuesta por su velocidad, aceleración, posición x, conjunto de texturas del
@@ -53,7 +55,7 @@ public:
 
 protected:
     const float maxSpeed, halfMaxSpeed, scale;
-    const int maxCounterToChange;
+    int maxCounterToChange;
 
     float speed;
     float posX, posY, previousY, minScreenX, maxScreenX;

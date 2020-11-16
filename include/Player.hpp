@@ -34,6 +34,19 @@ class Player : public Vehicle {
 
     bool firstCrash, firstTurnLeft, firstTurnRight;
 
+    // Mode type of collision
+    int mode;
+
+    // Speed of the devastator at the moment of a collision
+    float speedCollision;
+
+    // Control if the devastator is inside the road or not
+    bool outSideRoad;
+
+    // Number of angers of the blonde woman
+    int numAngers;
+
+
 public:
     /**
      * Inicializa el vehículo del jugador.
@@ -98,7 +111,12 @@ public:
      * @param e
      * @param enableSound
      */
-    void draw(Config &c, const Action &a, const Direction &d, const Elevation &e, bool enableSound = true);
+    void draw(Config &c, const Action &a, const Direction &d, const Elevation &e, int terrain, bool enableSound = true);
+
+
+
+    void drawStaticAnimation(Config &c);
+
 
     /**
      * Dibuja la animación inicial en la pantalla y devuelve si ha acabado.
@@ -122,6 +140,14 @@ public:
      * @param smoke
      */
     void setSmoking(bool smoke);
+
+
+
+    /**
+     * Sets the type mode of collision
+     */
+    void setModeCollision();
+
 };
 
 

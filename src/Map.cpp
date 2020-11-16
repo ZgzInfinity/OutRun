@@ -259,6 +259,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
     ifstream fin(file);
     if (fin.is_open()) {
         bool road = false, grass = false, rumbleAndDash = false, comment = false;
+        bool terrain = false;
         int lines = 0, lastInclinationIndex = -1;
 
         vector<string> buffer;
@@ -274,7 +275,14 @@ vector<vector<string>> readMapFile(const std::string &file) {
             } else {
                 buffer.push_back(s);
 
-                if (!road) {
+                if (!terrain){
+                    if (buffer.size() == 1) {
+                        instructions.push_back({buffer[0]});
+                        buffer.clear();
+                        terrain = true;
+                    }
+                }
+                else if (!road) {
                     if (buffer.size() == 6) {
                         instructions.push_back({buffer[0], buffer[1], buffer[2]});
                         instructions.push_back({buffer[3], buffer[4], buffer[5]});
@@ -354,26 +362,29 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
 
     // Colors
     try {
-        roadColor[0] = Color(static_cast<Uint8>(stoi(instructions[0][0])), static_cast<Uint8>(stoi(instructions[0][1])),
-                             static_cast<Uint8>(stoi(instructions[0][2])));
-        roadColor[1] = Color(static_cast<Uint8>(stoi(instructions[1][0])), static_cast<Uint8>(stoi(instructions[1][1])),
+
+        terrain = static_cast<int>(stoi(instructions[0][0]));
+
+        roadColor[0] = Color(static_cast<Uint8>(stoi(instructions[1][0])), static_cast<Uint8>(stoi(instructions[1][1])),
                              static_cast<Uint8>(stoi(instructions[1][2])));
-        grassColor[0] = Color(static_cast<Uint8>(stoi(instructions[2][0])),
-                              static_cast<Uint8>(stoi(instructions[2][1])),
-                              static_cast<Uint8>(stoi(instructions[2][2])));
-        grassColor[1] = Color(static_cast<Uint8>(stoi(instructions[3][0])),
+        roadColor[1] = Color(static_cast<Uint8>(stoi(instructions[2][0])), static_cast<Uint8>(stoi(instructions[2][1])),
+                             static_cast<Uint8>(stoi(instructions[2][2])));
+        grassColor[0] = Color(static_cast<Uint8>(stoi(instructions[3][0])),
                               static_cast<Uint8>(stoi(instructions[3][1])),
                               static_cast<Uint8>(stoi(instructions[3][2])));
-        rumbleColor = Color(static_cast<Uint8>(stoi(instructions[4][0])), static_cast<Uint8>(stoi(instructions[4][1])),
-                            static_cast<Uint8>(stoi(instructions[4][2])));
-        dashColor = Color(static_cast<Uint8>(stoi(instructions[5][0])), static_cast<Uint8>(stoi(instructions[5][1])),
-                          static_cast<Uint8>(stoi(instructions[5][2])));
+        grassColor[1] = Color(static_cast<Uint8>(stoi(instructions[4][0])),
+                              static_cast<Uint8>(stoi(instructions[4][1])),
+                              static_cast<Uint8>(stoi(instructions[4][2])));
+        rumbleColor = Color(static_cast<Uint8>(stoi(instructions[5][0])), static_cast<Uint8>(stoi(instructions[5][1])),
+                            static_cast<Uint8>(stoi(instructions[5][2])));
+        dashColor = Color(static_cast<Uint8>(stoi(instructions[6][0])), static_cast<Uint8>(stoi(instructions[6][1])),
+                          static_cast<Uint8>(stoi(instructions[6][2])));
     }
     catch (const exception &e) {
         fileError("Faltan colores al declarar el mapa.");
     }
 
-    for (int i = 6; i < instructions.size(); i++) {
+    for (int i = 7; i < instructions.size(); i++) {
         const vector<string> &inst = instructions[i];
 
         if (inst[0] == "CURVE") {
@@ -558,6 +569,7 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
         leftSprites.emplace_back();
         rightSprites.emplace_back();
     }
+
     // People
     leftSprites[3].spriteNum = 28; // 29 - 1
     leftSprites[3].offset = -1.75f;
@@ -681,6 +693,7 @@ void Map::setColors(const Map &map) {
     grassColor[1] = map.grassColor[1];
     rumbleColor = map.rumbleColor;
     dashColor = map.dashColor;
+    terrain = map.terrain;
 }
 
 void Map::incrementSpriteIndex(int line, bool right, int increment) {
@@ -1224,3 +1237,13 @@ bool Map::isGoalMap() const {
 int Map::getTime() const {
     return maxTime;
 }
+
+
+
+/**
+ * Returns the kind of terrain of the landscape
+ * @return
+ */
+ int Map::getTerrain() const {
+    return this->terrain;
+ }

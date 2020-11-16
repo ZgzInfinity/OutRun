@@ -26,7 +26,7 @@ class Enemy : public Vehicle {
     const float oriX;
 
     Direction currentDirection, calculatedPath;
-    int current_direction_counter, max_direction_counter;
+    int current_direction_counter, max_direction_counter, id;
 
     float probAI;
 
@@ -53,7 +53,7 @@ public:
      * @param vehicle nombre del vehículo
      * @param pY
      */
-    Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const std::string &vehicle, float pY);
+    Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const std::string &vehicle, float pY, int idCar);
 
     /**
      * Actualiza la lógica del vehículo de manera automática para el movimiento actual.
@@ -152,6 +152,11 @@ public:
      * @return
      */
     bool isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const;
+
+
+
+    int getId() const;
+
 };
 
 

@@ -176,11 +176,25 @@ void Game::updateScore(){
             mainMutex.lock();
             speed = player.getRealSpeed();
             mainMutex.unlock();
+
+
             // Update the score of the player if the player is not stopped
-            if (speed > 0.0f) {
+            if (speed > 0.f && speed <= 150.f) {
                 // Add score
                 mainMutex.lock();
                 score += int(player.getRealSpeed() * scoreMul);
+                mainMutex.unlock();
+            }
+            else if (speed > 150.f && speed <= 250.f) {
+                // Add score
+                mainMutex.lock();
+                score += int(player.getRealSpeed() * (1.5f *scoreMul));
+                mainMutex.unlock();
+            }
+            else if (speed > 250.f && speed <= 300.f) {
+                // Add score
+                mainMutex.lock();
+                score += int(player.getRealSpeed() * (2.0f *scoreMul));
                 mainMutex.unlock();
             }
         }
@@ -195,12 +209,12 @@ void Game::updateScore(){
 
 
 
-Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 1.25f, 0.9375f, MAX_COUNTER,
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.8f, MAX_COUNTER,
                                "Vehicles/Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f),
                         scoreMul(1.0f), timeAI(0.0f),
                         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {85, 58, 68, 50, 75, 69, 53, 54, 49, 48, 46, 42, 42, 41, 42};
+    const int times[] = {80, 70, 70, 65, 62, 60, 53, 54, 49, 48, 46, 42, 42, 41, 42};
     const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
@@ -629,7 +643,7 @@ void Game::checkDifficulty(Config &c) {
         const float vehicleScales[maxSprites] = {1.3f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f};
         for (int i = static_cast<int>(cars.size()); i < numCars; i++) {
             Enemy v(MAX_SPEED, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
-                    "Vehicles/TrafficCars/Car" + to_string(1 + i % maxSprites), -RECTANGLE * DEL_VEHICLE * 3.0f);
+                    "Vehicles/TrafficCars/Car" + to_string(1 + i % maxSprites), -RECTANGLE * DEL_VEHICLE * 3.0f, 1 + i % maxSprites);
             cars.push_back(v);
         }
     }
@@ -668,10 +682,16 @@ float Game::getCents_SecondTrip() const {
 State Game::play(Config &c) {
     if (!inGame) {
         inGame = true;
-        initialAnimation(c);
+        State status = initialAnimation(c);
+        if (status == EXIT){
+            return status;
+        }
     }
 
     c.window.setKeyRepeatEnabled(false);
+
+     // Get the kind of terrain of the landscape
+    int terrain = currentMap->getTerrain();
 
     // Time to update the clock counter
     Time shot_delayTime = seconds(1.0);
@@ -723,11 +743,12 @@ State Game::play(Config &c) {
                 mtx.unlock();
                 timer0.join();
                 timer1.join();
+                timer2.join();
                 return EXIT;
             }
         }
 
-        updateAndDraw(c, action, direction);
+        updateAndDraw(c, action, direction, terrain);
 
         if (!finalGame) {
             if (Keyboard::isKeyPressed(c.menuKey) || onPause) {
@@ -858,12 +879,52 @@ State Game::initialAnimation(Config &c) {
     int flagger, semaphore;
     Map *initMap = new Map(*currentMap, flagger, semaphore);
     initMap->addNextMap(currentMap);
+    initMap->setColors(*currentMap);
     currentMap = initMap;
+
+    c.w.clear(Color(0, 0, 0));
+    Sprite bufferSprite(c.w.getTexture());
+    c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
+
+    // Creation of the panel rectangle of the menu
+    RectangleShape blackShape;
+    blackShape.setPosition(0, 0);
+    blackShape.setSize(sf::Vector2f(c.w.getSize().x, c.w.getSize().y));
 
     // Prepare car
     bool end = false;
 
-    sleep(milliseconds(70));
+    // slideCar
+    c.effects[38]->stop();
+    c.effects[38]->play();
+
+    // Draw the landscape animation
+    for (int j = 255; j >= 0; j -= 5){
+
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+        // Draw map
+        currentMap->draw(c, cars);
+        player.drawStaticAnimation(c);
+
+        blackShape.setFillColor(Color(0, 0, 0, j));
+        c.w.draw(blackShape);
+
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+        sleep(milliseconds(30));
+    }
+
     // slideCar
     c.effects[8]->stop();
     c.effects[8]->play();
@@ -882,7 +943,7 @@ State Game::initialAnimation(Config &c) {
         c.w.clear();
         currentMap->draw(c, cars);
         player.drawInitialAnimation(c, float(i), end);
-        Sprite bufferSprite(c.w.getTexture());
+        bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
         c.window.draw(bufferSprite);
         c.window.display();
@@ -896,7 +957,6 @@ State Game::initialAnimation(Config &c) {
         }
     }
 
-
     sleep(milliseconds(250));
 
     // Semaphore and flagger
@@ -904,8 +964,8 @@ State Game::initialAnimation(Config &c) {
     int ms = 1000;
 
     currentMap->draw(c, cars);
-    player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
-    Sprite bufferSprite(c.w.getTexture());
+    player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
+    bufferSprite.setTexture(c.w.getTexture(), true);
     c.w.display();
     c.window.draw(bufferSprite);
     c.window.display();
@@ -917,11 +977,18 @@ State Game::initialAnimation(Config &c) {
         }
     }
 
-
     // comentaristIntro
     c.effects[11]->stop();
     c.effects[11]->play();
-    sleep(c.effects[11]->getDuration() - c.effects[11]->getPlayingOffset());
+    while (c.effects[11]->getStatus() != SoundSource::Stopped){
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+    }
 
     for (int i = 0; i < 3; i++) {
 
@@ -935,7 +1002,7 @@ State Game::initialAnimation(Config &c) {
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
-        player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()));
+        player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
         bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
         c.window.draw(bufferSprite);
@@ -952,7 +1019,7 @@ State Game::initialAnimation(Config &c) {
                 c.w.clear();
                 currentMap->draw(c, cars);
                 player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT,
-                            currentMap->getElevation(player.getPosY()));
+                            currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
                 bufferSprite.setTexture(c.w.getTexture(), true);
                 c.w.display();
                 c.window.draw(bufferSprite);
@@ -1024,7 +1091,7 @@ State Game::goalAnimation(Config &c) {
         currentMap->draw(c, cars);
         player.setPosition(player.getPosX(), player.getPosY() + 1);
         player.draw(c, Vehicle::Action::ACCELERATE, Vehicle::Direction::RIGHT,
-                    currentMap->getElevation(player.getPosY()), false);
+                    currentMap->getElevation(player.getPosY()), currentMap->getTerrain(), false);
 
         // Flager animation
         if (gameClockTime.getElapsedTime().asMilliseconds() - currentTime >= 200.0f) {
@@ -1162,7 +1229,7 @@ State Game::goalAnimation(Config &c) {
 }
 
 
-void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction) {
+void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction, const int terrain) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
@@ -1258,7 +1325,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
             player.hitControl(vehicleCrash);
         }
 
-        player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+        player.draw(c, action, direction, currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
 
         if (!player.isCrashing()) {
             vehicleCrash = false;
@@ -1272,12 +1339,13 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                                                       crashPos);
 
             if (crash || vehicleCrash) {
+                player.setModeCollision();
                 player.setPosition(player.getPosX(), crashPos);
                 player.hitControl(vehicleCrash);
                 action = Vehicle::CRASH;
                 direction = Vehicle::RIGHT;
 
-                player.draw(c, action, direction, currentMap->getElevation(player.getPosY()));
+                player.draw(c, action, direction, currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
             }
         }
 
@@ -1305,10 +1373,32 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                     // Thread with sound of the woman
                     elapsed8 = trafficCarSound.getElapsedTime().asSeconds();
                     if (elapsed8 - elapsed7 >= traffic_delay.asSeconds()) {
-                        // makeCarTrafficSound
-                        c.effects[20]->stop();
-                        c.effects[21]->stop();
-                        c.effects[random_int(20, 21)]->play();
+                        // Check the type of traffic car
+                        if (v.getId() == 1 || v.getId() == 5){
+                            c.effects[33]->stop();
+                            c.effects[34]->stop();
+                            c.effects[random_int(33, 34)]->play();
+
+                            c.effects[32]->stop();
+                            c.effects[32]->play();
+                        }
+                        else if (v.getId() == 4) {
+                            c.effects[35]->stop();
+                            c.effects[36]->stop();
+                            c.effects[random_int(35, 36)]->play();
+                        }
+                        else {
+                            c.effects[33]->stop();
+                            c.effects[34]->stop();
+                            c.effects[random_int(33, 34)]->play();
+
+                            c.effects[20]->stop();
+                            c.effects[21]->stop();
+                            c.effects[random_int(20, 21)]->play();
+                        }
+
+
+
                         trafficCarSound.restart();
                     }
                 }
@@ -1343,7 +1433,7 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
     currentMap->draw(c, cars);
 
     // Draw the vehicle of the player
-    player.draw(c, a, d, currentMap->getElevation(player.getPosY()), false);
+    player.draw(c, a, d, currentMap->getElevation(player.getPosY()), currentMap->getTerrain(), false);
 
     drawHUD(c);
 
@@ -1436,7 +1526,7 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
         }
 
         // Check if the up or down cursor keys have been pressed or not
-        if (Keyboard::isKeyPressed(c.menuDownKey)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuDownKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1)) {
                 // Change the color appearance of both buttons
@@ -1446,7 +1536,7 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
             }
-        } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
+        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuUpKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
             if (optionSelected != 0) {
                 c.effects[0]->stop();
@@ -1456,7 +1546,7 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
             }
-        } else if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
             if (comeFromOptions) {
                 comeFromOptions = false;
             } else {

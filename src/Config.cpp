@@ -48,12 +48,12 @@ Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabl
     if (!fullScreen){
         // Create the screen with not full screen resolution
         window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
-                                static_cast<unsigned int>(resolutions[resIndex].second)), "Multi Race Driving",
+                                static_cast<unsigned int>(resolutions[resIndex].second)), "Out Run",
                       Style::Titlebar | Style::Close);
     }
     else {
         // Create a screen with full screen resolution
-        window.create(VideoMode::getFullscreenModes()[0], "Multi Race Driving", Style::Fullscreen);
+        window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
         resIndex = -1;
     }
 
@@ -78,7 +78,7 @@ Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabl
 
     // Assign icon to the screen of the game
     Image i;
-    i.loadFromFile("Data/Icon/MultiRaceDriving.png");
+    i.loadFromFile("Resources/Icon/OutRun.png");
     window.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
 
     // Calculate the factor of screen
@@ -222,7 +222,7 @@ State Config::graphicsMenu() {
             }
 
             window.pollEvent(e);
-            if (Keyboard::isKeyPressed(menuDownKey)) {
+            if (window.hasFocus() && Keyboard::isKeyPressed(menuDownKey)) {
                 // Up cursor pressed and change the soundtrack selected in the list
                 if (optionSelected != int(menuButtons.size() - 1) / 2) {
                     // Change the color appearance of both buttons
@@ -233,7 +233,7 @@ State Config::graphicsMenu() {
                     menuButtons[optionSelected + 2].setButtonState(BUTTON_HOVER);
                     menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
                 }
-            } else if (Keyboard::isKeyPressed(menuUpKey)) {
+            } else if (window.hasFocus() && Keyboard::isKeyPressed(menuUpKey)) {
                 // Down cursor pressed and change the soundtrack selected in the list
                 if (optionSelected != 0) {
                     // Change the color appearance of both buttons
@@ -251,7 +251,7 @@ State Config::graphicsMenu() {
             if (optionSelected == 0) {
                 // Volume music
                 // Check if left or right cursor keys have been pressed or not
-                if (Keyboard::isKeyPressed(leftKey)) {
+                if (window.hasFocus() && Keyboard::isKeyPressed(leftKey)) {
                     if (resized) {
                         resized = false;
                     } else if (resIndex > -1) {
@@ -265,8 +265,12 @@ State Config::graphicsMenu() {
                                                     static_cast<unsigned int>(resolutions[resIndex].second)),
                                           "Out Run",
                                           Style::Titlebar | Style::Close);
-                        } else {
+
+                            fullScreen = false;
+                        }
+                        else {
                             window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
+                            fullScreen = true;
                         }
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
@@ -283,7 +287,7 @@ State Config::graphicsMenu() {
                         currentResized = true;
                         resized = true;
                     }
-                } else if (Keyboard::isKeyPressed(rightKey)) {
+                } else if (window.hasFocus() && Keyboard::isKeyPressed(rightKey)) {
                     if (resized) {
                         resized = false;
                     }
@@ -309,17 +313,18 @@ State Config::graphicsMenu() {
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;
+                        fullScreen = false;
                     }
                 }
             } else {
                 // Volume effects
                 // Check if left or right cursor keys have been pressed or not
-                if (Keyboard::isKeyPressed(leftKey)) {
+                if (window.hasFocus() && Keyboard::isKeyPressed(leftKey)) {
                     if (enablePixelArt) {
                         enablePixelArt = false;
                         menuButtons[optionSelected + 2].setTextButton("DISABLED");
                     }
-                } else if (Keyboard::isKeyPressed(rightKey)) {
+                } else if (window.hasFocus() && Keyboard::isKeyPressed(rightKey)) {
                     if (!enablePixelArt) {
                         enablePixelArt = true;
                         menuButtons[optionSelected + 2].setTextButton("ENABLED");
@@ -343,7 +348,7 @@ State Config::graphicsMenu() {
             effects[0]->stop();
 
             // Check if left or right cursor keys have been pressed or not
-            if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+            if (window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Escape)) {
                 // Change the controllers of the car
                 startPressed = true;
                 modifiedConfig = true;

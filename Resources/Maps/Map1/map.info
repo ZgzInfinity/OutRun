@@ -1,5 +1,6 @@
 /* Mapa 1 */
 
+1			 /* Type of terrain 0 = grass, 1 = land, 2 = snow*/
 107 107 107  /* Road RGB color 1 */
 105 105 105  /* Road RGB color 2 */
 246 226 160  /* Grass RGB color 1 */

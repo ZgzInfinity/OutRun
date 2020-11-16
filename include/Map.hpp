@@ -94,8 +94,8 @@ class Map {
          * @param rW
          * @param zOffset
          */
-        void
-        project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset);
+        void project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset);
+
 
         enum HitCoeffType {
             HIT_CENTER,
@@ -148,7 +148,7 @@ class Map {
     bool initMap;
     bool goalMap;
 
-    int maxTime;
+    int maxTime, terrain;
 
     /**
      * Devuelve Line n
@@ -210,8 +210,7 @@ class Map {
      * @param objectNames
      * @param objectIndexes
      */
-    void
-    loadObjects(const std::string &path, const std::vector<std::string> &objectNames, std::vector<int> &objectIndexes);
+    void loadObjects(const std::string &path, const std::vector<std::string> &objectNames, std::vector<int> &objectIndexes);
 
 public:
     // Crea un mapa con un paisaje dado el nombre del fichero de la imagen y con unos objetos dados los nombres de los
@@ -443,6 +442,15 @@ public:
      * @return
      */
     int getTime() const;
+
+
+
+    /**
+     * Returns the kind of terrain of the landscape
+     * @return
+     */
+     int getTerrain() const;
+
 };
 
 

@@ -18,6 +18,7 @@
  */
 
 #include "../include/Menu.hpp"
+#include "../include/Svg.hpp"
 
 #include <memory>
 
@@ -27,7 +28,7 @@ using namespace sf;
 
 State introAnimation(Config &c) {
     // Load the game effects
-    for (int i = 1; i <= 30; i++) {
+    for (int i = 1; i <= 40; i++) {
         // Detect the possible events
         Event e{};
         while (c.window.pollEvent(e)) {
@@ -41,43 +42,65 @@ State introAnimation(Config &c) {
         c.effects.push_back(move(effect));
     }
     c.effects[29]->setLoop(true);
+    c.effects[37]->setLoop(true);
 
 
-    // Vector of images with the logo of Sega
+    /* Create image */
+    sfc::SVGImage img;
+
+    /* Don't show debug lines */
+    img.setMode(sfc::DrawMode::NORMAL);
+
+    /* Load SVG image from file */
+    img.loadFromFile("Resources/Intro/Icon.svg");
+
+    /* Rasterize image & save it to file */
+    img.rasterize().saveToFile("Resources/Intro/Icon.png");
+
+     // Vector of images with the logo of Sega
     Texture t;
-    vector<Texture> segaIcons;
-    Sprite segaIcon;
+    Sprite icon;
 
-    // Iterate throughout all the icons of sega
-    for (int i = 1; i < NUM_SEGA_ICONS; i++) {
+    // Loading the icon texture
+    t.loadFromFile("Resources/Intro/Icon.png");
+    t.setSmooth(true);
 
-        // Detect the possible events
-        Event e{};
-        while (c.window.pollEvent(e)) {
-            if (e.type == Event::Closed) {
-                return EXIT;
-            }
-        }
-        // Loading the icon texture
-        t.loadFromFile("Resources/SegaAnimation/segaLogo" + to_string(i) + ".png");
-        segaIcons.push_back(t);
-        // Load the texture in the sprite reseting the last texture
-        segaIcon.setTexture(segaIcons.at(static_cast<unsigned long>(i - 1)), true);
-        segaIcon.setScale(c.screenScale, c.screenScale);
-        if (i == 1) {
-            segaIcon.setPosition((c.w.getSize().x - segaIcon.getGlobalBounds().width) / 2.0f,
-                                 (c.w.getSize().y - segaIcon.getGlobalBounds().height) / 2.0f);
-        }
-        c.w.draw(segaIcon);
-        // Show the logos in the console
-        Sprite bufferSprite(c.w.getTexture());
-        c.w.display();
-        c.window.draw(bufferSprite);
-        c.window.display();
-        // Sleep the process to see the menu icons correctly
-        sleep(milliseconds(40));
+    // Load the texture in the sprite reseting the last texture
+    icon.setTexture(t, true);
+    if (!c.isDefaultScreen){
+        float axis_x = float(c.w.getSize().x) / SCREEN_DEFAULT_X;
+        float axis_y = float(c.w.getSize().y) / SCREEN_DEFAULT_Y;
+        icon.setScale(axis_x, axis_y * 1.33f);
     }
-    c.effects[26]->play();
+
+    // Locate the icon in the center of the screen
+    icon.setPosition((c.w.getSize().x - icon.getGlobalBounds().width) / 7.4f,
+                     (c.w.getSize().y - icon.getGlobalBounds().height) / 2.0f);
+
+    Font f;
+    f.loadFromFile("Resources/Fonts/Bord.otf");
+
+    // Options of the main menu
+    Text logoText1;
+    logoText1.setFillColor(Color::White);
+    logoText1.setOutlineColor(Color::Black);
+    logoText1.setOutlineThickness(3.0f * c.screenScale);
+
+    // Options of the main menu
+    Text logoText2;
+    logoText2.setFillColor(Color::White);
+    logoText2.setOutlineColor(Color::Black);
+    logoText2.setOutlineThickness(3.0f * c.screenScale);
+
+    Text zgzText;
+    zgzText.setString("zgz");
+    zgzText.setCharacterSize(static_cast<unsigned int>(int(65.0f * c.screenScale)));
+    zgzText.setFont(f);
+    zgzText.setFillColor(Color::White);
+    zgzText.setOutlineColor(Color::Black);
+    zgzText.setOutlineThickness(3.0f * c.screenScale);
+    zgzText.setPosition((c.w.getSize().x - zgzText.getGlobalBounds().width) / 2.4f,
+                         c.w.getSize().y / 2.f - zgzText.getGlobalBounds().height * 1.375f);
 
     // Load the music soundtracks of the game
     for (int i = 0; i <= 5; i++) {
@@ -86,6 +109,125 @@ State introAnimation(Config &c) {
         music->setVolume(c.volumeMusic);
         music->setLoop(true);
         c.themes.push_back(move(music));
+    }
+
+    c.effects[39]->stop();
+    c.effects[39]->play();
+
+    for (int i = 0; i <= 300; i++){
+
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+        // Clear the screen and draw the icon
+        if (i >= 160){
+            logoText1.setString("zgz");
+        }
+        else if (i>= 155){
+            logoText1.setString("zg");
+        }
+        else if (i >= 150){
+            logoText1.setString("z");
+        }
+
+        logoText1.setCharacterSize(static_cast<unsigned int>(int(110.0f * c.screenScale)));
+        logoText1.setFont(f);
+        logoText1.setPosition((c.w.getSize().x - zgzText.getGlobalBounds().width) / 2.4f,
+                               c.w.getSize().y / 2.f - logoText1.getGlobalBounds().height * 1.375f);
+
+        if (i >= 192){
+            logoText2.setString("infinitgames");
+        }
+        else if (i >= 190){
+            logoText2.setString("infinitgame");
+        }
+        else if (i >= 188){
+            logoText2.setString("infinitgam");
+        }
+        else if (i >= 186){
+            logoText2.setString("infinitga");
+        }
+        else if (i >= 184){
+            logoText2.setString("infinitg");
+        }
+        else if (i >= 182){
+            logoText2.setString("infinit");
+        }
+        else if (i >= 180){
+            logoText2.setString("infini");
+        }
+        else if (i >= 178){
+            logoText2.setString("infin");
+        }
+        else if (i >= 176){
+            logoText2.setString("infi");
+        }
+        else if (i>= 174){
+            logoText2.setString("inf");
+        }
+        else if (i>= 172){
+            logoText2.setString("in");
+        }
+        else if (i>= 170){
+            logoText2.setString("i");
+        }
+
+        logoText2.setCharacterSize(static_cast<unsigned int>(int(65.0f * c.screenScale)));
+        logoText2.setFont(f);
+        logoText2.setPosition((c.w.getSize().x - zgzText.getGlobalBounds().width) / 2.4f,
+                               c.w.getSize().y / 2.f + logoText2.getGlobalBounds().height * 0.21f);
+
+        c.w.clear();
+
+        if (i >= 40){
+            c.w.draw(icon);
+        }
+        if (i >= 60){
+            c.w.draw(logoText1);
+        }
+        if (i >= 170){
+            c.w.draw(logoText2);
+        }
+
+        // Show the logos in the console
+        Sprite bufferSprite(c.w.getTexture());
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+    }
+
+    RectangleShape blackShape;
+    blackShape.setPosition(0, 0);
+    blackShape.setSize(sf::Vector2f(c.w.getSize().x, c.w.getSize().y));
+
+    // Draw the landscape animation
+    for (int j = 0; j <= 255; j += 5){
+
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+        c.w.clear();
+        c.w.draw(icon);
+        c.w.draw(logoText1);
+        c.w.draw(logoText2);
+
+        blackShape.setFillColor(Color(0, 0, 0, j));
+        c.w.draw(blackShape);
+
+        // Show the logos in the console
+        Sprite bufferSprite(c.w.getTexture());
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
     }
 
     return START;
@@ -170,7 +312,7 @@ State startMenu(Config &c, bool startPressed) {
     textElements[2].setOutlineColor(Color::Black);
     textElements[2].setOutlineThickness(3.0f * c.screenScale);
 
-    textElements[4].setString("INFINITY GAMES");
+    textElements[4].setString("ZGZ INFINITGAMES");
     textElements[4].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
     textElements[4].setFont(c.timeToPlay);
     textElements[4].setFillColor(Color::Green);
@@ -178,15 +320,7 @@ State startMenu(Config &c, bool startPressed) {
     textElements[4].setOutlineThickness(3.0f * c.screenScale);
     float initialX = c.w.getSize().x - 1.1f * textElements[4].getGlobalBounds().width, initialY =
             c.w.getSize().y - 2.0f * float(textElements[4].getCharacterSize());
-    textElements[4].setPosition(initialX, initialY);
-
-    textElements[3].setString("1986");
-    textElements[3].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
-    textElements[3].setFont(c.timeToPlay);
-    textElements[3].setFillColor(Color::Green);
-    textElements[3].setOutlineColor(Color::Black);
-    textElements[3].setOutlineThickness(3.0f * c.screenScale);
-    textElements[3].setPosition(initialX - 1.7f * textElements[3].getGlobalBounds().width, initialY);
+    textElements[4].setPosition(initialX / 1.065f, initialY);
 
     initialX = textElements[4].getGlobalBounds().width;
     textElements[5].setString("EXIT / PAUSE: ESC KEY");
@@ -206,6 +340,14 @@ State startMenu(Config &c, bool startPressed) {
     textElements[6].setOutlineThickness(3.0f * c.screenScale);
     textElements[6].setPosition(initialX / 3.4f, initialY);
 
+    textElements[3].setString("2020");
+    textElements[3].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
+    textElements[3].setFont(c.timeToPlay);
+    textElements[3].setFillColor(Color::Green);
+    textElements[3].setOutlineColor(Color::Black);
+    textElements[3].setOutlineThickness(3.0f * c.screenScale);
+    textElements[3].setPosition(initialX + 8.2f * textElements[3].getGlobalBounds().width, initialY);
+
     initialY -= 2.0f * textElements[6].getGlobalBounds().height;
     textElements[7].setString("SELECT: ENTER KEY");
     textElements[7].setCharacterSize(static_cast<unsigned int>(int(30.0f * c.screenScale)));
@@ -215,11 +357,12 @@ State startMenu(Config &c, bool startPressed) {
     textElements[7].setOutlineThickness(3.0f * c.screenScale);
     textElements[7].setPosition(initialX / 3.4f, initialY);
 
+    RectangleShape blackShape;
+    blackShape.setPosition(0, 0);
+    blackShape.setSize(sf::Vector2f(c.w.getSize().x, c.w.getSize().y));
+
     // Partial state of the game
     State state = START;
-
-    // Change the background texture
-    c.w.draw(mainMenu);
 
     // Code of sprite to display
     int j = 0, k = 0;
@@ -231,6 +374,66 @@ State startMenu(Config &c, bool startPressed) {
     blinkClcok.restart().asSeconds();
     elapsed1 = blinkClcok.restart().asSeconds();
     bool blink = true;
+
+    c.effects[37]->play();
+
+    // Draw the landscape animation
+    for (int i = 255; i >= 0; i -= 5){
+
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+        elapsed2 = blinkClcok.getElapsedTime().asSeconds();
+
+        // Change the color of the main text
+        if (elapsed2 - elapsed1 >= blink_delay.asSeconds()) {
+            blink = !blink;
+            blinkClcok.restart();
+        }
+        if (blink) {
+            textElements[0].setFillColor(Color::Green);
+            textElements[0].setOutlineColor(Color::Black);
+        } else {
+            textElements[0].setFillColor(Color::Transparent);
+            textElements[0].setOutlineColor(Color::Transparent);
+        }
+
+        // Show the press start title in the menu
+        c.w.draw(mainMenu);
+        c.w.draw(nameGames[j]);
+        c.w.draw(textElements[0]);
+        c.w.draw(textElements[3]);
+        c.w.draw(textElements[4]);
+        c.w.draw(textElements[5]);
+        c.w.draw(textElements[6]);
+        c.w.draw(textElements[7]);
+
+        blackShape.setFillColor(Color(0, 0, 0, i));
+        c.w.draw(blackShape);
+
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+
+        if (j < (int) nameGames.size() - 1){
+            if (k == 10){
+                j++;
+                k = 0;
+            }
+            else {
+                k++;
+            }
+        }
+        else {
+            j = 0;
+        }
+    }
 
     // While the console window is opened
     while (c.window.isOpen()) {
@@ -273,16 +476,15 @@ State startMenu(Config &c, bool startPressed) {
             c.w.display();
             c.window.draw(bufferSprite);
             c.window.display();
-            // sleep(milliseconds(180));
 
             // Check if the start keyword has been pressed
-            if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
                 // Pass to the second menu
                 startPressed = true;
                 c.effects[1]->stop();
                 c.effects[1]->play();
                 // sleep(milliseconds(50));
-            } else if (Keyboard::isKeyPressed(Keyboard::Escape))
+            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Escape))
                 return EXIT;
 
             if (j < (int) nameGames.size() - 1){
@@ -313,7 +515,7 @@ State startMenu(Config &c, bool startPressed) {
                     return EXIT;
 
             // Control if the up or down cursor keys are pressed or not
-            if (Keyboard::isKeyPressed(c.menuUpKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuUpKey)) {
                 // Up cursor pressed
                 if (state != MUSIC) {
                     c.effects[0]->stop();
@@ -322,7 +524,7 @@ State startMenu(Config &c, bool startPressed) {
                                     c.w.getSize().y / 2.f + 75.0f * c.screenScale);
                     state = MUSIC;
                 }
-            } else if (Keyboard::isKeyPressed(c.menuDownKey)) {
+            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuDownKey)) {
                 // Down cursor pressed
                 if (state != OPTIONS) {
                     c.effects[0]->stop();
@@ -351,14 +553,25 @@ State startMenu(Config &c, bool startPressed) {
             c.window.draw(bufferSprite);
             c.window.display();
             // Check if the start keyword has been pressed
-            if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
                 // Pass to the second menu
                 startPressed = true;
                 c.effects[1]->stop();
                 c.effects[1]->play();
             }
 
-            j = (j < (int) nameGames.size() - 1) ? j + 1 : 0;
+            if (j < (int) nameGames.size() - 1){
+                if (k == 10){
+                    j++;
+                    k = 0;
+                }
+                else {
+                    k++;
+                }
+            }
+            else {
+                j = 0;
+            }
         }
         // Return the state of the game
         c.effects[0]->stop();
@@ -375,6 +588,7 @@ State startMenu(Config &c, bool startPressed) {
             c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
         }
 
+        c.effects[37]->stop();
         return state;
     }
     return EXIT;
@@ -533,7 +747,7 @@ State changeCarControllers(Config &c) {
                 return EXIT;
             }
         }
-        if (Keyboard::isKeyPressed(c.menuDownKey)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuDownKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1) / 2) {
                 // Change the color appearance of both buttons
@@ -544,7 +758,7 @@ State changeCarControllers(Config &c) {
                 menuButtons[optionSelected + 4].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 3].setButtonState(BUTTON_IDLE);
             }
-        } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
+        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuUpKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
             if (optionSelected != 0) {
                 // Change the color appearance of both buttons
@@ -556,7 +770,7 @@ State changeCarControllers(Config &c) {
                 menuButtons[optionSelected + 5].setButtonState(BUTTON_IDLE);
             }
         }
-        while (Keyboard::isKeyPressed(Keyboard::Space) && !Keyboard::isKeyPressed(Keyboard::Enter)) {
+        while (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Space) && !Keyboard::isKeyPressed(Keyboard::Enter)) {
             // Check if any keyword has been pressed or not
             c.window.waitEvent(e);
             if (e.type == Event::KeyPressed && e.key.code != -1 && e.key.code != Keyboard::Enter &&
@@ -625,7 +839,7 @@ State changeCarControllers(Config &c) {
         }
 
         // Check if left or right cursor keys have been pressed or not
-        if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Escape)) {
             // Change the controllers of the car
             startPressed = true;
             c.modifiedConfig = true;
@@ -721,7 +935,7 @@ State soundMenu(Config &c, const bool &inGame) {
             }
         }
 
-        if (Keyboard::isKeyPressed(c.menuDownKey)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuDownKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
             if (optionSelected != int(menuButtons.size() - 1) / 2) {
                 // Change the color appearance of both buttons
@@ -732,7 +946,7 @@ State soundMenu(Config &c, const bool &inGame) {
                 menuButtons[optionSelected + 2].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
             }
-        } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
+        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuUpKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
             if (optionSelected != 0) {
                 // Change the color appearance of both buttons
@@ -748,7 +962,7 @@ State soundMenu(Config &c, const bool &inGame) {
         if (optionSelected == 0) {
             // Volume music
             // Check if left or right cursor keys have been pressed or not
-            if (Keyboard::isKeyPressed(c.leftKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                 if (c.volumeMusic != 0) {
                     c.volumeMusic--;
                     for (int i = 0; i <= 5; i++) {
@@ -760,7 +974,7 @@ State soundMenu(Config &c, const bool &inGame) {
                     }
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
-            } else if (Keyboard::isKeyPressed(c.rightKey)) {
+            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                 if (c.volumeMusic != 100) {
                     c.volumeMusic++;
                     for (int i = 0; i <= 5; i++) {
@@ -776,20 +990,20 @@ State soundMenu(Config &c, const bool &inGame) {
         } else {
             // Volume effects
             // Check if left or right cursor keys have been pressed or not
-            if (Keyboard::isKeyPressed(c.leftKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                 if (c.volumeEffects != 0) {
                     c.volumeEffects--;
-                    for (int i = 0; i <= 29; i++) {
+                    for (int i = 0; i <= 39; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
                     c.effects[0]->play();
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
                 }
-            } else if (Keyboard::isKeyPressed(c.rightKey)) {
+            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                 if (c.volumeEffects != 100) {
                     c.volumeEffects++;
-                    for (int i = 0; i <= 29; i++) {
+                    for (int i = 0; i <= 39; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
@@ -815,7 +1029,7 @@ State soundMenu(Config &c, const bool &inGame) {
         c.effects[0]->stop();
 
         // Check if left or right cursor keys have been pressed or not
-        if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Escape)) {
             // Change the controllers of the car
             startPressed = true;
             c.modifiedConfig = true;
@@ -968,7 +1182,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                     return EXIT;
 
             // Check if the up or down cursor keys have been pressed or not
-            if (Keyboard::isKeyPressed(c.menuDownKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuDownKey)) {
                 // Up cursor pressed and change the soundtrack selected in the list
                 if (optionSelected != int(menuButtons.size() - 1) / 2) {
                     // Change the color appearance of both buttons
@@ -979,7 +1193,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                     menuButtons[optionSelected + 5].setButtonState(BUTTON_HOVER);
                     menuButtons[optionSelected + 4].setButtonState(BUTTON_IDLE);
                 }
-            } else if (Keyboard::isKeyPressed(c.menuUpKey)) {
+            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuUpKey)) {
                 // Down cursor pressed and change the soundtrack selected in the list
                 if (optionSelected != 0) {
                     c.effects[0]->play();
@@ -997,7 +1211,7 @@ State optionsMenu(Config &c, const bool &inGame) {
             switch (optionSelected) {
                 case 0:
                     // Check if left or right cursor keys have been pressed or not
-                    if (Keyboard::isKeyPressed(c.leftKey)) {
+                    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                         if (c.level != PEACEFUL) {
                             // Change the difficult level
                             if (c.level == EASY) {
@@ -1012,7 +1226,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                                 menuButtons[optionSelected + 5].setTextButton("Normal");
                             }
                         }
-                    } else if (Keyboard::isKeyPressed(c.rightKey)) {
+                    } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                         if (c.level != HARD) {
                             // Change the difficult level
                             if (c.level == PEACEFUL) {
@@ -1032,12 +1246,12 @@ State optionsMenu(Config &c, const bool &inGame) {
                 case 1:
                     // AI aggressiveness level
                     // Check if left or right cursor keys have been pressed or not
-                    if (Keyboard::isKeyPressed(c.leftKey)) {
+                    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                         if (c.enableAI) {
                             c.enableAI = false;
                             menuButtons[optionSelected + 5].setTextButton("DISABLED");
                         }
-                    } else if (Keyboard::isKeyPressed(c.rightKey)) {
+                    } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                         if (!c.enableAI) {
                             c.enableAI = true;
                             menuButtons[optionSelected + 5].setTextButton("ENABLED");
@@ -1070,7 +1284,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                     menuButtons[optionSelected + 5].setTextButton(access);
 
                     // Check if left or right cursor keys have been pressed or not
-                    if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+                    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
                         c.effects[1]->stop();
                         c.effects[1]->play();
                         State status = c.graphicsMenu();
@@ -1168,7 +1382,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                     menuButtons[optionSelected + 5].setTextButton(access);
 
                     // Check if left or right cursor keys have been pressed or not
-                    if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+                    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
                         // Change the controllers of the car
                         c.effects[1]->stop();
                         c.effects[1]->play();
@@ -1204,7 +1418,7 @@ State optionsMenu(Config &c, const bool &inGame) {
             c.effects[0]->stop();
 
             // Check if left or right cursor keys have been pressed or not
-            if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Escape)) {
                 // Change the controllers of the car
                 startPressed = true;
                 c.effects[2]->stop();
@@ -1250,7 +1464,7 @@ State optionsMenu(Config &c, const bool &inGame) {
         string controlBrake = kM.mapperIdKeyWord[index];
 
         // Update the file with the new configuration
-        storeNewConfiguration(path, c.level, c.enableAI, c.volumeMusic, c.volumeEffects, c.enablePixelArt, c.resIndex,
+        storeNewConfiguration(path, c.level, c.enableAI, c.volumeMusic, c.volumeEffects, c.enablePixelArt, c.fullScreen,
                               c.resolutions[c.resIndex].first, c.resolutions[c.resIndex].second, controlLeft, controlRight,
                               controlAccelerate, controlBrake);
 
@@ -1341,7 +1555,7 @@ State selectMusicSoundtrack(Config &c) {
                 return EXIT;
 
         // Control if the left or right cursor keys are pressed or not
-        if (Keyboard::isKeyPressed(c.leftKey)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
             // Up cursor pressed and change the soundtrack selected in the list
             if (c.currentSoundtrack != 1) {
                 c.effects[1]->stop();
@@ -1350,7 +1564,7 @@ State selectMusicSoundtrack(Config &c) {
                 c.currentSoundtrack--;
                 c.themes[c.currentSoundtrack]->play();
             }
-        } else if (Keyboard::isKeyPressed(c.rightKey)) {
+        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
             if (c.currentSoundtrack != NUM_SOUNDTRACKS - 1) {
                 c.effects[1]->stop();
@@ -1394,7 +1608,7 @@ State selectMusicSoundtrack(Config &c) {
         sleep(milliseconds(80));
 
         // Check if the keyword Enter has been pressed or not
-        if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
             startPressed = true;
             c.effects[2]->stop();
             c.effects[2]->play();
@@ -1725,7 +1939,7 @@ State rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minu
 
             // Show the rest of out runners
 
-            for (int i = record; i < 6 && i < scoreRankingPlayer.size(); i++) {
+            for (int i = record; i < 6 && i < (int)scoreRankingPlayer.size(); i++) {
                 scorePlayer.setString(to_string(scoreRankingPlayer[i].score));
                 scorePlayer.setPosition((c.w.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
                                         (c.w.getSize().y / 4.5f) + 50.0f * c.screenScale * (float) (i + 2));
@@ -1787,7 +2001,7 @@ State rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minu
             while (c.window.pollEvent(event)) {
                 if (event.type == Event::Closed) {
                     return EXIT;
-                } else if (event.type == Event::KeyPressed) {
+                } else if (c.window.hasFocus() && event.type == Event::KeyPressed) {
                     // Get code of the key
                     int code = event.key.code;
                     // Check if the key pressed is a letter or not
@@ -1817,7 +2031,7 @@ State rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minu
                 }
             }
         }
-        if (Keyboard::isKeyPressed(c.menuEnterKey)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
             startPressed = true;
         }
     }
@@ -1872,7 +2086,7 @@ State rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minu
  * @param controlSoundtrack is the key selected by the player to change the soundtrack of the game
  */
 void storeNewConfiguration(const string path, const Difficult difficulty, const bool enabledAi, const int volumeSoundtracks,
-                           const int volumeEffects, const bool pixelArt, const int fullScreen, const int axis_x, const int axis_y,
+                           const int volumeEffects, const bool pixelArt, const bool fullScreen, const int axis_x, const int axis_y,
                            const string controlLeft, const string controlRight, const string controlAccelerate, const string controlBrake)
 {
     //  New file which stores the new configuration of the game
