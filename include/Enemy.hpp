@@ -34,7 +34,6 @@ class Enemy : public Vehicle {
      * Tipos de IA:
      *      OBSTACLE: Intenta chocar con el jugador poniéndose en su trayectoria e intentando alcanzarlo.
      *      EVASIVE: Huye al carril más alejado del jugador para intentar evitarlo.
-     *      INCONSTANT: Cambia de carriles muy a menudo sin tener en cuenta la posición del jugador.
      */
     enum TypeAI {
         OBSTACLE,
@@ -72,7 +71,6 @@ public:
      *      de IA:
      *          OBSTACLE: Intenta chocar con el jugador poniéndose en su trayectoria e intentando alcanzarlo.
      *          EVASIVE: Huye al carril más alejado del jugador para intentar evitarlo.
-     *          INCONSTANT: Cambia de carriles muy a menudo sin tener en cuenta la posición del jugador.
      *
      *      Si la agresividad de la IA se encuentra entre 0 y 1, realiza una de las dos acciones descritas (original
      *      o IA) con probabilidad p de que actúe la IA y p' = (1 - p) de que sea como en el original.
@@ -81,7 +79,7 @@ public:
      * @param playerPosX
      * @param playerPosY
      */
-    void autoControl(const Config &c, float playerPosX, float playerPosY);
+    void autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff);
 
     /**
      * Inicializa el estado del vehículo. Actualiza la agresividad de la IA del vehículo con un valor aleatorio entre 0

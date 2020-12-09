@@ -159,14 +159,17 @@ State Config::graphicsMenu() {
         window.display();
 
         // Loading the background texture
-        Texture segaBackground, textureShape;
-        segaBackground.loadFromFile("Resources/Menus/MenuOptions/segaIcon.png");
-        segaBackground.setRepeated(true);
+        Texture iconBackground, textureShape;
+        iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+        IntRect background(0, 0, w.getSize().x, w.getSize().y);
+
+        Sprite sprite(iconBackground, background);
+        float axis_x = float(w.getSize().x) / SCREEN_DEFAULT_X;
+        float axis_y = float(w.getSize().y) / SCREEN_DEFAULT_Y;
+        sprite.setScale(axis_x, axis_y);
+
         textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
         textureShape.setRepeated(true);
-
-        IntRect background(0, 0, w.getSize().x, w.getSize().y);
-        Sprite sprite(segaBackground, background);
 
         RectangleShape shape;
         shape.setPosition((w.getSize().x / 2.f) - 300.0f * screenScale, w.getSize().y / 2.f - 250.0f * screenScale);
@@ -265,12 +268,9 @@ State Config::graphicsMenu() {
                                                     static_cast<unsigned int>(resolutions[resIndex].second)),
                                           "Out Run",
                                           Style::Titlebar | Style::Close);
-
-                            fullScreen = false;
                         }
                         else {
                             window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
-                            fullScreen = true;
                         }
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
@@ -313,7 +313,6 @@ State Config::graphicsMenu() {
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;
-                        fullScreen = false;
                     }
                 }
             } else {

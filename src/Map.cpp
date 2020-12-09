@@ -478,7 +478,6 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
         // Load textures
         Texture t;
         t.loadFromFile(path + objName);
-        t.setSmooth(true);
         objects.push_back(t);
 
         // Load hit percentage from center and scale coeff
@@ -541,7 +540,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
 
 Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr),
                                                          nextRight(nullptr), initMap(true), goalMap(false), maxTime(0) {
-    const int rectangles = 50; // Map size
+    const int rectangles = 65; // Map size
     const string mapPath = "Resources/mapCommon/"; // Folder with common objects
     const int nobjects = 38;
 

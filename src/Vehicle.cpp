@@ -36,7 +36,6 @@ Vehicle::Vehicle(const float maxSpeed, const float scale, const int maxCounterTo
     for (int i = 1; i <= numTextures; i++) {
         Texture t;
         t.loadFromFile("Resources/" + vehicle + "/c" + to_string(i) + ".png");
-        t.setSmooth(true);
         t.setRepeated(false);
         textures.push_back(t);
     }

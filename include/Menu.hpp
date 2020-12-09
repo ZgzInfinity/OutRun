@@ -95,7 +95,7 @@ State selectMusicSoundtrack(Config &c);
  * @param startPressed
  * @return
  */
-State startMenu(Config &c, bool startPressed = false);
+State startMenu(Config &c);
 
 /**
  * Pantalla del ranking.

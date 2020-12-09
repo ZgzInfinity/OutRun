@@ -253,7 +253,7 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
     return a;
 }
 
-Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
+Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bool inFork) {
     skidding = false;
 
     if (speed > 0.0f) {
@@ -273,13 +273,28 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
                 if (curveCoefficient > 0.0f)
                     skidding = false;
 
-                if (speed < halfMaxSpeed)
-                    posX -= 1.5f * XINC * speed / maxSpeed;
-                else if (curveCoefficient == 0.0f)
-                    posX -= 1.25f * XINC * speed / maxSpeed;
-                else
-                    posX -= XINC * speed / maxSpeed;
-
+                if (!inFork){
+                    if (speed < halfMaxSpeed){
+                        posX -= 1.5f * XINC * speed / maxSpeed;
+                    }
+                    else if (curveCoefficient == 0.0f){
+                        posX -= 1.25f * XINC * speed / maxSpeed;
+                    }
+                    else {
+                        posX -= XINC * speed / maxSpeed;
+                    }
+                }
+                else {
+                    if (speed < halfMaxSpeed){
+                        posX -= 2.f * (XINC * 1.65f) * speed / maxSpeed;
+                    }
+                    else if (curveCoefficient == 0.0f){
+                        posX -= 1.5f * (XINC * 1.65f) * speed / maxSpeed;
+                    }
+                    else {
+                        posX -= 1.25f * (XINC * 1.65f) * speed / maxSpeed;
+                    }
+                }
                 return TURNLEFT;
             }
         } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
@@ -290,12 +305,20 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient) {
                 if (curveCoefficient < 0.0f)
                     skidding = false;
 
-                if (speed < halfMaxSpeed)
-                    posX += 1.5f * XINC * speed / maxSpeed;
-                else if (curveCoefficient == 0.0f)
-                    posX += 1.25f * XINC * speed / maxSpeed;
-                else
-                    posX += XINC * speed / maxSpeed;
+                if (!inFork){
+                    if (speed < halfMaxSpeed){
+                        posX += 1.5f * XINC * speed / maxSpeed;
+                    }
+                    else if (curveCoefficient == 0.0f){
+                        posX += 1.25f * XINC * speed / maxSpeed;
+                    }
+                    else {
+                        posX += XINC * speed / maxSpeed;
+                    }
+                }
+                else {
+                    posX += 0.039;
+                }
 
                 return TURNRIGHT;
             }
@@ -714,7 +737,7 @@ void Player::drawStaticAnimation(Config &c) {
         float x = (float) c.w.getSize().x / 2;
 
         // Vehicle
-        sprite.setTexture(textures[140], true);
+        sprite.setTexture(textures[121], true);
         sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
         if (c.isDefaultScreen){
             if (c.enablePixelArt){
@@ -738,7 +761,7 @@ void Player::drawStaticAnimation(Config &c) {
 
 
 
-void Player::drawInitialAnimation(Config &c, float x, bool &end) {
+void Player::drawInitialAnimation(Config &c, float x, bool &end, int& code) {
     if (textures.size() == PLAYER_TEXTURES) {
         if (counter_code_image >= maxCounterToChange) {
             current_code_image++;
@@ -752,7 +775,7 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end) {
         end = x < ((float) c.w.getSize().x) * 0.4f || x >= c.w.getSize().x;
 
         // Vehicle
-        sprite.setTexture(textures[index], true);
+        sprite.setTexture(textures[code], true);
         sprite.setScale(scale * c.screenScale, scaleY * c.screenScale);
         if (c.isDefaultScreen){
             if (c.enablePixelArt){
@@ -805,7 +828,7 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
 
         int index = 122;
         if (step < 2)
-            index = 125;
+            index = 124;
         else if (step < 4)
             index = 121;
 

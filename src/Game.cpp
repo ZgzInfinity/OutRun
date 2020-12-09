@@ -23,9 +23,10 @@
 using namespace sf;
 using namespace std;
 
-#define MAX_SPEED 300.0f
+#define MAX_SPEED 300.f
+#define MAX_SPEED_TRAFFIC_CAR 300.f
 #define SPEED_MUL 70.0f
-#define MAX_COUNTER 10
+#define MAX_COUNTER 2
 #define VEHICLE_DENSITY 3.0f // Greater than 0
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
@@ -132,7 +133,9 @@ void Game::updateTimeLandScape(){
             if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
                 // Draw time
                 mtx.lock();
-                time--;
+                if (!finalGame && !currentMap->isGoalMap()){
+                    time--;
+                }
                 mtx.unlock();
                 gameClockTime.restart();
             }
@@ -209,13 +212,13 @@ void Game::updateScore(){
 
 
 
-Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.8f, MAX_COUNTER,
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_COUNTER,
                                "Vehicles/Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f),
                         scoreMul(1.0f), timeAI(0.0f),
                         goalMap(goalFlagger, goalEnd) {
     int nm = 0;
-    const int times[] = {80, 70, 70, 65, 62, 60, 53, 54, 49, 48, 46, 42, 42, 41, 42};
-    const int nobjects[] = {20, 28, 40, 15, 25, 29, 26, 31, 33, 30, 30, 30, 34, 39, 33};
+    const int times[] = {110, 62, 62, 59, 58, 54, 53, 50, 50, 46, 46, 42, 42, 41, 42};
+    const int nobjects[] = {20, 28, 35, 35, 25, 29, 26, 28, 33, 30, 30, 30, 34, 36, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         for (int j = 0; j <= i; j++) {
@@ -288,7 +291,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.8f, MAX_CO
         }
     }
 
-    time = int(float(currentMap->getTime()) * timeMul) + bdTime;
+    time = int(float(currentMap->getTime()) * timeMul + bdTime);
     score = 0;
     level = mapId.first + 1;
 
@@ -604,21 +607,21 @@ void Game::checkDifficulty(Config &c) {
                 c.maxAggressiveness = 0.0f;
             break;
         case EASY:
-            numCars = 5;
+            numCars = 15;
             timeMul = 1.1f;
             scoreMul = 0.5f;
             if (c.enableAI)
                 c.maxAggressiveness = 0.25f;
             break;
         case NORMAL:
-            numCars = 10;
+            numCars = 18;
             timeMul = 1.0f;
             scoreMul = 1.0f;
             if (c.enableAI)
                 c.maxAggressiveness = 0.5f;
             break;
         case HARD:
-            numCars = 15;
+            numCars = 22;
             timeMul = 0.9f;
             scoreMul = 1.5f;
             if (c.enableAI)
@@ -638,11 +641,12 @@ void Game::checkDifficulty(Config &c) {
     if (cars.size() > numCars) {
         while (cars.size() > numCars)
             cars.pop_back();
-    } else if (cars.size() < numCars) {
-        const int maxSprites = 6;
-        const float vehicleScales[maxSprites] = {1.3f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f};
+    }
+    else if (cars.size() < numCars) {
+        const int maxSprites = 12;
+        const float vehicleScales[maxSprites] = {1.3f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f};
         for (int i = static_cast<int>(cars.size()); i < numCars; i++) {
-            Enemy v(MAX_SPEED, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
+            Enemy v(MAX_SPEED_TRAFFIC_CAR, SPEED_MUL, vehicleScales[i % maxSprites], MAX_COUNTER,
                     "Vehicles/TrafficCars/Car" + to_string(1 + i % maxSprites), -RECTANGLE * DEL_VEHICLE * 3.0f, 1 + i % maxSprites);
             cars.push_back(v);
         }
@@ -789,9 +793,11 @@ State Game::play(Config &c) {
             }
 
             // Update the indicators
-            lap = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
-            lap += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
-            lap += to_string(int(cents_second * 100.f));
+            if (!finalGame){
+                lap = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
+                lap += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
+                lap += to_string(int(cents_second * 100.f));
+            }
 
             drawHUD(c);
 
@@ -810,7 +816,6 @@ State Game::play(Config &c) {
             }
 
             // Check if the player has time to continue
-
             if (localTime == 0) {
                 // Final game
                 mtx.lock();
@@ -929,6 +934,8 @@ State Game::initialAnimation(Config &c) {
     c.effects[8]->stop();
     c.effects[8]->play();
 
+    int code = 121;
+
     for (int i = (int) c.w.getSize().x / 2; !end; i -= 3) {
 
         // Detect the possible events
@@ -938,15 +945,21 @@ State Game::initialAnimation(Config &c) {
                 return EXIT;
             }
         }
-
         // Draw map
         c.w.clear();
         currentMap->draw(c, cars);
-        player.drawInitialAnimation(c, float(i), end);
+        player.drawInitialAnimation(c, float(i), end, code);
         bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
         c.window.draw(bufferSprite);
         c.window.display();
+
+        if (i <= (int)(c.w.getSize().x / 2.f) / 1.1){
+            code = 11;
+        }
+        else if (i <= (int)(c.w.getSize().x / 2.f) / 1.23){
+            code = 120;
+        }
     }
 
     // Detect the possible events
@@ -957,7 +970,7 @@ State Game::initialAnimation(Config &c) {
         }
     }
 
-    sleep(milliseconds(250));
+    sleep(milliseconds(30));
 
     // Semaphore and flagger
     currentMap->incrementSpriteIndex(flagger, false, -1);
@@ -1038,7 +1051,6 @@ State Game::initialAnimation(Config &c) {
         c.effects[5]->play();
     }
     currentMap->incrementSpriteIndex(flagger, false, -1);
-
     c.themes[c.currentSoundtrack]->play();
     return GAME;
 }
@@ -1223,8 +1235,22 @@ State Game::goalAnimation(Config &c) {
     c.w.display();
     c.window.draw(bufferSprite);
     c.window.display();
-    sleep(c.effects[27]->getDuration());
 
+    while (c.effects[27]->getStatus() != SoundSource::Stopped){
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                mtx.lock();
+                finalGame = true;
+                mtx.unlock();
+                timer0.join();
+                timer1.join();
+                timer2.join();
+                return EXIT;
+            }
+        }
+    }
     return RANKING;
 }
 
@@ -1248,7 +1274,6 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                 if (currentMap == &maps[mapId.first + 1][mapId.second + 1])
                     mapId.second++;
                 mapId.first++;
-
                 if (mapId.first < 4)
                     currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
                 else {
@@ -1299,9 +1324,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
         if (lastY <= currentMap->getCamY() + float(c.renderLen))
             lastY = currentMap->getCamY() + float(c.renderLen);
         for (Enemy &v : cars) {
-            if (currentMap->inFork(v.getPosY())) {
-                v.setPosition(v.getPosX(), -RECTANGLE * DEL_VEHICLE * 3.0f);
-            } else if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+            if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
                 v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY, c.maxAggressiveness);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
@@ -1320,7 +1343,8 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
 
         if (!player.isCrashing()) { // If not has crashed
             action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
-            direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()));
+            direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()),
+                                               currentMap->inFork(player.getPosY()));
         } else {
             player.hitControl(vehicleCrash);
         }
@@ -1349,8 +1373,14 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
             }
         }
 
-        for (Enemy &v : cars)
-            v.autoControl(c, player.getPosX(), player.getPosY());
+        for (Enemy &v : cars){
+            if (currentMap->inFork(v.getPosY())){
+                v.autoControl(c, player.getPosX(), player.getPosY(), true, currentMap->getCurveCoefficient(v.getPosY()));
+            }
+            else {
+                v.autoControl(c, player.getPosX(), player.getPosY(), false, currentMap->getCurveCoefficient(v.getPosY()));
+            }
+        }
 
         // Check if enemies are displayed on the screen
         for (Enemy &v : cars) {
@@ -1374,7 +1404,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                     elapsed8 = trafficCarSound.getElapsedTime().asSeconds();
                     if (elapsed8 - elapsed7 >= traffic_delay.asSeconds()) {
                         // Check the type of traffic car
-                        if (v.getId() == 1 || v.getId() == 5){
+                        if (v.getId() <= 4){
                             c.effects[33]->stop();
                             c.effects[34]->stop();
                             c.effects[random_int(33, 34)]->play();
@@ -1382,7 +1412,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                             c.effects[32]->stop();
                             c.effects[32]->play();
                         }
-                        else if (v.getId() == 4) {
+                        else if (v.getId() >= 5 && v.getId() <= 7) {
                             c.effects[35]->stop();
                             c.effects[36]->stop();
                             c.effects[random_int(35, 36)]->play();
@@ -1396,9 +1426,6 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                             c.effects[21]->stop();
                             c.effects[random_int(20, 21)]->play();
                         }
-
-
-
                         trafficCarSound.restart();
                     }
                 }

@@ -5,10 +5,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include "Config.hpp"
 #include "Button.hpp"
 #include "KeywordMapper.hpp"
-#include "Score.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 

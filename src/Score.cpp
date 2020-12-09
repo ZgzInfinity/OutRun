@@ -20,10 +20,26 @@ Score::Score(unsigned long score, const string &name, int minutes, int secs, int
                                                                                                 cents_second(
                                                                                                         centsSecond) {}
 
-vector<Score> getGlobalScores() {
+vector<Score> getGlobalScores(Config& c) {
     vector<Score> globalScores;
 
-    ifstream fin("Resources/Score/scores.info");
+    string path;
+
+    switch(c.level){
+        case PEACEFUL:
+            path = "Resources/Score/scoresPeaceful.info";
+            break;
+        case EASY:
+            path = "Resources/Score/scoresEasy.info";
+            break;
+        case NORMAL:
+            path = "Resources/Score/scoresNormal.info";
+            break;
+        case HARD:
+            path = "Resources/Score/scoresHard.info";
+    }
+
+    ifstream fin(path);
     if (fin.is_open()) {
         string line;
         for (int i = 0; getline(fin, line) && i < 7; i++) {
@@ -55,10 +71,27 @@ int isNewRecord(const vector<Score> &globalScores, unsigned long score) {
     return -1;
 }
 
-bool saveNewRecord(const vector<Score> &globalScores, const Score &newRecord) {
+bool saveNewRecord(Config& c, const vector<Score> &globalScores, const Score &newRecord) {
     bool saved = false;
 
-    ofstream fout("Resources/Score/scores.info", ofstream::trunc);
+    string path;
+
+    switch(c.level){
+        case PEACEFUL:
+            path = "Resources/Score/scoresPeaceful.info";
+            break;
+        case EASY:
+            path = "Resources/Score/scoresEasy.info";
+            break;
+        case NORMAL:
+            path = "Resources/Score/scoresNormal.info";
+            break;
+        case HARD:
+            path = "Resources/Score/scoresHard.info";
+    }
+
+    ofstream fout(path, ofstream::trunc);
+
     if (fout.is_open()) {
         bool end = false;
         int i = 0;

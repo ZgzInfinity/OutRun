@@ -25,7 +25,7 @@
 using namespace std;
 using namespace sf;
 
-#define ENEMY_TEXTURES 16
+#define ENEMY_TEXTURES 4
 #define MAX_AUTO_DIRECTION_COUNTER 1000
 
 Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY, int idCar) :
@@ -44,12 +44,33 @@ Vehicle::Direction randomDirection() {
         return Vehicle::Direction::TURNLEFT;
 }
 
-void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
-    if (abs(playerPosY - posY) > float(c.renderLen) || random_zero_one() >= probAI) {
+void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff) {
+    if (inFork){
+        if (posX >= 0.f){
+            // Right fork
+            if (abs(posX) < 5.9f){
+                posX += 0.025;
+            }
+            else if (abs(posX) >= 5.9f){
+                posX = 5.9f;
+            }
+        }
+        else {
+            // Left Fork
+            if (abs(posX) < 5.9f){
+                posX -= 0.025;
+            }
+            else if (abs(posX) >= 5.9f){
+                posX = -5.9f;
+            }
+        }
+    }
+    else if (abs(playerPosY - posY) > float(c.renderLen) || random_zero_one() >= probAI) {
         // Original
         if (current_direction_counter < max_direction_counter) {
             current_direction_counter++;
-        } else {
+        }
+        else {
             max_direction_counter = random_zero_n(MAX_AUTO_DIRECTION_COUNTER);
             current_direction_counter = 0;
             calculatedPath = randomDirection();
@@ -110,31 +131,30 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
                     currentDirection = TURNLEFT;
                 }
             }
-        } else { // INCONSTANT
-            if (currentDirection == TURNRIGHT) {
-                const float prevPosX = posX;
-                posX += XINC * speed / maxSpeed;
-
-                if (posX >= 0.9f)
-                    currentDirection = TURNLEFT;
-                else if (((prevPosX < -0.5f && posX >= -0.5f) || (prevPosX < 0.0f && posX >= 0.0f) ||
-                          (prevPosX < 0.5f && posX >= 0.5f)) && (random_zero_one() < 0.5f))
-                    currentDirection = TURNRIGHT; // Lane change
-            } else if (currentDirection == TURNLEFT) {
-                const float prevPosX = posX;
-                posX -= XINC * speed / maxSpeed;
-
-                if (posX <= -0.9f)
-                    currentDirection = TURNRIGHT;
-                else if (((prevPosX > -0.5f && posX <= -0.5f) || (prevPosX > 0.0f && posX <= 0.0f) ||
-                          (prevPosX > 0.5f && posX <= 0.5f)) && (random_zero_one() < 0.5f))
-                    currentDirection = TURNLEFT; // Lane change
-            } else {
-                if (random_zero_one() < 0.5f)
-                    currentDirection = TURNRIGHT;
-                else
-                    currentDirection = TURNLEFT;
+        }
+        else {
+             // INCONSTANT
+            if (current_direction_counter < max_direction_counter) {
+                current_direction_counter++;
             }
+            else {
+                max_direction_counter = random_zero_n(MAX_AUTO_DIRECTION_COUNTER);
+                current_direction_counter = 0;
+                calculatedPath = randomDirection();
+            }
+
+            float newX = posX;
+            if (calculatedPath == TURNRIGHT)
+                newX += XINC * random_zero_one() * speed / maxSpeed;
+            else if (calculatedPath == TURNLEFT)
+                newX -= XINC * random_zero_one() * speed / maxSpeed;
+
+            if (newX < oriX - 0.15f || newX > oriX + 0.15f)
+                calculatedPath = RIGHT;
+            else
+                posX = newX;
+
+            currentDirection = calculatedPath;
         }
     }
 
@@ -143,12 +163,14 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY) {
     else if (speed < 0)
         speed = 0;
 
-    if (posX > 0.9f) {
-        posX = 0.9f;
-        currentDirection = RIGHT;
-    } else if (posX < -0.9f) {
-        posX = -0.9f;
-        currentDirection = RIGHT;
+    if (!inFork){
+        if (posX > 0.9f) {
+            posX = 0.9f;
+            currentDirection = RIGHT;
+        } else if (posX < -0.9f) {
+            posX = -0.9f;
+            currentDirection = RIGHT;
+        }
     }
 
     previousY = posY;
@@ -205,43 +227,43 @@ void Enemy::draw(const Elevation &e, const float camX) {
                             current_code_image = 3;
                     }
                 } else if (currentDirection == TURNLEFT) {
-                    if (current_code_image < 7 || current_code_image > 8)
-                        current_code_image = 7;
+                    if (current_code_image < 3 || current_code_image > 4)
+                        current_code_image = 3;
                 } else { // Turn right
-                    if (current_code_image < 5 || current_code_image > 6)
-                        current_code_image = 5;
+                    if (current_code_image < 1 || current_code_image > 2)
+                        current_code_image = 1;
                 }
             } else if (e == UP) {
                 if (currentDirection == RIGHT) {
                     if (posX <= camX) {
-                        if (current_code_image < 13 || current_code_image > 14)
-                            current_code_image = 13;
+                        if (current_code_image < 1 || current_code_image > 2)
+                            current_code_image = 1;
                     } else {
-                        if (current_code_image < 15 || current_code_image > 16)
-                            current_code_image = 15;
+                        if (current_code_image < 3 || current_code_image > 4)
+                            current_code_image = 3;
                     }
                 } else if (currentDirection == TURNLEFT) {
-                    if (current_code_image < 15 || current_code_image > 16)
-                        current_code_image = 15;
+                    if (current_code_image < 3 || current_code_image > 4)
+                        current_code_image = 3;
                 } else { // Turn right
-                    if (current_code_image < 13 || current_code_image > 14)
-                        current_code_image = 13;
+                    if (current_code_image < 1 || current_code_image > 2)
+                        current_code_image = 1;
                 }
             } else { // Down
                 if (currentDirection == RIGHT) {
                     if (posX <= camX) {
-                        if (current_code_image < 9 || current_code_image > 10)
-                            current_code_image = 9;
+                        if (current_code_image < 1 || current_code_image > 2)
+                            current_code_image = 1;
                     } else {
-                        if (current_code_image < 11 || current_code_image > 12)
-                            current_code_image = 11;
+                        if (current_code_image < 3 || current_code_image > 4)
+                            current_code_image = 3;
                     }
                 } else if (currentDirection == TURNLEFT) {
-                    if (current_code_image < 11 || current_code_image > 12)
-                        current_code_image = 11;
+                    if (current_code_image < 3 || current_code_image > 4)
+                        current_code_image = 3;
                 } else { // Turn right
-                    if (current_code_image < 9 || current_code_image > 10)
-                        current_code_image = 9;
+                    if (current_code_image < 1 || current_code_image > 2)
+                        current_code_image = 1;
                 }
             }
         }
@@ -267,8 +289,8 @@ float Enemy::getScale() const {
 }
 
 bool Enemy::hasCrashed(float prevY, float currentY, float minX, float maxX, float &crashPos) const {
-    if (minScreenX != maxScreenX && ((prevY <= posY + 10.f && currentY >= posY - 10.f) ||
-                                     (currentY <= posY + 10.f && prevY >= posY - 10.f)) && // y matches
+    if (minScreenX != maxScreenX && ((prevY <= posY + 5.f && currentY >= posY - 5.f) ||
+                                     (currentY <= posY + 5.f && prevY >= posY - 5.f)) && // y matches
         ((minX >= minScreenX && minX <= maxScreenX) ||
          (maxX >= minScreenX && maxX <= maxScreenX) ||
          (minScreenX >= minX && minScreenX <= maxX) ||

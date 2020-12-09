@@ -134,6 +134,8 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
 
 int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
 
+    // Throw the application with hight priority
+    SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 
     Difficult difficulty;
     bool pixelArt, enabledAi, fullScreen;

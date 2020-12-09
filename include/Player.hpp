@@ -101,7 +101,7 @@ public:
      * @param curveCoefficient pertenece [-0.9, 0.9]
      * @return
      */
-    Direction rotationControl(Config &c, float curveCoefficient);
+    Direction rotationControl(Config &c, float curveCoefficient, bool inFork);
 
     /**
      * Actualiza el sprite del vehículo jugador y lo dibuja en la pantalla.
@@ -124,7 +124,7 @@ public:
      * @param x
      * @param end
      */
-    void drawInitialAnimation(Config &c, float x, bool &end);
+    void drawInitialAnimation(Config &c, float x, bool &end, int& code);
 
     /**
      * Dibuja la animación final en la pantalla y devuelve si ha acabado.

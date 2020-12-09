@@ -28,7 +28,7 @@ using namespace sf;
 
 State introAnimation(Config &c) {
     // Load the game effects
-    for (int i = 1; i <= 40; i++) {
+    for (int i = 1; i <= 41; i++) {
         // Detect the possible events
         Event e{};
         while (c.window.pollEvent(e)) {
@@ -63,7 +63,6 @@ State introAnimation(Config &c) {
 
     // Loading the icon texture
     t.loadFromFile("Resources/Intro/Icon.png");
-    t.setSmooth(true);
 
     // Load the texture in the sprite reseting the last texture
     icon.setTexture(t, true);
@@ -233,7 +232,7 @@ State introAnimation(Config &c) {
     return START;
 }
 
-State startMenu(Config &c, bool startPressed) {
+State startMenu(Config &c) {
     c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
                           Vector2f(c.window.getSize().x, c.window.getSize().y)));
     c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
@@ -241,6 +240,8 @@ State startMenu(Config &c, bool startPressed) {
     c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
 
     const int ELEMENTS = 8;
+
+    bool startPressed = false;
 
     // Clean the console window
     c.w.clear();
@@ -612,14 +613,17 @@ State changeCarControllers(Config &c) {
     c.window.display();
 
     // Loading the background texture
-    Texture segaBackground, textureShape;
-    segaBackground.loadFromFile("Resources/Menus/MenuOptions/segaIcon.png");
-    segaBackground.setRepeated(true);
+    Texture iconBackground, textureShape;
+    iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+    IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
+
+    Sprite sprite(iconBackground, background);
+    float axis_x = float(c.w.getSize().x) / SCREEN_DEFAULT_X;
+    float axis_y = float(c.w.getSize().y) / SCREEN_DEFAULT_Y;
+    sprite.setScale(axis_x, axis_y);
+
     textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
     textureShape.setRepeated(true);
-
-    IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
-    Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
     shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
@@ -866,14 +870,19 @@ State soundMenu(Config &c, const bool &inGame) {
     c.window.display();
 
     // Loading the background texture
-    Texture segaBackground, textureShape;
-    segaBackground.loadFromFile("Resources/Menus/MenuOptions/segaIcon.png");
-    segaBackground.setRepeated(true);
+
+    // Loading the background texture
+    Texture iconBackground, textureShape;
+    iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+    IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
+
+    Sprite sprite(iconBackground, background);
+    float axis_x = float(c.w.getSize().x) / SCREEN_DEFAULT_X;
+    float axis_y = float(c.w.getSize().y) / SCREEN_DEFAULT_Y;
+    sprite.setScale(axis_x, axis_y);
+
     textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
     textureShape.setRepeated(true);
-
-    IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
-    Sprite sprite(segaBackground, background);
 
     RectangleShape shape;
     shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
@@ -993,7 +1002,7 @@ State soundMenu(Config &c, const bool &inGame) {
             if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                 if (c.volumeEffects != 0) {
                     c.volumeEffects--;
-                    for (int i = 0; i <= 39; i++) {
+                    for (int i = 0; i <= 40; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
@@ -1003,7 +1012,7 @@ State soundMenu(Config &c, const bool &inGame) {
             } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                 if (c.volumeEffects != 100) {
                     c.volumeEffects++;
-                    for (int i = 0; i <= 39; i++) {
+                    for (int i = 0; i <= 40; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
@@ -1064,14 +1073,18 @@ State optionsMenu(Config &c, const bool &inGame) {
         c.themes[0]->play();
 
         // Loading the background texture
-        Texture segaBackground, textureShape;
-        segaBackground.loadFromFile("Resources/Menus/MenuOptions/segaIcon.png");
-        segaBackground.setRepeated(true);
+        Texture iconBackground, textureShape;
+        iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+        IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
+
+        Sprite sprite(iconBackground, background);
+        float axis_x = float(c.w.getSize().x) / SCREEN_DEFAULT_X;
+        float axis_y = float(c.w.getSize().y) / SCREEN_DEFAULT_Y;
+        sprite.setScale(axis_x, axis_y);
+
+
         textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
         textureShape.setRepeated(true);
-
-        IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
-        Sprite sprite(segaBackground, background);
 
         RectangleShape shape;
         shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale,
@@ -1225,6 +1238,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                                 c.level = NORMAL;
                                 menuButtons[optionSelected + 5].setTextButton("Normal");
                             }
+                            c.modifiedConfig = true;
                         }
                     } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                         if (c.level != HARD) {
@@ -1240,6 +1254,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                                 c.level = HARD;
                                 menuButtons[optionSelected + 5].setTextButton("Hard");
                             }
+                            c.modifiedConfig = true;
                         }
                     }
                     break;
@@ -1250,11 +1265,14 @@ State optionsMenu(Config &c, const bool &inGame) {
                         if (c.enableAI) {
                             c.enableAI = false;
                             menuButtons[optionSelected + 5].setTextButton("DISABLED");
+                            c.modifiedConfig = true;
                         }
-                    } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+                    }
+                    else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                         if (!c.enableAI) {
                             c.enableAI = true;
                             menuButtons[optionSelected + 5].setTextButton("ENABLED");
+                            c.modifiedConfig = true;
                         }
                     }
 
@@ -1463,6 +1481,13 @@ State optionsMenu(Config &c, const bool &inGame) {
         index = kM.lookForKeyBoardId(c.brakeKey);
         string controlBrake = kM.mapperIdKeyWord[index];
 
+        if (c.resIndex == -1){
+            c.fullScreen = true;
+        }
+        else {
+            c.fullScreen = false;
+        }
+
         // Update the file with the new configuration
         storeNewConfiguration(path, c.level, c.enableAI, c.volumeMusic, c.volumeEffects, c.enablePixelArt, c.fullScreen,
                               c.resolutions[c.resIndex].first, c.resolutions[c.resIndex].second, controlLeft, controlRight,
@@ -1475,7 +1500,7 @@ State optionsMenu(Config &c, const bool &inGame) {
     if (inGame) {
         return GAME;
     } else {
-        return startMenu(c, true);
+        return startMenu(c);
     }
 }
 
@@ -1541,6 +1566,10 @@ State selectMusicSoundtrack(Config &c) {
     c.themes[1]->stop();
     c.themes[2]->stop();
 
+    sleep(milliseconds(10));
+    c.effects[40]->stop();
+    c.effects[40]->play();
+
     c.currentSoundtrack = 1;
     c.themes[c.currentSoundtrack]->play();
 
@@ -1577,15 +1606,15 @@ State selectMusicSoundtrack(Config &c) {
 
         // Load the texture of the soundtrack to display in the radio panel
         music.setTexture(textures[c.currentSoundtrack - 1], true);
-        music.setScale(c.screenScale, c.screenScale);
+        music.setScale(3.0f * c.screenScale, 3.f * c.screenScale);
 
         // Get the dial movement to reproduce
         radio.setTexture(textures[c.currentSoundtrack + 2], true);
-        radio.setScale(c.screenScale, float(c.w.getSize().y) / SCREEN_DEFAULT_Y);
+        radio.setScale(3.f * c.screenScale, 3.f * float(c.w.getSize().y) / SCREEN_DEFAULT_Y);
 
         // Get the hand movement of the driver
         hand.setTexture(textures[c.currentSoundtrack + 5], true);
-        hand.setScale(c.screenScale, float(c.w.getSize().y) / SCREEN_DEFAULT_Y);
+        hand.setScale(3.f * c.screenScale, 3.f * float(c.w.getSize().y) / SCREEN_DEFAULT_Y);
 
         // Control the coordinates X and Y where display the title
         music.setPosition((c.w.getSize().x - music.getGlobalBounds().width) / 2.f,
@@ -1752,7 +1781,7 @@ State rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minu
                         (float) c.w.getSize().y / rankingBackground.getSize().y);
 
     // Get the best seventh out runners
-    vector<Score> scoreRankingPlayer = getGlobalScores();
+    vector<Score> scoreRankingPlayer = getGlobalScores(c);
 
     // Check if there is a new record
     int record = isNewRecord(scoreRankingPlayer, scorePlayerGame);
@@ -2043,7 +2072,7 @@ State rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minu
             name = "   ";
         }
         Score s = Score(scorePlayerGame, name, minutes, secs, cents_Second);
-        saveNewRecord(scoreRankingPlayer, s);
+        saveNewRecord(c, scoreRankingPlayer, s);
     }
 
     c.effects[2]->stop();

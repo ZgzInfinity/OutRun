@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include "Config.hpp"
 
 /**
  * Representa un récord de puntuación (score), con el nombre del jugador (name) y su marca de tiempo.
@@ -50,7 +51,7 @@ struct Score {
  * posiciones 0 a 6).
  * @return
  */
-std::vector<Score> getGlobalScores();
+std::vector<Score> getGlobalScores(Config& c);
 
 /**
  * Dados todos los récords de puntuación ordenados de mayor a menor puntuación y una puntuación score, devuelve la
@@ -68,6 +69,6 @@ int isNewRecord(const std::vector<Score> &globalScores, unsigned long score);
  * @param newRecord
  * @return
  */
-bool saveNewRecord(const std::vector<Score> &globalScores, const Score &newRecord);
+bool saveNewRecord(Config& c, const std::vector<Score> &globalScores, const Score &newRecord);
 
 #endif //OUTRUN_SCORE_HPP
