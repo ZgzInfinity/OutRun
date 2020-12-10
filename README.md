@@ -95,6 +95,8 @@ Below are some captures of the video game developed:
 
 ![City](https://i.ibb.co/m6kNQLv/City.png)
 
+![Ice](https://i.ibb.co/VBTX91k/Ice.png)
+
 
 # Trailer
 
