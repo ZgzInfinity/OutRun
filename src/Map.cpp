@@ -17,11 +17,16 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Module Map implementation file
+ */
+
 #include <random>
 #include <fstream>
 #include "../include/Map.hpp"
 
-using namespace std;
 using namespace sf;
 
 #define BGS 0.755F // Background size
@@ -33,89 +38,169 @@ using namespace sf;
 #define FORK_RECTANGLES 100 // Multiple of RECTANGLE
 #define END_RECTANGLES 60 // Multiple of RECTANGLE
 
+
+/**
+ * Default constructor
+ */
 Map::SpriteInfo::SpriteInfo() {
     spriteNum = -1;
     offset = spriteMinX = spriteMaxX = spriteToSideX = 0.0f;
     repetitive = false;
 }
 
+
+/**
+ * Default constructor
+ */
 Map::Line::Line() {
     curve = x = y = z = 0;
     mainColor = false;
     offsetX = yOffsetX = bgX = 0.0f;
 }
 
+
+
+/**
+ * Add a new line of the landscape but not from the file
+ * @param x is the actual coordinate 3d of the map in the axis x
+ * @param y is the actual coordinate 3d of the map in the axis y
+ * @param z is the actual coordinate 3d of the map in the axis z
+ * @param prevY is the coordinate 3d of the map in the axis y of the last line added
+ * @param curve represents the coefficient radius of the line to add to the map
+ * @param mainColor shows in which color the line is going to be painted
+ * @param spriteLeft is the map element located near and on the left of the road
+ * @param spriteRight is the map element located near and on the right of the road
+ * @param bgX is the background position of the map in axis x
+ * @param offsetX is the controller offset to make the bifurcations
+ * @param offsetInc is partial offset to increment the bifurcation direction
+ */
 void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
                   const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight, float &bgX, float &offsetX,
                   const float offsetInc) {
-    float yInc = (y - prevY) / float(RECTANGLE); // RECTANGLE is total lines number will be added
 
+    // RECTANGLE indicates the steps number will be added
+    float yInc = (y - prevY) / float(RECTANGLE);
+
+    // Assign the coordinates in axis x and y
     Line line, lineAux;
     line.x = x;
     line.y = prevY;
+
+    // Assign the color
     line.mainColor = mainColor;
+
+    // Assign the curve coefficient
     line.curve = curve;
 
-    lineAux = line; // without objects
+    // Store the line
+    lineAux = line;
 
+    // Store the map elements
     line.spriteLeft = spriteLeft;
     line.spriteRight = spriteRight;
 
     // For each normal line, extra lines without objects for better visualization
     for (int i = 0; i < PRE_POS; i++) {
+
+        // Increment the depth of the landscape in axis z
         lineAux.z = z;
         z += SEGL;
+
+        // Check if a fork is being processed
         if (offsetX > 0.0f) {
+            // Check if the possible fork is to the left or to the right
             if (offsetX >= xChange)
+                // Possible fork to the left
                 lineAux.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - aOffsetX, 2.0f)) + bOffsetX;
             else
+                // Possible fork to the right
                 lineAux.yOffsetX = -sqrt(FORK_RADIUS * FORK_RADIUS - offsetX * offsetX) + FORK_RADIUS;
+
+            // Assign coordinate in axis x and increment it
             lineAux.offsetX = offsetX;
             if (offsetX + offsetInc <= 2.0f * xChange)
                 offsetX += offsetInc;
         }
+
+        // Increment the height in axis y
         lineAux.y += yInc;
+
+        // Increment the direction curve
         bgX += lineAux.curve;
         lineAux.bgX = bgX;
+
         lines.push_back(lineAux);
     }
 
+    // Increment the depth of the landscape in axis z
     line.z = z;
     z += SEGL;
+
+    // Check if a fork is being processed
     if (offsetX > 0.0f) {
+        // Check if the possible fork is to the left or to the right
         if (offsetX >= xChange)
+            // Possible fork to the left
             line.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - aOffsetX, 2.0f)) + bOffsetX;
         else
+            // Possible fork to the right
             line.yOffsetX = -sqrt(FORK_RADIUS * FORK_RADIUS - offsetX * offsetX) + FORK_RADIUS;
+
+        // Assign coordinate in axis x and increment it
         line.offsetX = offsetX;
         if (offsetX + offsetInc <= 2.0f * xChange)
             offsetX += offsetInc;
     }
+
+    // Increment the height in axis y
     lineAux.y += yInc;
     line.y = lineAux.y;
+
+    // Increment the direction curve
     bgX += line.curve;
     line.bgX = bgX;
     lines.push_back(line);
 
+    // For each normal line, extra lines without objects for better visualization
     for (int i = 0; i < PRE_POS; i++) {
+
+        // Increment the depth of the landscape in axis z
         lineAux.z = z;
         z += SEGL;
+
+        // Check if a fork is being processed
         if (offsetX > 0.0f) {
+            // Check if the possible fork is to the left or to the right
             if (offsetX >= xChange)
+                // Possible fork to the left
                 lineAux.yOffsetX = sqrt(FORK_RADIUS * FORK_RADIUS - pow(offsetX - aOffsetX, 2.0f)) + bOffsetX;
             else
+                // Possible fork to the right
                 lineAux.yOffsetX = -sqrt(FORK_RADIUS * FORK_RADIUS - offsetX * offsetX) + FORK_RADIUS;
+
+            // Assign coordinate in axis x and increment it
             lineAux.offsetX = offsetX;
             if (offsetX + offsetInc <= 2.0f * xChange)
                 offsetX += offsetInc;
         }
+
+        // Increment the height in axis y
         lineAux.y += yInc;
+
+        // Increment the direction curve
         bgX += lineAux.curve;
         lineAux.bgX = bgX;
         lines.push_back(lineAux);
     }
 }
 
+
+
+/**
+ * Return the line of the landscape with index n
+ * @param n is the index of a landscape's line
+ * @return
+ */
 Map::Line *Map::getLine(const int n) {
     if (n < lines.size() || next == nullptr)
         return &lines[n % lines.size()];
@@ -123,6 +208,13 @@ Map::Line *Map::getLine(const int n) {
         return &next->lines[(n - lines.size()) % next->lines.size()];
 }
 
+
+
+/**
+ * Return the line of the landscape with index n
+ * @param n is the index of a landscape's line
+ * @return
+ */
 Map::Line Map::getLine(const int n) const {
     if (n < lines.size() || next == nullptr)
         return lines[n % lines.size()];
@@ -130,6 +222,13 @@ Map::Line Map::getLine(const int n) const {
         return next->lines[(n - lines.size()) % next->lines.size()];
 }
 
+
+
+/**
+ * Returns the previous line of the landscape to the line with index n
+ * @param is the index of a landscape's line
+ * @return
+ */
 Map::Line *Map::getPreviousLine(const int n) {
     if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
         return &lines[(n - 1) % lines.size()];
@@ -137,6 +236,13 @@ Map::Line *Map::getPreviousLine(const int n) {
         return &next->lines[(n - 1 - lines.size()) % next->lines.size()];
 }
 
+
+
+/**
+ * Returns the previous line of the landscape to the line with index n
+ * @param is the index of a landscape's line
+ * @return
+ */
 Map::Line Map::getPreviousLine(const int n) const {
     if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
         return lines[(n - 1) % lines.size()];
@@ -144,6 +250,12 @@ Map::Line Map::getPreviousLine(const int n) const {
         return next->lines[(n - 1 - lines.size()) % next->lines.size()];
 }
 
+
+
+/**
+ * Throws an error in terminal when the map file format is not correct
+ * @param error is the message to throw
+ */
 void fileError(const string &error = "") {
     cerr << "Error: Formato de fichero incorrecto." << endl;
     if (!error.empty())
@@ -151,6 +263,13 @@ void fileError(const string &error = "") {
     exit(1);
 }
 
+
+
+/**
+ * Generates randomly a part of the map
+ * @param numLines is the length of the map to be generated
+ * @param objectIndexes is a vector with all the indexes of the map elements
+ */
 vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIndexes) {
     vector<vector<string>> instructions;
 
@@ -164,11 +283,14 @@ vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIn
     // Road
     instructions.push_back({"107", "107", "107"});
     instructions.push_back({"105", "105", "105"});
+
     // Grass
     instructions.push_back({to_string(distRB(generator)), to_string(distG(generator)), to_string(distRB(generator))});
     instructions.push_back({to_string(distRB(generator)), to_string(distG(generator)), to_string(distRB(generator))});
+
     // Rumble
     instructions.push_back({"255", "255", "255"});
+
     // Dash
     instructions.push_back({"255", "255", "255"});
 
@@ -253,57 +375,83 @@ vector<vector<string>> randomMap(const int numLines, const vector<int> &objectIn
     return instructions;
 }
 
+
+
+/**
+ * Reads a map from its configuration file and stores in memory
+ * @param file is the path if the file
+ */
 vector<vector<string>> readMapFile(const std::string &file) {
+
+    // Matrix with all the sentences an parameters
     vector<vector<string>> instructions;
 
+    // Open the file of the map
     ifstream fin(file);
     if (fin.is_open()) {
+
+        // Variables to controls the different parts read
         bool road = false, grass = false, rumbleAndDash = false, comment = false;
         bool terrain = false;
         int lines = 0, lastInclinationIndex = -1;
 
+        // Buffer that stores temporarily what is been read
         vector<string> buffer;
         string s;
+
+        // While still there is information to be read
         while (!fin.eof()) {
             fin >> s;
 
+            // Control if the comments have been read
             if (s.size() >= 2 && s[0] == '/' && s[1] == '*')
                 comment = true;
             if (comment) {
+                // Ignore the comments
                 if (s.size() >= 2 && s[s.size() - 1] == '/' && s[s.size() - 2] == '*')
                     comment = false;
             } else {
                 buffer.push_back(s);
 
+                // Read the terrain of the map
                 if (!terrain){
                     if (buffer.size() == 1) {
                         instructions.push_back({buffer[0]});
                         buffer.clear();
+                        // Terrain marked as read
                         terrain = true;
                     }
                 }
                 else if (!road) {
+                    // Read the colors of the road
                     if (buffer.size() == 6) {
                         instructions.push_back({buffer[0], buffer[1], buffer[2]});
                         instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
+                        // Marked as read
                         road = true;
                     }
                 } else if (!grass) {
+                    // Read the colors of the grass
                     if (buffer.size() == 6) {
                         instructions.push_back({buffer[0], buffer[1], buffer[2]});
                         instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
+                        //Marked as read
                         grass = true;
                     }
                 } else if (!rumbleAndDash) {
+                    // Read the rumble and dash colors
                     if (buffer.size() == 6) {
                         instructions.push_back({buffer[0], buffer[1], buffer[2]});
                         instructions.push_back({buffer[3], buffer[4], buffer[5]});
                         buffer.clear();
+                        // Marked as read
                         rumbleAndDash = true;
                     }
-                } else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
+                }
+                // Process the different parts of the route and store them
+                else if (buffer.size() > 1 && (s == "ROAD" || s == "CURVE" || s == "STRAIGHT" || s == "CLIMB" ||
                                                  s == "FLAT" || s == "DROP" || s == "RANDOM" || s == "END")) {
                     if (buffer[0] == "CLIMB" || buffer[0] == "DROP" || buffer[0] == "FLAT") {
                         if (lastInclinationIndex > -1 && (instructions[lastInclinationIndex][0] == "CLIMB" ||
@@ -321,7 +469,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
                         }
                     } else if (buffer[0] == "RANDOM") {
                         if (buffer.size() < 3)
-                            fileError(buffer[0] + " necesita argumentos.");
+                            fileError(buffer[0] + " necessary argument.");
 
                         vector<int> objectIndexes;
                         for (int i = 2; i < buffer.size() - 1; i++)
@@ -346,6 +494,7 @@ vector<vector<string>> readMapFile(const std::string &file) {
         }
         fin.close();
 
+        // Control if the file ends with the correct format or throws error
         if (buffer[0] != "END")
             fileError("El fichero debe terminar en END.");
         if (instructions.size() < 4)
@@ -355,7 +504,19 @@ vector<vector<string>> readMapFile(const std::string &file) {
     return instructions;
 }
 
+
+
+/**
+ * Add rectangles from the instructions to the map from (x, y, z). Update z for a new line.
+ * @param x is the coordinate of the first rectangle in the axis x
+ * @param y is the coordinate of the first rectangle in the axis y
+ * @param z is the coordinate of the first rectangle in the axis z
+ * @param bgX is the position in axis x of the background
+ * @param instructions is a vector that contains all the information of the lines of the file that contains the map
+ */
 void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<string>> &instructions) {
+
+    // Initialize the map
     float curveCoeff = 0.0f, elevation = 0.0f;
     int elevationIndex = 0, elevationLines = -1;
     bool mainColor = true;
@@ -363,52 +524,63 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
     // Colors
     try {
 
+        // Stores the terrain of the map
         terrain = static_cast<int>(stoi(instructions[0][0]));
 
+        // Store the colors of the road
         roadColor[0] = Color(static_cast<Uint8>(stoi(instructions[1][0])), static_cast<Uint8>(stoi(instructions[1][1])),
                              static_cast<Uint8>(stoi(instructions[1][2])));
         roadColor[1] = Color(static_cast<Uint8>(stoi(instructions[2][0])), static_cast<Uint8>(stoi(instructions[2][1])),
                              static_cast<Uint8>(stoi(instructions[2][2])));
+
+        // Stores the colors of the grass
         grassColor[0] = Color(static_cast<Uint8>(stoi(instructions[3][0])),
                               static_cast<Uint8>(stoi(instructions[3][1])),
                               static_cast<Uint8>(stoi(instructions[3][2])));
         grassColor[1] = Color(static_cast<Uint8>(stoi(instructions[4][0])),
                               static_cast<Uint8>(stoi(instructions[4][1])),
                               static_cast<Uint8>(stoi(instructions[4][2])));
+
+        // Store the color of the rumble of the road
         rumbleColor = Color(static_cast<Uint8>(stoi(instructions[5][0])), static_cast<Uint8>(stoi(instructions[5][1])),
                             static_cast<Uint8>(stoi(instructions[5][2])));
+
+        // Store the color of the dash of the road
         dashColor = Color(static_cast<Uint8>(stoi(instructions[6][0])), static_cast<Uint8>(stoi(instructions[6][1])),
                           static_cast<Uint8>(stoi(instructions[6][2])));
     }
     catch (const exception &e) {
+        // Error on the file format
         fileError("Faltan colores al declarar el mapa.");
     }
 
+    // Iterate throughout the instructions matrix
     for (int i = 7; i < instructions.size(); i++) {
         const vector<string> &inst = instructions[i];
 
+        // Process the different parts of the road and their arguments
         if (inst[0] == "CURVE") {
             if (inst.size() < 2)
-                fileError(inst[0] + " necesita argumentos.");
+                fileError(inst[0] + " necessary arguments.");
             curveCoeff = stof(inst[1]);
         } else if (inst[0] == "STRAIGHT") {
             curveCoeff = 0.0f;
         } else if (inst[0] == "CLIMB") {
             if (inst.size() < 3)
-                fileError(inst[0] + " necesita argumentos.");
+                fileError(inst[0] + " necessary arguments.");
             elevation = stof(inst[1]);
             elevationLines = stoi(inst[2]);
             elevationIndex = 0;
         } else if (inst[0] == "DROP") {
             if (inst.size() < 3)
-                fileError(inst[0] + " necesita argumentos.");
+                fileError(inst[0] + " necessary arguments.");
             elevation = -stof(inst[1]);
             elevationLines = stoi(inst[2]);
             elevationIndex = 0;
         } else if (inst[0] == "ROAD") {
             SpriteInfo spriteLeft, spriteRight;
 
-            // Elevation
+            // Compute the elevation of the terrain
             float yAux = y;
             if (elevationIndex < elevationLines) {
                 yAux += elevation / 2.0f +
@@ -416,6 +588,7 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
                                 static_cast<float>(M_PI + (M_PI / float(elevationLines)) * float(elevationIndex)));
                 elevationIndex++;
             }
+            // Stores the elevation of the line to draw the mountains
             if (!lines.empty() && elevationIndex == elevationLines) {
                 y = lines[lines.size() - 1].y;
                 yAux = y;
@@ -437,7 +610,7 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
                 }
             }
             if (j >= inst.size() || inst[j] != "-") { // Checkpoint
-                fileError(inst[0] + " tiene argumentos incorrectos.");
+                fileError(inst[0] + " has incorrect arguments.");
             }
             j++;
             if (j < inst.size()) { // Right object
@@ -453,9 +626,10 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
                 }
             }
             if (j != inst.size()) { // Checkpoint
-                fileError(inst[0] + " tiene argumentos incorrectos.");
+                fileError(inst[0] + " has incorrect arguments.");
             }
 
+            // Add the line with all its attributes
             float offset = 0.0f;
             addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curveCoeff, mainColor,
                     spriteLeft, spriteRight, bgX, offset);
@@ -464,7 +638,16 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
     }
 }
 
+
+
+/**
+ * Load all the textures of the map elements located in the landscape
+ * @param path is the path of the file which contains the configuration of the landscape
+ * @param objectNames is a vector which contains the identifiers of the map elements
+ * @param objectIndexes is a vector which contains the code ids of the map elements
+ */
 void Map::loadObjects(const string &path, const vector<string> &objectNames, vector<int> &objectIndexes) {
+    // Index of element to be processed
     int k = 0;
     objectIndexes.reserve(objectNames.size());
     objects.reserve(objectNames.size());
@@ -514,10 +697,22 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
     }
 }
 
+
+
+/**
+ * Creates a landscape reading its configuration file
+ * @param c is the configuration of the game
+ * @param path is the path of the file that contains the configuration of the landscape
+ * @param bgName is the path of the image that represents the background of the landscape
+ * @param objectNames is a vector with the aliases of the different map elements
+ * @param random controls if the map has to be generated from a file or randomly
+ * @param time is the time available to complete the landscape
+ */
 Map::Map(Config &c, const std::string &path, const std::string &bgName,
          const std::vector<std::string> &objectNames, bool random, const int time) : posX(0), posY(0), next(nullptr),
                                                                                      nextRight(nullptr), initMap(false),
                                                                                      goalMap(false), maxTime(time) {
+    // Load the background of the map
     bg.loadFromFile(path + bgName);
     bg.setRepeated(true);
 
@@ -534,14 +729,26 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
         addLines(0, 0, z, bgX, readMapFile(path + "map.info"));
     }
 
+    // Throw possible error in file format
     if (lines.empty())
         fileError();
 }
 
+
+
+/**
+ * Creates a straight flat map which represents the starting point of a map
+ * @param map is the map to be displayed
+ * @param flagger is the flagger position while is announcing the start
+ * @param semaphore is the color of the semaphore in the starting
+ */
 Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), posY(0), next(nullptr),
                                                          nextRight(nullptr), initMap(true), goalMap(false), maxTime(0) {
-    const int rectangles = 65; // Map size
-    const string mapPath = "Resources/mapCommon/"; // Folder with common objects
+    // Map size
+    const int rectangles = 65;
+
+    // Folder with common objects
+    const string mapPath = "Resources/mapCommon/";
     const int nobjects = 38;
 
     // Colors
@@ -620,10 +827,19 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
     semaphore = RECTANGLE * 6 + PRE_POS;
 }
 
+
+
+/**
+ * Creates a straight flat map which represents the goal point of a map
+ * @param flagger is the flagger position while is announcing the goal
+ * @param goalEnd is position of the goal in the final map
+ */
 Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRight(nullptr), initMap(false),
                                        goalMap(true), maxTime(0) {
-    const int rectangles = 150; // Map size
-    const string mapPath = "Resources/mapCommon/"; // Folder with common objects
+    // Map size
+    const int rectangles = 150;
+    // Folder with common objects
+    const string mapPath = "Resources/mapCommon/";
     const int nobjects = 38;
 
     // Load objects
@@ -642,25 +858,31 @@ Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRigh
         leftSprites.emplace_back();
         rightSprites.emplace_back();
     }
+
     // First goal
     rightSprites[1].spriteNum = 32;
     rightSprites[1].offset = -0.95f;
+
     // Trees
     leftSprites[0].spriteNum = 37;
     leftSprites[0].offset = -1.0f;
     rightSprites[0].spriteNum = 37;
     rightSprites[0].offset = -1.0f;
+
     // People
     leftSprites[53].spriteNum = 28; // 29 - 1
     leftSprites[53].offset = -1.75f;
     rightSprites[53].spriteNum = 29;
     rightSprites[53].offset = -1.75f;
+
     // Flagger
     leftSprites[50].spriteNum = 16;
     leftSprites[50].offset = -4;
+
     // Second goal
     rightSprites[50].spriteNum = 32;
     rightSprites[50].offset = -0.95f;
+
     // Trees
     leftSprites[49].spriteNum = 37;
     leftSprites[49].offset = -1.0f;
@@ -683,7 +905,14 @@ Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRigh
     goalEnd = 45 * RECTANGLE;
 }
 
+
+
+/**
+ * Initialize the colors of the map
+ * @param map is the map whose colors are going to be initialized
+ */
 void Map::setColors(const Map &map) {
+
     // Colors
     bg = map.bg;
     roadColor[0] = map.roadColor[0];
@@ -695,6 +924,14 @@ void Map::setColors(const Map &map) {
     terrain = map.terrain;
 }
 
+
+
+/**
+ * Increase the code id of the map element of the step if it exits
+ * @param step is the actual step of the map with the map elements
+ * @param right controls if there are more map elements of the step
+ * @param increment is how to code id has to be increased
+ */
 void Map::incrementSpriteIndex(int line, bool right, int increment) {
     if (line < lines.size()) {
         SpriteInfo &sprite = right ? lines[line].spriteRight : lines[line].spriteLeft;
@@ -703,6 +940,12 @@ void Map::incrementSpriteIndex(int line, bool right, int increment) {
     }
 }
 
+
+
+/**
+ * Add a map to follow the actual
+ * @param map is the scenario to be added
+ */
 void Map::addNextMap(Map *map) {
     this->next = map;
     float yOffset = 0.0f;
@@ -711,6 +954,13 @@ void Map::addNextMap(Map *map) {
     this->next->setOffset(yOffset);
 }
 
+
+
+/**
+ * Create a fork between the actual map and its neighbors
+ * @param left is the left map of the fork
+ * @param right is the right map of the fork
+ */
 void Map::addFork(Map *left, Map *right) {
     if (this->nextRight == nullptr) {
         this->next = left;
@@ -780,12 +1030,25 @@ void Map::addFork(Map *left, Map *right) {
     }
 }
 
+
+
+/**
+ * Adds the offset to the map to be displayed correctly
+ * @param yOffset is the offset to add
+ */
 void Map::setOffset(float yOffset) {
     for (Line &l : lines) {
         l.y += yOffset;
     }
 }
 
+
+
+/**
+ * Updates the position of the camera in the map
+ * @param pX is the new coordinate in the axis x of the camera
+ * @param pY is the new coordinate in the axis y of the camera
+ */
 void Map::updateView(float pX, float pY) {
     if (pY < 0.0f)
         pY = 0.0f;
@@ -793,22 +1056,60 @@ void Map::updateView(float pX, float pY) {
     this->posY = pY;
 }
 
+
+
+/**
+ * Returns the coordinate x of the camera
+ * @return
+ */
 float Map::getCamX() const {
     return this->posX;
 }
 
+
+
+/**
+ * Returns the coordinate y of the camera
+ * @return
+ */
 float Map::getCamY() const {
     return this->posY;
 }
 
-void
-Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
+
+
+/**
+ * Sets the coordinates on the screen that correspond to the rectangle and its scale. This function must be
+ * call to update the rectangle if the position of the map has been changed and.
+ * @param camX is the coordinate of the rectangle in axis X
+ * @param camY is the coordinate of the rectangle in axis Y
+ * @param camZ is the coordinate of the rectangle in axis Z
+ * @param camD is the deep of the rectangle in the screen
+ * @param width is the width dimension of the rectangle
+ * @param height is the height dimension of the rectangle
+ * @param rW is the with of the road
+ * @param zOffset is the offset in the axis Z
+ */
+void Map::Line::project(float camX, float camY, float camZ, float camD, float width, float height, float rW, float zOffset) {
     scale = camD / (1.0f + z + zOffset - camZ);
     X = (1.0f + scale * (x - camX)) * width / 2.0f;
     Y = (1.0f - scale * (y - camY)) * height / 2.0f;
     W = scale * rW * width / 2.0f;
 }
 
+
+
+
+/**
+ * Draw the map element in the screen of the game
+ * @param w is the console window of the game
+ * @param objs is a vector with all the map elements textures
+ * @param hitCoeff is a vector with all the hits coefficients
+ * @param hitCoeffType is the hit coefficient of the element to draw
+ * @param scaleCoeff is the scaling factor of the element to draw
+ * @param object is the element to draw in the screen
+ * @param left control if the object has to be drawn on the left or on the right of the screen
+ */
 void Map::Line::drawSprite(RenderTexture &w, const vector<Texture> &objs, const vector<float> &hitCoeff,
                            const vector<HitCoeffType> &hitCoeffType, const vector<float> &scaleCoeff,
                            SpriteInfo &object, bool left) const {
@@ -875,6 +1176,19 @@ void Map::Line::drawSprite(RenderTexture &w, const vector<Texture> &objs, const 
     }
 }
 
+
+
+/**
+ * Draw a rectangle with a width and height in the screen console
+ * @param w is the console window of the game
+ * @param c is the color with the rectangle is going to be painted
+ * @param x1 is the lower bound vertex coordinate in axis x of the rectangle
+ * @param y1 is the lower bound vertex coordinate in axis y of the rectangle
+ * @param w1 is the width of the rectangle
+ * @param x2 is the upper bound vertex coordinate in axis x of the rectangle
+ * @param y2 is the upper bound vertex coordinate in axis y of the rectangle
+ * @param w2 is the height of the rectangle
+ */
 void drawQuad(RenderTexture &w, Color c, int x1, int y1, int w1, int x2, int y2, int w2) {
     ConvexShape shape(4);
     shape.setFillColor(c);
@@ -885,9 +1199,19 @@ void drawQuad(RenderTexture &w, Color c, int x1, int y1, int w1, int x2, int y2,
     w.draw(shape);
 }
 
+
+
+/**
+ * Returns true is the car v1 is lower than the car v2.
+ * @param v1 is a car
+ * @param v2 is another car
+ * Otherwise returns false
+ */
 bool ascendingSort(const Enemy *v1, const Enemy *v2) {
     return v1->getPosY() < v2->getPosY();
 }
+
+
 
 void Map::draw(Config &c, vector<Enemy> &vehicles) {
     const int N = static_cast<const int>(lines.size());
@@ -1122,6 +1446,19 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     }
 }
 
+
+
+/**
+ * Returns true if the vehicle has crashed with any element of the landscape or with its borders
+ * @param c is the configuration of the player
+ * @param prevY is the previous position of the player in the axis y of the landscape
+ * @param currentY is the actual position of the player in the axis y of the landscape
+ * @param currentX is the actual position of the player in the axis x of the landscape
+ * @param minX is the minimum threshold to detect a collision
+ * @param maxX is the maximum threshold to detect a collision
+ * @param crashPos is the possible position of crash detected
+ * @return
+ */
 bool Map::hasCrashed(const Config &c, float prevY, float currentY, float currentX, float minX, float maxX,
                      float &crashPos) const {
     if (!inFork(currentY) && abs(currentX) > 3.0f) { // has left the map
@@ -1167,6 +1504,14 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float current
     return false;
 }
 
+
+/**
+ * Returns true if the actual position in axis x is outside the road.
+ * Otherwise returns false
+ * @param currentX is the position on axis x
+ * @param currentY is the position on axis y
+ * @return
+ */
 bool Map::hasGotOut(float currentX, float currentY) const {
     float offset;
     if (posX >= 0.0f)
@@ -1177,10 +1522,25 @@ bool Map::hasGotOut(float currentX, float currentY) const {
     return abs(currentX + offset) > 1.0f;
 }
 
+
+
+/**
+ * Returns the curvature coefficient corresponding to the currentY rectangle. The coefficient is positive if the
+ * curve is to the right, negative if it's to the left and 0 if it's a straight line
+ * @param currentY currentY is the current of the landscape where is the player
+ * @return
+ */
 float Map::getCurveCoefficient(float currentY) const {
     return getLine(int(currentY)).curve;
 }
 
+
+
+/**
+ * Returns the elevation corresponding to the currentY rectangle based on the previous rectangle.
+ * @param currentY is the current of the map where is the player
+ * @return
+ */
 Vehicle::Elevation Map::getElevation(float currentY) const {
     const int n = int(currentY);
     const Line currentLine = getLine(n);
@@ -1193,6 +1553,13 @@ Vehicle::Elevation Map::getElevation(float currentY) const {
         return Vehicle::Elevation::FLAT;
 }
 
+
+
+/**
+ * Returns true if the map has been finished.
+ * Otherwise returns false
+ * @return
+ */
 bool Map::isOver() const {
     if (initMap || goalMap || (next != nullptr && next->goalMap))
         return posY >= lines.size();
@@ -1200,6 +1567,12 @@ bool Map::isOver() const {
         return posY >= float(lines.size() - END_RECTANGLES * RECTANGLE);
 }
 
+
+
+/**
+ * Returns the height of the map
+ * @return
+ */
 float Map::getMaxY() const {
     if (initMap || goalMap || (next != nullptr && next->goalMap))
         return lines.size();
@@ -1207,6 +1580,11 @@ float Map::getMaxY() const {
         return float(lines.size() - END_RECTANGLES * RECTANGLE);
 }
 
+
+/**
+ * Returns the offset of the road in the axis x.
+ * @return
+ */
 float Map::getOffsetX() const {
     if (posX >= 0.0f)
         return -lines[lines.size() - 1].yOffsetX;
@@ -1214,6 +1592,14 @@ float Map::getOffsetX() const {
         return lines[lines.size() - 1].yOffsetX;
 }
 
+
+
+/**
+ * Returns true if the player is on a fork. Otherwise returns false
+ * @param currentY is the coordinate in axis y which to be tested to know
+ *        if the player is on a fork or not
+ * @return
+ */
 bool Map::inFork(const float currentY) const {
     if (initMap || goalMap || (next != nullptr && next->goalMap))
         return false;
@@ -1221,18 +1607,42 @@ bool Map::inFork(const float currentY) const {
         return currentY >= float(lines.size() - (FORK_RECTANGLES + END_RECTANGLES) * RECTANGLE);
 }
 
+
+
+/**
+ * Returns the next map or null if it is the last one
+ * @return
+ */
 Map *Map::getNext() const {
     return next;
 }
 
+
+
+/**
+ * Returns true if is the init map. Otherwise returns false
+ * @return
+ */
 bool Map::isInitMap() const {
     return initMap;
 }
 
+
+
+/**
+ * Returns true if is the goal landscape. Otherwise returns false
+ * @return
+ */
 bool Map::isGoalMap() const {
     return goalMap;
 }
 
+
+
+/**
+ * Returns the time to complete the map
+ * @return
+ */
 int Map::getTime() const {
     return maxTime;
 }

@@ -17,30 +17,77 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Module Player interface file
+ */
+
 #ifndef OUTRUN_PLAYER_HPP
 #define OUTRUN_PLAYER_HPP
 
 #include "Vehicle.hpp"
 
+
+
+/**
+ * Represents a player as an available vehicle to be
+ * chosen by the player in the vehicle selection menu
+ */
 class Player : public Vehicle {
-    const float speedMul, maxAcc, accInc, scaleY;
-    float acceleration, minCrashAcc, xDest;
+
+    // Factor to multiply the speed of the player's vehicle
+    const float speedMul;
+
+    // Maximum acceleration reached by the player's vehicle
+    float maxAcc;
+
+    // Acceleration increment of the player's vehicle
+    float accInc;
+
+    // Scaling factor of the player's vehicle in axis y
+    float scaleY;
+
+    // Current acceleration of the player's vehicle
+    float acceleration;
+
+    // Minimum acceleration reached when the player's vehicle crashes
+    float minCrashAcc;
+
+    // Coordinate in axis x that the player's vehicle must reach when it crashes
+    float xDest;
+
+    // Magnitude of the inertia force that the player's vehicle experiments in the curves
     int inertia;
 
+    // Sprite to draw the texture of the player's vehicle in the screen
     sf::Sprite sprite;
-    bool crashing; // True if crashing state is on
-    bool smoking; // True if player generates smoke
-    bool skidding; // True if player is skidding
 
-    bool firstCrash, firstTurnLeft, firstTurnRight;
+    // True if crashing state is on
+    bool crashing;
+
+    // True if player generates smoke
+    bool smoking;
+
+    // True if player is skidding
+    bool skidding;
+
+    // Control if the player's vehicle has crashed more than one time
+    bool firstCrash;
+
+    // Control if the last direction of the player's vehicle was turning left
+    bool firstTurnLeft;
+
+    // Control if the last direction of the player's vehicle was turning right
+    bool firstTurnRight;
 
     // Mode type of collision
     int mode;
 
-    // Speed of the devastator at the moment of a collision
+    // Speed of the player's vehicle at the moment of a collision
     float speedCollision;
 
-    // Control if the devastator is inside the road or not
+    // Control if the player's vehicle is inside the road or not
     bool outSideRoad;
 
     // Number of angers of the blonde woman
@@ -48,96 +95,123 @@ class Player : public Vehicle {
 
 
 public:
-    /**
-     * Inicializa el vehículo del jugador.
-     * @param maxSpeed
-     * @param speedMul multiplicador de la velocidad que multiplicado por speed obtiene la velocidad real
-     * @param accInc incremento de la aceleración
-     * @param scaleX escalado del sprite del vehículo
-     * @param scaleY escalado del sprite del vehículo
-     * @param maxCounterToChange cuando counter_code_image llega a maxCounterToChange se actualiza el sprite
-     * @param vehicle nombre del vehículo
-     * @param pX
-     * @param pY
+
+
+
+     /**
+     * Initialize the player's vehicle
+     * @param maxSpeed is the maximum speed that the player's vehicle can reach
+     * @param speedMul is factor number that when it is multiplied by speed obtains the real speed
+     * @param accInc is the acceleration increment
+     * @param scaleX is the scaling factor in the axis x
+     * @param scaleY is the scaling factor in the axis y
+     * @param maxCounterToChange lets to update the sprite of the player's vehicle that is drawn in the screen
+     * @param vehicle is the type of vehicle selected by the player
+     * @param pX is the position of the player in the axis x
+     * @param pY is the position of the player in the axis y
      */
     Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
            const std::string &vehicle, float pX, float pY);
 
+
+
     /**
-     * Devuelve la posición previa Y.
+     * Returns the last position of the player's vehicle in axis y
      * @return
      */
     float getPreviousY() const;
 
+
+
     /**
-     * Actualiza la lógica del choque y restablece la velocidad y aceleración.
-     * @param vehicleCrash true si es un choque entre vehículos
+     * Updates the crash logic of the player's vehicle and restores speed and acceleration
+     * @param vehicleCrash true if it is a crash between vehicles
      */
     void hitControl(bool vehicleCrash);
 
+
+
     /**
-     * Devuelve true si la lógica de choque está en ejecución.
+     * Returns true if the player's vehicle is crashing. Otherwise returns false
      * @return
      */
     bool isCrashing() const;
 
+
+
     /**
-     * Devuelve la velocidad real del vehículo.
+     * Returns the real speed of the player's vehicle
      * @return
      */
     float getRealSpeed() const;
 
+
+
     /**
-     * Actualiza la lógica de la aceleración y frenado del vehículo.
-     * @param c
-     * @param hasGotOut indica si se ha salido del camino
+     * Updates the logic of the player's vehicle acceleration and braking
+     * @param c is the module configuration of the game
+     * @param hasGotOut indicates if it's gone off track
      * @return
      */
     Action accelerationControl(Config &c, bool hasGotOut);
 
+
+
     /**
-     * Actualiza la lógica de giro del vehículo.
-     * @param c
-     * @param curveCoefficient pertenece [-0.9, 0.9]
+     * Updates the logic direction turn of the player's vehicle
+     * @param c is the module configuration of the game
+     * @param curveCoefficient is the coefficient curve
      * @return
      */
     Direction rotationControl(Config &c, float curveCoefficient, bool inFork);
 
+
+
     /**
-     * Actualiza el sprite del vehículo jugador y lo dibuja en la pantalla.
-     * @param c
-     * @param a
-     * @param d
-     * @param e
-     * @param enableSound
+     * Updates the player's vehicle sprite and draws it in the screen
+     * @param c is the module configuration of the game
+     * @param r is the sound player module of the game
+     * @param a is the action to be done by the player's vehicle
+     * @param d is the direction to be followed by the player's vehicle
+     * @param e is the current elevation of the player's vehicle in the landscape
+     * @param enableSound indicates if the motor of the player's vehicle has to make noise
      */
     void draw(Config &c, const Action &a, const Direction &d, const Elevation &e, int terrain, bool enableSound = true);
 
 
 
+    /**
+     * Draw the animation of the player's vehicle at the departure
+     * @param c is the module configuration of the game
+     */
     void drawStaticAnimation(Config &c);
 
 
+
     /**
-     * Dibuja la animación inicial en la pantalla y devuelve si ha acabado.
-     * @param c
-     * @param x
-     * @param end
+     * Draw the starting animation in the screen at beginning of the race and returns if it has finished
+     * @param c is the module configuration of the game
+     * @param x is the position of the car in the axis x
+     * @param end controls if the animation has finished
      */
     void drawInitialAnimation(Config &c, float x, bool &end, int& code);
 
+
+
     /**
-     * Dibuja la animación final en la pantalla y devuelve si ha acabado.
-     * @param c
-     * @param step
-     * @param end
-     * @param smoke
+     * Draw the final animation in the screen at the end of the race and returns if it has finished
+     * @param c is the module configuration of the game
+     * @param step is the position of the car in the axis x
+     * @param end controls if the animation has finished
+     * @param smoke controls that the smoke has to be drawn
      */
     void drawGoalAnimation(Config &c, int &step, bool &end, bool smoke = true);
 
+
+
     /**
-     * Fuerza a que el coche esté echando humo o no.
-     * @param smoke
+     * It forces the player's vehicle to be smoking or not
+     * @param smoke indicates if the player's vehicle has to make smoke or not
      */
     void setSmoking(bool smoke);
 
@@ -145,10 +219,11 @@ public:
 
     /**
      * Sets the type mode of collision
+     * @return
      */
     void setModeCollision();
 
 };
 
 
-#endif //OUTRUN_PLAYER_HPP
+#endif // OUTRUN_PLAYER_HPP

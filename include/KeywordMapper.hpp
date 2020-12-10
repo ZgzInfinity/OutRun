@@ -17,24 +17,41 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef KEYWORD_MAPPER_H
-#define KEYWORD_MAPPER_H
+
+
+/*
+ * Module KeywordMapper interface file
+ */
+
+
+#ifndef OUTRUN_KEYWORD_MAPPER_H
+#define OUTRUN_KEYWORD_MAPPER_H
+
+
 
 #include <iostream>
 #include <cstring>
 #include <SFML/Graphics.hpp>
+
+
 
 const int KEYWORDS_MAPPED = 75;
 
 using namespace std;
 using namespace sf;
 
+
+
+/**
+ * Represents the association between the numeric codes of
+ * the keywords and their names
+ */
 struct KeywordMapper {
 
 
     // Maps of the keywords available in the game
-    sf::Keyboard::Key mapperCodeKeyWord[KEYWORDS_MAPPED];
-    std::string mapperIdKeyWord[KEYWORDS_MAPPED];
+    Keyboard::Key mapperCodeKeyWord[KEYWORDS_MAPPED];
+    string mapperIdKeyWord[KEYWORDS_MAPPED];
 
 
 
@@ -63,4 +80,4 @@ struct KeywordMapper {
 
 };
 
-#endif // KEYWORD_MAPPER_H
+#endif // OUTRUN_KEYWORD_MAPPER_H

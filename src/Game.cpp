@@ -17,6 +17,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Module Game implementation file
+ */
+
 #include "../include/Game.hpp"
 #include <fstream>
 
@@ -47,14 +53,18 @@ void Game::updateTimeElapsed(){
     gameClockLap.restart();
     elapsed3 = gameClockLap.getElapsedTime().asSeconds();
 
+    // Local variables
     bool arrived = false , endOfGame = false, pause = false;
 
+    // While the game is in curse
     while(!arrived && !endOfGame && !pause){
 
+        // Check if it is on pause
         mtx.lock();
         pause = onPause;
         mtx.unlock();
 
+        // Not in pause
         if (!pause){
 
             // Sleep the thread
@@ -87,6 +97,7 @@ void Game::updateTimeElapsed(){
                 gameClockLap.restart();
                 mtx.unlock();
             }
+            // Update the context of the game
             mtx.lock();
             arrived = arrival;
             endOfGame = finalGame;
@@ -94,6 +105,7 @@ void Game::updateTimeElapsed(){
             mtx.unlock();
         }
         else {
+            // Restart the clock to count a new interval
             gameClockLap.restart();
         }
     }
@@ -113,14 +125,18 @@ void Game::updateTimeLandScape(){
     // Time to update the clock counter
     Time shot_delayTime = seconds(1.0);
 
+    // Local variables
     bool arrived = false , endOfGame = false, pause = false;
 
+    // While the game is in curse
     while(!arrived && !endOfGame && !onPause){
 
+        // Check if the game is on pause
         mtx.lock();
         pause = onPause;
         mtx.unlock();
 
+        // If not in pause
         if (!pause){
 
              // Sleep the thread
@@ -140,6 +156,7 @@ void Game::updateTimeLandScape(){
                 gameClockTime.restart();
             }
 
+            // Update the context of the game
             mtx.lock();
             arrived = arrival;
             endOfGame = finalGame;
@@ -147,6 +164,7 @@ void Game::updateTimeLandScape(){
             mtx.unlock();
         }
         else {
+            // Restart the clock to measure a new interval
             gameClockTime.restart();
         }
     }
@@ -201,6 +219,7 @@ void Game::updateScore(){
                 mainMutex.unlock();
             }
         }
+        // Update the context of the game
         mainMutex.lock();
         arrived = arrival;
         endOfGame = finalGame;
@@ -212,21 +231,34 @@ void Game::updateScore(){
 
 
 
+/**
+ * Initialize the game logic and load the vehicles and maps
+ * @param c is the module configuration of the game
+ */
 Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_COUNTER,
                                "Vehicles/Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f),
                         scoreMul(1.0f), timeAI(0.0f),
-                        goalMap(goalFlagger, goalEnd) {
+                        goalMap(goalFlagger, goalEnd)
+{
+    // Index of the map to be processed
     int nm = 0;
-    const int times[] = {110, 62, 62, 59, 58, 54, 53, 50, 50, 46, 46, 42, 42, 41, 42};
+
+    // Vector with the times of the maps
+    const int times[] = {110, 62, 62, 59, 58, 54, 53, 50, 50, 47, 47, 48, 47, 50, 45};
+
+    // Vector with the different numbers of elements of each map
     const int nobjects[] = {20, 28, 35, 35, 25, 29, 26, 28, 33, 30, 30, 30, 34, 36, 33};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
+        // Store the maps
         for (int j = 0; j <= i; j++) {
+            // Keep the aliases of the map elements of each map
             vector<string> objectNames;
             objectNames.reserve((unsigned long) nobjects[nm]);
             for (int no = 1; no <= nobjects[nm]; no++)
                 objectNames.push_back(to_string(no) + ".png");
 
+            // Create the map and store it
             Map m(c, "Resources/Maps/Map" + to_string(nm + 1) + "/", "bg.png", objectNames, false, times[nm]);
             vm.push_back(m);
 
@@ -310,6 +342,12 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_CO
     checkDifficulty(c); // Loads enemies and time
 }
 
+
+
+/**
+ * Shows the HUD of the game
+ * @param c is the configuration module of the game
+ */
 void Game::drawHUD(Config &c) {
     Sprite s;
 
@@ -439,6 +477,13 @@ void Game::drawHUD(Config &c) {
     c.w.draw(s);
 }
 
+
+
+/**
+ * Shows the checkpoint animation of the game
+ * @param c is the configuration module of the game
+ * @param visible controls if the animation has to be drawn or not
+ */
 void Game::drawCheckpoint(Config &c, bool visible) {
     Sprite s;
 
@@ -459,6 +504,7 @@ void Game::drawCheckpoint(Config &c, bool visible) {
     s.setPosition((float(c.w.getSize().x) - s.getGlobalBounds().width) / 2.0f, initial);
     initial += s.getGlobalBounds().height * 1.25f;
 
+    // Check if the animation has to be drawn or not
     if (visible) {
         checkPointTitle.setFillColor(Color::Yellow);
         checkPointTitle.setOutlineColor(Color(14, 29, 184));
@@ -470,6 +516,7 @@ void Game::drawCheckpoint(Config &c, bool visible) {
         checkPointTitle.setOutlineColor(Color::Transparent);
     }
 
+    // Text with the time inverted
     Text textForLap;
     textForLap.setFont(c.timeToPlay);
     textForLap.setString("00' 00'' 00");
@@ -483,6 +530,7 @@ void Game::drawCheckpoint(Config &c, bool visible) {
             initial + 1.1f * s.getGlobalBounds().height);
     s.setPosition((float(c.w.getSize().x) + textForLap.getGlobalBounds().width / 2.0f) / 2.4f, initial);
 
+    // Check if the animation has to be drawn or not
     if (visible) {
         textForLap.setFillColor(Color(146, 194, 186));
         textForLap.setOutlineColor(Color::Black);
@@ -496,6 +544,12 @@ void Game::drawCheckpoint(Config &c, bool visible) {
     c.w.draw(textForLap);
 }
 
+
+
+/**
+ * Shows the game over animation at the end of the race
+ * @param c is the configuration module of the game
+ */
 void Game::drawGameOver(Config &c) {
     // Game over text
     Text gameOver;
@@ -510,7 +564,15 @@ void Game::drawGameOver(Config &c) {
     c.w.draw(gameOver);
 }
 
-void Game::drawBonus(Config &c, int seconds, int decs_second) {
+
+
+/**
+ * Shows the bonus animation when the player ends the race
+ * @param c is the configuration module of the game
+ * @param seconds is the number of seconds inverted in the race
+ * @param cents_second is the number of hundreds of second inverted in the race
+ */
+void Game::drawBonus(Config &c, int seconds, int cents_second) {
     // Only for separation
     Sprite s;
     s.setTexture(textures[0], true);
@@ -542,7 +604,7 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     timeBonus.setPosition(initial, initialY);
     initialY += float(timeBonus.getCharacterSize());
     initial += 1.25f * timeBonus.getLocalBounds().width;
-    timeBonus.setString(to_string(seconds) + "." + to_string(decs_second));
+    timeBonus.setString(to_string(seconds) + "." + to_string(cents_second));
     c.w.draw(timeBonus);
 
     // Seconds arrival indicator
@@ -593,11 +655,18 @@ void Game::drawBonus(Config &c, int seconds, int decs_second) {
     c.w.draw(pointsIndicator);
 }
 
+
+
+/**
+ * Check the difficulty and adjust the corresponding parameters.
+ * @param c is the module configuration of the game
+ */
 void Game::checkDifficulty(Config &c) {
     int numCars = static_cast<int>(cars.size()); // Number of vehicles simultaneously
     time = int(float(time - int(timeAI)) / timeMul); // Restore original time
 
     float prevScoreMul = scoreMul;
+    // Adapt the parameters depending on the difficulty to play
     switch (c.level) {
         case PEACEFUL:
             numCars = 0;
@@ -652,9 +721,11 @@ void Game::checkDifficulty(Config &c) {
         }
     }
 
+    // Assign the type of AI for each car
     for (Enemy &v : cars)
         v.setAI(c.maxAggressiveness);
 
+    // Add the additional time for playing with the AI active
     time = int(float(time) * timeMul);
     timeAI = !cars.empty() ? float(time) * c.maxAggressiveness / 3.0f : 0.0f;
     time += int(timeAI);
@@ -663,28 +734,68 @@ void Game::checkDifficulty(Config &c) {
         time = 0;
 }
 
+
+
+/**
+ * Returns true if you are in the middle of a game
+ * @return
+ */
 bool Game::isInGame() const {
     return inGame;
 }
 
+
+
+/**
+ * Returns the total score
+ * @return
+ */
 unsigned long Game::getScore() const {
     return static_cast<unsigned long>(score);
 }
 
+
+
+/**
+ * Returns the total minutes of the race
+ * @return
+ */
 float Game::getMinutesTrip() const {
     return minutesTrip;
 }
 
+
+
+/**
+ * Returns the total seconds of the race
+ * @return
+ */
 float Game::getSecsTrip() const {
     return secsTrip;
 }
 
+
+
+/**
+ * Returns the hundreds of seconds of the race
+ * @return
+ */
 float Game::getCents_SecondTrip() const {
     return cents_secondTrip;
 }
 
+
+
+/**
+ * Updates the logic of the game and refreshes the screen until you leave the game
+ * @param c is the configuration module of the game
+ * @return
+ */
 State Game::play(Config &c) {
+
+    // Check if the game has to be continued
     if (!inGame) {
+        // New game and with initial animation
         inGame = true;
         State status = initialAnimation(c);
         if (status == EXIT){
@@ -692,6 +803,7 @@ State Game::play(Config &c) {
         }
     }
 
+    // Enabled keywords repetition
     c.window.setKeyRepeatEnabled(false);
 
      // Get the kind of terrain of the landscape
@@ -702,6 +814,8 @@ State Game::play(Config &c) {
 
     // Time to update the clock counter lap
     Time shot_delayLap = seconds(0.01);
+
+    // Initialize all the clocks
 
     gameClockTime.restart().asSeconds();
     elapsed1 = gameClockTime.restart().asSeconds();
@@ -725,6 +839,7 @@ State Game::play(Config &c) {
 
     int localTime;
 
+    // The options menu was not in the screen
     if (!comeFromOptions){
         // Thread to control the elapsed time
         timer0 = thread(updateTimeElapsed, this);
@@ -736,11 +851,13 @@ State Game::play(Config &c) {
         timer2 = thread(updateScore, this);
     }
 
-
+    // While the game is in curse
     while (!finalGame && !arrival && c.window.isOpen()) {
+
         // Detect the possible events
         Event e{};
         while (c.window.pollEvent(e)){
+            // Close the screen
             if (e.type == Event::Closed){
                 mtx.lock();
                 finalGame = true;
@@ -752,22 +869,26 @@ State Game::play(Config &c) {
             }
         }
 
+        // Update the game context
         updateAndDraw(c, action, direction, terrain);
 
+        // Check if the game has finished badly
         if (!finalGame) {
+            // Check if it is on pause
             if (Keyboard::isKeyPressed(c.menuKey) || onPause) {
                 // Pause the game
                 c.effects[1]->stop();
                 c.effects[1]->play();
                 status = pause(c, action, direction);
 
-                // Control the exit of the game
+                // Options
                 if (status == OPTIONS) {
                     comeFromOptions = true;
                     mtx.lock();
                     finalGame = true;
                     mtx.unlock();
                 }
+                // Initial menu
                 else if (status == START) {
                     mtx.lock();
                     finalGame = true;
@@ -775,12 +896,14 @@ State Game::play(Config &c) {
                     inGame = false;
                     return START;
                 }
+                // Resume
                 else if (status == GAME) {
                     timer0 = thread(updateTimeElapsed, this);
                     timer1 = thread(updateTimeLandScape, this);
                     timer2 = thread(updateScore, this);
                     c.themes[c.currentSoundtrack]->play();
                 }
+                // Close the game
                 else if (status == EXIT) {
                     mtx.lock();
                     finalGame = true;
@@ -799,13 +922,16 @@ State Game::play(Config &c) {
                 lap += to_string(int(cents_second * 100.f));
             }
 
+            // Display the HUD of the game
             drawHUD(c);
 
+            // Display the context in the screen
             Sprite bufferSprite(c.w.getTexture());
             c.w.display();
             c.window.draw(bufferSprite);
             c.window.display();
 
+            // Store the time to play
             mtx.lock();
             localTime = time;
             mtx.unlock();
@@ -825,6 +951,7 @@ State Game::play(Config &c) {
         }
     }
 
+    // Check the ending of the game
     if (!comeFromOptions){
         timer0.join();
         timer1.join();
@@ -837,6 +964,7 @@ State Game::play(Config &c) {
         mtx.unlock();
     }
 
+    // The game has finished because the game has arrived to the goal
     if (arrival) {
         arrival = false;
         mtx.unlock();
@@ -844,7 +972,7 @@ State Game::play(Config &c) {
     }
     mtx.unlock();
 
-
+    // The game has finished due to the time has expired
     if (status != OPTIONS && status != START) {
         // Draw the game over text in the console window
         drawGameOver(c);
@@ -879,6 +1007,12 @@ State Game::play(Config &c) {
     return status;
 }
 
+
+
+/**
+ * Shows the initial animation when the race starts
+ * @param c is the configuration module of the game
+ */
 State Game::initialAnimation(Config &c) {
     c.themes[c.currentSoundtrack]->stop();
     int flagger, semaphore;
@@ -1055,6 +1189,12 @@ State Game::initialAnimation(Config &c) {
     return GAME;
 }
 
+
+
+/**
+ * Shows the goal animation at the end of the race
+ * @param c is the configuration module of the game
+ */
 State Game::goalAnimation(Config &c) {
     // Stop music level
     c.themes[c.currentSoundtrack]->stop();
@@ -1255,10 +1395,20 @@ State Game::goalAnimation(Config &c) {
 }
 
 
+
+/**
+ * Updates the logic of the map and vehicles and draws the current map fragment
+ * with the vehicles on the screen
+ * @param c is the configuration of the game
+ * @param action is the action of the player that is going to be processed
+ * @param direction is the direction of the player that is going to be processed
+ * @param terrain is the kind of terrain of the landscape
+ */
 void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction, const int terrain) {
     // Update camera
     currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
+    // If the player has left  the current map
     if (currentMap->isOver()) {
         if (currentMap->getNext() != nullptr) {
             // Update player and vehicle positions
@@ -1308,8 +1458,9 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
             finalGame = true;
         }
     }
-
+    // Check if the current map is the goal
     if (currentMap->isGoalMap()) {
+        // Display the goal animation
         State status = goalAnimation(c);
         if (status == EXIT) {
             exit(1);
@@ -1318,17 +1469,22 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
         arrival = true;
         mtx.unlock();
     }
-
+    // Check if the game has finished badly
     if (!finalGame) {
+
         // Update and prepare cars to draw
         if (lastY <= currentMap->getCamY() + float(c.renderLen))
             lastY = currentMap->getCamY() + float(c.renderLen);
+
+        // Traffic cars
         for (Enemy &v : cars) {
             if (v.getPosY() + DEL_VEHICLE < currentMap->getCamY()) {
+                // Update the speed and position for the car
                 v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY, c.maxAggressiveness);
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
 
+            // Draw the car
             float posY = v.getPosY();
             v.draw(currentMap->getElevation(posY), currentMap->getCamX());
         }
@@ -1341,27 +1497,40 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
         action = Vehicle::CRASH;
         direction = Vehicle::RIGHT;
 
-        if (!player.isCrashing()) { // If not has crashed
+        // Check if the player's vehicle is not crashing
+        if (!player.isCrashing()) {
+            // Registers the new actions of the user
             action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()),
                                                currentMap->inFork(player.getPosY()));
-        } else {
+        }
+        else {
+            // Check the crashing animation point
             player.hitControl(vehicleCrash);
         }
 
+        // Draw the player's vehicle in the screen
         player.draw(c, action, direction, currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
 
+        // Check if the player's car is not crashing
         if (!player.isCrashing()) {
             vehicleCrash = false;
             float crashPos;
+
+            // Check if the player's car has crashed with any map elements
             bool crash = currentMap->hasCrashed(c, player.getPreviousY(), player.getPosY(), player.getPosX(),
                                                 player.getMinScreenX(), player.getMaxScreenX(), crashPos);
+
+            // Any crash detected
             if (!crash)
+                // Detect if the player's car has crashed with any traffic car
                 for (int i = 0; !vehicleCrash && i < cars.size(); i++)
                     vehicleCrash = cars[i].hasCrashed(player.getPreviousY(), player.getPosY(),
                                                       player.getMinScreenX(), player.getMaxScreenX(),
                                                       crashPos);
 
+
+            // Draw the traffic car collision
             if (crash || vehicleCrash) {
                 player.setModeCollision();
                 player.setPosition(player.getPosX(), crashPos);
@@ -1373,6 +1542,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
             }
         }
 
+        // Compute the route and actions of each traffic car with its AI
         for (Enemy &v : cars){
             if (currentMap->inFork(v.getPosY())){
                 v.autoControl(c, player.getPosX(), player.getPosY(), true, currentMap->getCurveCoefficient(v.getPosY()));
@@ -1431,6 +1601,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                 }
             }
         }
+        // Check if the checkpoint animation has to be drawn or not
         if (checkPoint) {
             elapsed10 = blinkTime.getElapsedTime().asSeconds();
             if (elapsed10 - elapsed9 >= blink_delay.asSeconds()) {
@@ -1442,7 +1613,8 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                 // BeepSound
                 c.effects[22]->stop();
                 c.effects[22]->play();
-            } else {
+            }
+            else {
                 drawCheckpoint(c, false);
             }
 
@@ -1453,6 +1625,15 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
     }
 }
 
+
+
+/**
+ * Stops the game and shows the pause menu
+ * @param c is the configuration of the game
+ * @param a is the last action done by the player
+ * @param d is the last direction done by the player
+ * @return
+ */
 State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction &d) {
     c.w.clear();
 
@@ -1527,21 +1708,21 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale,
                              c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
-                             "Resume", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, c.screenScale);
+                             "Resume", Color(0, 255, 0), Color(255, 255, 0), 1, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale, c.w.getSize().y / 2.f,
                              200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
-                             "Options", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                             "Options", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale,
                              c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
-                             "Home", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                             "Home", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 95.0f * c.screenScale,
                              c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
-                             "Exit", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                             "Exit", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     while (!startPressed) {
         // Detect the possible events
@@ -1617,7 +1798,7 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
     // Check the option selected by the user
     switch (optionSelected) {
         case 0:
-            // Resume button selected and reanudate the music
+            // Resume button selected and continue the music
             mtx.lock();
             onPause = false;
             mtx.unlock();

@@ -35,32 +35,14 @@
 #define SCREEN_HD_X 1280
 #define SCREEN_HD_Y 720
 
-/**
- * Devuelve la fuente para el tiempo.
- * @return
- */
-sf::Font initializeFontTimePlay();
 
-/**
- * Devuelve la fuente para la velocidad.
- * @return
- */
-sf::Font initializeFontSpeed();
-
-/**
- * Devuelve la fuente para las opciones.
- * @return
- */
-sf::Font initializeFontOptions();
-
-const int NUM_SEGA_ICONS = 39;
 const int NUM_SOUNDTRACKS = 4;
 
 
 
 /**
- * Animación inicial.
- * @param c
+ * Shows the initial animation of the game
+ * @param c is the module configuration of the game
  * @return
  */
 State introAnimation(Config &c);
@@ -68,42 +50,58 @@ State introAnimation(Config &c);
 
 
 /**
- * Menú de opciones.
- * @param c
- * @param inGame
- * @return
- */
-State optionsMenu(Config &c, const bool &inGame);
-
-/**
- * Menú para cambiar los controles.
- * @param c
- * @return
- */
-State changeCarControllers(Config &c);
-
-/**
- * Animación para saleccionar la música.
- * @param c
- * @return
- */
-State selectMusicSoundtrack(Config &c);
-
-/**
- * Menú inicial.
- * @param c
- * @param startPressed
+ * Displays the main menu of the game
+ * @param c is the module configuration of the game
  * @return
  */
 State startMenu(Config &c);
 
+
+
 /**
- * Pantalla del ranking.
- * @param c
- * @param scorePlayerGame
- * @param minutes
- * @param decs
- * @param cents_Second
+ * Displays the menu of changing controllers of the player
+ * @param c is the module configuration of the game
+ * @return
+ */
+State changeCarControllers(Config &c);
+
+
+
+/**
+ * Displays the menu of volume settings
+ * @param c is the module configuration of the game
+ * @param inGame controls if the player was playing before entering to the sound menu
+ */
+State soundMenu(Config &c, const bool &inGame);
+
+
+
+/**
+ * Shows the options menu of the game
+ * @param c is the module configuration of the game
+ * @param inGame controls if the player was in game before enter in the options menu
+ * @return
+ */
+State optionsMenu(Config &c, const bool &inGame);
+
+
+
+/**
+ * Shows the radio menu where the player selects the music to play
+ * @param c is the module configuration of the game
+ * @return
+ */
+State selectMusicSoundtrack(Config &c);
+
+
+
+/**
+ * Shows the ranking menu with best seven players of the Out Run mode
+ * @param c is the module configuration of the game
+ * @param scorePlayerGame is the score obtained by the player in the race
+ * @param minutes is the number of minutes that the game has lasted
+ * @param secs is the number of seconds that the game has lasted
+ * @param cents_Second is the number of hundredths of second that the game has lasted
  * @return
  */
 State rankingMenu(Config &c, unsigned long scorePlayerGame, int minutes, int decs, int cents_Second);

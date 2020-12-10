@@ -1,6 +1,32 @@
+/*
+ * Copyright (c) 2020 Andres Gavin
+ * Copyright (c) 2020 Ruben Rodriguez
+ *
+ * This file is part of Out Run.
+ * Out Run is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Out Run is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+
+
+/*
+ * Module Config interface file
+ */
+
+
+#ifndef OUTRUN_CONFIG_HPP
+#define OUTRUN_CONFIG_HPP
+
 
 #include <vector>
 #include <iostream>
@@ -33,6 +59,8 @@
 using namespace sf;
 
 
+
+// Possible states of the game
 enum State {
     ANIMATION,
     START,
@@ -45,8 +73,9 @@ enum State {
 
 
 
+// Levels of difficulty of the game
 enum Difficult {
-    PEACEFUL, // Without enemies
+    PEACEFUL,
     EASY,
     NORMAL,
     HARD
@@ -54,17 +83,31 @@ enum Difficult {
 
 
 
+/*
+ * Represents the configuration module of the game
+ */
 struct Config {
 
+    // Vector with all the available resolutions
     const std::vector<std::pair<int, int>> resolutions;
+
+    // Index of resolution
     int resIndex;
 
+    // Window of the game
     sf::RenderTexture w;
     sf::RenderWindow window;
+
     float screenScale;
+
+    // Control if the screen is the default resolution
     bool isDefaultScreen;
+
+    // Control if the game is in full screen mode or not
     bool fullScreen;
 
+
+    // Controllers of the game
     sf::Keyboard::Key menuKey;
     sf::Keyboard::Key menuUpKey;
     sf::Keyboard::Key menuDownKey;
@@ -74,10 +117,9 @@ struct Config {
     sf::Keyboard::Key leftKey;
     sf::Keyboard::Key rightKey;
 
+    // Fonts of the game
     Font timeToPlay;
-
     Font speedVehicle;
-
     Font options;
 
     // Vector with all the soundtracks to reproduce
@@ -101,10 +143,13 @@ struct Config {
     // Identifier of soundtrack to reproduce
     int currentSoundtrack;
 
-    // max AI aggressiveness level: max probability that the ai will be activated
+    // max AI aggressiveness level: max probability that the AI will be activated
     float maxAggressiveness;
+
+    // Control if the AI is active or not
     bool enableAI;
 
+    // Control if the graphics have to drawn with pixel art or not
     bool enablePixelArt;
 
 
@@ -127,7 +172,7 @@ struct Config {
 
 
     /**
-     * Devuelve true si se ha cambiado la resolución de pantalla.
+     * Represents on the screen the graphics menu and returns to options menu
      * @return
      */
     State graphicsMenu();
@@ -137,15 +182,28 @@ struct Config {
 
 
 
+/**
+ * Returns the font used to write the time in the elapsed time panel
+ * @return
+ */
 Font initializeFontTimePlay();
 
 
 
+/**
+ * Returns the font used to represent the HUD during the game
+ * @return
+ */
 Font initializeFontSpeed();
 
 
 
+/**
+ * Returns the font used to represent all the text indicators in
+ * the animations of the game
+ * @return
+ */
 Font initializeFontOptions();
 
 
-#endif
+#endif // OUTRUN_CONFIG_HPP

@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2020 Andres Gavin
+ * Copyright (c) 2020 Ruben Rodriguez
+ *
+ * This file is part of Out Run.
+ * Out Run is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Out Run is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
+/*
+ * Module Configuration implementation file
+ */
+
 
 #include "../include/Config.hpp"
 
@@ -136,11 +160,16 @@ Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabl
 
 
 
+/**
+ * Represents on the screen the graphics menu and returns to options menu
+ * @return
+ */
 State Config::graphicsMenu() {
     // Control if the start key is pressed or not
     bool startPressed = false;
     bool resized = false;
 
+    // While the start button has not been pressed
     while (!startPressed) {
         bool currentResized = false;
 
@@ -163,6 +192,7 @@ State Config::graphicsMenu() {
         iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
         IntRect background(0, 0, w.getSize().x, w.getSize().y);
 
+        // Adapt the graphics menu to the different screen resolutions
         Sprite sprite(iconBackground, background);
         float axis_x = float(w.getSize().x) / SCREEN_DEFAULT_X;
         float axis_y = float(w.getSize().y) / SCREEN_DEFAULT_Y;
@@ -190,26 +220,24 @@ State Config::graphicsMenu() {
         optionsText.setFillColor(Color::Red);
 
         // Option indicators
-
         menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
                                  200.0f * screenScale, 30.0f * screenScale, options,
-                                 "Resolution", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, screenScale);
+                                 "Resolution", Color(0, 255, 0), Color(255, 255, 0), 1, screenScale);
 
         menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
                                  30.0f * screenScale, options,
-                                 "Pixel art", Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 0, screenScale);
+                                 "Pixel art", Color(0, 255, 0), Color(255, 255, 0), 0, screenScale);
 
         // Option configurations
         const string res = resIndex > -1 ? to_string(resolutions[resIndex].first) + "x" +
                                            to_string(resolutions[resIndex].second) : "FULLSCREEN";
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,
                                  200.0f * screenScale, 30.0f * screenScale, options,
-                                 res, Color(0, 255, 0), Color(255, 255, 0), Color(0, 255, 0), 1, screenScale);
+                                 res, Color(0, 255, 0), Color(255, 255, 0), 1, screenScale);
 
         menuButtons.emplace_back(w.getSize().x / 2.f + 80.0f * screenScale, w.getSize().y / 2.f, 200.0f * screenScale,
                                  30.0f * screenScale, options,
-                                 enablePixelArt ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0),
-                                 Color(0, 255, 0), 0, screenScale);
+                                 enablePixelArt ? "ENABLED" : "DISABLED", Color(0, 255, 0), Color(255, 255, 0), 0, screenScale);
 
         // Control the option selected by the user
         int optionSelected = 0;
@@ -249,20 +277,25 @@ State Config::graphicsMenu() {
                 }
             }
 
+            // Receive an event of the screen
             window.pollEvent(e);
 
             if (optionSelected == 0) {
-                // Volume music
-                // Check if left or right cursor keys have been pressed or not
+                // Screen resolutions
+                // Check if left or left cursor keys have been pressed or not
                 if (window.hasFocus() && Keyboard::isKeyPressed(leftKey)) {
                     if (resized) {
+                        // The screen has not been resized during the game before
                         resized = false;
                     } else if (resIndex > -1) {
+                        // Modify the resolution of the screen
                         resIndex--;
                         menuButtons[optionSelected + 2].setTextButton(resIndex > -1 ?
                                                                       to_string(resolutions[resIndex].first) + "x" +
                                                                       to_string(resolutions[resIndex].second)
                                                                                     : "FULLSCREEN");
+
+                        // Control if there are more resolutions on the left
                         if (resIndex > -1) {
                             window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
                                                     static_cast<unsigned int>(resolutions[resIndex].second)),
@@ -270,25 +303,31 @@ State Config::graphicsMenu() {
                                           Style::Titlebar | Style::Close);
                         }
                         else {
+                            // Create a new screen with the new resolution
                             window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
                         }
+
                         window.setFramerateLimit(FPS);
                         window.setKeyRepeatEnabled(false);
 
                         isDefaultScreen = resIndex == 0;
 
-
+                        // Define the screen to represent correctly the interface
                         window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f),
                                             Vector2f(window.getSize().x, window.getSize().y)));
                         w.create(static_cast<unsigned int>(window.getView().getSize().x),
                                  static_cast<unsigned int>(window.getView().getSize().y));
 
+                        // Calculation of the screen factor between the current resolution and the default resolution
                         screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
                         currentResized = true;
                         resized = true;
                     }
-                } else if (window.hasFocus() && Keyboard::isKeyPressed(rightKey)) {
+                }
+                // Check if the right cursor keys have been pressed or not
+                else if (window.hasFocus() && Keyboard::isKeyPressed(rightKey)) {
                     if (resized) {
+                        // The screen has not been resized during the game before
                         resized = false;
                     }
                     if (resIndex < int(resolutions.size()) - 1 && !resized) {
@@ -296,6 +335,7 @@ State Config::graphicsMenu() {
                         menuButtons[optionSelected + 2].setTextButton(to_string(resolutions[resIndex].first) + "x" +
                                                                       to_string(resolutions[resIndex].second));
 
+                        // Modify the resolution of the screen
                         window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
                                                 static_cast<unsigned int>(resolutions[resIndex].second)), "Out Run",
                                       Style::Titlebar | Style::Close);
@@ -304,7 +344,7 @@ State Config::graphicsMenu() {
 
                         isDefaultScreen = resIndex == 0;
 
-
+                        // Create a new screen with the new resolution
                         window.setView(View(Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f),
                                             Vector2f(window.getSize().x, window.getSize().y)));
                         w.create(static_cast<unsigned int>(window.getView().getSize().x),
@@ -316,7 +356,7 @@ State Config::graphicsMenu() {
                     }
                 }
             } else {
-                // Volume effects
+                // Pixel art
                 // Check if left or right cursor keys have been pressed or not
                 if (window.hasFocus() && Keyboard::isKeyPressed(leftKey)) {
                     if (enablePixelArt) {
@@ -330,6 +370,8 @@ State Config::graphicsMenu() {
                     }
                 }
             }
+
+            // Draw the elements of the menu
             w.draw(sprite);
             w.draw(shape);
             w.draw(optionsText);
@@ -339,6 +381,7 @@ State Config::graphicsMenu() {
                 menuButton.render(&w);
             }
 
+            // Display the menu in the screen
             bufferSprite.setTexture(w.getTexture(), true);
             w.display();
             window.draw(bufferSprite);
@@ -360,19 +403,37 @@ State Config::graphicsMenu() {
 }
 
 
-sf::Font initializeFontTimePlay() {
+
+/**
+ * Returns the font used to write the time in the elapsed time panel
+ * @return
+ */
+Font initializeFontTimePlay() {
     Font f;
     if (!f.loadFromFile("Resources/Fonts/DisposableDroid.ttf")) exit(1);
     return f;
 }
 
-sf::Font initializeFontSpeed() {
+
+
+/**
+ * Returns the font used to represent the HUD during the game
+ * @return
+ */
+Font initializeFontSpeed() {
     Font f;
     if (!f.loadFromFile("Resources/Fonts/digital.ttf")) exit(1);
     return f;
 }
 
-sf::Font initializeFontOptions() {
+
+
+/**
+ * Returns the font used to represent all the text indicators in
+ * the animations of the game
+ * @return
+ */
+Font initializeFontOptions() {
     Font f;
     if (!f.loadFromFile("Resources/Fonts/needForSpeed.ttf")) exit(1);
     return f;

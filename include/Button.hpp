@@ -17,70 +17,100 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef BUTTON_H
-#define BUTTON_H
+
+ /*
+ * Module Button interface file
+ */
+
+#ifndef OUTRUN_BUTTON_H
+#define OUTRUN_BUTTON_H
 
 #include <iostream>
 #include <cstring>
 #include "SFML/Graphics.hpp"
 
+
+using namespace sf;
+using namespace std;
+
+/*
+ * States of the button
+ */
 enum button_states {
+    // Normal state of the button
     BUTTON_IDLE = 0,
-    BUTTON_PRESSED,
+    // Button hovered with the mouse or with the row cursor keywords
     BUTTON_HOVER,
 };
 
-class Button {
-private:
-    sf::RectangleShape shape;
-    sf::Text textButton;
 
-    sf::Color idleColorButton;
-    sf::Color hoverColorButton;
-    sf::Color activeColorButton;
+
+/**
+ * Represents the buttons of the game's GUI
+ */
+class Button {
+
+private:
+
+    // Rectangle of the button
+    RectangleShape shape;
+    // Text content of the button
+    Text textButton;
+
+    // Colors of the button
+    Color idleColorButton, hoverColorButton, fontColorButton;
 
 public:
 
+
+
     /**
-     * Constructor por defecto.
+     * Default constructor
      */
     Button();
 
+
+
     /**
-     * Constructor del botón.
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @param f
-     * @param text
-     * @param idleColor
-     * @param hoverColor
-     * @param activeColor
-     * @param initialState
-     * @param screenScale
+     * Constructor of the button
+     * @param x is the coordinate in axis x of the button in the screen
+     * @param y is the coordinate in axis y of the button in the screen
+     * @param width is the width dimension of the button
+     * @param height is the height dimension of the button
+     * @param f is the font of the text
+     * @param text is the content of the button
+     * @param idleColor is the normal color of the button
+     * @param hoverColor is the color of the button hovered
+     * @param initialState is the state code of the button
+     * @param screenScale is the factor of resolution of the screen
      */
     Button(float x, float y, float width, float height, sf::Font &f, const std::string &text,
-           sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, int initialState, float screenScale);
+           Color idleColor, Color hoverColor, int initialState, float screenScale);
+
+
 
     /**
-     * Determina el estado del botón.
-     * @param buttonState
+     * Updates the state of the button
+     * @param buttonState is the new state of the button to change
      */
-    void setButtonState(button_states buttonState);
+    void setButtonState(button_states stateButton);
+
+
 
     /**
-     * Dibuja el botón.
-     * @param app
+     * Draws the button
+     * @param app is the console window of the game
      */
-    void render(sf::RenderTexture *app);
+    void render(RenderTexture *app);
+
+
 
     /**
-     * Establece el texto del botón.
-     * @param newString
+     * Initialize the text content of the button
+     * @param newString is the content text of the button
      */
-    void setTextButton(const std::string &newString);
+    void setTextButton(const string &newString);
 };
 
 
-#endif // BUTTON_H
+#endif // OUTRUN_BUTTON_H

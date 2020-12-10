@@ -34,17 +34,37 @@ Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange
         currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0),
         probAI(0), typeAI(OBSTACLE), id(idCar) {}
 
-Vehicle::Direction randomDirection() {
-    const float p = random_zero_one();
-    if (p < 0.6f)
-        return Vehicle::Direction::RIGHT;
-    else if (p < 0.8f)
-        return Vehicle::Direction::TURNRIGHT;
-    else
-        return Vehicle::Direction::TURNLEFT;
-}
 
+
+
+/**
+ * Updates the vehicle logic automatically for the current movement
+ *
+ * The AI will only be activated if the distance between the vehicle and the player is less than or equal to the distance
+ * of rendering (rectangles that the player sees).
+ *
+ * AI aggressiveness is within the class (probAI). It is a value between 0 and 1 that indicates the probability of
+ * that the AI act in this movement.
+ *
+ * If the AI aggressiveness is 0, the movement will be as in the original game, i.e. the car will continue
+ * at a constant speed without going off the road and following a straight path or with a turn (chosen
+ * randomly) and without being influenced by the player.
+ *
+ * If the aggressiveness of the AI is 1, the movement will be controlled by the AI and its movement will depend on the type
+ * of AI:
+ * OBSTACLE: Attempts to collide with the player by getting in his path and trying to catch him.
+ * EVASIVE: Flees to the lane furthest from the player to try to avoid him.
+ * INCONSTANT: Changes lanes too often regardless of the player's position.
+ *
+ * If the aggressiveness of the AI is between 0 and 1, it performs one of the two actions described (original
+ * or AI) with probability p that the AI will act and p' = (1 - p) that it will be as in the original.
+ *
+ * @param c is the module configuration of the game
+ * @param playerPosX is the position of the traffic car in the axis x
+ * @param playerPosY is the position of the traffic car in the axis y
+ */
 void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff) {
+    // Check if the vehicle is in fork
     if (inFork){
         if (posX >= 0.f){
             // Right fork
@@ -65,17 +85,21 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
             }
         }
     }
+    // Normal path
     else if (abs(playerPosY - posY) > float(c.renderLen) || random_zero_one() >= probAI) {
         // Original
         if (current_direction_counter < max_direction_counter) {
+            // Increment texture
             current_direction_counter++;
         }
         else {
+            // Change the texture and gets a new random direction
             max_direction_counter = random_zero_n(MAX_AUTO_DIRECTION_COUNTER);
             current_direction_counter = 0;
             calculatedPath = randomDirection();
         }
 
+        // Compute the coordinate in axis x depending on the direction selected
         float newX = posX;
         if (calculatedPath == TURNRIGHT)
             newX += XINC * random_zero_one() * speed / maxSpeed;
@@ -87,6 +111,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
         else
             posX = newX;
 
+        // Stores the new direction
         currentDirection = calculatedPath;
     } else {
         // AI
@@ -104,7 +129,8 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
                     posX += XINC * speed / maxSpeed;
                     currentDirection = TURNRIGHT;
                 }
-            } else { // Acceleration control
+            } else {
+                // Acceleration control
                 // The vehicle is in the player's path
                 if (posY <= playerPosY)
                     speed = sqrt(acc + ACC_INC);
@@ -158,11 +184,13 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
         }
     }
 
+    // Control the limits of speed of the traffic car
     if (speed > maxSpeed)
         speed = maxSpeed;
     else if (speed < 0)
         speed = 0;
 
+    // Control that the enemy is not out of the road in the forks
     if (!inFork){
         if (posX > 0.9f) {
             posX = 0.9f;
@@ -173,42 +201,78 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
         }
     }
 
+    // Update the position of the traffic car in the landscape
     previousY = posY;
     posY += speed;
 }
 
+
+
+/**
+ * Initialize the vehicle status. Updates the aggressiveness of the vehicle's AI with a random value between 0
+ * and maxAggressiveness.
+ * @param iniPos is the initial position of the traffic car
+ * @param endPos is the new position of the traffic car
+ * @param maxAggressiveness is the AI aggressiveness of the traffic cars
+ * @param difficulty is the difficulty level of the game selected by the player
+ */
 void Enemy::update(float iniPos, float endPos, float maxAggressiveness) {
+
+    // Updating the speed of the traffic car between two thresholds
     speed = maxSpeed * random_float(0.25f, 0.75f);
 
+    // Estimates the position of the traffic car and stores the current one
     posY = random_float(iniPos, endPos);
     previousY = posY;
 
+    // Initialize the path counter
     current_direction_counter = 0;
     max_direction_counter = 0;
-
     minScreenX = 0;
     maxScreenX = 0;
 
+    // Set the type of AI
     setAI(maxAggressiveness);
 }
 
+
+
+/**
+ * Updates the aggressiveness of the vehicle AI with a random value between 0 and maxAggressiveness
+ * @param maxAggressiveness is the AI aggressiveness of the traffic cars
+ * @param difficulty is the difficulty level of the game selected by the player
+ * @param typeOfGame is the game selected by the player
+ */
 void Enemy::setAI(float maxAggressiveness) {
+    // Determine the aggressiveness of the AI
     if (maxAggressiveness == 0.0f)
         probAI = 0.0f;
     else
         probAI = random_float(maxAggressiveness / 2.0f, maxAggressiveness);
 
+    // Get a random number to select the type of AI for the traffic car
     const float p = random_zero_one();
+
+    // Check the difficulty and depending of it a kind of AI is more common than the other one
     if (p < 0.333f) {
         typeAI = OBSTACLE;
-    } else if (p < 0.666f) {
+    }
+    else if (p < 0.666f) {
         typeAI = EVASIVE;
-    } else {
+    }
+    else {
         typeAI = INCONSTANT;
         probAI *= 2.0f;
     }
 }
 
+
+
+/**
+ * Update the sprite of the enemy vehicle.
+ * @param e is the current elevation of the terrain where is the camera
+ * @param camX is the position of the camera in the axis x
+ */
 void Enemy::draw(const Elevation &e, const float camX) {
     if (counter_code_image >= maxCounterToChange) {
         counter_code_image = 0;
@@ -272,39 +336,93 @@ void Enemy::draw(const Elevation &e, const float camX) {
     }
 }
 
+
+
+/**
+ * Sets the minimum X coordinate that the vehicle occupies.
+ * @param screenX
+ */
 void Enemy::setMinScreenX(float screenX) {
     minScreenX = screenX;
 }
 
+
+
+/**
+ * Sets the maximum X coordinate that the vehicle occupies.
+ * @param screenX
+ */
 void Enemy::setMaxScreenX(float screenX) {
     maxScreenX = screenX;
 }
 
+
+
+/**
+ * Returns the current texture of the vehicle
+ * @return
+ */
 const Texture *Enemy::getCurrentTexture() const {
     return &textures[current_code_image - 1];
 }
 
+
+
+/**
+ * Returns the current scale of the vehicle.
+ * @return
+ */
 float Enemy::getScale() const {
     return scale;
 }
 
+
+
+/**
+ * Returns true if there has been a collision between the traffic vehicle and the player's vehicle.
+ * If true, it also returns the Y position where they have collided
+ * @param currentY is the current position of the player's vehicle in the axis y
+ * @param prevY is the last position of the player's vehicle in the axis y
+ * @param minX is the minimum position in axis x occupied by the vehicle
+ * @param maxX is the maximum position in axis y occupied by the vehicle
+ * @param crashPos is the position in axis y where the crash has happened
+ * @return
+ */
 bool Enemy::hasCrashed(float prevY, float currentY, float minX, float maxX, float &crashPos) const {
+    // Check if the path of the traffic car is approximately the same path of the player's vehicle
     if (minScreenX != maxScreenX && ((prevY <= posY + 5.f && currentY >= posY - 5.f) ||
                                      (currentY <= posY + 5.f && prevY >= posY - 5.f)) && // y matches
         ((minX >= minScreenX && minX <= maxScreenX) ||
          (maxX >= minScreenX && maxX <= maxScreenX) ||
          (minScreenX >= minX && minScreenX <= maxX) ||
          (maxScreenX >= minX && maxScreenX <= maxX))) { // x matches
+        // There is a crash between both cars
         crashPos = posY;
         return true;
     }
+    // There is no crash
     return false;
 }
 
+
+/**
+ * Returns true if the car is displayed on screen and the distance to the player, otherwise returns false.
+ * @param c is the module configuration of the game
+ * @param minY is the position of the camera in the axis y
+ * @param playerX is the player position in the axis x
+ * @param playerY is the player position in the axis y
+ * @param distanceX is the distance between the traffic car and the vehicle of the player in the axis x
+ * @param distanceY is the distance between the traffic car and the vehicle of the player in the axis y
+ * @return
+ */
 bool Enemy::isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const {
+    // Check if the traffic car is visible from the position of the player's vehicle
     if (posY < minY || posY > minY + float(c.renderLen) || minScreenX < 0 || maxScreenX > c.w.getSize().y) {
+        // The traffic car is not visible
         return false;
-    } else {
+    }
+    else {
+        // The traffic car is visible and calculate the distance in both axis with it
         distanceX = abs(playerX - posX);
         distanceY = abs(playerY - posY);
         return true;
@@ -313,7 +431,9 @@ bool Enemy::isVisible(const Config &c, float minY, float playerX, float playerY,
 
 
 
-
+/**
+ * Returns the numeric identifier of the car
+ */
 int Enemy::getId() const {
     return id;
 }

@@ -17,16 +17,22 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GLOBALS_H
-#define GLOBALS_H
+
+ /*
+ * Module Globals interface file
+ */
+
+#ifndef OUTRUN_GLOBALS_H
+#define OUTRUN_GLOBALS_H
 
 #include <mutex>
 #include <thread>
 
 using namespace std;
 
+
+// Global variables to control the mutual exclusion
 extern mutex mainMutex;
 
-// Variables to control the connection to the Linda server
 
-#endif
+#endif // OUTRUN_GLOBALS_H

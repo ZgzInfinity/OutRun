@@ -17,35 +17,51 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+ /*
+ * Module Random interface file
+ */
+
 #ifndef OUTRUN_RANDOM_HPP
 #define OUTRUN_RANDOM_HPP
 
+
+
 /**
- * Devuelve un número aleatorio entre cero y uno.
+ * Returns a random number between zero and one
  * @return
  */
 float random_zero_one();
 
+
+
 /**
- * Devuelve un número aleatorio entre cero y n.
+ * Returns a random number between zero and n
+ * @param n is the upper bound number to generate the random number
  * @return
  */
 int random_zero_n(int n);
 
+
+
 /**
- * Devuelve un número aleatorio entre min y max.
- * @param min
- * @param max
+ * Returns a integer random number between a lower bound and an upper bound numbers
+ * @param min is the lower bound number of the interval
+ * @param max is the upper bound number of the interval
  * @return
  */
 int random_int(int min, int max);
 
+
+
 /**
- * Devuelve un número aleatorio entre min y max.
- * @param min
- * @param max
+ * Returns a float random number between a lower bound and an upper bound numbers
+ * @param min is the lower bound number of the interval
+ * @param max is the upper bound number of the interval
  * @return
  */
 float random_float(float min, float max);
+
 
 #endif //OUTRUN_RANDOM_HPP

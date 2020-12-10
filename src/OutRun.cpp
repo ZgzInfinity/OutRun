@@ -29,6 +29,22 @@ using namespace std;
 mutex mainMutex;
 
 
+
+/**
+ * Load the current configuration of the game
+ * @param path is the xml file with the configuration
+ * @param difficulty is the difficulty of the game
+ * @param volumeSoundtracks is the volume of the music
+ * @param volumeEffects is the volume of the SFX
+ * @param pixelArt controls if the graphics have to be drawn with pixel art
+ * @param fullScreen controls if the screen has to be drawn in completed screen
+ * @param axis_x is the width of the screen
+ * @param axis_y is the height of the screen
+ * @param controlLeft controls the key to move the vehicle of the player to the left
+ * @param controlRight controls the key to move the vehicle of the player to the right
+ * @param controlAccelerate controls the key to accelerate the vehicle of the player
+ * @param controlBrake controls the key to brake the vehicle of the player
+ */
 void loadGameConfiguration (const string path, Difficult& difficulty, bool& enabledAi,
                             int& volumeSoundtracks, int& volumeEffects, bool& pixelArt,
                             bool& fullScreen, int& axis_x,int& axis_y, string& controlLeft,
@@ -62,6 +78,7 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
                     difficulty = PEACEFUL;
                 }
             }
+            // Read the AI controller
             else if (s == "AI:" && !fin.eof()) {
                 fin >> s;
                 if (s == "Enabled"){
@@ -71,14 +88,17 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
                     enabledAi = false;
                 }
             }
+            // Volume of the soundtracks
             else if (s == "VOLUME_SOUNDTRACKS:" && !fin.eof()) {
                 fin >> s;
                 volumeSoundtracks = stoi(s);
             }
+            // Volume of the sound effects
             else if (s == "VOLUME_EFFECTS:" && !fin.eof()) {
                 fin >> s;
                 volumeEffects = stoi(s);
             }
+            // control if the graphics have to been drawn with pixel art
             else if (s == "PIXEL_ART:" && !fin.eof()) {
                 fin >> s;
                 if (s == "Enabled"){
@@ -88,6 +108,7 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
                     pixelArt = false;
                 }
             }
+            // Full screen
             else if (s == "FULL_SCREEN:" && !fin.eof()) {
                 fin >> s;
                 if (s == "Enabled"){
@@ -97,29 +118,35 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
                     fullScreen = false;
                 }
             }
+            // Width of the screen
             else if (s == "RESOLUTION_X:" && !fin.eof()) {
                 fin >> s;
                 axis_x = stoi(s);
             }
+            // height of the screen
             else if (s == "RESOLUTION_Y:" && !fin.eof()) {
                 fin >> s;
                 axis_y = stoi(s);
             }
+            // Keyword to turn left the player's vehicle
             else if (s == "CONTROLLER_LEFT:" && !fin.eof()) {
                 fin.ignore(1);
                 getline(fin, s);
                 controlLeft = s;
             }
+            // Keyword to turn right the player's vehicle
             else if (s == "CONTROLLER_RIGHT:" && !fin.eof()) {
                 fin.ignore(1);
                 getline(fin, s);
                 controlRight = s;
             }
+            // Keyword to accelerate the player's vehicle
             else if (s == "CONTROLLER_ACCELERATE:" && !fin.eof()) {
                 fin.ignore(1);
                 getline(fin, s);
                 controlAccelerate = s;
             }
+            // Keyword to brake the player's vehicle
             else if (s == "CONTROLLER_BRAKE:" && !fin.eof()) {
                 fin.ignore(1);
                 getline(fin, s);
@@ -131,17 +158,21 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
 }
 
 
-
+/**
+ * Main program that controls Out Run
+ */
 int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
 
     // Throw the application with hight priority
     SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 
+    // Variables to control the configuration of the game
     Difficult difficulty;
     bool pixelArt, enabledAi, fullScreen;
     int volumeSoundtracks, volumeEffects, axis_x, axis_y;
     string controlLeft, controlRight, controlAccelerate, controlBrake;
 
+    // Load the properties of the game
     string path = "Resources/Settings/Settings.info";
 
     loadGameConfiguration(path, difficulty, enabledAi, volumeSoundtracks, volumeEffects, pixelArt, fullScreen, axis_x, axis_y,
@@ -153,6 +184,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
 
     State state = ANIMATION;
 
+    // Main loop of the game AFD
     while (c.window.isOpen() && state != EXIT) {
         Game engine(c);
 

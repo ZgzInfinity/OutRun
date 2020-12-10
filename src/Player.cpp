@@ -17,6 +17,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Module Player implementation file
+ */
+
 #include <cmath>
 #include "../include/Player.hpp"
 #include "../include/Random.hpp"
@@ -27,6 +33,20 @@ using namespace sf;
 #define PLAYER_TEXTURES 170
 #define MAX_INERTIA 10
 
+
+
+ /**
+ * Initialize the player's vehicle
+ * @param maxSpeed is the maximum speed that the player's vehicle can reach
+ * @param speedMul is factor number that when it is multiplied by speed obtains the real speed
+ * @param accInc is the acceleration increment
+ * @param scaleX is the scaling factor in the axis x
+ * @param scaleY is the scaling factor in the axis y
+ * @param maxCounterToChange lets to update the sprite of the player's vehicle that is drawn in the screen
+ * @param vehicle is the type of vehicle selected by the player
+ * @param pX is the position of the player in the axis x
+ * @param pY is the position of the player in the axis y
+ */
 Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
                const string &vehicle, float pX, float pY) : Vehicle(maxSpeed / speedMul, scaleX, maxCounterToChange,
                                                                     0.0f, pX, pY, pY, 0, 0,
@@ -44,10 +64,22 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
     numAngers = 0;
 }
 
+
+
+/**
+ * Returns the last position of the player's vehicle in axis y
+ * @return
+ */
 float Player::getPreviousY() const {
     return previousY;
 }
 
+
+
+/**
+ * Updates the crash logic of the player's vehicle and restores speed and acceleration
+ * @param vehicleCrash true if it is a crash between vehicles
+ */
 void Player::hitControl(const bool vehicleCrash) {
     // By default the devastator is crashing
     crashing = true;
@@ -96,6 +128,10 @@ void Player::hitControl(const bool vehicleCrash) {
         else {
             posX = posX + (acceleration * XINC / maxAcc) * 1.5f;
         }
+        // Avoid to be trapped inside the obstacles of the left
+        if (posX > 1.2f){
+            posX = 1.2f;
+        }
     }
     else {
         // Increment to the left depending if the speed of the devastator
@@ -113,6 +149,10 @@ void Player::hitControl(const bool vehicleCrash) {
         }
         else {
             posX = posX - (acceleration * XINC / maxAcc) * 1.5f;
+        }
+        // Avoid to be trapped inside the obstacles of the right
+        if (posX < -1.2f){
+            posX = -1.2f;
         }
     }
 
@@ -191,47 +231,81 @@ void Player::hitControl(const bool vehicleCrash) {
     }
 }
 
+
+
+/**
+ * Returns true if the player's vehicle is crashing. Otherwise returns false
+ * @return
+ */
 bool Player::isCrashing() const {
     return crashing;
 }
 
+
+
+/**
+ * Returns the real speed of the player's vehicle
+ * @return
+ */
 float Player::getRealSpeed() const {
     return speed * speedMul;
 }
 
+
+
+/**
+ * Updates the logic of the player's vehicle acceleration and braking
+ * @param c is the module configuration of the game
+ * @param hasGotOut indicates if it's gone off track
+ * @return
+ */
 Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
+
+    // Default action
     Action a = NONE;
     smoking = false;
+
+    // Store the current acceleration
     float previousAcc = acceleration;
 
+    // Check if the braking control key has been pressed
     if (c.window.hasFocus() && Keyboard::isKeyPressed(c.brakeKey))
+        // Player's car brakes
         a = BRAKE;
 
+    // Check if the accelerating key has been pressed
     if (a != BRAKE && c.window.hasFocus() && Keyboard::isKeyPressed(c.accelerateKey)) {
+        // Check if the player's car is outside the road
         if (hasGotOut) {
             outSideRoad = true;
+            // The acceleration increases slower
             if (acceleration < maxAcc / 4.5f)
                 acceleration += accInc / 3.0f;
             else
                 acceleration -= accInc * 1.5f;
         }
         else {
+            // The acceleration increases quicker
             outSideRoad = false;
             if (acceleration < maxAcc)
                 acceleration += accInc;
         }
 
+        // Control the limit of the acceleration
         if (acceleration > maxAcc)
             acceleration = maxAcc;
 
+        // Check if the player's vehicle must start to smoke
         smoking = acceleration < maxAcc * 0.1f;
     } else {
+        // The player's car is braking
         float mul = 2.0f;
         if (a == BRAKE)
             mul *= 2.0f;
         if (hasGotOut)
             mul *= 1.5f;
 
+        // Reduces acceleration
         if (acceleration > 0.0f)
             acceleration -= accInc * mul;
 
@@ -239,33 +313,57 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
             acceleration = 0.0f;
     }
 
+    // Control if the player's car is going to boot the motor
     if (previousAcc == 0.0f && acceleration > 0.0f)
         a = BOOT;
     else if (a == NONE && acceleration > 0.0f)
+        // The player's car accelerates because the rest of actions has not happened
         a = ACCELERATE;
 
+    // Calculate the new speed of the player's car
+    mainMutex.lock();
     speed = sqrt(acceleration);
+    mainMutex.unlock();
+
+    // Control the advance of the player's vehicle in the landscape
     if (speed > 0.0f) {
+        // Store the last position in axis y
         previousY = posY;
+        // Store the new position using the current speed
         posY += speed;
     }
 
     return a;
 }
 
+
+
+/**
+ * Updates the logic direction turn of the player's vehicle
+ * @param c is the module configuration of the game
+ * @param curveCoefficient is the coefficient curve
+ * @return
+ */
 Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bool inFork) {
+
+        // The player's car is not skidding by default
     skidding = false;
 
     if (speed > 0.0f) {
+        // Decrement the position in axis x using the maximum speed and the acceleration
         if (speed < 0.66f * maxSpeed)
             posX -= XINC * curveCoefficient * sqrt(speed / 2.0f) * speed / maxSpeed;
         else
             posX -= XINC * curveCoefficient * sqrt(speed) * speed / maxSpeed;
 
+        // Check if the player's car has to start to skid
         if (abs(curveCoefficient) >= 0.33f && speed >= 0.66f * maxSpeed)
             skidding = true;
 
+        // Control if the turning left control key has been pressed
         if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+
+            // Measure the effect of the inertia force
             if (inertia > -MAX_INERTIA)
                 inertia--;
 
@@ -273,6 +371,7 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                 if (curveCoefficient > 0.0f)
                     skidding = false;
 
+                // Control the power of turning in the fork
                 if (!inFork){
                     if (speed < halfMaxSpeed){
                         posX -= 1.5f * XINC * speed / maxSpeed;
@@ -284,6 +383,7 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                         posX -= XINC * speed / maxSpeed;
                     }
                 }
+                // Control the position in axis x
                 else {
                     if (speed < halfMaxSpeed){
                         posX -= 2.f * (XINC * 1.65f) * speed / maxSpeed;
@@ -295,17 +395,23 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                         posX -= 1.25f * (XINC * 1.65f) * speed / maxSpeed;
                     }
                 }
-                return TURNLEFT;
             }
-        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+            return TURNLEFT;
+        }
+        // Control if the turning right control key has been pressed
+        else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+
+            // Measure the effect of the inertia force
             if (inertia < MAX_INERTIA)
                 inertia++;
 
+            // The inertia force makes the player's car skid
             if (inertia > 0) {
                 if (curveCoefficient < 0.0f)
                     skidding = false;
 
                 if (!inFork){
+                    // Control the position in axis x
                     if (speed < halfMaxSpeed){
                         posX += 1.5f * XINC * speed / maxSpeed;
                     }
@@ -317,23 +423,43 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                     }
                 }
                 else {
-                    posX += 0.039;
+                    if (speed < halfMaxSpeed){
+                        posX += 2.f * (XINC * 1.65f) * speed / maxSpeed;
+                    }
+                    else if (curveCoefficient == 0.0f){
+                        posX += 1.5f * (XINC * 1.65f) * speed / maxSpeed;
+                    }
+                    else {
+                        posX += 1.25f * (XINC * 1.65f) * speed / maxSpeed;
+                    }
                 }
 
                 return TURNRIGHT;
             }
-        } else if (inertia > 0) {
+        }
+        else if (inertia > 0) {
             inertia--;
-        } else if (inertia < 0) {
+        }
+        else if (inertia < 0) {
             inertia++;
         }
-
         skidding = false;
     }
-
+    // Player's vehicle goes right
     return RIGHT;
 }
 
+
+
+/**
+ * Updates the player's vehicle sprite and draws it in the screen
+ * @param c is the module configuration of the game
+ * @param r is the sound player module of the game
+ * @param a is the action to be done by the player's vehicle
+ * @param d is the direction to be followed by the player's vehicle
+ * @param e is the current elevation of the player's vehicle in the landscape
+ * @param enableSound indicates if the motor of the player's vehicle has to make noise
+ */
 void Player::draw(Config &c, const Action &a, const Direction &d, const Elevation &e, int terrain, bool enableSound) {
     // Sound effects
     if (a != CRASH)
@@ -732,6 +858,10 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
 
 
 
+/**
+ * Draw the animation of the player's vehicle at the departure
+ * @param c is the module configuration of the game
+ */
 void Player::drawStaticAnimation(Config &c) {
     if (textures.size() == PLAYER_TEXTURES) {
         float x = (float) c.w.getSize().x / 2;
@@ -761,6 +891,12 @@ void Player::drawStaticAnimation(Config &c) {
 
 
 
+/**
+ * Draw the starting animation in the screen at beginning of the race and returns if it has finished
+ * @param c is the module configuration of the game
+ * @param x is the position of the car in the axis x
+ * @param end controls if the animation has finished
+ */
 void Player::drawInitialAnimation(Config &c, float x, bool &end, int& code) {
     if (textures.size() == PLAYER_TEXTURES) {
         if (counter_code_image >= maxCounterToChange) {
@@ -816,6 +952,14 @@ void Player::drawInitialAnimation(Config &c, float x, bool &end, int& code) {
 }
 
 
+
+/**
+ * Draw the final animation in the screen at the end of the race and returns if it has finished
+ * @param c is the module configuration of the game
+ * @param step is the position of the car in the axis x
+ * @param end controls if the animation has finished
+ * @param smoke controls that the smoke has to be drawn
+ */
 void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
     if (textures.size() == PLAYER_TEXTURES) {
         if (counter_code_image >= maxCounterToChange) {
@@ -882,6 +1026,12 @@ void Player::drawGoalAnimation(Config &c, int &step, bool &end, bool smoke) {
     }
 }
 
+
+
+/**
+ * It forces the player's vehicle to be smoking or not
+ * @param smoke indicates if the player's vehicle has to make smoke or not
+ */
 void Player::setSmoking(bool smoke) {
     smoking = smoke;
 }

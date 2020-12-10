@@ -17,11 +17,25 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+
+/*
+ * Module KeywordMapper implementation file
+ */
+
+
 #include "../include/KeywordMapper.hpp"
+
 
 using namespace std;
 using namespace sf;
 
+
+
+/**
+ * Constructor por defecto.
+ */
 KeywordMapper::KeywordMapper() {
 
     // Keyword letters

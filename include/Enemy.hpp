@@ -17,142 +17,206 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+ /*
+ * Module Enemy interface file
+ */
+
+
 #ifndef OUTRUN_ENEMY_HPP
 #define OUTRUN_ENEMY_HPP
 
 #include "Vehicle.hpp"
 
+
+/**
+ * Represents an enemy that is going to compete in some
+ * game modes of the game
+ */
 class Enemy : public Vehicle {
+
+    // Coordinate in the axis x
     const float oriX;
 
-    Direction currentDirection, calculatedPath;
-    int current_direction_counter, max_direction_counter, id;
+    // Direction that must be followed by the traffic car
+    Direction currentDirection;
 
+    // Direction that is going to be computed
+    Direction calculatedPath;
+
+    // Counter that stores the sprite of the traffic car to draw in the screen
+    int current_direction_counter;
+
+    // Counter that express how much the traffic car must maintain the current direction
+    int max_direction_counter;
+
+    // Probabilistic value of the AI
     float probAI;
 
+    // Control if the traffic car is a truck or not
+    bool isTruck;
+
+    // Type of enemy car
+    int id;
+
+
+
     /**
-     * Tipos de IA:
-     *      OBSTACLE: Intenta chocar con el jugador poniéndose en su trayectoria e intentando alcanzarlo.
-     *      EVASIVE: Huye al carril más alejado del jugador para intentar evitarlo.
+     * Types of AI:
+     * OBSTACLE: Attempts to collide with the player by getting in his path and trying to catch him.
+     * EVASIVE: Flees to the lane furthest from the player to try to avoid him.
+     * INCONSTANT: Changes lanes too often regardless of the player's position.
      */
     enum TypeAI {
         OBSTACLE,
         EVASIVE,
         INCONSTANT
     };
+
+
+    // AI mode of the traffic car
     TypeAI typeAI;
 
 public:
+
+
+
     /**
-     * Inicializa el vehículo rival.
-     * @param maxSpeed
-     * @param speedMul multiplicador de la velocidad que multiplicado por speed obtiene la velocidad real
-     * @param scale escalado del sprite del vehículo
-     * @param maxCounterToChange cuando counter_code_image llega a maxCounterToChange se actualiza el sprite
-     * @param vehicle nombre del vehículo
-     * @param pY
+     * Initialize the rival vehicle.
+     * @param maxSpeed is the maximum speed reached by the traffic car
+     * @param speedMultiplying the speed that multiplied by speed gets the real speed
+     * @param scale vehicle sprite scaling
+     * @param maxCounterToChange when counter_code_image arrives at maxCounterToChange the sprite is updated
+     * @param vehicle name
+     * @param pY is the position of the traffic car in the axis y
+     * @param idCar is the numeric identifier of the vehicle
      */
     Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const std::string &vehicle, float pY, int idCar);
 
+
+
     /**
-     * Actualiza la lógica del vehículo de manera automática para el movimiento actual.
+     * Updates the vehicle logic automatically for the current movement
      *
-     * La IA sólo se activará si la distancia entre el vehículo y el jugador es menor o igual a la distancia
-     * de render (rectángulos que ve el jugador).
+     * The AI will only be activated if the distance between the vehicle and the player is less than or equal to the distance
+     * of rendering (rectangles that the player sees).
      *
-     * La agresividad de la IA está dentro de la clase (probAI). Es un valor entre 0 y 1 que indica la probabilidad de
-     * que la IA actúe en este movimiento.
+     * AI aggressiveness is within the class (probAI). It is a value between 0 and 1 that indicates the probability of
+     * that the AI act in this movement.
      *
-     *      Si la agresividad de la IA es 0, el movimiento será como en el juego original, es decir, el coche seguirá
-     *      a velocidad constante sin salirse de la carretera y siguiendo una trayectoria recta o con giro (elegida
-     *      de manera aleatoria) y sin ser influenciado por el jugador.
+     * If the AI aggressiveness is 0, the movement will be as in the original game, i.e. the car will continue
+     * at a constant speed without going off the road and following a straight path or with a turn (chosen
+     * randomly) and without being influenced by the player.
      *
-     *      Si la agresividad de la IA es 1, el movimiento será controlado por la IA y su movimiento dependerá del tipo
-     *      de IA:
-     *          OBSTACLE: Intenta chocar con el jugador poniéndose en su trayectoria e intentando alcanzarlo.
-     *          EVASIVE: Huye al carril más alejado del jugador para intentar evitarlo.
+     * If the aggressiveness of the AI is 1, the movement will be controlled by the AI and its movement will depend on the type
+     * of AI:
+     * OBSTACLE: Attempts to collide with the player by getting in his path and trying to catch him.
+     * EVASIVE: Flees to the lane furthest from the player to try to avoid him.
+     * INCONSTANT: Changes lanes too often regardless of the player's position.
      *
-     *      Si la agresividad de la IA se encuentra entre 0 y 1, realiza una de las dos acciones descritas (original
-     *      o IA) con probabilidad p de que actúe la IA y p' = (1 - p) de que sea como en el original.
+     * If the aggressiveness of the AI is between 0 and 1, it performs one of the two actions described (original
+     * or AI) with probability p that the AI will act and p' = (1 - p) that it will be as in the original.
      *
-     * @param c
-     * @param playerPosX
-     * @param playerPosY
+     * @param c is the module configuration of the game
+     * @param playerPosX is the position of the traffic car in the axis x
+     * @param playerPosY is the position of the traffic car in the axis y
      */
     void autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff);
 
+
+
     /**
-     * Inicializa el estado del vehículo. Actualiza la agresividad de la IA del vehículo con un valor aleatorio entre 0
-     * y maxAggressiveness.
-     * @param iniPos
-     * @param endPos
-     * @param maxAggressiveness, 0 <= maxAggressiveness <= 1
+     * Initialize the vehicle status. Updates the aggressiveness of the vehicle's AI with a random value between 0
+     * and maxAggressiveness.
+     * @param iniPos is the initial position of the traffic car
+     * @param endPos is the new position of the traffic car
+     * @param maxAggressiveness is the AI aggressiveness of the traffic cars
      */
     void update(float iniPos, float endPos, float maxAggressiveness);
 
+
+
     /**
-     * Actualiza la agresividad de la IA del vehículo con un valor aleatorio entre 0 y maxAggressiveness.
-     * @param maxAggressiveness, 0 <= maxAggressiveness <= 1
+     * Updates the aggressiveness of the vehicle AI with a random value between 0 and maxAggressiveness
+     * @param maxAggressiveness is the AI aggressiveness of the traffic cars
      */
     void setAI(float maxAggressiveness);
 
+
+
     /**
-     * Actualiza el sprite del vehículo enemigo.
-     * @param e
-     * @param camX actual de la cámara
+     * Update the sprite of the enemy vehicle.
+     * @param e is the current elevation of the terrain where is the camera
+     * @param camX is the position of the camera in the axis x
      */
     void draw(const Elevation &e, float camX);
 
+
+
     /**
-     * Establece la coordenada X mínima que ocupa el vehículo.
+     * Sets the minimum X coordinate that the vehicle occupies.
      * @param screenX
      */
     void setMinScreenX(float screenX);
 
+
+
     /**
-     * Establece la coordenada X máxima que ocupa el vehículo.
+     * Sets the maximum X coordinate that the vehicle occupies.
      * @param screenX
      */
     void setMaxScreenX(float screenX);
 
+
+
     /**
-     * Devuelve la textura actual del vehículo.
+     * Returns the current texture of the vehicle
      * @return
      */
     const sf::Texture *getCurrentTexture() const;
 
+
+
     /**
-     * Devuelve la escala actual del vehículo.
+     * Returns the current scale of the vehicle.
      * @return
      */
     float getScale() const;
 
+
+
     /**
-     * Devuelve true si pos corresponde al vehículo actual. En caso de que sea true, también devuelve la posición Y
-     * donde han colisionado.
-     * @param currentY
-     * @param prevY
-     * @param minX
-     * @param maxX
-     * @param crashPos
+     * Returns true if there has been a collision between the traffic vehicle and the player's vehicle.
+     * If true, it also returns the Y position where they have collided
+     * @param currentY is the current position of the player's vehicle in the axis y
+     * @param prevY is the last position of the player's vehicle in the axis y
+     * @param minX is the minimum position in axis x occupied by the vehicle
+     * @param maxX is the maximum position in axis y occupied by the vehicle
+     * @param crashPos is the position in axis y where the crash has happened
      * @return
      */
     bool hasCrashed(float prevY, float currentY, float minX, float maxX, float &crashPos) const;
 
+
+
     /**
-     * Devuelve true si el coche se muestra en pantalla y la distancia al jugador, sino devuelve false.
-     * @param c
-     * @param minY
-     * @param playerX
-     * @param playerY
-     * @param distanceX
-     * @param distanceY
+     * Returns true if the car is displayed on screen and the distance to the player, otherwise returns false.
+     * @param c is the module configuration of the game
+     * @param minY is the position of the camera in the axis y
+     * @param playerX is the player position in the axis x
+     * @param playerY is the player position in the axis y
+     * @param distanceX is the distance between the traffic car and the vehicle of the player in the axis x
+     * @param distanceY is the distance between the traffic car and the vehicle of the player in the axis y
      * @return
      */
-    bool isVisible(const Config &c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const;
+    bool isVisible(const Config& c, float minY, float playerX, float playerY, float &distanceX, float &distanceY) const;
 
 
 
+    /**
+     * Returns the numeric identifier of the car
+     */
     int getId() const;
 
 };

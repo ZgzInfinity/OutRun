@@ -17,6 +17,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Module Game interface file
+ */
+
 #ifndef OUTRUN_GAME_HPP
 #define OUTRUN_GAME_HPP
 
@@ -35,26 +41,47 @@
 
 
 /**
- * Lógica del juego que contiene la información del jugador, la información de los mapas y el HUD.
- * La información de los mapas está compuesta por un conjunto de objetos Map y su jerarquía de conexión entre ellos.
- * El HUD está formado por un cuadro de texto donde aparece la velocidad del jugador.
+ * Game logic containing player information, map information and HUD.
+ * The information of the maps is composed by a set of objects Map and its hierarchy of connection between them.
+ * The HUD is formed by a text box where the speed of the player appears.
  */
 class Game {
+
     // Map info
-    std::vector<std::vector<Map>> maps; // 5 blocks of 15 maps {(0), (1, 2), (3, 4, 5), (6, 7, 8, 9), (10, 11, 12, 13, 14))}
-    std::pair<int, int> mapId; // (Block, num. map), ex: map0 = (0, 0); map1 = (1, 0); map2 = (1, 1); map14 = (4, 4)
+    // 5 blocks of 15 maps {(0), (1, 2), (3, 4, 5), (6, 7, 8, 9), (10, 11, 12, 13, 14))}
+    std::vector<std::vector<Map>> maps;
+
+    // (Block, num. map), ex: map0 = (0, 0); map1 = (1, 0); map2 = (1, 1); map14 = (4, 4)
+    std::pair<int, int> mapId;
+
+    // Current map where the player is driving
     Map *currentMap;
+
+    // Final map where the goal is drawn
     Map goalMap;
+
+    // Position of the goal and the goal flagger in the goal map
     int goalFlagger, goalEnd;
 
+    // Vehicle player
     Player player;
+
+    // Vector with the cars
     std::vector<Enemy> cars;
+
+    // Last position in axis y of the player
     float lastY;
+
+    // Control if the player has crashed against
     bool vehicleCrash;
 
     // Time to play
     int time;
+
+    // Factor to multiply the time
     float timeMul;
+
+    // Adding time when the player plays with AI active
     float timeAI;
 
      // Semaphores to control mutual exclusion
@@ -132,10 +159,14 @@ class Game {
 
     // Control the checkpoint
     bool checkPoint = false;
+
+    // Time to be displayed the checkpoint
     int timeCheck = 0;
 
+    // Control the blink of the text
     bool blink;
 
+    // Control if the player has arrived to the goal
     bool arrival;
 
     // Counter time to update the HUD indicators
@@ -149,7 +180,9 @@ class Game {
     // Tree map with levels
     sf::Texture treeMap[5][5];
 
+    // Stores the time inverted in the total race and in the checkpoint animation
     std::string lap, lapCheckPoint;
+
 
 
     /**
@@ -174,109 +207,147 @@ class Game {
 
 
     /**
-     * Dibuja el HUD en pantalla.
-     * @param c
+     * Shows the HUD of the game
+     * @param c is the configuration module of the game
      */
     void drawHUD(Config &c);
 
+
+
     /**
-     * Muestra el mensaje de checkpoint en pantalla.
-     * @param c
-     * @param visible
+     * Shows the checkpoint animation of the game
+     * @param c is the configuration module of the game
+     * @param visible controls if the animation has to be drawn or not
      */
     void drawCheckpoint(Config &c, bool visible);
 
+
+
     /**
-     * Muestra el mensaje de GAME OVER en pantalla.
-     * @param c
+     * Shows the game over animation at the end of the race
+     * @param c is the configuration module of the game
      */
     static void drawGameOver(Config &c);
 
-    /**
-     * Muestra el mensaje de bonus en pantalla.
-     * @param c
-     * @param seconds
-     * @param decs_second
-     */
-    void drawBonus(Config &c, int seconds, int decs_second);
+
 
     /**
-     * Muestra la animación inicial del comienzo de la partida.
-     * @param c
+     * Shows the bonus animation when the player ends the race
+     * @param c is the configuration module of the game
+     * @param seconds is the number of seconds inverted in the race
+     * @param cents_second is the number of hundreds of second inverted in the race
+     */
+    void drawBonus(Config &c, int seconds, int cents_second);
+
+
+
+    /**
+     * Shows the initial animation when the race starts
+     * @param c is the configuration module of the game
      */
     State initialAnimation(Config &c);
 
+
+
     /**
-     * Muestra la animación final de la partida.
-     * @param c
+     * Shows the goal animation at the end of the race
+     * @param c is the configuration module of the game
      */
     State goalAnimation(Config &c);
 
+
+
     /**
-     * Actualiza la lógica de los mapas y vehículos y dibuja el fragmento de mapa actual con los vehículos en la pantalla.
-     * @param c
+     * Updates the logic of the map and vehicles and draws the current map fragment
+     * with the vehicles on the screen
+     * @param c is the configuration of the game
+     * @param action is the action of the player that is going to be processed
+     * @param direction is the direction of the player that is going to be processed
+     * @param terrain is the kind of terrain of the landscape
      */
     void updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction &direction, const int terrain);
 
+
+
 public:
+
+
+
     /**
-     * Inicializa la lógica del juego y carga los vehículos y los mapas.
-     * @param c
+     * Initialize the game logic and load the vehicles and maps
+     * @param c is the module configuration of the game
      */
     explicit Game(Config &c);
 
+
+
     /**
-     * Comprueba la dificultad y ajusta los parámetros correspondientes.
-     * @param c
+     * Check the difficulty and adjust the corresponding parameters.
+     * @param c is the module configuration of the game
      */
     void checkDifficulty(Config &c);
 
+
+
     /**
-     * Devuelve true si se está en medio de una partida.
+     * Returns true if you are in the middle of a game
      * @return
      */
     bool isInGame() const;
 
+
+
     /**
-     * Devuelve la puntuación total.
+     * Returns the total score
      * @return
      */
     unsigned long getScore() const;
 
+
+
     /**
-     * Devuelve los minutos totales.
+     * Returns the total minutes of the race
      * @return
      */
     float getMinutesTrip() const;
 
+
+
     /**
-     * Devuelve los segundos totales.
+     * Returns the total seconds of the race
      * @return
      */
     float getSecsTrip() const;
 
+
+
     /**
-     * Devuelve las centésimas de segundo totales.
+     * Returns the hundreds of seconds of the race
      * @return
      */
     float getCents_SecondTrip() const;
 
+
+
     /**
-     * Actualiza la lógica del juego y lo actualiza la pantalla hasta que se sale del juego.
-     * @param c
+     * Updates the logic of the game and refreshes the screen until you leave the game
+     * @param c is the configuration module of the game
      * @return
      */
     State play(Config &c);
 
+
+
     /**
-     * Menú de pausa.
-     * @param c
-     * @param a
-     * @param d
+     * Stops the game and shows the pause menu
+     * @param c is the configuration of the game
+     * @param a is the last action done by the player
+     * @param d is the last direction done by the player
      * @return
      */
     State pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction &d);
+
 };
 
 
-#endif //OUTRUN_GAME_HPP
+#endif // OUTRUN_GAME_HPP
