@@ -76,53 +76,24 @@ wine.
 
 Below are some captures of the video game developed:
 
-![initial menu](https://i.ibb.co/3CjNq8j/46.jpg)
+![initial menu](https://i.ibb.co/t4SLsND/Inicio.png)
 
-![music menu](https://i.ibb.co/J39HQjp/48.jpg)
+![Radio](https://i.ibb.co/540Rbzf/Radio.png)
 
-![slicing](https://i.ibb.co/BT30R7D/22.jpg)
+![Beach](https://i.ibb.co/jfchqwW/Beach.png)
 
-![departure](https://i.ibb.co/0M31dPL/25.jpg)
+![Desert](https://i.ibb.co/fF1yGwd/Desert.png)
 
-![coconut beach](https://i.ibb.co/8mFp5Jf/29.jpg)
+![Desert2](https://i.ibb.co/KVhJsc8/Desert2.png)
 
-![gateway](https://i.ibb.co/N6m8qx0/30.jpg)
+![Grass](https://i.ibb.co/R0PY9PH/Grass.png)
 
-![canyon](https://i.ibb.co/LZCy8Tz/31.jpg)
+![Crash](https://i.ibb.co/N1CnCK1/Crash.png)
 
-![desert](https://i.ibb.co/wyQFXzg/32.jpg)
+![Forest](https://i.ibb.co/wgjRP0P/Forest.png)
 
-![alps](https://i.ibb.co/MNSks9G/33.jpg)
+![City](https://i.ibb.co/m6kNQLv/City.png)
 
-![cloudy mountain](https://i.ibb.co/hLXDJt5/34.jpg)
-
-![wilderness](https://i.ibb.co/qRz9C14/35.jpg)
-
-![old capital](https://i.ibb.co/r5XrDVM/36.jpg)
-
-![wheat field](https://i.ibb.co/GczNQWM/37.jpg)
-
-![Seaside Down](https://i.ibb.co/Gktfwkr/38.jpg)
-
-![Vineyard](https://i.ibb.co/yyC6nvC/39.jpg)
-
-![Death Valley](https://i.ibb.co/mGDjjpY/40.jpg)
-
-![Desolation Hill](https://i.ibb.co/jMP2TRt/41.jpg)
-
-![Autobahn](https://i.ibb.co/LhWD4ZX/42.jpg)
-
-![Lakeside](https://i.ibb.co/jvzPhGJ/43.jpg)
-
-![options](https://i.ibb.co/LxjvtcL/53.jpg)
-
-![controllers](https://i.ibb.co/rbB57mn/56.jpg)
-
-![pause](https://i.ibb.co/RS1dkST/52.jpg)
-
-![score](https://i.ibb.co/19qs10b/27.jpg)
-
-![arrival](https://i.ibb.co/drwJnx7/58.jpg)
 
 # Trailer
 
