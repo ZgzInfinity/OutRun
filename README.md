@@ -35,6 +35,7 @@ This new the following features with respect to the original versions:
 * Numerous types of artificial intelligence integrated.
 * Configuration of the controllers customizable.
 * Completely new maps available.
+* Customizable settings.
 
 # Tools and technologies used
 * C++14
