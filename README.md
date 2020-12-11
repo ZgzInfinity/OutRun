@@ -28,7 +28,7 @@ which correspond to the 1986 arcade machine version and the 1991 Sega Mega Drive
 
 This new the following features with respect to the original versions:
 
-* Realistic and spectacular graphics in 3D.
+* Realistic and spectacular graphics in 2.5D.
 * Compatible with many screen resolutions.
 * Fantastic soundtracks and SFX fully customizable.
 * Various difficulty levels.
