@@ -102,7 +102,7 @@ Below are some captures of the video game developed:
 
 The following link shows the trailer of the videogame published in Youtube.
 
-https://www.youtube.com/watch?v=_Uo1Rk74fAY
+https://www.youtube.com/watch?v=IVZdkIx5NXg
 
 # Authors
 
