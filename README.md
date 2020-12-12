@@ -98,11 +98,14 @@ Below are some captures of the video game developed:
 ![Ice](https://i.ibb.co/VBTX91k/Ice.png)
 
 
-# Trailer
+# Trailer and gameplay
 
-The following link shows the trailer of the videogame published in Youtube.
+The following link shows the trailer and a gameplay of the videogame in the followuing links:
 
 https://www.youtube.com/watch?v=IVZdkIx5NXg
+
+https://www.youtube.com/watch?v=7iA3PpbELm8
+
 
 # Authors
 
