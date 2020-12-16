@@ -1267,10 +1267,11 @@ State optionsMenu(Config &c, const bool &inGame) {
                                 c.level = PEACEFUL;
                                 menuButtons[optionSelected + 5].setTextButton("Peaceful");
                             }
-                            if (c.level == NORMAL) {
+                            else if (c.level == NORMAL) {
                                 c.level = EASY;
                                 menuButtons[optionSelected + 5].setTextButton("Easy");
-                            } else if (c.level == HARD) {
+                            }
+                            else if (c.level == HARD) {
                                 c.level = NORMAL;
                                 menuButtons[optionSelected + 5].setTextButton("Normal");
                             }
@@ -1283,10 +1284,11 @@ State optionsMenu(Config &c, const bool &inGame) {
                                 c.level = EASY;
                                 menuButtons[optionSelected + 5].setTextButton("Easy");
                             }
-                            if (c.level == EASY) {
+                            else if (c.level == EASY) {
                                 c.level = NORMAL;
                                 menuButtons[optionSelected + 5].setTextButton("Normal");
-                            } else if (c.level == NORMAL) {
+                            }
+                            else if (c.level == NORMAL) {
                                 c.level = HARD;
                                 menuButtons[optionSelected + 5].setTextButton("Hard");
                             }
@@ -1384,7 +1386,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                                                      c.w.getSize().y / 2.f + 150.0f * c.screenScale,
                                                      200.0f * c.screenScale,
                                                      30.0f * c.screenScale, c.options,
-                                                     "Controllers", Color(0, 255, 0), Color(0, 255, 0), 0, c.screenScale);
+                                                     "Controllers", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
                             menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
                                                      c.w.getSize().y / 2.f - 130.0f * c.screenScale,

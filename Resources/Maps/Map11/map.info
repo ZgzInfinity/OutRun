@@ -1,6 +1,6 @@
 /* Mapa 11 */
 
-0				 /* Type of terrain 0 = grass, 1 = land, 2 = snow*/
+0				 /* Type of terrain 0 = grass, 1 = land, 2 = snow */
 2 6 46		    /* Road RGB color 1 */
 0 4 44  		/* Road RGB color 2 */
 55 5 119        /* Grass RGB color 1 */
@@ -19,25 +19,29 @@
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
 
-ROAD          -  
-ROAD   29 3.2 - 
-ROAD          - 1 0.2
-ROAD          -  
-ROAD          - 23 3.7
-ROAD          - 
-ROAD    1 0.3 - 
-ROAD          - 28 3.2
-ROAD          - 
-ROAD   28 1.4 - 
-ROAD          - 
-ROAD          - 1 0.5
-ROAD   27 3.4 -  
-ROAD          - 
-ROAD    1 0.3 - 
-ROAD          - 21 3.6
-ROAD          - 
-ROAD   30 2.3 - 
-ROAD          - 1 0.6
+ROAD C 32 -0.9 - C 31 -0.9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD    29 3.2 - 
+ROAD           - 1 0.2
+ROAD           -  
+ROAD           - 23 3.7
+ROAD           - 
+ROAD     1 0.3 - 
+ROAD           - 28 3.2
+ROAD           - 
+ROAD    28 1.4 - 
+ROAD           - 
+ROAD           - 1 0.5
+ROAD    27 3.4 -  
+ROAD           - 
+ROAD     1 0.3 - 
+ROAD           - 21 3.6
+ROAD           - 
+ROAD    30 2.3 - 
+ROAD           - 1 0.6
 
 CURVE 1.2
 
@@ -1203,6 +1207,5 @@ ROAD    8 2.5 -
 ROAD          - 10 3.7
 ROAD          -  
 ROAD    1 0.2 - 12 4.8
-ROAD          - 
 
 END  /* Obligatorio */

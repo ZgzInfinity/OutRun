@@ -1,6 +1,6 @@
 /* Mapa 8 */
 
-0				 /* Type of terrain 0 = grass, 1 = land, 2 = snow*/
+0				 /* Type of terrain 0 = grass, 1 = land, 2 = snow */
 5 5 4			/* Road RGB color 1 */
 3 3 2  			/* Road RGB color 2 */
 14 159 49       /* Grass RGB color 1 */
@@ -19,44 +19,48 @@
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
 
-ROAD          -  
-ROAD          - 18 1.4
-ROAD   22 3.5 - 
-ROAD          - 
-ROAD          - 1 0.2
-ROAD          - 
-ROAD   24 1.2 - 
-ROAD          - 1 0.3 
-ROAD          - 
-ROAD          - 
-ROAD   26 3.5 - 
-ROAD          - 
-ROAD          - + 9 0.4 
-ROAD          - 
-ROAD          - 
-ROAD          - 21 4.2
-ROAD + 10 0.5 - 
-ROAD          - 
-ROAD          - 6 3.7
-ROAD          -  
-ROAD    6 1.4 - 
-ROAD          - 22 0.1
-ROAD          -  
-ROAD          -  
-ROAD          - 1 2.8
-ROAD          - 
-ROAD   21 0.2 - 
-ROAD          - 
-ROAD          - 17 2.5
-ROAD          - 
-ROAD   17 1.2 - 
-ROAD          - 8 0.7
-ROAD          - 
-ROAD          - 11 4.8
-ROAD   11 3.1 - 
-ROAD   29 0.2 - 
-ROAD          - 
-ROAD          -
+ROAD C 32 -0.9 - C 31 -0.9
+ROAD           -  
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           - 18 1.4
+ROAD    22 3.5 - 
+ROAD           - 
+ROAD           - 1 0.2
+ROAD           - 
+ROAD    24 1.2 - 
+ROAD           - 1 0.3 
+ROAD           - 
+ROAD           - 
+ROAD    26 3.5 - 
+ROAD           - 
+ROAD           - + 9 0.4 
+ROAD           - 
+ROAD           - 
+ROAD           - 21 4.2
+ROAD  + 10 0.5 - 
+ROAD           - 
+ROAD           - 6 3.7
+ROAD           -  
+ROAD     6 1.4 - 
+ROAD           - 22 0.1
+ROAD           -  
+ROAD           -  
+ROAD           - 1 2.8
+ROAD           - 
+ROAD    21 0.2 - 
+ROAD           - 
+ROAD           - 17 2.5
+ROAD           - 
+ROAD    17 1.2 - 
+ROAD           - 8 0.7
+ROAD           - 
+ROAD           - 11 4.8
+ROAD    11 3.1 - 
+ROAD    29 0.2 - 
+ROAD           - 
+ROAD           -
 
 DROP 3500
 
@@ -794,7 +798,7 @@ ROAD + 28 0.2 - + 18 0.2
 ROAD          - 
 ROAD          -
 ROAD          -
-ROAD          -
+ROAD  30 -0.9 - 29 -0.9
 
 FLAT
 

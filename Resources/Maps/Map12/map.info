@@ -1,6 +1,6 @@
 /* Mapa 12 */
 
-1				 /* Type of terrain 0 = grass, 1 = land, 2 = snow*/
+1				 /* Type of terrain 0 = grass, 1 = land, 2 = snow */
 74 74 74		/* Road RGB color 1 */
 72 72 72  		/* Road RGB color 2 */
 189 120 55      /* Grass RGB color 1 */
@@ -19,44 +19,48 @@
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
 
-ROAD          -  
-ROAD   21 4.6 - 
-ROAD          - 1 0.2
-ROAD          -  
-ROAD          -  
-ROAD          - 22 3.7
-ROAD          - 
-ROAD    4 1.5 - 
-ROAD          - 17 4.8
-ROAD          - 
-ROAD          - 17 1.4
-ROAD          - 
-ROAD          - 21 0.4
-ROAD          - 
-ROAD   18 2.3 - 
-ROAD          - 
-ROAD          - 20 4.9
-ROAD       19 - 
-ROAD          - 
-ROAD   20 3.7 -  
-ROAD          - 28 3.5
-ROAD          - 
-ROAD          - 22 0.1 
-ROAD          -  
-ROAD   12 1.9 - 
-ROAD          - 12 2.4
-ROAD          - 
-ROAD   23 0.2 - 23 0.2
-ROAD          - 
-ROAD          - 
-ROAD          - 5 3.8
-ROAD    6 1.4 -  
-ROAD          - 
-ROAD          - 17 0.2
-ROAD          - 
-ROAD    1 2.9 - 1 2.9
-ROAD          - 
-ROAD   27 0.3 -
+ROAD C 32 -0.9 - C 31 -0.9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD    21 4.6 - 
+ROAD           - 1 0.2
+ROAD           -  
+ROAD           -  
+ROAD           - 22 3.7
+ROAD           - 
+ROAD     4 1.5 - 
+ROAD           - 17 4.8
+ROAD           - 
+ROAD           - 17 1.4
+ROAD           - 
+ROAD           - 21 0.4
+ROAD           - 
+ROAD    18 2.3 - 
+ROAD           - 
+ROAD           - 20 4.9
+ROAD        19 - 
+ROAD           - 
+ROAD    20 3.7 -  
+ROAD           - 28 3.5
+ROAD           - 
+ROAD           - 22 0.1 
+ROAD           -  
+ROAD    12 1.9 - 
+ROAD           - 12 2.4
+ROAD           - 
+ROAD    23 0.2 - 23 0.2
+ROAD           - 
+ROAD           - 
+ROAD           - 5 3.8
+ROAD     6 1.4 -  
+ROAD           - 
+ROAD           - 17 0.2
+ROAD           - 
+ROAD     1 2.9 - 1 2.9
+ROAD           - 
+ROAD    27 0.3 -
 
 CURVE 0.5
 
@@ -1307,7 +1311,6 @@ ROAD          - 22 4.5
 ROAD          - 
 ROAD   10 3.4 - 
 ROAD          - 10 2.1
-ROAD          -
 
 FLAT
 

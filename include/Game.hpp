@@ -174,14 +174,20 @@ class Game {
             elapsed5, elapsed6, elapsed7, elapsed8,
             elapsed9, elapsed10, elapsed11, elapsed12;
 
-    // Vector of textures for represent the game panel
-    std::vector<sf::Texture> textures;
+    // Textures for represent the game panel
+    Texture t1, t2, t3, t4, t5, t6;
 
     // Tree map with levels
     sf::Texture treeMap[5][5];
 
     // Stores the time inverted in the total race and in the checkpoint animation
     std::string lap, lapCheckPoint;
+
+    // Index of the current map
+    int indexMap;
+
+    // Control if the checkPoint has been shown already or not
+    bool checkPointDisplayed;
 
 
 

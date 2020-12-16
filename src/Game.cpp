@@ -247,7 +247,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_CO
     const int times[] = {110, 62, 62, 59, 58, 54, 53, 50, 50, 47, 47, 48, 47, 50, 45};
 
     // Vector with the different numbers of elements of each map
-    const int nobjects[] = {20, 28, 35, 35, 25, 29, 26, 28, 33, 30, 30, 30, 34, 36, 33};
+    const int nobjects[] = {22, 32, 39, 39, 29, 33, 30, 32, 38, 34, 32, 32, 36, 38, 35};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         // Store the maps
@@ -259,7 +259,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_CO
                 objectNames.push_back(to_string(no) + ".png");
 
             // Create the map and store it
-            Map m(c, "Resources/Maps/Map" + to_string(nm + 1) + "/", "bg.png", objectNames, false, times[nm]);
+            Map m(c, "Resources/Maps/Map" + to_string(nm + 1) + "/", "bg/bg1.png", objectNames, false, times[nm]);
             vm.push_back(m);
 
             nm++;
@@ -307,8 +307,25 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_CO
     // Load the textures of the panel and assign them to their sprites
     for (int i = 1; i <= 6; i++) {
         // Load the texture from the file
-        t.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
-        textures.push_back(t);
+        switch (i) {
+            case 1:
+                t1.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
+                break;
+            case 2:
+                t2.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
+                break;
+            case 3:
+                t3.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
+                break;
+            case 4:
+                t4.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
+                break;
+            case 5:
+                t5.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
+                break;
+            case 6:
+                t6.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
+        }
     }
 
     // Code of first Map
@@ -355,8 +372,8 @@ void Game::drawHUD(Config &c) {
     const float up = float(c.w.getSize().y) / 10.0f;
 
     // UP
-    s.setTexture(textures[0], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setTexture(t1, true);
+    s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
     const float separation = s.getGlobalBounds().width / 3.0f;
     s.setPosition(separation, up - 1.1f * s.getGlobalBounds().height);
     float initial = separation + s.getGlobalBounds().width + separation;
@@ -376,9 +393,9 @@ void Game::drawHUD(Config &c) {
     c.w.draw(timeToPlay);
     initial += timeToPlay.getGlobalBounds().width + separation;
 
-    s.setTexture(textures[1], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
-    s.setPosition(initial, up - s.getGlobalBounds().height);
+    s.setTexture(t2, true);
+    s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
+    s.setPosition(initial, up - 1.1f * s.getGlobalBounds().height);
     c.w.draw(s);
     initial += s.getGlobalBounds().width + separation;
 
@@ -391,7 +408,7 @@ void Game::drawHUD(Config &c) {
     textScore.setFillColor(Color(183, 164, 190));
     textScore.setOutlineColor(Color::Black);
     textScore.setOutlineThickness(3.0f * c.screenScale);
-    textScore.setPosition(initial, up - 1.1f * float(textScore.getCharacterSize()));
+    textScore.setPosition(initial, up - 1.15f * float(textScore.getCharacterSize()));
     textScore.setString(to_string(score));
     c.w.draw(textScore);
 
@@ -405,28 +422,29 @@ void Game::drawHUD(Config &c) {
     textLap.setOutlineColor(Color::Black);
     textLap.setOutlineThickness(3.0f * c.screenScale);
     initial = float(c.w.getSize().x) - separation - textLap.getGlobalBounds().width;
-    textLap.setPosition(initial, up - 1.1f * float(textLap.getCharacterSize()));
+    textLap.setPosition(initial, up - 1.15f * float(textLap.getCharacterSize()));
 
-    s.setTexture(textures[2], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setTexture(t3, true);
+    s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
     initial -= separation + s.getGlobalBounds().width;
-    s.setPosition(initial, up - s.getGlobalBounds().height);
+    s.setPosition(initial, up - 1.1f * s.getGlobalBounds().height);
 
     textLap.setString(lap);
     c.w.draw(textLap);
     c.w.draw(s);
 
     // DOWN
-    textures[6].loadFromFile("Resources/Hud/7.png");
-    s.setTexture(textures[6], true);
+    Texture t7;
+    t7.loadFromFile("Resources/Hud/7.png");
+    s.setTexture(t7, true);
     s.setScale(2.f * c.screenScale, 1.5f * c.screenScale);
     const float down = float(c.w.getSize().y) - s.getGlobalBounds().height * 1.5f;
     s.setPosition(separation, float(c.w.getSize().y) - s.getGlobalBounds().height * 1.25f);
     initial = separation + s.getGlobalBounds().width / 4.0f;
-    textures[6].loadFromFile("Resources/Hud/7.png",
+    t7.loadFromFile("Resources/Hud/7.png",
                              IntRect(0, 0, static_cast<int>(player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale),
                                      static_cast<int>(20.0f * c.screenScale)));
-    s.setTexture(textures[6], true);
+    s.setTexture(t7, true);
     if (player.getRealSpeed() > 0.0f)
         c.w.draw(s);
 
@@ -445,15 +463,15 @@ void Game::drawHUD(Config &c) {
     sText.setString(strSpeed.substr(0, strSpeed.find('.')));
     c.w.draw(sText);
 
-    s.setTexture(textures[3], true);
+    s.setTexture(t4, true);
     s.setScale(2.f * c.screenScale, 2.f * c.screenScale);
     s.setPosition(initial / 1.2f, down - s.getGlobalBounds().height);
     c.w.draw(s);
 
     s.setTexture(treeMap[mapId.first][mapId.second], true);
-    s.setScale(2.f * c.screenScale, 2.f * c.screenScale);
+    s.setScale(4.f * c.screenScale, 4.f * c.screenScale);
     initial = float(c.w.getSize().x) - separation - s.getGlobalBounds().width;
-    s.setPosition(initial, down - s.getGlobalBounds().height);
+    s.setPosition(initial, down - s.getGlobalBounds().height - 1.f);
     c.w.draw(s);
 
     // Initialize the HUD stage indicator
@@ -466,12 +484,12 @@ void Game::drawHUD(Config &c) {
     textLevel.setOutlineColor(Color::Black);
     textLevel.setOutlineThickness(3.0f * c.screenScale);
     initial -= separation + textLevel.getGlobalBounds().width;
-    textLevel.setPosition(initial, down - 1.1f * float(textLevel.getCharacterSize()));
+    textLevel.setPosition(initial, down - 1.05f * float(textLevel.getCharacterSize()));
     textLevel.setString(to_string(level));
     c.w.draw(textLevel);
 
-    s.setTexture(textures[4], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setTexture(t5, true);
+    s.setScale(2.7f * c.screenScale, 2.7f * c.screenScale);
     initial -= separation + s.getGlobalBounds().width;
     s.setPosition(initial, down - s.getGlobalBounds().height);
     c.w.draw(s);
@@ -499,8 +517,8 @@ void Game::drawCheckpoint(Config &c, bool visible) {
                                 c.w.getSize().y / 3.0f - float(checkPointTitle.getCharacterSize()));
 
     // Time inverted by the player for complete the game
-    s.setTexture(textures[5], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setTexture(t6, true);
+    s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
     s.setPosition((float(c.w.getSize().x) - s.getGlobalBounds().width) / 2.0f, initial);
     initial += s.getGlobalBounds().height * 1.25f;
 
@@ -523,10 +541,10 @@ void Game::drawCheckpoint(Config &c, bool visible) {
     textForLap.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     textForLap.setOutlineThickness(3.0f * c.screenScale);
 
-    s.setTexture(textures[2], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setTexture(t3, true);
+    s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
     textForLap.setPosition(
-            (float(c.w.getSize().x) - textForLap.getGlobalBounds().width - s.getGlobalBounds().width) / 1.7f,
+            (float(c.w.getSize().x) - textForLap.getGlobalBounds().width - s.getGlobalBounds().width) / 1.8f,
             initial + 1.1f * s.getGlobalBounds().height);
     s.setPosition((float(c.w.getSize().x) + textForLap.getGlobalBounds().width / 2.0f) / 2.4f, initial);
 
@@ -575,8 +593,9 @@ void Game::drawGameOver(Config &c) {
 void Game::drawBonus(Config &c, int seconds, int cents_second) {
     // Only for separation
     Sprite s;
-    s.setTexture(textures[0], true);
-    s.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+    s.setTexture(t1, true);
+    s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
+    s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
     const float separation = s.getGlobalBounds().width / 3.0f;
 
     // Final score after completing all the levels
@@ -797,6 +816,8 @@ State Game::play(Config &c) {
     if (!inGame) {
         // New game and with initial animation
         inGame = true;
+        indexMap = 0;
+        checkPointDisplayed = false;
         State status = initialAnimation(c);
         if (status == EXIT){
             return status;
@@ -1051,7 +1072,9 @@ State Game::initialAnimation(Config &c) {
         }
 
         // Draw map
-        currentMap->draw(c, cars);
+        currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                         &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+
         player.drawStaticAnimation(c);
 
         blackShape.setFillColor(Color(0, 0, 0, j));
@@ -1081,7 +1104,9 @@ State Game::initialAnimation(Config &c) {
         }
         // Draw map
         c.w.clear();
-        currentMap->draw(c, cars);
+        currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                         &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+
         player.drawInitialAnimation(c, float(i), end, code);
         bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
@@ -1110,7 +1135,9 @@ State Game::initialAnimation(Config &c) {
     currentMap->incrementSpriteIndex(flagger, false, -1);
     int ms = 1000;
 
-    currentMap->draw(c, cars);
+    currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                     &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+
     player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
     bufferSprite.setTexture(c.w.getTexture(), true);
     c.w.display();
@@ -1148,7 +1175,9 @@ State Game::initialAnimation(Config &c) {
 
         // Draw map
         c.w.clear();
-        currentMap->draw(c, cars);
+        currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                         &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+
         player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT, currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
         bufferSprite.setTexture(c.w.getTexture(), true);
         c.w.display();
@@ -1164,7 +1193,9 @@ State Game::initialAnimation(Config &c) {
 
                 // Draw map
                 c.w.clear();
-                currentMap->draw(c, cars);
+                currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                                 &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+
                 player.draw(c, Vehicle::Action::NONE, Vehicle::Direction::RIGHT,
                             currentMap->getElevation(player.getPosY()), currentMap->getTerrain());
                 bufferSprite.setTexture(c.w.getTexture(), true);
@@ -1240,7 +1271,9 @@ State Game::goalAnimation(Config &c) {
 
         // Draw map
         c.w.clear();
-        currentMap->draw(c, cars);
+        currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                         &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+
         player.setPosition(player.getPosX(), player.getPosY() + 1);
         player.draw(c, Vehicle::Action::ACCELERATE, Vehicle::Direction::RIGHT,
                     currentMap->getElevation(player.getPosY()), currentMap->getTerrain(), false);
@@ -1319,7 +1352,8 @@ State Game::goalAnimation(Config &c) {
 
         // Draw map
         c.w.clear();
-        currentMap->draw(c, cars);
+        currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                         &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
 
         if (!firstEnd) {
             player.drawGoalAnimation(c, step, end);
@@ -1410,14 +1444,23 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
 
     // If the player has left  the current map
     if (currentMap->isOver()) {
+
+        // New map reached
+        checkPointDisplayed = false;
+        indexMap++;
+
         if (currentMap->getNext() != nullptr) {
+
             // Update player and vehicle positions
             player.setPosition(player.getPosX() + currentMap->getOffsetX(), player.getPosY() - currentMap->getMaxY());
+
+
             for (Enemy &v : cars)
                 v.setPosition(v.getPosX(), v.getPosY() - currentMap->getMaxY());
 
             const bool isInitMap = currentMap->isInitMap();
             currentMap = currentMap->getNext();
+
             if (!isInitMap && !currentMap->isGoalMap()) {
                 level++;
                 // Update fork maps
@@ -1433,31 +1476,48 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                 // Update time when map changes
                 time += int(float(currentMap->getTime()) * timeMul);
 
-                // Update the indicators
-                if (!checkPoint) {
-                    lapCheckPoint = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) +
-                                                                                            " ''";
-                    lapCheckPoint += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
-                    lapCheckPoint += to_string(int(cents_second * 100.f));
-
-                    // Initialize to zero the time
-                    cents_second = 0;
-                    secs = 0;
-                    minutes = 0;
-                }
-                checkPoint = true;
-                timeCheck = time;
-                // CheckPointEffect
-                c.effects[23]->stop();
-                c.effects[23]->play();
             }
+
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
 
             lastY = currentMap->getCamY();
-        } else {
+        }
+        else {
             finalGame = true;
         }
     }
+    else {
+        // Get the position of the player
+        float posY = player.getPosY();
+
+        // Control the checkpoint animation
+        if (!currentMap->isInitMap() && !currentMap->isGoalMap() && indexMap > 1){
+            if (posY >= currentMap->getCheckPointLine() && !checkPointDisplayed){
+
+                 // BeepSound
+                c.effects[23]->stop();
+                c.effects[23]->play();
+
+                // Checkpoint reached
+                checkPoint = true;
+                timeCheck = time;
+            }
+            // Control the lap time in the checkpoint
+            if (checkPoint && !checkPointDisplayed){
+                lapCheckPoint = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
+                lapCheckPoint += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
+                lapCheckPoint += int(cents_second * 100.f) < 10 ? "0" + to_string(int(cents_second * 100.f)) :  to_string(int(cents_second * 100.f));
+
+                // Initialize to zero the time
+                cents_second = 0;
+                secs = 0;
+                minutes = 0;
+
+                checkPointDisplayed = true;
+            }
+        }
+    }
+
     // Check if the current map is the goal
     if (currentMap->isGoalMap()) {
         // Display the goal animation
@@ -1491,7 +1551,8 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
 
         // Draw map with cars
         c.w.clear();
-        currentMap->draw(c, cars);
+        currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                         &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
 
         // Player update and draw
         action = Vehicle::CRASH;
@@ -1638,7 +1699,8 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
     c.w.clear();
 
     // Draw the map
-    currentMap->draw(c, cars);
+    currentMap->draw(c, cars, player.getPosX(), player.getPosY(), currentMap->inFork(player.getPosY()),
+                     &maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
 
     // Draw the vehicle of the player
     player.draw(c, a, d, currentMap->getElevation(player.getPosY()), currentMap->getTerrain(), false);

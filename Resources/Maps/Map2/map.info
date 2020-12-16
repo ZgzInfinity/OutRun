@@ -1,6 +1,6 @@
 /* Mapa 2 */
 
-0			 /* Type of terrain 0 = grass, 1 = land, 2 = snow*/
+0			 /* Type of terrain 0 = grass, 1 = land, 2 = snow */
 9 10 9  	 /* Road RGB color 1 */
 7 8 7  	 	 /* Road RGB color 2 */
 46 224 89    /* Grass RGB color 1 */
@@ -19,44 +19,46 @@
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
 
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -   
-ROAD          -
-ROAD          -
-ROAD     8    -   8
-ROAD          -
-ROAD          -
-ROAD          -   
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD     8    -   8
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -   
-ROAD          -
-ROAD          -   
-ROAD     8    -   8
-ROAD          -
-ROAD          -
-ROAD          -   
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -   
-ROAD          -
-ROAD     8    -   8  
-ROAD          -
-ROAD          -
-ROAD          -
-ROAD          -
+ 
+ROAD   C 32 -0.9 - C 31 -0.9
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -   
+ROAD             -
+ROAD             -
+ROAD        8    -   8
+ROAD             -
+ROAD             -
+ROAD             -   
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD        8    -   8
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -   
+ROAD             -
+ROAD             -   
+ROAD        8    -   8
+ROAD             -
+ROAD             -
+ROAD             -   
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -   
+ROAD             -
+ROAD        8    -   8  
+ROAD             -
+ROAD             -
+ROAD             -
+ROAD             -
 
 CURVE 1.5
 
@@ -870,6 +872,6 @@ ROAD          -
 ROAD   15 0.3 - 15 0.2
 ROAD          - 
 ROAD          - 
-ROAD          -
+ROAD  30 -0.9 - 29 -0.9
 
 END  /* Obligatorio */

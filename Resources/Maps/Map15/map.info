@@ -19,28 +19,31 @@
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
 
-ROAD          -  
-ROAD          - 1 4.5
-ROAD    1 0.2 - 
-ROAD          -  
-ROAD          - 4 3.2
-ROAD          - 
-ROAD          - 1 0.4
-ROAD    5 2.3 - 
-ROAD          - 4 3.2
-ROAD          - 
-ROAD   21 0.4 - 21 0.3 
-ROAD          - 
-ROAD          - 
-ROAD          - 23 0.5
-ROAD          -
-ROAD          - 
-ROAD   22 0.3 - 
-ROAD          - 1 2.4
-ROAD          - 
-ROAD    1 3.4 - 
-ROAD          -
-ROAD   24 0.4 - 24 0.6
+ROAD C 35 -0.9 - C 34 -0.9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     1 1.2 - 
+ROAD           -  
+ROAD           - 4 3.2
+ROAD           - 
+ROAD           - 1 0.4
+ROAD     5 2.3 - 
+ROAD           - 4 3.2
+ROAD           - 
+ROAD    21 0.4 - 21 0.3 
+ROAD           - 
+ROAD           - 
+ROAD           - 23 0.5
+ROAD           -
+ROAD           - 
+ROAD    22 0.3 - 
+ROAD           - 1 2.4
+ROAD           - 
+ROAD     1 3.4 - 
+ROAD           -
+ROAD    24 0.4 - 24 0.6
 
 CLIMB 6000
 
@@ -1361,7 +1364,6 @@ ROAD            -
 ROAD            -
 ROAD   + 26 0.5 - + 26 0.5   
 ROAD            -  
-ROAD            - 
 
 FLAT
 

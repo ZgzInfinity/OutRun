@@ -1,6 +1,6 @@
 /* Mapa 13 */
 
-1			    /* Type of terrain 0 = grass, 1 = land, 2 = snow*/
+1			    /* Type of terrain 0 = grass, 1 = land, 2 = snow */
 6 6 6  		    /* Road RGB color 1 */
 4 4 4  		    /* Road RGB color 2 */
 243 247 17      /* Grass RGB color 1 */
@@ -19,54 +19,57 @@
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
 
-ROAD          -  
-ROAD          - 1 3.1
-ROAD          - 
-ROAD    7 4.5 -  
-ROAD          -  
-ROAD   11 0.2 -
-ROAD          - 13 3.6
-ROAD          - 
-ROAD          - 13 1.2
-ROAD          - 
-ROAD    8 4.5 -  
-ROAD          - 12
-ROAD          - 
-ROAD   18 4.1 - 
-ROAD          - 8 4.9
-ROAD          - 
-ROAD          - 16 2.1
-ROAD       11 - 
-ROAD          - 
-ROAD          - 23 3.9
-ROAD          -
-ROAD   23 2.5 -
-ROAD          - 
-ROAD          - 12 2.6
-ROAD          -  
-ROAD          - 
-ROAD          - 25 3.7
-ROAD   26 3.7 -  
-ROAD          -  
-ROAD          - 26 2.1
-ROAD       11 - 
-ROAD          - 
-ROAD          - 19 4.5
-ROAD          - 
-ROAD   19 0.9 -  
-ROAD          - 
-ROAD          - 12
-ROAD          - 
-ROAD          -
-ROAD          - 30 4.9
-ROAD          - 
-ROAD   30 2.3 - 
-ROAD          - 
-ROAD       11 - 
-ROAD          - 6 1.2
-ROAD    6 4.1 -
-ROAD          - 
-ROAD   10 0.3 - 10 0.3
+
+ROAD C 36 -0.9 - C 35 -0.9 
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     7 4.5 -  
+ROAD           -  
+ROAD    11 0.2 -
+ROAD           - 13 3.6
+ROAD           - 
+ROAD           - 13 1.2
+ROAD           - 
+ROAD     8 4.5 -  
+ROAD           - 12
+ROAD           - 
+ROAD    18 4.1 - 
+ROAD           - 8 4.9
+ROAD           - 
+ROAD           - 16 2.1
+ROAD        11 - 
+ROAD           - 
+ROAD           - 23 3.9
+ROAD           -
+ROAD    23 2.5 -
+ROAD           - 
+ROAD           - 12 2.6
+ROAD           -  
+ROAD           - 
+ROAD           - 25 3.7
+ROAD    26 3.7 -  
+ROAD           -  
+ROAD           - 26 2.1
+ROAD        11 - 
+ROAD           - 
+ROAD           - 19 4.5
+ROAD           - 
+ROAD    19 0.9 -  
+ROAD           - 
+ROAD           - 12
+ROAD           - 
+ROAD           -
+ROAD           - 30 4.9
+ROAD           - 
+ROAD    30 2.3 - 
+ROAD           - 
+ROAD        11 - 
+ROAD           - 6 1.2
+ROAD     6 4.1 -
+ROAD           - 
+ROAD    10 0.3 - 10 0.3
 
 CLIMB 10000
 

@@ -34,9 +34,10 @@ using namespace sf;
 #define ROADW 3000 // Road Width / 2
 #define RUMBLECOEFF 0.0666f // Ruble size = Road size * Rumble coeff
 #define SCREEN_SCALE 280.0f
-#define FORK_COEFF 0.03f
-#define FORK_RECTANGLES 100 // Multiple of RECTANGLE
-#define END_RECTANGLES 60 // Multiple of RECTANGLE
+#define FORK_COEFF 0.032f
+#define FORK_RECTANGLES 200 // Multiple of RECTANGLE
+#define END_RECTANGLES 100 // Multiple of RECTANGLE
+
 
 
 /**
@@ -46,6 +47,7 @@ Map::SpriteInfo::SpriteInfo() {
     spriteNum = -1;
     offset = spriteMinX = spriteMaxX = spriteToSideX = 0.0f;
     repetitive = false;
+    checkPoint = false;
 }
 
 
@@ -130,6 +132,7 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
         lineAux.bgX = bgX;
 
         lines.push_back(lineAux);
+        totalLines++;
     }
 
     // Increment the depth of the landscape in axis z
@@ -160,6 +163,12 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
     bgX += line.curve;
     line.bgX = bgX;
     lines.push_back(line);
+    totalLines++;
+
+    // Store the line of the checkPoint
+    if (line.spriteLeft.checkPoint && line.spriteRight.checkPoint){
+        checkPointLine = totalLines + END_RECTANGLES * RECTANGLE;
+    }
 
     // For each normal line, extra lines without objects for better visualization
     for (int i = 0; i < PRE_POS; i++) {
@@ -191,6 +200,7 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
         bgX += lineAux.curve;
         lineAux.bgX = bgX;
         lines.push_back(lineAux);
+        totalLines++;
     }
 }
 
@@ -500,7 +510,6 @@ vector<vector<string>> readMapFile(const std::string &file) {
         if (instructions.size() < 4)
             fileError();
     }
-
     return instructions;
 }
 
@@ -520,6 +529,7 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
     float curveCoeff = 0.0f, elevation = 0.0f;
     int elevationIndex = 0, elevationLines = -1;
     bool mainColor = true;
+    bool checkPointLeft = false, checkPointRight = false;
 
     // Colors
     try {
@@ -551,7 +561,7 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
     }
     catch (const exception &e) {
         // Error on the file format
-        fileError("Faltan colores al declarar el mapa.");
+        fileError("There are map colors not specified.");
     }
 
     // Iterate throughout the instructions matrix
@@ -598,6 +608,11 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
             // Objects
             int j = 1; // inst index
             if (inst[j] != "-") { // Left object
+                if (inst[j] == "C"){
+                    spriteLeft.checkPoint = true;
+                    checkPointLeft = true;
+                    j++;
+                }
                 if (inst[j] == "+") {
                     spriteLeft.repetitive = true;
                     j++;
@@ -614,6 +629,16 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
             }
             j++;
             if (j < inst.size()) { // Right object
+                if (inst[j] == "C"){
+                    if (checkPointLeft){
+                        spriteRight.checkPoint = true;
+                        checkPointRight = true;
+                        j++;
+                    }
+                    else {
+                        fileError(" Checkpoint have to be left side too.");
+                    }
+                }
                 if (inst[j] == "+") {
                     spriteRight.repetitive = true;
                     j++;
@@ -635,6 +660,10 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
                     spriteLeft, spriteRight, bgX, offset);
             mainColor = !mainColor;
         }
+    }
+
+    if (checkPointLeft && !checkPointRight){
+        fileError(" Checkpoint have to be right side too.");
     }
 }
 
@@ -714,11 +743,36 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
                                                                                      goalMap(false), maxTime(time) {
     // Load the background of the map
     bg.loadFromFile(path + bgName);
+
+    Texture t;
+
+    // Load all the backgrounds for the transition
+    for (int i = 1; i <= 8; i++){
+        t.loadFromFile(path + "bg/bg" + to_string(i) + ".png");
+        backgroundMaps.push_back(t);
+    }
+
     bg.setRepeated(true);
 
     // Load objects
     vector<int> objectIndexes;
     loadObjects(path, objectNames, objectIndexes);
+
+    // Initial length of the map
+    totalLines = 0, totalLinesWithoutFork = 0;
+
+    // Default value of the checkpoint
+    checkPointLine = 0;
+
+    // Initialize colors
+    this->grassColorPrev[0] = Color::Transparent;
+    this->grassColorPrev[1] = Color::Transparent;
+    this->roadColorPrev[0] = Color::Transparent;
+    this->roadColorPrev[1] = Color::Transparent;
+    this->rumbleColorPrev[0] = Color::Transparent;
+    this->rumbleColorPrev[1] = Color::Transparent;
+    this->dashColorPrev[0] = Color::Transparent;
+    this->dashColorPrev[1] = Color::Transparent;
 
     // Line generation
     float z = 0; // Line position
@@ -981,6 +1035,10 @@ void Map::addFork(Map *left, Map *right) {
             bool mainColor = !lines[lines.size() - 1].mainColor;
 
             float xOffset = lines[lines.size() - 1].offsetX + FORK_COEFF;
+
+            // Store the length of the map without the fork extension
+            totalLinesWithoutFork = totalLines;
+
             for (int i = 0; i < FORK_RECTANGLES + END_RECTANGLES; i++) { // 20 rectangles to fork
                 addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), bgX, xOffset, FORK_COEFF);
                 mainColor = !mainColor;
@@ -1213,7 +1271,8 @@ bool ascendingSort(const Enemy *v1, const Enemy *v2) {
 
 
 
-void Map::draw(Config &c, vector<Enemy> &vehicles) {
+
+void Map::draw(Config &c, vector<Enemy> &vehicles, float playerPosX, float playerPosY, bool inFork, Map* left, Map* right) {
     const int N = static_cast<const int>(lines.size());
     const int startPos = int(posY) % N;
     const int lastPos = startPos + c.renderLen - 1;
@@ -1248,6 +1307,137 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
     sbg.move(-8.0f * c.w.getSize().x - l->bgX - posX, 0);
     c.w.draw(sbg);
 
+    Sprite sbg2;
+
+    if (inFork){
+        if (playerPosY >= totalLines - 570){
+             if (playerPosX < 0.f){
+                sbg2.setTexture(left->backgroundMaps[0]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / left->backgroundMaps[0].getSize().x,
+                                        (float) c.w.getSize().y * BGS / left->backgroundMaps[0].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), left->backgroundMaps[0].getSize().y));
+             }
+             else {
+                sbg2.setTexture(right->backgroundMaps[0]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / right->backgroundMaps[0].getSize().x,
+                                        (float) c.w.getSize().y * BGS / right->backgroundMaps[0].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), right->backgroundMaps[0].getSize().y));
+             }
+             sbg2.setPosition(0, 0);
+             c.w.draw(sbg2);
+        }
+        else if (playerPosY >= totalLines - 575){
+             if (playerPosX < 0.f){
+                sbg2.setTexture(left->backgroundMaps[1]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / left->backgroundMaps[1].getSize().x,
+                                        (float) c.w.getSize().y * BGS / left->backgroundMaps[1].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), left->backgroundMaps[1].getSize().y));
+             }
+             else {
+                sbg2.setTexture(right->backgroundMaps[1]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / right->backgroundMaps[1].getSize().x,
+                                        (float) c.w.getSize().y * BGS / right->backgroundMaps[1].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), right->backgroundMaps[1].getSize().y));
+             }
+             sbg2.setPosition(0, 0);
+             c.w.draw(sbg2);
+        }
+        else if (playerPosY >= totalLines - 580){
+             if (playerPosX < 0.f){
+                sbg2.setTexture(left->backgroundMaps[2]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / left->backgroundMaps[2].getSize().x,
+                                        (float) c.w.getSize().y * BGS / left->backgroundMaps[2].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), left->backgroundMaps[2].getSize().y));
+             }
+             else {
+                sbg2.setTexture(right->backgroundMaps[2]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / right->backgroundMaps[2].getSize().x,
+                                        (float) c.w.getSize().y * BGS / right->backgroundMaps[2].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), right->backgroundMaps[2].getSize().y));
+             }
+             sbg2.setPosition(0, 0);
+             c.w.draw(sbg2);
+        }
+        else if (playerPosY >= totalLines - 585){
+             if (playerPosX < 0.f){
+                sbg2.setTexture(left->backgroundMaps[3]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / left->backgroundMaps[3].getSize().x,
+                                        (float) c.w.getSize().y * BGS / left->backgroundMaps[3].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), left->backgroundMaps[1].getSize().y));
+             }
+             else {
+                sbg2.setTexture(right->backgroundMaps[3]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / right->backgroundMaps[3].getSize().x,
+                                        (float) c.w.getSize().y * BGS / right->backgroundMaps[3].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), right->backgroundMaps[3].getSize().y));
+             }
+             sbg2.setPosition(0, 0);
+             c.w.draw(sbg2);
+        }
+        else if (playerPosY >= totalLines - 590){
+            if (playerPosX < 0.f){
+                sbg2.setTexture(left->backgroundMaps[4]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / left->backgroundMaps[4].getSize().x,
+                                        (float) c.w.getSize().y * BGS / left->backgroundMaps[4].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), left->backgroundMaps[4].getSize().y));
+             }
+             else {
+                sbg2.setTexture(right->backgroundMaps[4]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / right->backgroundMaps[4].getSize().x,
+                                        (float) c.w.getSize().y * BGS / right->backgroundMaps[4].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), right->backgroundMaps[4].getSize().y));
+             }
+             sbg2.setPosition(0, 0);
+             c.w.draw(sbg2);
+        }
+        else if (playerPosY >= totalLines - 595){
+             if (playerPosX < 0.f){
+                sbg2.setTexture(left->backgroundMaps[5]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / left->backgroundMaps[5].getSize().x,
+                                        (float) c.w.getSize().y * BGS / left->backgroundMaps[5].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), left->backgroundMaps[5].getSize().y));
+             }
+             else {
+                sbg2.setTexture(right->backgroundMaps[5]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / right->backgroundMaps[5].getSize().x,
+                                        (float) c.w.getSize().y * BGS / right->backgroundMaps[5].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), right->backgroundMaps[5].getSize().y));
+             }
+             sbg2.setPosition(0, 0);
+             c.w.draw(sbg2);
+        }
+        else if (playerPosY >= totalLines - 600){
+            if (playerPosX < 0.f){
+                sbg2.setTexture(left->backgroundMaps[6]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / left->backgroundMaps[6].getSize().x,
+                                        (float) c.w.getSize().y * BGS / left->backgroundMaps[6].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), left->backgroundMaps[6].getSize().y));
+             }
+             else {
+                sbg2.setTexture(right->backgroundMaps[6]);
+                sbg2.setScale(
+                        Vector2f(2.0f * (float) c.w.getSize().x / right->backgroundMaps[6].getSize().x,
+                                        (float) c.w.getSize().y * BGS / right->backgroundMaps[6].getSize().y));
+                sbg2.setTextureRect(IntRect(0, 0, static_cast<int>(80.0f * sbg2.getGlobalBounds().width), right->backgroundMaps[6].getSize().y));
+             }
+             sbg2.setPosition(0, 0);
+             c.w.draw(sbg2);
+        }
+    }
+
     // Initialize lines
     float camH = l->y + 1500.0f;
     float maxy = c.w.getSize().y;
@@ -1276,6 +1466,10 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
         }
     }
 
+    // Update color in transition map
+    int times = 0;
+    int numLines = 5;
+
     // Draw road and objects
     for (int n = lastPos; n >= startPos; n--) {
         l = getLine(n);
@@ -1291,8 +1485,7 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
             visibleLines.pop_back();
 
             Color grassRight, grass, roadRight, road, rumbleRight, rumble, dashRight, dash;
-            if ((initMap && n < N) || (!initMap && n < N - (END_RECTANGLES + FORK_RECTANGLES) * RECTANGLE) ||
-                next == nullptr) {
+            if ((initMap && n < N) || (!initMap && n < N - (END_RECTANGLES + FORK_RECTANGLES) * RECTANGLE) || next == nullptr) {
                 grassRight = grassColor[l->mainColor];
                 roadRight = roadColor[l->mainColor];
                 rumbleRight = l->mainColor ? roadRight : rumbleColor;
@@ -1302,17 +1495,19 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                 road = roadRight;
                 rumble = rumbleRight;
                 dash = dashRight;
-            } else {
-                grass = next->grassColor[l->mainColor];
-                road = next->roadColor[l->mainColor];
-                rumble = l->mainColor ? road : next->rumbleColor;
-                dash = l->mainColor ? next->dashColor : road;
+            }
+            else {
+                grass = this->grassColor[l->mainColor];
+                road = this->roadColor[l->mainColor];
+                rumble = l->mainColor ? road : this->rumbleColor;
+                dash = l->mainColor ? this->dashColor : road;
                 if (nextRight != nullptr) {
-                    grassRight = nextRight->grassColor[l->mainColor];
-                    roadRight = nextRight->roadColor[l->mainColor];
-                    rumbleRight = l->mainColor ? roadRight : nextRight->rumbleColor;
-                    dashRight = l->mainColor ? nextRight->dashColor : roadRight;
-                } else {
+                    grassRight = this->grassColor[l->mainColor];
+                    roadRight = this->roadColor[l->mainColor];
+                    rumbleRight = l->mainColor ? roadRight : this->rumbleColor;
+                    dashRight = l->mainColor ? this->dashColor : roadRight;
+                }
+                else {
                     grassRight = grass;
                     roadRight = road;
                     rumbleRight = rumble;
@@ -1386,7 +1581,8 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                     drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.25f), y1, dw1,
                              x2right + int(float(w2) * 0.25f), y2,
                              dw2); // Fourth right dash
-                } else {
+                }
+                else {
                     // Draw grass
                     drawQuad(c.w, grass, 0, int(prevY), int(prevX), 0, int(l->Y), int(l->X));
 
@@ -1403,6 +1599,152 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
                          dw2); // Third right dash
                 drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
                          dw2); // Fourth right dash
+            }
+
+            // Opacity of the color
+            Uint8 opacity;
+            bool draw = false;
+
+            if (inFork){
+                if (playerPosY >= totalLines - 570){
+                    opacity = 255;
+                    draw = true;
+                }
+                else if (playerPosY >= totalLines - 575){
+                    opacity = 205;
+                    draw = true;
+                }
+                else if (playerPosY >= totalLines - 580){
+                    opacity = 185;
+                    draw = true;
+                }
+                else if (playerPosY >= totalLines - 585){
+                    opacity = 135;
+                    draw = true;
+                }
+                else if (playerPosY >= totalLines - 590){
+                    opacity = 90;
+                    draw = true;
+                }
+                else if (playerPosY >= totalLines - 595){
+                    opacity = 45;
+                    draw = true;
+                }
+                else if (playerPosY >= totalLines - 600){
+                    opacity = 0;
+                    draw = true;
+                }
+
+                if (draw){
+                    Color grassRight, grass, roadRight, road, rumbleRight, rumble, dashRight, dash;
+                    if ((initMap && n < N) || (!initMap && n < N - (END_RECTANGLES + FORK_RECTANGLES) * RECTANGLE) ||
+                        next == nullptr) {
+                        grassRight = grassColor[l->mainColor];
+                        roadRight = roadColor[l->mainColor];
+                        rumbleRight = l->mainColor ? roadRight : rumbleColor;
+                        dashRight = l->mainColor ? dashColor : roadRight;
+
+                        grass = grassRight;
+                        road = roadRight;
+                        rumble = rumbleRight;
+                        dash = dashRight;
+                    }
+                    else {
+                        grass = Color(next->grassColor[l->mainColor].r, next->grassColor[l->mainColor].g, next->grassColor[l->mainColor].b, opacity);
+                        road = Color(next->roadColor[l->mainColor].r, next->roadColor[l->mainColor].g, next->roadColor[l->mainColor].b, opacity);
+                        rumble = l->mainColor ? road : this->rumbleColor;
+                        dash = l->mainColor ? this->dashColor : road;
+                        if (nextRight != nullptr) {
+                            grassRight = Color(nextRight->grassColor[l->mainColor].r, nextRight->grassColor[l->mainColor].g, nextRight->grassColor[l->mainColor].b, opacity);
+                            roadRight = Color(nextRight->roadColor[l->mainColor].r, nextRight->roadColor[l->mainColor].g, nextRight->roadColor[l->mainColor].b, opacity);
+                            rumbleRight = l->mainColor ? roadRight : this->rumbleColor;
+                            dashRight = l->mainColor ? this->dashColor : roadRight;
+                        }
+                        else {
+                            grassRight = grass;
+                            roadRight = road;
+                            rumbleRight = rumble;
+                            dashRight = dash;
+                        }
+                    }
+
+                    // Draw grass
+                    drawQuad(c.w, grassRight, 0, int(prevY), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
+
+                    // Draw road
+                    int x1 = int(prevX - prevW - p->scale * (p->x - p->yOffsetX * ROADW) * c.w.getSize().x / 2.0f),
+                            x2 = int(l->X - l->W - l->scale * (l->x - l->yOffsetX * ROADW) * c.w.getSize().x / 2.0f);
+                    const int y1 = int(prevY), w1 = int(2.0f * prevW), y2 = int(l->Y), w2 = int(2.0f * l->W),
+                            rw1 = int(prevW * RUMBLECOEFF), rw2 = int(l->W * RUMBLECOEFF), dw1 = rw1 / 2, dw2 = rw2 / 2;
+                    drawQuad(c.w, roadRight, x1, y1, w1, x2, y2, w2);
+                    drawQuad(c.w, rumbleRight, x1, y1, rw1, x2, y2, rw2); // Left rumble
+                    drawQuad(c.w, rumbleRight, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
+                    drawQuad(c.w, dashRight, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
+                    drawQuad(c.w, dashRight, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
+                    drawQuad(c.w, dashRight, x1 + int(float(w1) * 0.75f), y1, dw1, x2 + int(float(w2) * 0.75f), y2,
+                             dw2); // Second right dash
+                    drawQuad(c.w, dashRight, x1 + int(float(w1) * 0.5f), y1, dw1, x2 + int(float(w2) * 0.5f), y2,
+                             dw2); // Third right dash
+                    drawQuad(c.w, dashRight, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
+                             dw2); // Fourth right dash
+
+                    if (l->yOffsetX > 0.0f) {
+                        const int x1right = x1, x2right = x2;
+                        x1 = int(prevX - prevW + p->scale * (p->x - p->yOffsetX * ROADW) * c.w.getSize().x / 2.0f);
+                        x2 = int(l->X - l->W + l->scale * (l->x - l->yOffsetX * ROADW) * c.w.getSize().x / 2.0f);
+                        if ((x1 + w1) >= x1right) { // Intersection
+                            grassRight = grassColor[l->mainColor];
+                            roadRight = roadColor[l->mainColor];
+                            rumbleRight = l->mainColor ? roadRight : rumbleColor;
+                            dashRight = l->mainColor ? dashColor : roadRight;
+
+                            grass = grassRight;
+                            road = roadRight;
+                            rumble = rumbleRight;
+                            dash = dashRight;
+
+                            // Draw grass
+                            drawQuad(c.w, grassRight, 0, int(prevY), c.w.getSize().x, 0, int(l->Y), c.w.getSize().x);
+
+                            // Left road
+                            drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
+                            drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
+
+                            // Right road
+                            drawQuad(c.w, roadRight, x1right, y1, w1, x2right, y2, w2);
+                            drawQuad(c.w, rumbleRight, x1right + w1 - rw1, y1, rw1, x2right + w2 - rw2, y2,
+                                     rw2); // Right rumble
+                            drawQuad(c.w, dashRight, x1right + w1 - rw1 - dw1, y1, dw1, x2right + w2 - rw2 - dw2, y2,
+                                     dw2); // First right dash
+                            drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.75f), y1, dw1,
+                                     x2right + int(float(w2) * 0.75f), y2,
+                                     dw2); // Second right dash
+                            drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.5f), y1, dw1, x2right + int(float(w2) * 0.5f),
+                                     y2,
+                                     dw2); // Third right dash
+                            drawQuad(c.w, dashRight, x1right + int(float(w1) * 0.25f), y1, dw1,
+                                     x2right + int(float(w2) * 0.25f), y2,
+                                     dw2); // Fourth right dash
+                        }
+                        else {
+                            // Draw grass
+                            drawQuad(c.w, grass, 0, int(prevY), int(prevX), 0, int(l->Y), int(l->X));
+
+                            drawQuad(c.w, road, x1, y1, w1, x2, y2, w2);
+                            drawQuad(c.w, rumble, x1, y1, rw1, x2, y2, rw2); // Left rumble
+                            drawQuad(c.w, rumble, x1 + w1 - rw1, y1, rw1, x2 + w2 - rw2, y2, rw2); // Right rumble
+                            drawQuad(c.w, dash, x1 + w1 - rw1 - dw1, y1, dw1, x2 + w2 - rw2 - dw2, y2, dw2); // First right dash
+                        }
+
+                        drawQuad(c.w, dash, x1 + rw1, y1, dw1, x2 + rw2, y2, dw2); // First left dash
+                        drawQuad(c.w, dash, x1 + int(float(w1) * 0.75f), y1, dw1, x2 + int(float(w2) * 0.75f), y2,
+                                 dw2); // Second right dash
+                        drawQuad(c.w, dash, x1 + int(float(w1) * 0.5f), y1, dw1, x2 + int(float(w2) * 0.5f), y2,
+                                 dw2); // Third right dash
+                        drawQuad(c.w, dash, x1 + int(float(w1) * 0.25f), y1, dw1, x2 + int(float(w2) * 0.25f), y2,
+                                 dw2); // Fourth right dash
+                    }
+                }
             }
         }
 
@@ -1443,6 +1785,8 @@ void Map::draw(Config &c, vector<Enemy> &vehicles) {
 
             sortedVehicles.pop_back();
         }
+        times++;
+        numLines++;
     }
 }
 
@@ -1654,5 +1998,15 @@ int Map::getTime() const {
  * @return
  */
  int Map::getTerrain() const {
-    return this->terrain;
+    return terrain;
  }
+
+
+
+/**
+ * Return the line of the possible checkpoint in the map
+ * @return
+ */
+int Map::getCheckPointLine() const {
+    return checkPointLine;
+}

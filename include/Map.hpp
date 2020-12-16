@@ -42,7 +42,8 @@ using namespace std;
 #include "Enemy.hpp"
 
 #define PRE_POS 2
-#define FORK_RADIUS 10.0f
+#define FORK_RADIUS 20.0f
+
 
 const int RECTANGLE = PRE_POS * 2 + 1; // the number of lines that form a rectangle
 
@@ -83,6 +84,9 @@ class Map {
 
         // Controls if the sprite has to be drawn repeatedly or not
         bool repetitive;
+
+        // Controls if it is a line of checkPint
+        bool checkPoint;
 
 
         /**
@@ -194,7 +198,10 @@ class Map {
     const float xChange = static_cast<const float>(FORK_RADIUS * sin(0.75f * M_PI));
 
     // Background
-    sf::Texture bg;
+    Texture bg;
+
+    // Vector with the backgrounds for the transition map
+    vector<Texture> backgroundMaps;
 
     // Objects of the map
     vector<sf::Texture> objects;
@@ -205,6 +212,9 @@ class Map {
 
     // Colors
     Color roadColor[2], grassColor[2], rumbleColor, dashColor;
+
+    // Last colors of the map in the transition
+    Color roadColorPrev[2], grassColorPrev[2], rumbleColorPrev[2], dashColorPrev[2];
 
     // Camera
     float posX, posY;
@@ -224,6 +234,14 @@ class Map {
     // Type of terrain of the map
     int terrain;
 
+    // Total lines of the map without an with fork added
+    int totalLines, totalLinesWithoutFork;
+
+    // Transition color
+    int colorThreshold;
+
+    // Line of the checkpoint indicators
+    int checkPointLine;
 
 
     /**
@@ -307,7 +325,7 @@ class Map {
 public:
 
 
-        // Creates a map with a landscape given the name of the image file and with some objects given the names of
+    // Creates a map with a landscape given the name of the image file and with some objects given the names of
     // image files. The map content must be in the path. If random is true the
     // map in a random way, on the other hand if random is false the map is created from the file map.info, which is
     // described below:
@@ -469,7 +487,7 @@ public:
      * @param c is the configuration of the player
      * @param vehicles is the vector with all the traffic cars
      */
-    void draw(Config &c, std::vector<Enemy> &vehicles);
+    void draw(Config &c, std::vector<Enemy> &vehicles, float playerPosX, float playerPosY, bool inFork, Map* left, Map* right);
 
 
 
@@ -590,7 +608,15 @@ public:
      * Returns the kind of terrain of the landscape
      * @return
      */
-     int getTerrain() const;
+    int getTerrain() const;
+
+
+
+    /**
+     * Return the line of the possible checkpoint in the map
+     * @return
+     */
+    int getCheckPointLine() const;
 
 };
 

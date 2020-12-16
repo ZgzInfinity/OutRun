@@ -1,6 +1,6 @@
 /* Mapa 4 */
 
-1
+1			 /* Type of terrain 0 = grass, 1 = land, 2 = snow */
 107 107 107  /* Road RGB color 1 */
 105 105 105  /* Road RGB color 2 */
 235 116 10   /* Grass RGB color 1 */
@@ -19,25 +19,31 @@
  *   7º Opcional: #.# ;Indica el offset desde el borde de la carretera hasta el objeto. Por defecto es 0.0.
  */
 
-ROAD  1 0.3 - 33 3.3
-ROAD        - 
-ROAD        - 
-ROAD 34 2.4 - 1 0.3
-ROAD        -  
-ROAD        - 
-ROAD  1 0.3 - 33 1.2
-ROAD        - 
-ROAD        - 
-ROAD 23 3.1 - 1 0.3
-ROAD        - 
-ROAD        - 
-ROAD  1 0.3 - 32 4.2
-ROAD        - 
-ROAD        - 
-ROAD 22 2.8 - 1 0.3
-ROAD        - 
-ROAD        - 
-ROAD  9 4.5 - 9 3.4  
+ 
+ROAD C 39 -0.9 - C 38 -0.9
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD           -
+ROAD     1 0.3 - 33 3.3
+ROAD           - 
+ROAD           - 
+ROAD    34 2.4 - 1 0.3
+ROAD           -  
+ROAD           - 
+ROAD     1 0.3 - 33 1.2
+ROAD           - 
+ROAD           - 
+ROAD    23 3.1 - 1 0.3
+ROAD           - 
+ROAD           - 
+ROAD     1 0.3 - 32 4.2
+ROAD           - 
+ROAD           - 
+ROAD    22 2.8 - 1 0.3
+ROAD           - 
+ROAD           - 
+ROAD     9 4.5 - 9 3.4  
 
 CURVE	0.7
 
@@ -896,62 +902,62 @@ CLIMB 3000
 
 CURVE -0.9
 
-ROAD     -
-ROAD     -   
-ROAD     - 8
-ROAD     -
-ROAD     -
-ROAD   8 - 
-ROAD     -   
-ROAD     -
-ROAD     - 8
-ROAD     -
-ROAD     - 
-ROAD   8 -   
-ROAD     -
-ROAD     - 
-ROAD     - 8
-ROAD     -
-ROAD     -   
-ROAD   8 -
-ROAD     -
-ROAD     -
-ROAD     - 8
-ROAD     -   
-ROAD     - 
-ROAD   8 -
-ROAD     -
-ROAD     -
-ROAD     -
-ROAD     -   
-ROAD  11 - 12
-ROAD     -
-ROAD     -
-ROAD   1 -
-ROAD     - 30
-ROAD     -
-ROAD     -
-ROAD  11 - 12
-ROAD     -
-ROAD     -   
-ROAD     -
-ROAD  30 -
-ROAD     - 1
-ROAD     -
-ROAD     -   
-ROAD     -
-ROAD  11 - 12
-ROAD     -
-ROAD     -
-ROAD     -   
-ROAD     - 32
-ROAD  32 -
-ROAD     -
-ROAD     -
-ROAD     -
-ROAD  15 - 15   
-ROAD     -
-ROAD     -
+ROAD         -
+ROAD         -   
+ROAD         - 8
+ROAD         -
+ROAD         -
+ROAD       8 - 
+ROAD         -   
+ROAD         -
+ROAD         - 8
+ROAD         -
+ROAD         - 
+ROAD       8 -   
+ROAD         -
+ROAD         - 
+ROAD         - 8
+ROAD         -
+ROAD         -   
+ROAD       8 -
+ROAD         -
+ROAD         -
+ROAD         - 8
+ROAD         -   
+ROAD         - 
+ROAD       8 -
+ROAD         -
+ROAD         -
+ROAD         -
+ROAD         -   
+ROAD      11 - 12
+ROAD         -
+ROAD         -
+ROAD       1 -
+ROAD         - 30
+ROAD         -
+ROAD         -
+ROAD      11 - 12
+ROAD         -
+ROAD         -   
+ROAD         -
+ROAD      30 -
+ROAD         - 1
+ROAD         -
+ROAD         -   
+ROAD         -
+ROAD      11 - 12
+ROAD         -
+ROAD         -
+ROAD         -   
+ROAD         - 32
+ROAD      32 -
+ROAD         -
+ROAD         -
+ROAD         -
+ROAD      15 - 15   
+ROAD         -
+ROAD 37 -0.9 - 36 -0.9
 
 FLAT
 
