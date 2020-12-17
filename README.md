@@ -24,6 +24,8 @@
 This is an open source **Out Run** remake project. This new version has been inspired by its earlier versions,
 which correspond to the 1986 arcade machine version and the 1991 Sega Mega Drive version.
 
+&nbsp;
+
 # Outstanding features
 
 This new the following features with respect to the original versions:
@@ -37,6 +39,8 @@ This new the following features with respect to the original versions:
 * Completely new maps available.
 * Customizable settings.
 
+&nbsp;
+
 # Tools and technologies used
 * C++14
 * OpenGL 6.14.10.13440
@@ -44,6 +48,8 @@ This new the following features with respect to the original versions:
 * Clion 2020.1
 * CodeBlocks 17.02
 * MinGW 
+
+&nbsp;
 
 # Controllers
 
@@ -56,6 +62,8 @@ These are the default controllers of the game, but the player can change them wh
 * Select an option: enter.
 * exit the game during the navigation in the interface, pause the game while the player is driving: esc.
 
+&nbsp;
+
 # Compilation project
 
 In order to compile the file, you must create a project with all the files provided in this repository, including the 
@@ -65,6 +73,8 @@ following link.
 
 https://www.sfml-dev.org/download.php
 
+&nbsp;
+
 # Running and execution
 
 In order to run Out Run on your personal computer you can either compile and run the project you have created locally 
@@ -72,6 +82,15 @@ on your computer or make use of the executable provided in the Release section o
 been prepared and tested in losts of computers with Windows x64 OS installed. Besides, the executable has been prepared to br
 executed without installation of any kind of dependency in your system and in MAC and Linux can be executed correctly using 
 wine.
+
+&nbsp;
+
+## 6. Supporting the project
+
+This is the second version of the video game. The designers have tested it as best as they could but they are absolutely aware that some fault may have due to its
+complexity. The fact that the project is open source is the real way for the community to solve all the possible problems together, feel free to open an issue or do a pull request. See the open issues for a list of known issues (and proposed features).
+
+&nbsp;
 
 # Screenshoots
 
@@ -97,6 +116,7 @@ Below are some captures of the video game developed:
 
 ![Ice](https://i.ibb.co/VBTX91k/Ice.png)
 
+&nbsp;
 
 # Trailer and gameplay
 
@@ -106,6 +126,7 @@ https://www.youtube.com/watch?v=IVZdkIx5NXg
 
 https://www.youtube.com/watch?v=7iA3PpbELm8
 
+&nbsp;
 
 # Authors
 
