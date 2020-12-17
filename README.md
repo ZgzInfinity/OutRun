@@ -87,7 +87,7 @@ wine.
 
 ## 6. Supporting the project
 
-This is the second version of the video game. The designers have tested it as best as they could but they are absolutely aware that some fault may have due to its
+This is the second version of the video game. We have tested it as best as we could but we are absolutely aware that some fault may have due to its
 complexity. The fact that the project is open source is the real way for the community to solve all the possible problems together, feel free to open an issue or do a pull request. See the open issues for a list of known issues (and proposed features).
 
 &nbsp;
