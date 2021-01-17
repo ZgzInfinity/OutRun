@@ -816,7 +816,7 @@ ROAD        - 25 0.7
 ROAD 25 0.9 - 
 ROAD        -  
 ROAD        - 25 3.2
-ROAD 26 4.3 - 
+ROAD 24 4.3 - 
 ROAD        - 
 ROAD        - 22 3.2
 ROAD        - 
@@ -1046,9 +1046,14 @@ ROAD      22 - 20 4.2
 ROAD         - 
 ROAD         - 19 0.1
 ROAD  19 3.7 - 
-ROAD 27 -0.9 - 26 -0.9 
 
 RANDOM 50 7 8 9 15
+
+ROAD         - 
+ROAD         - 
+ROAD         - 
+ROAD         - 
+ROAD 27 -0.9 - 26 -0.9 
 
 
 END  /* Obligatorio */

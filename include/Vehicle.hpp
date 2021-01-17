@@ -33,6 +33,7 @@
 
 #define XINC 0.033f // x increment
 #define ACC_INC 0.01f
+#define ACC_INC_ENEMY 0.005f
 #define COUNTER 2
 
 
@@ -94,6 +95,9 @@ class Vehicle {
         // Last position in axis y
         float previousY;
 
+        // Last position in axis x
+        float previousX;
+
         // Minimum coefficient to draw the vehicle in the screen
         float minScreenX;
 
@@ -108,6 +112,9 @@ class Vehicle {
 
         // Counter to change actual_code_image
         int counter_code_image;
+
+        // Type of direction  selected in the fork
+        int directionFork;
 
 
 public:
@@ -146,6 +153,14 @@ public:
 
 
     /**
+     * Establish the vehicle in a concrete position in the landscape
+     * @param pX is the position in the axis x when the vehicle must be located
+     */
+    void setPositionX(float pX);
+
+
+
+    /**
      * Returns the current position of the vehicle in the axis x
      * @return
      */
@@ -158,6 +173,14 @@ public:
      * @return
      */
     float getPosY() const;
+
+
+
+    /**
+     * Returns the previous position of the vehicle in the axis x
+     * @return
+     */
+    float getPreviousX() const;
 
 
 
@@ -182,6 +205,14 @@ public:
      * @return
      */
     float getAcceleration() const;
+
+
+
+    /**
+     * Get the direction followed by the vehicle in the fork
+     * @return
+     */
+    int getDirectionFork() const;
 
 
 };

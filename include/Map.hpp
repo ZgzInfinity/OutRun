@@ -62,8 +62,8 @@ class Map {
 
 
     /**
-     * Información de un objeto correspondiente a objects[spriteNum] si spriteNum != -1, con un offset en x.
-     * Si repetitive es true el objeto se repetirá hasta el borde de la pantalla.
+     * Information of an object corresponding to objects [spriteNum] if spriteNum != -1, with an offset in x.
+     * If repetitive is true the object will be repeated to the edge of the screen.
      */
     struct SpriteInfo {
 
@@ -96,7 +96,7 @@ class Map {
 
     };
 
-
+public:
 
     /**
      * Horizontal rectangle whose center is located in the coordinates (x, y, z), that is, it can have elevation (z).
@@ -127,7 +127,7 @@ class Map {
         // Map elements in the left and in the tight
         SpriteInfo spriteLeft, spriteRight;
 
-        // Vackground position
+        // Background position
         float bgX;
 
         // Offset in the axes x and y of the background
@@ -617,6 +617,14 @@ public:
      * @return
      */
     int getCheckPointLine() const;
+
+
+
+    /**
+     * Return number of lines of the map without fork
+     * @return
+     */
+    int getLinesWithoutFork()const;
 
 };
 

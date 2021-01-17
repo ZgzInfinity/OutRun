@@ -29,7 +29,7 @@ using namespace sf;
 #define MAX_AUTO_DIRECTION_COUNTER 1000
 
 Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange, const string &vehicle, float pY, int idCar) :
-        Vehicle(maxSpeed / speedMul, scale, maxCounterToChange, 0, random_float(-0.5f, 0.5f),
+        Vehicle((maxSpeed - 30) / speedMul, scale, maxCounterToChange, 0, random_float(-0.5f, 0.5f),
                 pY, pY, 0, 0, vehicle, ENEMY_TEXTURES, 1, 0), oriX(this->posX),
         currentDirection(RIGHT), calculatedPath(RIGHT), current_direction_counter(0), max_direction_counter(0),
         probAI(0), typeAI(OBSTACLE), id(idCar) {}
@@ -63,25 +63,54 @@ Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange
  * @param playerPosX is the position of the traffic car in the axis x
  * @param playerPosY is the position of the traffic car in the axis y
  */
-void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff) {
+void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff, float yOffsetX, int limitMap) {
     // Check if the vehicle is in fork
     if (inFork){
-        if (posX >= 0.f){
+        if (posX == 0.f){
+            const int p = random_int(0, 1);
+            if (p == 0){
+                posX = yOffsetX;
+            }
+            else {
+                posX = -yOffsetX;
+            }
+        }
+        else if (posX > 0.f){
             // Right fork
-            if (abs(posX) < 5.9f){
-                posX += 0.025;
+            if (abs(posX) < 11.71f){
+                posX = yOffsetX;
             }
-            else if (abs(posX) >= 5.9f){
-                posX = 5.9f;
+            else if (abs(posX) >= 11.71f){
+                posX = 11.71f;
             }
+            directionFork = 1;
         }
         else {
             // Left Fork
-            if (abs(posX) < 5.9f){
-                posX -= 0.025;
+            if (abs(posX) < 11.71f){
+                posX = -yOffsetX;
             }
-            else if (abs(posX) >= 5.9f){
-                posX = -5.9f;
+            else if (abs(posX) >= 11.71f){
+                posX = -11.71f;
+            }
+            directionFork = -1;
+        }
+    }
+    else if (limitMap - posY <= 420.f){
+        // Check if the traffic car is in the right of the road
+        if (posX > 0.f){
+            posX -= 0.02f;
+            if (posX < 0.0f){
+                // Centered in the traffic car of the road
+                posX = 0.f;
+            }
+        }
+        // Check if the traffic car is in the left of the road
+        else if (posX < 0.0f) {
+            posX += 0.02f;
+            if (posX > 0.0f){
+                // Centered in the traffic car of the road
+                posX = 0.f;
             }
         }
     }
@@ -113,14 +142,15 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
 
         // Stores the new direction
         currentDirection = calculatedPath;
-    } else {
+    }
+    else {
         // AI
         if (typeAI == OBSTACLE) {
             const float acc = getAcceleration();
             if (abs(playerPosX - posX) > XINC) { // Rotation control
                 // The vehicle is not in the player's path
                 if (speed < halfMaxSpeed)
-                    speed = sqrt(acc + ACC_INC);
+                    speed = sqrt(acc + ACC_INC_ENEMY);
 
                 if (posX > playerPosX && posX > -0.9f) {
                     posX -= XINC * speed / maxSpeed;
@@ -133,9 +163,9 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
                 // Acceleration control
                 // The vehicle is in the player's path
                 if (posY <= playerPosY)
-                    speed = sqrt(acc + ACC_INC);
-                else if (acc > ACC_INC)
-                    speed = sqrt(acc - ACC_INC);
+                    speed = sqrt(acc + ACC_INC_ENEMY);
+                else if (acc > ACC_INC_ENEMY)
+                    speed = sqrt(acc - ACC_INC_ENEMY);
                 else
                     speed = 0.0f;
 
@@ -214,12 +244,11 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
  * @param iniPos is the initial position of the traffic car
  * @param endPos is the new position of the traffic car
  * @param maxAggressiveness is the AI aggressiveness of the traffic cars
- * @param difficulty is the difficulty level of the game selected by the player
  */
 void Enemy::update(float iniPos, float endPos, float maxAggressiveness) {
 
     // Updating the speed of the traffic car between two thresholds
-    speed = maxSpeed * random_float(0.25f, 0.75f);
+    speed = maxSpeed * random_float(0.45f, 0.65f);
 
     // Estimates the position of the traffic car and stores the current one
     posY = random_float(iniPos, endPos);

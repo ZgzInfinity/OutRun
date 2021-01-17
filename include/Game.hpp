@@ -190,7 +190,6 @@ class Game {
     bool checkPointDisplayed;
 
 
-
     /**
      * Updates the time elapsed in the game
      */

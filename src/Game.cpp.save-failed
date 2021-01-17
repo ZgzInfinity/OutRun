@@ -33,7 +33,7 @@ using namespace std;
 #define MAX_SPEED_TRAFFIC_CAR 300.f
 #define SPEED_MUL 70.0f
 #define MAX_COUNTER 2
-#define VEHICLE_DENSITY 3.f // Greater than 0
+#define VEHICLE_DENSITY 3.0f // Greater than 0
 #define VEHICLE_MIN_DISTANCE 5.0f // Minimum number of rectangles between enemies
 #define DEL_VEHICLE 50.0f // Minimum number of rectangles behind the camera to delete the enemy
 
@@ -1446,19 +1446,14 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
     if (currentMap->isOver()) {
 
         // Update the position o the traffic cars
-        for (Enemy &v : cars){
-            // Only are relocated the traffic cars with the same direction of the player
-            if (v.getDirectionFork() == player.getDirectionFork()){
+        for (Enemy &v : cars)
+            if (v.getPosX() >= 0.f){
                 v.setPositionX(0.f);
             }
             else {
-                // Update the speed and position for the car
-                v.update(lastY, lastY + float(c.renderLen) / VEHICLE_DENSITY, c.maxAggressiveness);
-                lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
+                v.setPositionX(0.f);
             }
-        }
 
-        player.setDirectionFork();
 
         // New map reached
         checkPointDisplayed = false;
@@ -1559,6 +1554,31 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                 lastY = v.getPosY() + VEHICLE_MIN_DISTANCE * RECTANGLE;
             }
 
+            // Get the position of the traffic car in axis x
+            float pX = v.getPosX();
+
+            // Check the path of each traffic car
+            if (!currentMap->inFork(v.getPosY())){
+                if (currentMap->getMaxY() - v.getPosY() <= 60.f){
+                    // Check if the traffic car is in the right of the road
+                    if (pX > 0.f){
+                        v.setPositionX(pX - 0.032f);
+                        if (v.getPosX() > 0.0f){
+                            // Centered in the traffic car of the road
+                            v.setPositionX(0.f);
+                        }
+                    }
+                    // Check if the traffic car is in the left of the road
+                    else if (pX < 0.0f) {
+                        v.setPositionX(pX + 0.032f);
+                        if (v.getPosX() > 0.0f){
+                            // Centered in the traffic car of the road
+                            v.setPositionX(0.f);
+                        }
+                    }
+                }
+            }
+
             // Draw the car
             float posY = v.getPosY();
             v.draw(currentMap->getElevation(posY), currentMap->getCamX());
@@ -1623,11 +1643,11 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
 
             if (currentMap->inFork(v.getPosY())){
                 v.autoControl(c, player.getPosX(), player.getPosY(), true,
-                              currentMap->getCurveCoefficient(v.getPosY()), currentMap->getLine(v.getPosY())->yOffsetX, currentMap->getLinesWithoutFork());
+                              currentMap->getCurveCoefficient(v.getPosY()), currentMap->getLine(v.getPosY())->yOffsetX);
             }
             else {
                 v.autoControl(c, player.getPosX(), player.getPosY(), false,
-                              currentMap->getCurveCoefficient(v.getPosY()), currentMap->getLine(v.getPosY())->yOffsetX, currentMap->getLinesWithoutFork());
+                              currentMap->getCurveCoefficient(v.getPosY()), currentMap->getLine(v.getPosY())->yOffsetX);
             }
         }
 

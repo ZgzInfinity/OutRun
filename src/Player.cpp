@@ -67,6 +67,16 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
 
 
 /**
+ * Set the direction of the player after the fork
+ * @return
+ */
+void Player::setDirectionFork() {
+    directionFork = 0;
+}
+
+
+
+/**
  * Returns the last position of the player's vehicle in axis y
  * @return
  */
@@ -394,6 +404,7 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                     else {
                         posX -= 1.25f * (XINC * 1.65f) * speed / maxSpeed;
                     }
+                    directionFork = -1;
                 }
             }
             return TURNLEFT;
@@ -432,8 +443,8 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                     else {
                         posX += 1.25f * (XINC * 1.65f) * speed / maxSpeed;
                     }
+                    directionFork = 1;
                 }
-
                 return TURNRIGHT;
             }
         }

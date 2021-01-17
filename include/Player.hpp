@@ -93,6 +93,8 @@ class Player : public Vehicle {
     // Number of angers of the blonde woman
     int numAngers;
 
+    //
+
 
 public:
 
@@ -112,6 +114,14 @@ public:
      */
     Player(float maxSpeed, float speedMul, float accInc, float scaleX, float scaleY, int maxCounterToChange,
            const std::string &vehicle, float pX, float pY);
+
+
+
+    /**
+     * Set the direction of the player after the fork
+     * @return
+     */
+    void setDirectionFork();
 
 
 

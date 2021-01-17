@@ -2010,3 +2010,13 @@ int Map::getTime() const {
 int Map::getCheckPointLine() const {
     return checkPointLine;
 }
+
+
+
+/**
+ * Return number of lines of the map without fork
+ * @return
+ */
+int Map::getLinesWithoutFork()const {
+    return totalLinesWithoutFork;
+}

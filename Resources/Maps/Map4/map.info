@@ -957,10 +957,17 @@ ROAD         -
 ROAD         -
 ROAD      15 - 15   
 ROAD         -
-ROAD 37 -0.9 - 36 -0.9
 
 FLAT
 
 RANDOM 100 1 6 9 10 12 13 14 15 30 31 33 34
+
+ROAD         -
+ROAD         -
+ROAD         - 15
+ROAD      15 -
+ROAD         -
+ROAD         -
+ROAD 37 -0.9 - 36 -0.9
 
 END  /* Obligatorio */

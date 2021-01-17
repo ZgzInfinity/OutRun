@@ -122,7 +122,7 @@ public:
      * @param playerPosX is the position of the traffic car in the axis x
      * @param playerPosY is the position of the traffic car in the axis y
      */
-    void autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff);
+    void autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff, float yOffset, int limitMap);
 
 
 

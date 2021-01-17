@@ -54,7 +54,8 @@ Vehicle::Vehicle(const float maxSpeed, const float scale, const int maxCounterTo
                                                                previousY(previousY), minScreenX(minScreenX),
                                                                maxScreenX(maxScreenX),
                                                                current_code_image(currentCodeImage),
-                                                               counter_code_image(counterCodeImage) {
+                                                               counter_code_image(counterCodeImage), directionFork(0)
+{
     textures.reserve(static_cast<unsigned long>(numTextures));
     for (int i = 1; i <= numTextures; i++) {
         Texture t;
@@ -79,6 +80,17 @@ void Vehicle::setPosition(float pX, float pY) {
 
 
 
+
+/**
+ * Establish the vehicle in a concrete position in the landscape
+ * @param pX is the position in the axis x when the vehicle must be located
+ */
+void Vehicle::setPositionX(float pX){
+    posX = pX;
+}
+
+
+
 /**
  * Returns the current position of the vehicle in the axis x
  * @return
@@ -95,6 +107,16 @@ float Vehicle::getPosX() const {
  */
 float Vehicle::getPosY() const {
     return posY;
+}
+
+
+
+/**
+ * Returns the previous position of the vehicle in the axis x
+ * @return
+ */
+float Vehicle::getPreviousX() const {
+    return previousX;
 }
 
 
@@ -125,6 +147,16 @@ float Vehicle::getMaxScreenX() const {
  */
 float Vehicle::getAcceleration() const {
     return speed * speed;
+}
+
+
+
+/**
+ * Get the direction followed by the vehicle in the fork
+ * @return
+ */
+int Vehicle::getDirectionFork() const {
+    return directionFork;
 }
 
 
