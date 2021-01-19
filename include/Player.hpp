@@ -36,6 +36,9 @@
  */
 class Player : public Vehicle {
 
+    // Gear with the player is currently running
+    int gearPlayer;
+
     // Factor to multiply the speed of the player's vehicle
     const float speedMul;
 
@@ -232,6 +235,13 @@ public:
      * @return
      */
     void setModeCollision();
+
+
+
+    /**
+     * Return the gear of the player's vehicle
+     */
+    int getGearPlayer();
 
 };
 

@@ -44,11 +44,14 @@ mutex mainMutex;
  * @param controlRight controls the key to move the vehicle of the player to the right
  * @param controlAccelerate controls the key to accelerate the vehicle of the player
  * @param controlBrake controls the key to brake the vehicle of the player
+ * @param controlUpGear controls the key to change to a higher gear
+ * @param controlLowGear controls the key to change to a lower gear
  */
 void loadGameConfiguration (const string path, Difficult& difficulty, bool& enabledAi,
                             int& volumeSoundtracks, int& volumeEffects, bool& pixelArt,
                             bool& fullScreen, int& axis_x,int& axis_y, string& controlLeft,
-                            string& controlRight, string& controlAccelerate, string& controlBrake)
+                            string& controlRight, string& controlAccelerate, string& controlBrake,
+                            string& controlUpGear, string& controlLowGear)
 {
      // Load the configuration of the game
     ifstream fin(path );
@@ -152,6 +155,18 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
                 getline(fin, s);
                 controlBrake = s;
             }
+            // Keyword to change to a higher gear
+            else if (s == "CONTROLLER_UP_GEAR:" && !fin.eof()) {
+                fin.ignore(1);
+                getline(fin, s);
+                controlUpGear = s;
+            }
+            // Keyword to change to a lower gear
+            else if (s == "CONTROLLER_LOW_GEAR:" && !fin.eof()) {
+                fin.ignore(1);
+                getline(fin, s);
+                controlLowGear = s;
+            }
         }
         fin.close();
     }
@@ -170,17 +185,17 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
     Difficult difficulty;
     bool pixelArt, enabledAi, fullScreen;
     int volumeSoundtracks, volumeEffects, axis_x, axis_y;
-    string controlLeft, controlRight, controlAccelerate, controlBrake;
+    string controlLeft, controlRight, controlAccelerate, controlBrake, controlUpGear, controlLowGear;
 
     // Load the properties of the game
     string path = "Resources/Settings/Settings.info";
 
     loadGameConfiguration(path, difficulty, enabledAi, volumeSoundtracks, volumeEffects, pixelArt, fullScreen, axis_x, axis_y,
-                          controlLeft, controlRight, controlAccelerate, controlBrake);
+                          controlLeft, controlRight, controlAccelerate, controlBrake, controlUpGear, controlLowGear);
 
     // Creation of the configuration module of the game
     Config c(difficulty, pixelArt, enabledAi, fullScreen, axis_x, axis_y, controlLeft, controlRight, controlAccelerate,
-             controlBrake, volumeEffects, volumeSoundtracks);
+             controlBrake, controlUpGear, controlLowGear, volumeEffects, volumeSoundtracks);
 
     State state = ANIMATION;
 
@@ -201,6 +216,11 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
                 case MUSIC: {
                     sleep(milliseconds(500));
                     state = selectMusicSoundtrack(c);
+                    break;
+                }
+                case LOADING: {
+                    bool autoMod = engine.getAutoMode();
+                    state = showLoadingAnimation(c, autoMod);
                     break;
                 }
                 case OPTIONS: {

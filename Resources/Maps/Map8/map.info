@@ -798,11 +798,16 @@ ROAD + 28 0.2 - + 18 0.2
 ROAD          - 
 ROAD          -
 ROAD          -
-ROAD  30 -0.9 - 29 -0.9
+ROAD          -
 
 FLAT
 
 RANDOM 100 8 9 10 11 12 13 14 15 16 18 26 27 28
+
+ROAD          - 
+ROAD          -
+ROAD          -
+ROAD  30 -0.9 - 29 -0.9
 
 
 

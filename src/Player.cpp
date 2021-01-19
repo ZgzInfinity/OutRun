@@ -62,6 +62,7 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
     speedCollision = 0.f;
     outSideRoad = false;
     numAngers = 0;
+    gearPlayer = 0;
 }
 
 
@@ -1058,4 +1059,14 @@ void Player::setModeCollision(){
         // Get randomly the type of crash animation
         mode = random_int(0, 1);
     }
+}
+
+
+
+
+/**
+ * Return the gear of the player's vehicle
+ */
+int Player::getGearPlayer(){
+    return gearPlayer;
 }

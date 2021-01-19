@@ -36,10 +36,12 @@
  * @param controlLeft is the code of the key to move the vehicle to the right
  * @param controlAccelerate is the code of the key to accelerate the vehicle
  * @param controlSoundtrack is the code of the key to change the soundtrack of the game
+ * @param controlUpGear is the code of the key to change to a higher gear
+ * @param controlLowGear is the code of the key to change to a lower gear
  */
 Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabledAi, const bool fullScreen, const int axis_x,
                const int axis_y, const string controlLeft,const string controlRight, const string controlAccelerate,
-               const string controlBrake, const int volEffects, const int volSoundtracks)
+               const string controlBrake, const string controlUpGear, const string controlLowGear, const int volEffects, const int volSoundtracks)
                : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), camD(0.87), renderLen(450)
 {
     // Check if the screen is in default resolution or not
@@ -136,6 +138,14 @@ Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabl
     // Look for the keyboard to control the braking
     index = kM.lookForKeyBoard(controlBrake);
     brakeKey = kM.mapperCodeKeyWord[index];
+
+    // Look for the keyboard to change to a higher gear
+    index = kM.lookForKeyBoard(controlUpGear);
+    upGearKey = kM.mapperCodeKeyWord[index];
+
+        // Look for the keyboard to change to a lower gear
+    index = kM.lookForKeyBoard(controlLowGear);
+    lowGearKey = kM.mapperCodeKeyWord[index];
 
     // Store all the fonts of the text used by the game
     timeToPlay = initializeFontTimePlay();

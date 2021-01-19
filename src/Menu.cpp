@@ -109,7 +109,7 @@ State introAnimation(Config &c) {
                          c.w.getSize().y / 2.f - zgzText.getGlobalBounds().height * 1.375f);
 
     // Load the music soundtracks of the game
-    for (int i = 0; i <= 5; i++) {
+    for (int i = 1; i <= 7; i++) {
         unique_ptr<Music> music = make_unique<Music>();
         music->openFromFile("Resources/Soundtrack/" + to_string(i) + ".ogg");
         music->setVolume(c.volumeMusic);
@@ -650,8 +650,8 @@ State changeCarControllers(Config &c) {
     textureShape.setRepeated(true);
 
     RectangleShape shape;
-    shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
-    shape.setSize(sf::Vector2f(610.0f * c.screenScale, 500.0f * c.screenScale));
+    shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 300.0f * c.screenScale);
+    shape.setSize(sf::Vector2f(610.0f * c.screenScale, 600.0f * c.screenScale));
     shape.setOutlineColor(Color(19, 186, 251));
     shape.setOutlineThickness(5.0f * c.screenScale);
     shape.setTexture(&textureShape, true);
@@ -662,7 +662,7 @@ State changeCarControllers(Config &c) {
     Text optionsText;
     optionsText.setString("CONTROLLERS");
     optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
-                            c.w.getSize().y / 2.f - 220.0f * c.screenScale);
+                            c.w.getSize().y / 2.f - 270.0f * c.screenScale);
     optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
     optionsText.setFont(c.options);
     optionsText.setStyle(Text::Bold | Text::Underlined);
@@ -675,7 +675,7 @@ State changeCarControllers(Config &c) {
     info1.setOutlineThickness(3.0f * c.screenScale);
     info1.setCharacterSize(static_cast<unsigned int>(int(15.0f * c.screenScale)));
     info1.setStyle(Text::Bold);
-    info1.setPosition(c.w.getSize().x / 2.f - 235.0f * c.screenScale, c.w.getSize().y / 2.f - 160.0f * c.screenScale);
+    info1.setPosition(c.w.getSize().x / 2.f - 235.0f * c.screenScale, c.w.getSize().y / 2.f - 210.0f * c.screenScale);
     info1.setFont(c.options);
     c.w.draw(info1);
 
@@ -686,61 +686,84 @@ State changeCarControllers(Config &c) {
     info2.setCharacterSize(static_cast<unsigned int>(int(15.0f * c.screenScale)));
     info2.setOutlineThickness(3.0f * c.screenScale);
     info2.setStyle(Text::Bold);
-    info2.setPosition(c.w.getSize().x / 2.f - 265.0f * c.screenScale, c.w.getSize().y / 2.f - 120.0f * c.screenScale);
+    info2.setPosition(c.w.getSize().x / 2.f - 265.0f * c.screenScale, c.w.getSize().y / 2.f - 170.0f * c.screenScale);
     info2.setFont(c.options);
     c.w.draw(info2);
 
     // Option indicators
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 120.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Turning left", Color(0, 255, 0), Color(255, 255, 0), 1, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 50.f,
                              200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                              "Turning right", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 20.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Acceleration", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 90.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Brake", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 160.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Up gear", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 230.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Down gear", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     // Option configurations
 
     int code;
     code = kM.mapperCodeKeyWord[c.leftKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f - 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 120.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 1,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.rightKey];
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 50.f,
                              200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.accelerateKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 70.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 20.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.brakeKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 90.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
 
+    code = kM.mapperCodeKeyWord[c.upGearKey];
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 160.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                             c.screenScale);
+
+    code = kM.mapperCodeKeyWord[c.lowGearKey];
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 230.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                             c.screenScale);
 
     // Control if the start key is pressed or not
     bool startPressed = false;
@@ -783,8 +806,8 @@ State changeCarControllers(Config &c) {
                 optionSelected++;
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected - 1].setButtonState(BUTTON_IDLE);
-                menuButtons[optionSelected + 4].setButtonState(BUTTON_HOVER);
-                menuButtons[optionSelected + 3].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 6].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 5].setButtonState(BUTTON_IDLE);
             }
         } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuUpKey)) {
             // Down cursor pressed and change the soundtrack selected in the list
@@ -794,8 +817,8 @@ State changeCarControllers(Config &c) {
                 optionSelected--;
                 menuButtons[optionSelected].setButtonState(BUTTON_HOVER);
                 menuButtons[optionSelected + 1].setButtonState(BUTTON_IDLE);
-                menuButtons[optionSelected + 4].setButtonState(BUTTON_HOVER);
-                menuButtons[optionSelected + 5].setButtonState(BUTTON_IDLE);
+                menuButtons[optionSelected + 6].setButtonState(BUTTON_HOVER);
+                menuButtons[optionSelected + 7].setButtonState(BUTTON_IDLE);
             }
         }
         while (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Space) && !Keyboard::isKeyPressed(Keyboard::Enter)) {
@@ -808,11 +831,13 @@ State changeCarControllers(Config &c) {
                     case 0:
                         if (kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey) {
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.upGearKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.lowGearKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
                         } else {
-                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            menuButtons[optionSelected + 6].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.leftKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
                             c.effects[1]->play();
@@ -822,11 +847,13 @@ State changeCarControllers(Config &c) {
                         // Get the code of the keyword if it's not the up pr down cursor keys
                         if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey) {
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.upGearKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.lowGearKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
                         } else {
-                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            menuButtons[optionSelected + 6].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.rightKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
                             c.effects[1]->play();
@@ -836,11 +863,13 @@ State changeCarControllers(Config &c) {
                         // Get the code of the keyword if it's not the up pr down cursor keys
                         if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey) {
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.upGearKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.lowGearKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
                         } else {
-                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            menuButtons[optionSelected + 6].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.accelerateKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
                             c.effects[1]->play();
@@ -850,12 +879,46 @@ State changeCarControllers(Config &c) {
                         // Get the code of the keyword if it's not the up pr down cursor keys
                         if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
                             kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
-                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey) {
+                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.upGearKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.lowGearKey) {
                             c.effects[3]->stop();
                             c.effects[3]->play();
                         } else {
-                            menuButtons[optionSelected + 4].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            menuButtons[optionSelected + 6].setTextButton(kM.mapperIdKeyWord[e.key.code]);
                             c.brakeKey = kM.mapperCodeKeyWord[e.key.code];
+                            c.effects[1]->stop();
+                            c.effects[1]->play();
+                        }
+                        break;
+                    case 4:
+                        // Get the code of the keyword if it's not the up pr down cursor keys
+                        if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.lowGearKey) {
+                            c.effects[3]->stop();
+                            c.effects[3]->play();
+                        } else {
+                            menuButtons[optionSelected + 6].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            c.upGearKey = kM.mapperCodeKeyWord[e.key.code];
+                            c.effects[1]->stop();
+                            c.effects[1]->play();
+                        }
+                        break;
+                    case 5:
+                        // Get the code of the keyword if it's not the up pr down cursor keys
+                        if (kM.mapperCodeKeyWord[e.key.code] == c.leftKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.rightKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.accelerateKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.brakeKey ||
+                            kM.mapperCodeKeyWord[e.key.code] == c.upGearKey) {
+                            c.effects[3]->stop();
+                            c.effects[3]->play();
+                        } else {
+                            menuButtons[optionSelected + 6].setTextButton(kM.mapperIdKeyWord[e.key.code]);
+                            c.lowGearKey = kM.mapperCodeKeyWord[e.key.code];
                             c.effects[1]->stop();
                             c.effects[1]->play();
                         }
@@ -1005,7 +1068,7 @@ State soundMenu(Config &c, const bool &inGame) {
             if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                 if (c.volumeMusic != 0) {
                     c.volumeMusic--;
-                    for (int i = 0; i <= 5; i++) {
+                    for (int i = 0; i <= 6; i++) {
                         c.themes[i]->setVolume(float(c.volumeMusic));
                         if (i == 0) {
                             c.themes[i]->pause();
@@ -1017,7 +1080,7 @@ State soundMenu(Config &c, const bool &inGame) {
             } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                 if (c.volumeMusic != 100) {
                     c.volumeMusic++;
-                    for (int i = 0; i <= 5; i++) {
+                    for (int i = 0; i <= 6; i++) {
                         c.themes[i]->setVolume(float(c.volumeMusic));
                         if (i == 0) {
                             c.themes[i]->pause();
@@ -1098,6 +1161,9 @@ State optionsMenu(Config &c, const bool &inGame) {
     // Control if the start key is pressed or not
     bool startPressed = false;
 
+    c.themes[0]->stop();
+    c.themes[0]->play();
+
     while (!startPressed) {
 
         // Clean the console window
@@ -1106,8 +1172,6 @@ State optionsMenu(Config &c, const bool &inGame) {
         c.w.display();
         c.window.draw(bufferSprite);
         c.window.display();
-
-        c.themes[0]->play();
 
         // Loading the background texture
         Texture iconBackground, textureShape;
@@ -1510,6 +1574,14 @@ State optionsMenu(Config &c, const bool &inGame) {
         index = kM.lookForKeyBoardId(c.brakeKey);
         string controlBrake = kM.mapperIdKeyWord[index];
 
+        // Get the keyword to change to a higher gear
+        index = kM.lookForKeyBoardId(c.upGearKey);
+        string controlUpGear = kM.mapperIdKeyWord[index];
+
+        // Get the keyword to change to a lower gear
+        index = kM.lookForKeyBoardId(c.lowGearKey);
+        string controlLowGear = kM.mapperIdKeyWord[index];
+
         if (c.resIndex == -1){
             c.fullScreen = true;
         }
@@ -1520,7 +1592,7 @@ State optionsMenu(Config &c, const bool &inGame) {
         // Update the file with the new configuration
         storeNewConfiguration(path, c.level, c.enableAI, c.volumeMusic, c.volumeEffects, c.enablePixelArt, c.fullScreen,
                               c.resolutions[c.resIndex].first, c.resolutions[c.resIndex].second, controlLeft, controlRight,
-                              controlAccelerate, controlBrake);
+                              controlAccelerate, controlBrake, controlUpGear, controlLowGear);
 
         // Make possible more modifications
         c.modifiedConfig = false;
@@ -1598,13 +1670,14 @@ State selectMusicSoundtrack(Config &c) {
     bool startPressed = false;
 
     // Stop sounds
-    c.themes[0]->stop();
     c.themes[1]->stop();
     c.themes[2]->stop();
+    c.themes[3]->stop();
 
     sleep(milliseconds(10));
     c.effects[40]->stop();
     c.effects[40]->play();
+
 
     c.currentSoundtrack = 1;
     c.themes[c.currentSoundtrack]->play();
@@ -1680,8 +1753,9 @@ State selectMusicSoundtrack(Config &c) {
         }
     }
     c.effects[29]->stop();
-    c.themes[0]->stop();
-    return GAME;
+    c.themes[c.currentSoundtrack]->stop();
+
+    return LOADING;
 }
 
 
@@ -2158,10 +2232,13 @@ State rankingMenu(Config &c, const unsigned long scorePlayerGame, const int minu
  * @param controlAccelerate is the key selected by the player to accelerate the vehicle
  * @param controlBrake is the key selected by the player to brake the vehicle
  * @param controlSoundtrack is the key selected by the player to change the soundtrack of the game
+ * @param controlUpGear is the key selected by the player to change to a higher gear
+ * @param controlLowGear is the key selected by the player to change to a lower gear
  */
 void storeNewConfiguration(const string path, const Difficult difficulty, const bool enabledAi, const int volumeSoundtracks,
                            const int volumeEffects, const bool pixelArt, const bool fullScreen, const int axis_x, const int axis_y,
-                           const string controlLeft, const string controlRight, const string controlAccelerate, const string controlBrake)
+                           const string controlLeft, const string controlRight, const string controlAccelerate, const string controlBrake,
+                           const string controlUpGear, const string controlLowGear)
 {
     //  New file which stores the new configuration of the game
     ofstream f(path);
@@ -2216,6 +2293,333 @@ void storeNewConfiguration(const string path, const Difficult difficulty, const 
         f << "CONTROLLER_RIGHT: " << controlRight << endl;
         f << "CONTROLLER_ACCELERATE: " << controlAccelerate << endl;
         f << "CONTROLLER_BRAKE: " << controlBrake << endl;
+        f << "CONTROLLER_UP_GEAR: " << controlUpGear << endl;
+        f << "CONTROLLER_LOW_GEAR: " << controlLowGear << endl;
     }
     f.close();
+}
+
+
+
+State showLoadingAnimation(Config& c, const bool autoMod){
+
+    // Prepare the screen to display the loading animation
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
+                          Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+               static_cast<unsigned int>(c.window.getView().getSize().y));
+    c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+
+    // Loading the background texture
+    Texture iconBackground, textureShape;
+    iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+    IntRect background(0, 0, c.w.getSize().x, c.w.getSize().y);
+
+    Sprite sprite(iconBackground, background);
+    float axis_x = float(c.w.getSize().x) / SCREEN_DEFAULT_X;
+    float axis_y = float(c.w.getSize().y) / SCREEN_DEFAULT_Y;
+    sprite.setScale(axis_x, axis_y);
+
+    textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
+    textureShape.setRepeated(true);
+
+    RectangleShape shape;
+
+    // Establish the dimensions depending on if the game is played manually or automatically
+    if (c.isDefaultScreen){
+        shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
+        shape.setSize(sf::Vector2f(610.0f * c.screenScale, 450.0f * c.screenScale));
+    }
+    else {
+        shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 200.0f * c.screenScale);
+        shape.setSize(sf::Vector2f(610.0f * c.screenScale, 400.0f * c.screenScale));
+    }
+
+    shape.setOutlineColor(Color(19, 186, 251));
+    shape.setOutlineThickness(5.0f * c.screenScale);
+    shape.setTexture(&textureShape, true);
+
+    vector<Button> menuButtons;
+
+    // Main Text of the menu
+    Text controllersText;
+    controllersText.setString("CONTROLLERS");
+
+    // Fix the position of the title
+    if (c.isDefaultScreen){
+        if (autoMod){
+            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+                                    c.w.getSize().y / 2.f - 220.0f * c.screenScale);
+        }
+        else {
+            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+                                    c.w.getSize().y / 2.f - 210.0f * c.screenScale);
+        }
+    }
+    else {
+        if (autoMod){
+            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+                                        c.w.getSize().y / 2.f - 190.0f * c.screenScale);
+        }
+        else {
+            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+                                        c.w.getSize().y / 2.f - 195.0f * c.screenScale);
+        }
+    }
+
+    controllersText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
+    controllersText.setFont(c.options);
+    controllersText.setStyle(Text::Bold | Text::Underlined);
+    controllersText.setFillColor(Color::Red);
+
+    // Controllers indicators depending on the mode
+    if (autoMod){
+        // Automatic mode
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
+                             "Turning left", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 50.f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 30.f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 110.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        // Controller of the keyword codes
+        KeywordMapper kM = KeywordMapper();
+
+        // Option configurations
+        int code;
+        code = kM.mapperCodeKeyWord[c.leftKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.rightKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 50.f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.accelerateKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 30.f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.brakeKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 110.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+    }
+    else {
+        // Manual mode
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 135.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Turning left", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 80.f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Turning right", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 25.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Acceleration", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 30.f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Brake", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 85.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Up gear", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 "Down gear", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
+
+        // Controller of the keyword codes
+        KeywordMapper kM = KeywordMapper();
+
+        // Option configurations
+        int code;
+        code = kM.mapperCodeKeyWord[c.leftKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 135.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.rightKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 80.f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.accelerateKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f - 25.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.brakeKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 30.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.upGearKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 85.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+
+        code = kM.mapperCodeKeyWord[c.lowGearKey];
+        menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                                 c.w.getSize().y / 2.f + 140.0f * c.screenScale, 200.0f * c.screenScale,
+                                 30.0f * c.screenScale, c.options,
+                                 kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
+                                 c.screenScale);
+    }
+
+
+    // Number of points to display depending of the resolution
+    int totalPoints, offsetText;
+    if (c.isDefaultScreen){
+        totalPoints = 25;
+        offsetText = 235;
+    }
+    else {
+        totalPoints = 35;
+        offsetText = 215;
+    }
+
+    // Menu text
+    Text loadingText;
+    loadingText.setString("NOW LOADING");
+    loadingText.setCharacterSize(static_cast<unsigned int>(int(25.0f * c.screenScale)));
+    loadingText.setFont(c.timeToPlay);
+    loadingText.setStyle(Text::Bold);
+    loadingText.setFillColor(Color::White);
+    loadingText.setOutlineColor(Color::Black);
+    loadingText.setOutlineThickness(5.0f * c.screenScale);
+    loadingText.setPosition((c.w.getSize().x / 7.f) - loadingText.getLocalBounds().width / 2.f,
+                                 c.w.getSize().y / 2.f + offsetText * c.screenScale);
+
+    c.w.clear(Color(0, 0, 0));
+    Sprite bufferSprite(c.w.getTexture());
+    c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
+
+    // Vector of loafing points
+    string points[totalPoints];
+
+    // Fill the vector with the points
+    for (int i = 0; i < totalPoints; i++){
+        points[i] = ".";
+    }
+
+    c.themes[6]->stop();
+    c.themes[6]->play();
+
+    for (int i = 0; i < totalPoints; i++){
+
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)){
+            if (e.type == Event::Closed){
+                c.themes[6]->stop();
+                return EXIT;
+            }
+        }
+
+        // Draw the elements of the menu
+        c.w.draw(sprite);
+        c.w.draw(shape);
+        c.w.draw(controllersText);
+
+        // Show the buttons of the menu
+        for (auto &menuButton : menuButtons) {
+            menuButton.render(&c.w);
+        }
+
+        c.w.draw(loadingText);
+
+        // Draw the loading points
+        for (int j = 0; j <= i; j++){
+
+            // Detect the possible events
+            Event e{};
+            while (c.window.pollEvent(e)){
+                if (e.type == Event::Closed){
+                    c.themes[6]->stop();
+                    return EXIT;
+                }
+            }
+
+            Text pointText;
+            pointText.setString(points[j]);
+            pointText.setCharacterSize(static_cast<unsigned int>(int(25.0f * c.screenScale)));
+            pointText.setFont(c.timeToPlay);
+            pointText.setStyle(Text::Bold);
+            pointText.setFillColor(Color::White);
+            pointText.setOutlineColor(Color::Black);
+            pointText.setOutlineThickness(5.0f * c.screenScale);
+            pointText.setPosition((c.w.getSize().x / 7.f) + loadingText.getLocalBounds().width / 2.f + 25.f * (j + 1),
+                                   c.w.getSize().y / 2.f + offsetText * c.screenScale);
+            c.w.draw(pointText);
+        }
+
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+
+        sleep(milliseconds(450));
+    }
+
+    // Play the music of the animation
+    c.themes[6]->stop();
+
+    // Control the pixel art flag to construct the view of the screen
+    if (c.enablePixelArt) {
+        if (c.isDefaultScreen)
+            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f),
+                                  Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+        else
+            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f),
+                                  Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+        c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+                   static_cast<unsigned int>(c.window.getView().getSize().y));
+        c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+    }
+
+    return GAME;
 }

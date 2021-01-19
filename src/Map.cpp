@@ -1606,31 +1606,31 @@ void Map::draw(Config &c, vector<Enemy> &vehicles, float playerPosX, float playe
             bool draw = false;
 
             if (inFork){
-                if (playerPosY >= totalLines - 570){
+                if (playerPosY >= totalLines - 585){
                     opacity = 255;
                     draw = true;
                 }
-                else if (playerPosY >= totalLines - 575){
+                else if (playerPosY >= totalLines - 590){
                     opacity = 205;
                     draw = true;
                 }
-                else if (playerPosY >= totalLines - 580){
+                else if (playerPosY >= totalLines - 595){
                     opacity = 185;
                     draw = true;
                 }
-                else if (playerPosY >= totalLines - 585){
+                else if (playerPosY >= totalLines - 600){
                     opacity = 135;
                     draw = true;
                 }
-                else if (playerPosY >= totalLines - 590){
+                else if (playerPosY >= totalLines - 610){
                     opacity = 90;
                     draw = true;
                 }
-                else if (playerPosY >= totalLines - 595){
+                else if (playerPosY >= totalLines - 615){
                     opacity = 45;
                     draw = true;
                 }
-                else if (playerPosY >= totalLines - 600){
+                else if (playerPosY >= totalLines - 620){
                     opacity = 0;
                     draw = true;
                 }

@@ -124,10 +124,18 @@ State rankingMenu(Config &c, unsigned long scorePlayerGame, int minutes, int dec
  * @param controlAccelerate is the key selected by the player to accelerate the vehicle
  * @param controlBrake is the key selected by the player to brake the vehicle
  * @param controlSoundtrack is the key selected by the player to change the soundtrack of the game
+ * @param controlUpGear is the key selected by the player to change to a higher gear
+ * @param controlLowGear is the key selected by the player to change to a lower gear
  */
 void storeNewConfiguration(const string path, const Difficult difficulty, const bool enabledAi, const int volumeSoundtracks,
                            const int volumeEffects, const bool pixelArt, const bool fullScreen, const int axis_x, const int axis_y,
-                           const string controlLeft, const string controlRight, const string controlAccelerate, const string controlBrake);
+                           const string controlLeft, const string controlRight, const string controlAccelerate, const string controlBrake,
+                           const string controlUpGear, const string controlLowGear);
+
+
+
+
+State showLoadingAnimation(Config& c, const bool autoMod);
 
 
 

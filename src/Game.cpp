@@ -235,7 +235,7 @@ void Game::updateScore(){
  * Initialize the game logic and load the vehicles and maps
  * @param c is the module configuration of the game
  */
-Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_COUNTER,
+Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.2f, 3.2f, MAX_COUNTER,
                                "Vehicles/Ferrari", 0.0f, RECTANGLE), lastY(0), vehicleCrash(false), timeMul(1.0f),
                         scoreMul(1.0f), timeAI(0.0f),
                         goalMap(goalFlagger, goalEnd)
@@ -305,7 +305,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_CO
 
     Texture t;
     // Load the textures of the panel and assign them to their sprites
-    for (int i = 1; i <= 6; i++) {
+    for (int i = 1; i <= 7; i++) {
         // Load the texture from the file
         switch (i) {
             case 1:
@@ -325,11 +325,14 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_CO
                 break;
             case 6:
                 t6.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
+                break;
+            case 7:
+                t7.loadFromFile("Resources/Hud/" + to_string(i) + ".png");
         }
     }
 
     // Code of first Map
-    int idFirstMap = 8;
+    int idFirstMap = 9;
 
     // Fill the matrix with the tree maps
     for (int i = 0; i <= 4; i++) {
@@ -351,6 +354,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.5f, 2.6f, MAX_CO
     comeFromOptions = false;
     blink = false;
     arrival = false;
+    autoMode = false;
     woman_delay = seconds(5.0f);
     traffic_delay = seconds(2.f);
     blink_delay = seconds(0.5f);
@@ -434,17 +438,17 @@ void Game::drawHUD(Config &c) {
     c.w.draw(s);
 
     // DOWN
-    Texture t7;
-    t7.loadFromFile("Resources/Hud/7.png");
-    s.setTexture(t7, true);
+    Texture t8;
+    t8.loadFromFile("Resources/Hud/8.png");
+    s.setTexture(t8, true);
     s.setScale(2.f * c.screenScale, 1.5f * c.screenScale);
     const float down = float(c.w.getSize().y) - s.getGlobalBounds().height * 1.5f;
     s.setPosition(separation, float(c.w.getSize().y) - s.getGlobalBounds().height * 1.25f);
     initial = separation + s.getGlobalBounds().width / 4.0f;
-    t7.loadFromFile("Resources/Hud/7.png",
+    t8.loadFromFile("Resources/Hud/8.png",
                              IntRect(0, 0, static_cast<int>(player.getRealSpeed() * 117.0f / MAX_SPEED * c.screenScale),
                                      static_cast<int>(20.0f * c.screenScale)));
-    s.setTexture(t7, true);
+    s.setTexture(t8, true);
     if (player.getRealSpeed() > 0.0f)
         c.w.draw(s);
 
@@ -488,10 +492,20 @@ void Game::drawHUD(Config &c) {
     textLevel.setString(to_string(level));
     c.w.draw(textLevel);
 
+    textLevel.setOutlineThickness(3.0f * c.screenScale);
+    textLevel.setPosition(initial / 1.04f, down - 2.15f * float(textLevel.getCharacterSize()));
+    textLevel.setString(to_string(player.getGearPlayer()));
+    c.w.draw(textLevel);
+
     s.setTexture(t5, true);
     s.setScale(2.7f * c.screenScale, 2.7f * c.screenScale);
     initial -= separation + s.getGlobalBounds().width;
     s.setPosition(initial, down - s.getGlobalBounds().height);
+    c.w.draw(s);
+
+    s.setTexture(t6, true);
+    s.setScale(2.7f * c.screenScale, 2.7f * c.screenScale);
+    s.setPosition(initial, down - s.getGlobalBounds().height * 2.8f);
     c.w.draw(s);
 }
 
@@ -517,7 +531,7 @@ void Game::drawCheckpoint(Config &c, bool visible) {
                                 c.w.getSize().y / 3.0f - float(checkPointTitle.getCharacterSize()));
 
     // Time inverted by the player for complete the game
-    s.setTexture(t6, true);
+    s.setTexture(t7, true);
     s.setScale(2.5f * c.screenScale, 2.5f * c.screenScale);
     s.setPosition((float(c.w.getSize().x) - s.getGlobalBounds().width) / 2.0f, initial);
     initial += s.getGlobalBounds().height * 1.25f;
@@ -908,6 +922,7 @@ State Game::play(Config &c) {
                     mtx.lock();
                     finalGame = true;
                     mtx.unlock();
+                    break;
                 }
                 // Initial menu
                 else if (status == START) {
@@ -1899,3 +1914,13 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
             return EXIT;
     }
 }
+
+
+
+/**
+ * Returns if the game is played in manual or automatic mode
+ * @return
+ */
+ bool Game::getAutoMode() const {
+    return autoMode;
+ }

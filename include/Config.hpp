@@ -66,6 +66,7 @@ enum State {
     START,
     OPTIONS,
     MUSIC,
+    LOADING,
     GAME,
     RANKING,
     EXIT
@@ -106,7 +107,6 @@ struct Config {
     // Control if the game is in full screen mode or not
     bool fullScreen;
 
-
     // Controllers of the game
     sf::Keyboard::Key menuKey;
     sf::Keyboard::Key menuUpKey;
@@ -114,6 +114,8 @@ struct Config {
     sf::Keyboard::Key menuEnterKey;
     sf::Keyboard::Key accelerateKey;
     sf::Keyboard::Key brakeKey;
+    sf::Keyboard::Key upGearKey;
+    sf::Keyboard::Key lowGearKey;
     sf::Keyboard::Key leftKey;
     sf::Keyboard::Key rightKey;
 
@@ -164,10 +166,12 @@ struct Config {
      * @param controlLeft is the code of the key to move the vehicle to the right
      * @param controlAccelerate is the code of the key to accelerate the vehicle
      * @param controlSoundtrack is the code of the key to change the soundtrack of the game
+     * @param controlUpGear is the code of the key to change to a higher gear
+     * @param controlLowGear is the code of the key to change to a lower gear
      */
     Config(const Difficult difficulty, const bool pixelArt, const bool enabledAi, const bool fullScreen, const int axis_x,
            const int axis_y, const string controlLeft,const string controlRight, const string controlAccelerate,
-           const string controlBrake, const int volEffects, const int volSoundtracks);
+           const string controlBrake, const string controlUpGear, const string controlLowGear, const int volEffects, const int volSoundtracks);
 
 
 

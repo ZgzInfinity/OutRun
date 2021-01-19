@@ -175,7 +175,7 @@ class Game {
             elapsed9, elapsed10, elapsed11, elapsed12;
 
     // Textures for represent the game panel
-    Texture t1, t2, t3, t4, t5, t6;
+    Texture t1, t2, t3, t4, t5, t6, t7;
 
     // Tree map with levels
     sf::Texture treeMap[5][5];
@@ -188,6 +188,10 @@ class Game {
 
     // Control if the checkPoint has been shown already or not
     bool checkPointDisplayed;
+
+    // Control if the game is played is manual or auto mode
+    bool autoMode;
+
 
 
     /**
@@ -351,6 +355,14 @@ public:
      * @return
      */
     State pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction &d);
+
+
+
+    /**
+     * Returns if the game is played in manual or automatic mode
+     * @return
+     */
+     bool getAutoMode() const;
 
 };
 
