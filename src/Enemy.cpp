@@ -222,11 +222,12 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
 
     // Control that the enemy is not out of the road in the forks
     if (!inFork){
-        if (posX > 0.9f) {
-            posX = 0.9f;
+        if (posX > 0.7f) {
+            posX = 0.7f;
             currentDirection = RIGHT;
-        } else if (posX < -0.9f) {
-            posX = -0.9f;
+        }
+        else if (posX < -0.7f) {
+            posX = -0.7f;
             currentDirection = RIGHT;
         }
     }

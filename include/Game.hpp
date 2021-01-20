@@ -215,6 +215,10 @@ class Game {
 
 
 
+    void loadLandScape(Config& c, const int nm, int timeMap, mutex landScapes[], vector<Map>& vm, vector<string> objectNames);
+
+
+
     /**
      * Shows the HUD of the game
      * @param c is the configuration module of the game

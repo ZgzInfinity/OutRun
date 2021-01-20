@@ -835,22 +835,27 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
     leftSprites[3].offset = -1.75f;
     rightSprites[3].spriteNum = 29;
     rightSprites[3].offset = -1.75f;
+
     // Signals
     leftSprites[6].spriteNum = 22;
     leftSprites[6].offset = -1;
     rightSprites[6].spriteNum = 27;
     rightSprites[6].offset = -1;
+
+
     // Flagger
     leftSprites[5].spriteNum = 17;
-    leftSprites[5].offset = -4;
+    leftSprites[5].offset = -3;
     // Start
     rightSprites[5].spriteNum = 26;
-    rightSprites[5].offset = -0.95f;
+    rightSprites[5].offset = -1.091f;
+
     // Trees
     leftSprites[4].spriteNum = 36;
-    leftSprites[4].offset = -1.15f;
+    leftSprites[4].offset = -0.85f;
     rightSprites[4].spriteNum = 35;
-    rightSprites[4].offset = -1.15f;
+    rightSprites[4].offset = -0.85f;
+
     // Fill
     for (int i = 7; i < rectangles; i++) {
         if (i % 4 == 3) {
@@ -915,13 +920,13 @@ Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRigh
 
     // First goal
     rightSprites[1].spriteNum = 32;
-    rightSprites[1].offset = -0.95f;
+    rightSprites[1].offset = -0.98f;
 
     // Trees
     leftSprites[0].spriteNum = 37;
-    leftSprites[0].offset = -1.0f;
+    leftSprites[0].offset = -0.9f;
     rightSprites[0].spriteNum = 37;
-    rightSprites[0].offset = -1.0f;
+    rightSprites[0].offset = -0.9f;
 
     // People
     leftSprites[53].spriteNum = 28; // 29 - 1
@@ -935,13 +940,13 @@ Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRigh
 
     // Second goal
     rightSprites[50].spriteNum = 32;
-    rightSprites[50].offset = -0.95f;
+    rightSprites[50].offset = -0.98f;
 
     // Trees
     leftSprites[49].spriteNum = 37;
-    leftSprites[49].offset = -1.0f;
+    leftSprites[49].offset = -0.9f;
     rightSprites[49].spriteNum = 37;
-    rightSprites[49].offset = -1.0f;
+    rightSprites[49].offset = -0.9f;
 
     // Line generation
     bool mainColor = true;

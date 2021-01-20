@@ -66,6 +66,7 @@ enum State {
     START,
     OPTIONS,
     MUSIC,
+    LOAD_MAPS,
     LOADING,
     GAME,
     RANKING,

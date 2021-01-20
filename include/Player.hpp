@@ -40,7 +40,7 @@ class Player : public Vehicle {
     int gearPlayer;
 
     // Factor to multiply the speed of the player's vehicle
-    const float speedMul;
+    float speedMul;
 
     // Maximum acceleration reached by the player's vehicle
     float maxAcc;

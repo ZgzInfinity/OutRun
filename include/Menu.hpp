@@ -134,7 +134,11 @@ void storeNewConfiguration(const string path, const Difficult difficulty, const 
 
 
 
-
+/**
+ * Displays the controllers while the game is loading
+ * @param c is the configuration module of the game
+ * @param autoMod controls if the game is played in manual or automatic mode
+ */
 State showLoadingAnimation(Config& c, const bool autoMod);
 
 

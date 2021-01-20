@@ -201,6 +201,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
 
     // Main loop of the game AFD
     while (c.window.isOpen() && state != EXIT) {
+
         Game engine(c);
 
         sleep(milliseconds(500));

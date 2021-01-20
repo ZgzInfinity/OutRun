@@ -250,7 +250,6 @@ State introAnimation(Config &c) {
  */
 State startMenu(Config &c) {
 
-
     c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
                           Vector2f(c.window.getSize().x, c.window.getSize().y)));
     c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
@@ -2301,6 +2300,11 @@ void storeNewConfiguration(const string path, const Difficult difficulty, const 
 
 
 
+/**
+ * Displays the controllers while the game is loading
+ * @param c is the configuration module of the game
+ * @param autoMod controls if the game is played in manual or automatic mode
+ */
 State showLoadingAnimation(Config& c, const bool autoMod){
 
     // Prepare the screen to display the loading animation

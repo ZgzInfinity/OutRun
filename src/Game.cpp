@@ -231,6 +231,25 @@ void Game::updateScore(){
 
 
 
+void Game::loadLandScape(Config& c, const int nm, int timeMap, mutex landScapes[], vector<Map>& vm, vector<string> objectNames){
+
+    // Load the landscape using the correspond path
+    Map m(c, "Resources/Maps/Map" + to_string(nm + 1) + "/", "bg/bg1.png", objectNames, false, timeMap);
+
+    // Check if the threads has the permission store the landscapes
+    landScapes[nm].lock();
+
+    // Store the landscape in the vector
+    vm.push_back(m);
+
+    // Wake up to the next thread
+    if (nm != 14){
+        landScapes[nm + 1].unlock();
+    }
+}
+
+
+
 /**
  * Initialize the game logic and load the vehicles and maps
  * @param c is the module configuration of the game
@@ -240,7 +259,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.2f, 3.2f, MAX_CO
                         scoreMul(1.0f), timeAI(0.0f),
                         goalMap(goalFlagger, goalEnd)
 {
-    // Index of the map to be processed
+     // Index of the map to be processed
     int nm = 0;
 
     // Vector with the times of the maps
@@ -266,42 +285,9 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.2f, 3.2f, MAX_CO
         }
         maps.emplace_back(vm);
     }
+
     mapId = make_pair(0, 0);
-
-    // Back door
-    int bdTime = 0;
-    ifstream fin("Resources/backdoor.info");
-    if (fin.is_open()) {
-        int bdMap = 1;
-        while (!fin.eof()) {
-            string s;
-            fin >> s;
-            if (s == "MAP:" && !fin.eof()) {
-                fin >> bdMap;
-                if (bdMap > 0 && bdMap <= 15) {
-                    for (int i = 1; i < bdMap; i++) {
-                        if (mapId.second < mapId.first) {
-                            mapId.second++;
-                        } else {
-                            mapId.second = 0;
-                            mapId.first++;
-                        } // Level????????????????????????
-                    }
-                }
-            } else if (s == "TIME:" && !fin.eof()) {
-                fin >> bdTime;
-            }
-        }
-        fin.close();
-    }
-
     currentMap = &maps[mapId.first][mapId.second];
-    if (mapId.first < 4)
-        currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
-    else {
-        goalMap.setColors(*currentMap);
-        currentMap->addNextMap(&goalMap);
-    }
 
     Texture t;
     // Load the textures of the panel and assign them to their sprites
@@ -343,7 +329,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.2f, 3.2f, MAX_CO
         }
     }
 
-    time = int(float(currentMap->getTime()) * timeMul + bdTime);
+    time = int(float(currentMap->getTime()) * timeMul);
     score = 0;
     level = mapId.first + 1;
 
@@ -1232,6 +1218,8 @@ State Game::initialAnimation(Config &c) {
     }
     currentMap->incrementSpriteIndex(flagger, false, -1);
     c.themes[c.currentSoundtrack]->play();
+    goalMap.setColors(*currentMap);
+    currentMap->addNextMap(&goalMap);
     return GAME;
 }
 
@@ -1503,9 +1491,6 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
                     goalMap.setColors(*currentMap);
                     currentMap->addNextMap(&goalMap);
                 }
-                // Update time when map changes
-                time += int(float(currentMap->getTime()) * timeMul);
-
             }
 
             currentMap->updateView(player.getPosX(), player.getPosY() - RECTANGLE);
@@ -1530,10 +1515,15 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
 
                 // Checkpoint reached
                 checkPoint = true;
+
+                // Update time when map changes
+                time += int(float(currentMap->getTime()) * timeMul);
+
                 timeCheck = time;
             }
             // Control the lap time in the checkpoint
             if (checkPoint && !checkPointDisplayed){
+
                 lapCheckPoint = (minutes < 10) ? "0" + to_string(int(minutes)) + " '" : to_string(int(minutes)) + " ''";
                 lapCheckPoint += (secs < 10) ? "0" + to_string(int(secs)) + " ''" : to_string(int(secs)) + " ''";
                 lapCheckPoint += int(cents_second * 100.f) < 10 ? "0" + to_string(int(cents_second * 100.f)) :  to_string(int(cents_second * 100.f));
