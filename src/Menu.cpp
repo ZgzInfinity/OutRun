@@ -1199,15 +1199,16 @@ State optionsMenu(Config &c, const bool &inGame) {
         // Main Text of the menu
         Text optionsText;
         optionsText.setString("OPTIONS");
-        optionsText.setPosition((c.w.getSize().x / 2.f) - 90.0f * c.screenScale,
-                                c.w.getSize().y / 2.f - 230.0f * c.screenScale);
-        optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
+        optionsText.setCharacterSize(static_cast<unsigned int>(int(55.0f * c.screenScale)));
         optionsText.setFont(c.options);
         optionsText.setStyle(Text::Bold | Text::Underlined);
         optionsText.setFillColor(Color::Red);
+        optionsText.setOutlineColor(Color(12, 12, 12));
+        optionsText.setOutlineThickness(3.0f * c.screenScale);
+        optionsText.setPosition((c.w.getSize().x / 2.f) - optionsText.getLocalBounds().width / 2.f,
+                                 c.w.getSize().y / 2.f - 230.0f * c.screenScale);
 
         // Option indicators
-
         menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
                                  c.w.getSize().y / 2.f - 130.0f * c.screenScale, 200.0f * c.screenScale,
                                  30.0f * c.screenScale, c.options,

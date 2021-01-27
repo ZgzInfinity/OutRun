@@ -74,7 +74,7 @@ Button::Button(float x, float y, float width, float height, Font &f,
 
     // Assign the color of the font and the size of the text
     textButton.setFillColor(Color::Blue);
-    textButton.setCharacterSize(static_cast<unsigned int>(int(12.0f * screenScale)));
+    textButton.setCharacterSize(static_cast<unsigned int>(int(18.0f * screenScale)));
 
     // Establish the text in the center of the button
     textButton.setPosition(

@@ -71,13 +71,15 @@ Map::Line::Line() {
  * @param curve represents the coefficient radius of the line to add to the map
  * @param mainColor shows in which color the line is going to be painted
  * @param spriteLeft is the map element located near and on the left of the road
+ * @param spriteNearLeft is the map element located near and on the left of the road
  * @param spriteRight is the map element located near and on the right of the road
  * @param bgX is the background position of the map in axis x
  * @param offsetX is the controller offset to make the bifurcations
  * @param offsetInc is partial offset to increment the bifurcation direction
  */
 void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mainColor,
-                  const Map::SpriteInfo &spriteLeft, const Map::SpriteInfo &spriteRight, float &bgX, float &offsetX,
+                  const Map::SpriteInfo &spriteFarLeft, const Map::SpriteInfo &spriteNearLeft,
+                  const Map::SpriteInfo &spriteRight, float &bgX, float &offsetX,
                   const float offsetInc) {
 
     // RECTANGLE indicates the steps number will be added
@@ -98,7 +100,8 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
     lineAux = line;
 
     // Store the map elements
-    line.spriteLeft = spriteLeft;
+    line.spriteFarLeft = spriteFarLeft;
+    line.spriteNearLeft = spriteNearLeft;
     line.spriteRight = spriteRight;
 
     // For each normal line, extra lines without objects for better visualization
@@ -166,7 +169,7 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
     totalLines++;
 
     // Store the line of the checkPoint
-    if (line.spriteLeft.checkPoint && line.spriteRight.checkPoint){
+    if (line.spriteFarLeft.checkPoint && line.spriteRight.checkPoint){
         checkPointLine = totalLines + END_RECTANGLES * RECTANGLE;
     }
 
@@ -657,7 +660,7 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
             // Add the line with all its attributes
             float offset = 0.0f;
             addLine(x, yAux, z, lines.empty() ? y : lines[lines.size() - 1].y, curveCoeff, mainColor,
-                    spriteLeft, spriteRight, bgX, offset);
+                    spriteLeft, SpriteInfo(), spriteRight, bgX, offset);
             mainColor = !mainColor;
         }
     }
@@ -759,7 +762,7 @@ Map::Map(Config &c, const std::string &path, const std::string &bgName,
     loadObjects(path, objectNames, objectIndexes);
 
     // Initial length of the map
-    totalLines = 0, totalLinesWithoutFork = 0;
+    totalLines = 0, totalLinesWithoutFork = -1;
 
     // Default value of the checkpoint
     checkPointLine = 0;
@@ -832,9 +835,9 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
 
     // People
     leftSprites[3].spriteNum = 28; // 29 - 1
-    leftSprites[3].offset = -1.75f;
+    leftSprites[3].offset = -1.87f;
     rightSprites[3].spriteNum = 29;
-    rightSprites[3].offset = -1.75f;
+    rightSprites[3].offset = -1.80f;
 
     // Signals
     leftSprites[6].spriteNum = 22;
@@ -842,10 +845,6 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
     rightSprites[6].spriteNum = 27;
     rightSprites[6].offset = -1;
 
-
-    // Flagger
-    leftSprites[5].spriteNum = 17;
-    leftSprites[5].offset = -3;
     // Start
     rightSprites[5].spriteNum = 26;
     rightSprites[5].offset = -1.091f;
@@ -870,6 +869,17 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
         }
     }
 
+    // Left signal and flagger
+    SpriteInfo spriteNearLeftFirst, spriteNearLeftSecond;
+
+    // Flagger
+    spriteNearLeftFirst.spriteNum = 17;
+    spriteNearLeftFirst.offset = -4.2f;
+
+     // Left signal
+    spriteNearLeftSecond.spriteNum = 22;
+    spriteNearLeftSecond.offset = -1;
+
     // Line generation
     bool mainColor = true;
     vector<vector<string>> instructions;
@@ -878,11 +888,19 @@ Map::Map(const Map &map, int &flagger, int &semaphore) : bg(map.bg), posX(0), po
     float bgX = 0; // Background position
     for (int i = 0; i < rectangles; i++) {
         float offset = 0.0f;
-        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i], bgX, offset);
+        if (i == 3){
+            addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], spriteNearLeftFirst, rightSprites[i], bgX, offset);
+        }
+        else if (i == 6){
+            addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], spriteNearLeftSecond, rightSprites[i], bgX, offset);
+        }
+        else {
+            addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], SpriteInfo(), rightSprites[i], bgX, offset);
+        }
         mainColor = !mainColor;
     }
 
-    flagger = RECTANGLE * 5 + PRE_POS;
+    flagger = RECTANGLE * 3 + PRE_POS;
     semaphore = RECTANGLE * 6 + PRE_POS;
 }
 
@@ -932,7 +950,7 @@ Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRigh
     leftSprites[53].spriteNum = 28; // 29 - 1
     leftSprites[53].offset = -1.75f;
     rightSprites[53].spriteNum = 29;
-    rightSprites[53].offset = -1.75f;
+    rightSprites[53].offset = -1.85f;
 
     // Flagger
     leftSprites[50].spriteNum = 16;
@@ -956,7 +974,7 @@ Map::Map(int &flagger, int &goalEnd) : posX(0), posY(0), next(nullptr), nextRigh
     float bgX = 0; // Background position
     for (int i = 0; i < rectangles; i++) {
         float offset = 0.0f;
-        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], rightSprites[i], bgX, offset);
+        addLine(0, 0, z, 0, 0, mainColor, leftSprites[i], SpriteInfo(), rightSprites[i], bgX, offset);
         mainColor = !mainColor;
     }
 
@@ -993,7 +1011,7 @@ void Map::setColors(const Map &map) {
  */
 void Map::incrementSpriteIndex(int line, bool right, int increment) {
     if (line < lines.size()) {
-        SpriteInfo &sprite = right ? lines[line].spriteRight : lines[line].spriteLeft;
+        SpriteInfo &sprite = right ? lines[line].spriteRight : lines[line].spriteNearLeft;
         if (sprite.spriteNum > -1)
             sprite.spriteNum += increment;
     }
@@ -1045,7 +1063,7 @@ void Map::addFork(Map *left, Map *right) {
             totalLinesWithoutFork = totalLines;
 
             for (int i = 0; i < FORK_RECTANGLES + END_RECTANGLES; i++) { // 20 rectangles to fork
-                addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), bgX, xOffset, FORK_COEFF);
+                addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), SpriteInfo(), bgX, xOffset, FORK_COEFF);
                 mainColor = !mainColor;
             }
 
@@ -1057,10 +1075,10 @@ void Map::addFork(Map *left, Map *right) {
             z = 0.0f;
             bgX = 0.0f;
             if (!lines[lines.size() - 1].mainColor)
-                left->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), bgX, xOffset);
+                left->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), SpriteInfo(), bgX, xOffset);
             mainColor = true;
             for (int i = 0; i < END_RECTANGLES; i++) {
-                left->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), bgX, xOffset);
+                left->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), SpriteInfo(), bgX, xOffset);
                 mainColor = !mainColor;
             }
             for (const Line &l : auxLines) {
@@ -1076,10 +1094,10 @@ void Map::addFork(Map *left, Map *right) {
                 right->lines.reserve(auxLines.size() + END_RECTANGLES * RECTANGLE);
                 z = 0.0f;
                 if (!lines[lines.size() - 1].mainColor)
-                    right->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), bgX, xOffset);
+                    right->addLine(x, y, z, y, 0.0f, false, SpriteInfo(), SpriteInfo(), SpriteInfo(), bgX, xOffset);
                 mainColor = true;
                 for (int i = 0; i < END_RECTANGLES; i++) {
-                    right->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), bgX, xOffset);
+                    right->addLine(x, y, z, y, 0.0f, mainColor, SpriteInfo(), SpriteInfo(), SpriteInfo(), bgX, xOffset);
                     mainColor = !mainColor;
                 }
                 for (const Line &l : auxLines) {
@@ -1451,9 +1469,12 @@ void Map::draw(Config &c, vector<Enemy> &vehicles, float playerPosX, float playe
 
     for (int n = startPos; n <= lastPos; n++) {
         l = getLine(n);
-        l->spriteLeft.spriteMinX = 0;
-        l->spriteLeft.spriteMaxX = 0;
-        l->spriteLeft.spriteToSideX = 0;
+        l->spriteFarLeft.spriteMinX = 0;
+        l->spriteFarLeft.spriteMaxX = 0;
+        l->spriteFarLeft.spriteToSideX = 0;
+        l->spriteNearLeft.spriteMinX = 0;
+        l->spriteNearLeft.spriteMaxX = 0;
+        l->spriteNearLeft.spriteToSideX = 0;
         l->spriteRight.spriteMinX = 0;
         l->spriteRight.spriteMaxX = 0;
         l->spriteRight.spriteToSideX = 0;
@@ -1754,12 +1775,20 @@ void Map::draw(Config &c, vector<Enemy> &vehicles, float playerPosX, float playe
         }
 
         // Draw object
-        if (l->spriteLeft.spriteNum > -1) {
+        if (l->spriteFarLeft.spriteNum > -1) {
             if (n < N || next == nullptr)
-                l->drawSprite(c.w, objects, hitCoeffs, hitCoeffTypes, scaleCoeffs, l->spriteLeft, true);
+                l->drawSprite(c.w, objects, hitCoeffs, hitCoeffTypes, scaleCoeffs, l->spriteFarLeft, true);
             else
                 l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs,
-                              l->spriteLeft, true);
+                              l->spriteFarLeft, true);
+        }
+        // Draw object
+        if (l->spriteNearLeft.spriteNum > -1) {
+            if (n < N || next == nullptr)
+                l->drawSprite(c.w, objects, hitCoeffs, hitCoeffTypes, scaleCoeffs, l->spriteNearLeft, true);
+            else
+                l->drawSprite(c.w, next->objects, next->hitCoeffs, next->hitCoeffTypes, next->scaleCoeffs,
+                              l->spriteNearLeft, true);
         }
         if (l->spriteRight.spriteNum > -1) {
             if (n < N || next == nullptr)
@@ -1823,13 +1852,13 @@ bool Map::hasCrashed(const Config &c, float prevY, float currentY, float current
         int spriteNum;
         for (int i = 0; i < 4; i++) {
             if (i == 0) {
-                spriteNum = l.spriteLeft.spriteNum;
-                spriteMinX = l.spriteLeft.spriteMinX;
-                spriteMaxX = l.spriteLeft.spriteMaxX;
+                spriteNum = l.spriteFarLeft.spriteNum;
+                spriteMinX = l.spriteFarLeft.spriteMinX;
+                spriteMaxX = l.spriteFarLeft.spriteMaxX;
             } else if (i == 1) {
-                spriteNum = l.spriteLeft.spriteNum;
-                spriteMinX = l.spriteLeft.spriteMinX + l.spriteLeft.spriteToSideX;
-                spriteMaxX = l.spriteLeft.spriteMaxX + l.spriteLeft.spriteToSideX;
+                spriteNum = l.spriteFarLeft.spriteNum;
+                spriteMinX = l.spriteFarLeft.spriteMinX + l.spriteFarLeft.spriteToSideX;
+                spriteMaxX = l.spriteFarLeft.spriteMaxX + l.spriteFarLeft.spriteToSideX;
             } else if (i == 2) {
                 spriteNum = l.spriteRight.spriteNum;
                 spriteMinX = l.spriteRight.spriteMinX;

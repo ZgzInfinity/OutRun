@@ -125,7 +125,7 @@ public:
         bool mainColor;
 
         // Map elements in the left and in the tight
-        SpriteInfo spriteLeft, spriteRight;
+        SpriteInfo spriteFarLeft, spriteNearLeft, spriteRight;
 
         // Background position
         float bgX;
@@ -289,13 +289,14 @@ public:
      * @param curve represents the coefficient radius of the line to add to the map
      * @param mainColor shows in which color the line is going to be painted
      * @param spriteLeft is the map element located near and on the left of the road
+     * @param spriteNearLeft is the map element located near and on the left of the road
      * @param spriteRight is the map element located near and on the right of the road
      * @param bgX is the background position of the map in axis x
      * @param offsetX is the controller offset to make the bifurcations
      * @param offsetInc is partial offset to increment the bifurcation direction
      */
-    void addLine(float x, float y, float &z, float prevY, float curve, bool mainColor, const SpriteInfo &spriteLeft,
-                 const SpriteInfo &spriteRight, float &bgX, float &offsetX, float offsetInc = 0.0f);
+    void addLine(float x, float y, float &z, float prevY, float curve, bool mainColor, const SpriteInfo &spriteFarLeft,
+                 const SpriteInfo &spriteNearLeft, const SpriteInfo &spriteRight, float &bgX, float &offsetX, float offsetInc = 0.0f);
 
 
 

@@ -203,12 +203,12 @@ Font initializeFontSpeed();
 
 
 
+
 /**
  * Returns the font used to represent all the text indicators in
  * the animations of the game
  * @return
  */
-Font initializeFontOptions();
-
+Font initializeFontMenus();
 
 #endif // OUTRUN_CONFIG_HPP

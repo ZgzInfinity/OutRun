@@ -204,7 +204,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
 
         Game engine(c);
 
-        sleep(milliseconds(500));
         if (state == START)
             state = startMenu(c);
 

@@ -288,6 +288,13 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.2f, 3.2f, MAX_CO
 
     mapId = make_pair(0, 0);
     currentMap = &maps[mapId.first][mapId.second];
+    if (mapId.first < 4)
+        currentMap->addFork(&maps[mapId.first + 1][mapId.second], &maps[mapId.first + 1][mapId.second + 1]);
+    else {
+        goalMap.setColors(*currentMap);
+        currentMap->addNextMap(&goalMap);
+    }
+
 
     Texture t;
     // Load the textures of the panel and assign them to their sprites
@@ -751,6 +758,7 @@ void Game::checkDifficulty(Config &c) {
 
     if (time < 0)
         time = 0;
+
 }
 
 
@@ -1218,8 +1226,7 @@ State Game::initialAnimation(Config &c) {
     }
     currentMap->incrementSpriteIndex(flagger, false, -1);
     c.themes[c.currentSoundtrack]->play();
-    goalMap.setColors(*currentMap);
-    currentMap->addNextMap(&goalMap);
+
     return GAME;
 }
 

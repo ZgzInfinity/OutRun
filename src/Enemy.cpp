@@ -64,6 +64,7 @@ Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange
  * @param playerPosY is the position of the traffic car in the axis y
  */
 void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff, float yOffsetX, int limitMap) {
+
     // Check if the vehicle is in fork
     if (inFork){
         if (posX == 0.f){
@@ -96,7 +97,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
             directionFork = -1;
         }
     }
-    else if (limitMap - posY <= 420.f){
+    else if (limitMap != -1 && (limitMap - posY <= 420.f)){
         // Check if the traffic car is in the right of the road
         if (posX > 0.f){
             posX -= 0.02f;
@@ -115,7 +116,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
         }
     }
     // Normal path
-    else if (abs(playerPosY - posY) > float(c.renderLen) || random_zero_one() >= probAI) {
+    if (abs(playerPosY - posY) > float(c.renderLen) || random_zero_one() >= probAI) {
         // Original
         if (current_direction_counter < max_direction_counter) {
             // Increment texture

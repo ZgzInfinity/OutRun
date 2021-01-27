@@ -150,7 +150,7 @@ Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabl
     // Store all the fonts of the text used by the game
     timeToPlay = initializeFontTimePlay();
     speedVehicle = initializeFontSpeed();
-    options = initializeFontOptions();
+    options = initializeFontMenus();
 
     // Store the difficult of the game
     level = difficulty;
@@ -443,9 +443,9 @@ Font initializeFontSpeed() {
  * the animations of the game
  * @return
  */
-Font initializeFontOptions() {
+Font initializeFontMenus() {
     Font f;
-    if (!f.loadFromFile("Resources/Fonts/needForSpeed.ttf")) exit(1);
+    if (!f.loadFromFile("Resources/Fonts/Hetikademo.otf")) exit(1);
     return f;
 }
 
