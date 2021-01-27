@@ -34,7 +34,7 @@ using namespace sf;
  */
 State introAnimation(Config &c) {
     // Load the game effects
-    for (int i = 1; i <= 41; i++) {
+    for (int i = 1; i <= 43; i++) {
         // Detect the possible events
         Event e{};
         while (c.window.pollEvent(e)) {
@@ -521,7 +521,7 @@ State startMenu(Config &c) {
 
         // Control the second menu
         startPressed = false;
-        state = MUSIC;
+        state = GEARS;
         sleep(milliseconds(200));
 
         // While the ENTER keyword is not pressed
@@ -535,12 +535,12 @@ State startMenu(Config &c) {
             // Control if the up or down cursor keys are pressed or not
             if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuUpKey)) {
                 // Up cursor pressed
-                if (state != MUSIC) {
+                if (state != GEARS) {
                     c.effects[0]->stop();
                     c.effects[0]->play();
                     row.setPosition((c.w.getSize().x / 2.f) - 100.0f * c.screenScale,
                                     c.w.getSize().y / 2.f + 75.0f * c.screenScale);
-                    state = MUSIC;
+                    state = GEARS;
                 }
             } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuDownKey)) {
                 // Down cursor pressed
@@ -1095,7 +1095,7 @@ State soundMenu(Config &c, const bool &inGame) {
             if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                 if (c.volumeEffects != 0) {
                     c.volumeEffects--;
-                    for (int i = 0; i <= 40; i++) {
+                    for (int i = 0; i <= 42; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
@@ -1105,7 +1105,7 @@ State soundMenu(Config &c, const bool &inGame) {
             } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                 if (c.volumeEffects != 100) {
                     c.volumeEffects++;
-                    for (int i = 0; i <= 40; i++) {
+                    for (int i = 0; i <= 42; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
@@ -2353,29 +2353,32 @@ State showLoadingAnimation(Config& c, const bool autoMod){
     // Fix the position of the title
     if (c.isDefaultScreen){
         if (autoMod){
-            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+            controllersText.setPosition(c.w.getSize().x / 2.f - 130.0f * c.screenScale,
                                     c.w.getSize().y / 2.f - 220.0f * c.screenScale);
         }
         else {
-            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+            controllersText.setPosition(c.w.getSize().x / 2.f - 130.0f * c.screenScale,
                                     c.w.getSize().y / 2.f - 210.0f * c.screenScale);
         }
     }
     else {
         if (autoMod){
-            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+            controllersText.setPosition(c.w.getSize().x / 2.f - 130.0f * c.screenScale,
                                         c.w.getSize().y / 2.f - 190.0f * c.screenScale);
         }
         else {
-            controllersText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
+            controllersText.setPosition(c.w.getSize().x / 2.f - 130.0f * c.screenScale,
                                         c.w.getSize().y / 2.f - 195.0f * c.screenScale);
         }
     }
 
-    controllersText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
+
+    controllersText.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
     controllersText.setFont(c.options);
     controllersText.setStyle(Text::Bold | Text::Underlined);
     controllersText.setFillColor(Color::Red);
+    controllersText.setOutlineColor(Color(12, 12, 12));
+    controllersText.setOutlineThickness(3.0f * c.screenScale);
 
     // Controllers indicators depending on the mode
     if (autoMod){
@@ -2627,4 +2630,454 @@ State showLoadingAnimation(Config& c, const bool autoMod){
     }
 
     return GAME;
+}
+
+
+
+
+/**
+ * Displays the gears menu of the game
+ * @param c is the module configuration of the game
+ * @param autoGear controls if the gears change manually or automatically
+ * @return
+ */
+State gearsMenu(Config& c, bool& autoGear){
+
+    c.window.setView(View(Vector2f(c.window.getSize().x / 2.0f, c.window.getSize().y / 2.0f),
+                          Vector2f(c.window.getSize().x, c.window.getSize().y)));
+    c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+               static_cast<unsigned int>(c.window.getView().getSize().y));
+    c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+
+    bool startPressed = false;
+
+    // Clean the console window
+    Sprite bufferSprite;
+
+
+    Texture backgroundMenu, gameIcon;
+    Sprite mainMenu, nameGame;
+
+    vector<Texture> gameIcons;
+    vector<Sprite> nameGames;
+
+    // Loading the background texture
+    backgroundMenu.loadFromFile("Resources/Menus/MainMenu/LogoMain1.png");
+    mainMenu.setTexture(backgroundMenu);
+    mainMenu.setPosition(0, 0);
+    mainMenu.setScale((float) c.w.getSize().x / backgroundMenu.getSize().x,
+                      (float) c.w.getSize().y / backgroundMenu.getSize().y);
+
+    for (int i = 2; i <= 7; i++) {
+        // Loading the texture of the game's name
+        gameIcon.loadFromFile("Resources/Menus/MainMenu/LogoMain" + to_string(i) + ".png");
+        gameIcons.push_back(gameIcon);
+    }
+
+    for (int i = 0; i < 6; i++) {
+        // Loading the texture of the game's name
+        nameGame.setTexture(gameIcons[i], true);
+        nameGame.setPosition((c.w.getSize().x / 2.f) - 180.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 200.0f * c.screenScale);
+        nameGame.setScale(2.0f * c.screenScale, 2.0f * c.screenScale);
+        nameGames.push_back(nameGame);
+    }
+
+    // Code of sprite to display
+    int j = 0, k = 0;
+
+    // Control if the start key is pressed
+    startPressed = false;
+
+    // Offset of the rectangle shape
+    float offsetY = 700.f;
+
+    float offsetTitleText = -1.0f;
+
+    float offsetTimeLapTexts = 4.0f;
+
+    c.effects[41]->stop();
+    c.effects[41]->play();
+
+    bool mainTextArrived = false;
+    bool lapTextsArrived = false;
+    bool carSpriteArrived = false;
+
+    // Until start key is pressed
+    while(!mainTextArrived && !lapTextsArrived && !carSpriteArrived){
+
+        // Creation of the panel rectangle of the menu
+        RectangleShape shape;
+        shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale, c.w.getSize().y / 2.f - offsetY * c.screenScale);
+        shape.setSize(sf::Vector2f(710.0f * c.screenScale, 490.0f * c.screenScale));
+        shape.setOutlineColor(Color::Green);
+        shape.setOutlineThickness(5.0f * c.screenScale);
+        shape.setFillColor(Color(0, 0, 0, 200));
+
+        // Main Text of the menu
+        Text titleText;
+        titleText.setString("GEARS MENU");
+
+        titleText.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
+        titleText.setFont(c.options);
+        titleText.setStyle(Text::Bold);
+        titleText.setFillColor(Color::White);
+        titleText.setOutlineColor(Color::Black);
+        titleText.setOutlineThickness(3.0f * c.screenScale);
+        titleText.setPosition(((c.w.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
+                                c.w.getSize().y / 2.f - 230.0f * c.screenScale);
+
+        // Main Text of the menu
+        Text totalTime;
+        totalTime.setString("CHOOSE TRANSMISSION");
+        totalTime.setCharacterSize(static_cast<unsigned int>(int(40.0f * c.screenScale)));
+        totalTime.setFont(c.options);
+        totalTime.setStyle(Text::Bold);
+        totalTime.setFillColor(Color(64, 147, 225));
+        totalTime.setOutlineColor(Color::Black);
+        totalTime.setOutlineThickness(3.0f * c.screenScale);
+        totalTime.setPosition(((c.w.getSize().x / 2.f) - (totalTime.getLocalBounds().width / 2.f)) * offsetTimeLapTexts,
+                                c.w.getSize().y / 2.f - 140.0f * c.screenScale);
+
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+
+        if (offsetTitleText < 1.f){
+            offsetTitleText += 0.1;
+        }
+        else {
+            mainTextArrived = true;
+        }
+
+        if (offsetTimeLapTexts > 1.1f){
+            offsetTimeLapTexts -= 0.15;
+        }
+        else {
+            lapTextsArrived = true;
+        }
+
+        if (offsetY > 250.f){
+            offsetY -= 35.f;
+        }
+
+        // Detect the possible events
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+        // Show the press start title in the menu
+        c.w.draw(mainMenu);
+        c.w.draw(nameGames[j]);
+        c.w.draw(shape);
+        c.w.draw(titleText);
+        c.w.draw(totalTime);
+
+        // Check if the start keyword has been pressed
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
+            // Pass to the second menu
+            startPressed = true;
+            c.effects[1]->stop();
+            c.effects[1]->play();
+        }
+
+        if (j < (int) nameGames.size() - 1){
+            if (k == 10){
+                j++;
+                k = 0;
+            }
+            else {
+                k++;
+            }
+        }
+        else {
+            j = 0;
+        }
+
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+
+
+        sleep(milliseconds(50));
+    }
+
+    // Creation of the panel rectangle of the menu
+    RectangleShape shape;
+    shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale, c.w.getSize().y / 2.f - offsetY * c.screenScale);
+    shape.setSize(sf::Vector2f(710.0f * c.screenScale, 490.0f * c.screenScale));
+    shape.setOutlineColor(Color::Green);
+    shape.setOutlineThickness(5.0f * c.screenScale);
+    shape.setFillColor(Color(0, 0, 0, 200));
+
+    // Main Text of the menu
+    Text titleText;
+    titleText.setString("GEARS MENU");
+    titleText.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
+    titleText.setFont(c.options);
+    titleText.setStyle(Text::Bold);
+    titleText.setFillColor(Color::White);
+    titleText.setOutlineColor(Color::Black);
+    titleText.setOutlineThickness(3.0f * c.screenScale);
+    titleText.setPosition(((c.w.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
+                            c.w.getSize().y / 2.f - 230.0f * c.screenScale);
+
+    // Main Text of the menu
+    Text totalTime;
+    totalTime.setString("CHOOSE TRANSMISSION");
+    totalTime.setCharacterSize(static_cast<unsigned int>(int(40.0f * c.screenScale)));
+    totalTime.setFont(c.options);
+    totalTime.setStyle(Text::Bold);
+    totalTime.setFillColor(Color(64, 147, 225));
+    totalTime.setOutlineColor(Color::Black);
+    totalTime.setOutlineThickness(3.0f * c.screenScale);
+    totalTime.setPosition(((c.w.getSize().x / 2.f) - (totalTime.getLocalBounds().width / 2.f)) * offsetTimeLapTexts,
+                            c.w.getSize().y / 2.f - 140.0f * c.screenScale);
+
+    // Load the textures of the gears
+    vector<Texture> gearIcons;
+    vector<Sprite> gears;
+
+    for (int i = 1; i <= 4; i++) {
+        // Loading the texture of the game's name
+        gameIcon.loadFromFile("Resources/Menus/GearMenu/Gear" + to_string(i) + ".png");
+        gearIcons.push_back(gameIcon);
+    }
+
+    for (int i = 0; i <= 3; i++) {
+        // Loading the texture of the game's name
+        nameGame.setTexture(gearIcons[i], true);
+        nameGame.setScale(1.5f * c.screenScale, 1.5f * c.screenScale);
+        if (i < 2){
+            nameGame.setPosition((c.w.getSize().x / 2.f) - 280.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 65.0f * c.screenScale);
+        }
+        else {
+            nameGame.setPosition((c.w.getSize().x / 2.f) + 50.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 65.0f * c.screenScale);
+        }
+        gears.push_back(nameGame);
+    }
+
+    // Control the gear selected
+    int optionSelected = 0;
+
+    bool pressedKey = false;
+    startPressed = false;
+
+    // While the start key is not pressed
+    while (!startPressed){
+
+        // Detect the possible events
+        Event e;
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+        if (j < (int) nameGames.size() - 1){
+            if (k == 10){
+                j++;
+                k = 0;
+            }
+            else {
+                k++;
+            }
+        }
+        else {
+            j = 0;
+        }
+
+
+        // Show the press start title in the menu
+        c.w.draw(mainMenu);
+        c.w.draw(nameGames[j]);
+        c.w.draw(shape);
+        c.w.draw(titleText);
+        c.w.draw(totalTime);
+
+        // Modify the option parameter if it's necessary
+        switch (optionSelected) {
+            case 0:
+                // Check if right cursor key has been pressed or not
+                if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+                    pressedKey = true;
+                    optionSelected++;
+                    c.effects[0]->stop();
+                    c.effects[0]->play();
+                    autoGear = true;
+                }
+                break;
+            case 1:
+                // Check if left cursor key has been pressed or not
+                if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+                    pressedKey = true;
+                    optionSelected--;
+                    c.effects[0]->stop();
+                    c.effects[0]->play();
+                    autoGear = false;
+                }
+        }
+
+        // Default configuration
+        if (!pressedKey || optionSelected == 0){
+            c.w.draw(gears[optionSelected]);
+            c.w.draw(gears[optionSelected + 3]);
+        }
+        else if (optionSelected == 1){
+            c.w.draw(gears[optionSelected]);
+            c.w.draw(gears[optionSelected + 1]);
+        }
+
+
+        // Check if the start keyword has been pressed
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.menuEnterKey)) {
+            // Pass to the second menu
+            startPressed = true;
+            c.effects[2]->stop();
+            c.effects[2]->play();
+        }
+
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+
+        sleep(milliseconds(50));
+    }
+
+    mainTextArrived = false;
+    lapTextsArrived = false;
+
+
+    c.effects[42]->stop();
+    c.effects[42]->play();
+
+    // Until start key is pressed
+    while(!mainTextArrived && !lapTextsArrived){
+
+        // Creation of the panel rectangle of the menu
+        RectangleShape shape;
+        shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale, c.w.getSize().y / 2.f - offsetY * c.screenScale);
+        shape.setSize(sf::Vector2f(710.0f * c.screenScale, 490.0f * c.screenScale));
+        shape.setOutlineColor(Color::Green);
+        shape.setOutlineThickness(5.0f * c.screenScale);
+        shape.setFillColor(Color(0, 0, 0, 200));
+
+        // Main Text of the menu
+        Text titleText;
+        titleText.setString("GEARS MENU");
+        titleText.setCharacterSize(static_cast<unsigned int>(int(50.0f * c.screenScale)));
+        titleText.setFont(c.options);
+        titleText.setStyle(Text::Bold);
+        titleText.setFillColor(Color::White);
+        titleText.setOutlineColor(Color::Black);
+        titleText.setOutlineThickness(3.0f * c.screenScale);
+        titleText.setPosition(((c.w.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
+                                c.w.getSize().y / 2.f - 230.0f * c.screenScale);
+
+        // Main Text of the menu
+        Text totalTime;
+        totalTime.setString("CHOOSE TRANSMISSION");
+        totalTime.setCharacterSize(static_cast<unsigned int>(int(40.0f * c.screenScale)));
+        totalTime.setFont(c.options);
+        totalTime.setStyle(Text::Bold);
+        totalTime.setFillColor(Color(64, 147, 225));
+        totalTime.setOutlineColor(Color::Black);
+        totalTime.setOutlineThickness(3.0f * c.screenScale);
+        totalTime.setPosition(((c.w.getSize().x / 2.f) - (totalTime.getLocalBounds().width / 2.f)) * offsetTimeLapTexts,
+                                c.w.getSize().y / 2.f - 140.0f * c.screenScale);
+
+        // Detect the possible events
+        Event e{};
+        while (c.window.pollEvent(e)) {
+            if (e.type == Event::Closed) {
+                return EXIT;
+            }
+        }
+
+        if (offsetTitleText > -1.f){
+            offsetTitleText -= 0.1;
+        }
+        else {
+            mainTextArrived = true;
+        }
+
+        if (offsetTimeLapTexts < 4.0f){
+            offsetTimeLapTexts += 0.15;
+        }
+        else {
+            lapTextsArrived = true;
+        }
+
+        if (offsetY < 850.f){
+            offsetY += 35.f;
+        }
+
+        if (j < (int) nameGames.size() - 1){
+            if (k == 10){
+                j++;
+                k = 0;
+            }
+            else {
+                k++;
+            }
+        }
+        else {
+            j = 0;
+        }
+
+        // Show the press start title in the menu
+        c.w.draw(mainMenu);
+        c.w.draw(nameGames[j]);
+        c.w.draw(shape);
+        c.w.draw(totalTime);
+        c.w.draw(titleText);
+
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+
+        sleep(milliseconds(50));
+    }
+
+    // Creation of the panel rectangle of the menu
+    RectangleShape blackShape;
+    blackShape.setPosition(0, 0);
+    blackShape.setSize(sf::Vector2f(c.w.getSize().x, c.w.getSize().y));
+
+    for (int i = 0; i <= 70; i++){
+        blackShape.setFillColor(Color(0, 0, 0, i));
+        c.w.draw(blackShape);
+        bufferSprite.setTexture(c.w.getTexture(), true);
+        c.w.display();
+        c.window.draw(bufferSprite);
+        c.window.display();
+        sleep(milliseconds(20));
+    }
+
+    if (c.enablePixelArt) {
+        if (c.isDefaultScreen)
+            c.window.setView(View(Vector2f(SCREEN_DEFAULT_X / 4.0f, SCREEN_DEFAULT_Y / 4.0f),
+                                  Vector2f(SCREEN_DEFAULT_X / 2.0f, SCREEN_DEFAULT_Y / 2.0f)));
+        else
+            c.window.setView(View(Vector2f(SCREEN_HD_X / 4.0f, SCREEN_HD_Y / 4.0f),
+                                  Vector2f(SCREEN_HD_X / 2.0f, SCREEN_HD_Y / 2.0f)));
+        c.w.create(static_cast<unsigned int>(c.window.getView().getSize().x),
+                   static_cast<unsigned int>(c.window.getView().getSize().y));
+        c.screenScale = float(c.w.getSize().x) / float(SCREEN_DEFAULT_X);
+    }
+
+
+    return MUSIC;
 }

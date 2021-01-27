@@ -65,6 +65,7 @@ enum State {
     ANIMATION,
     START,
     OPTIONS,
+    GEARS,
     MUSIC,
     LOAD_MAPS,
     LOADING,

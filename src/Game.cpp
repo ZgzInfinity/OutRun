@@ -1915,6 +1915,17 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
 
 
 /**
+ * Sets the game is played in manual or automatic mode
+ * @param autoMod controls if the game changes the gears manually or automatically
+ * @return
+ */
+ void Game::setAutoMode(const bool autoMod){
+    autoMode = autoMode;
+ }
+
+
+
+/**
  * Returns if the game is played in manual or automatic mode
  * @return
  */

@@ -143,4 +143,15 @@ State showLoadingAnimation(Config& c, const bool autoMod);
 
 
 
+
+/**
+ * Displays the gears menu of the game
+ * @param c is the module configuration of the game
+ * @param autoGear controls if the gears change manually or automatically
+ * @return
+ */
+State gearsMenu(Config& c, bool& autoGear);
+
+
+
 #endif //OUTRUN_MENU_HPP

@@ -213,6 +213,12 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
                     state = introAnimation(c);
                     break;
                 }
+                case GEARS: {
+                    bool autoGear = true;
+                    state = gearsMenu(c, autoGear);
+                    engine.setAutoMode(autoGear);
+                    break;
+                }
                 case MUSIC: {
                     sleep(milliseconds(500));
                     state = selectMusicSoundtrack(c);

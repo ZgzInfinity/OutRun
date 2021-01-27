@@ -363,10 +363,23 @@ public:
 
 
     /**
+     * Sets the game is played in manual or automatic mode
+     * @param autoMod controls if the game changes the gears manually or automatically
+     * @return
+     */
+     void setAutoMode(const bool autoMod);
+
+
+
+    /**
      * Returns if the game is played in manual or automatic mode
      * @return
      */
      bool getAutoMode() const;
+
+
+
+
 
 };
 
