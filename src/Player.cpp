@@ -63,6 +63,8 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
     outSideRoad = false;
     numAngers = 0;
     gearPlayer = 0;
+    increaseGear = false;
+    decreaseGear = false;
 }
 
 
@@ -200,6 +202,71 @@ void Player::hitControl(const bool vehicleCrash) {
     speed = sqrt(acceleration);
     mainMutex.unlock();
 
+    // Update the new gear of the car
+    if (this->getRealSpeed() <= 0.f){
+        if (gearPlayer != 0){
+            gearPlayer = 0;
+            decreaseGear = true;
+        }
+        else {
+            decreaseGear = false;
+        }
+    }
+    else if (this->getRealSpeed() >= 220.f){
+        if (gearPlayer != 6){
+            gearPlayer = 6;
+            decreaseGear = true;
+        }
+        else {
+            decreaseGear = false;
+        }
+    }
+    else if (this->getRealSpeed() >= 170.f){
+        if (gearPlayer != 5){
+            gearPlayer = 5;
+            decreaseGear = true;
+        }
+        else {
+            decreaseGear = false;
+        }
+    }
+    else if (this->getRealSpeed() >= 130.f){
+        if (gearPlayer != 4){
+            gearPlayer = 4;
+            decreaseGear = true;
+        }
+        else {
+            decreaseGear = false;
+        }
+    }
+    else if (this->getRealSpeed() >= 80.f){
+        if (gearPlayer != 3){
+            gearPlayer = 3;
+            decreaseGear = true;
+        }
+        else {
+            decreaseGear = false;
+        }
+    }
+    else if (this->getRealSpeed() >= 40.f){
+        if (gearPlayer != 2){
+            gearPlayer = 2;
+            decreaseGear = true;
+        }
+        else {
+            decreaseGear = false;
+        }
+    }
+    else if (this->getRealSpeed() >= 20.f){
+        if (gearPlayer != 1){
+            gearPlayer = 1;
+            decreaseGear = true;
+        }
+        else {
+            decreaseGear = false;
+        }
+    }
+
     // Control the movement in the axis y
     if (xDest > 0.f && posX < xDest){
         // Check the crash has been with an element of the map
@@ -280,12 +347,74 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
     float previousAcc = acceleration;
 
     // Check if the braking control key has been pressed
-    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.brakeKey))
+    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.brakeKey)){
         // Player's car brakes
         a = BRAKE;
+        increaseGear = false;
+
+
+        // Update the new gear of the car
+        if (this->getRealSpeed() <= 0.f){
+            if (gearPlayer != 0){
+                gearPlayer = 0;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 20.f){
+            if (gearPlayer != 1){
+                gearPlayer = 1;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 90.f){
+            if (gearPlayer != 2){
+                gearPlayer = 2;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 130.f){
+            if (gearPlayer != 3){
+                gearPlayer = 3;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 180.f){
+            if (gearPlayer != 4){
+                gearPlayer = 4;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 220.f){
+            if (gearPlayer != 5){
+                gearPlayer = 5;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+    }
 
     // Check if the accelerating key has been pressed
     if (a != BRAKE && c.window.hasFocus() && Keyboard::isKeyPressed(c.accelerateKey)) {
+
+        decreaseGear = false;
+
         // Check if the player's car is outside the road
         if (hasGotOut) {
             outSideRoad = true;
@@ -307,8 +436,61 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
             acceleration = maxAcc;
 
         // Check if the player's vehicle must start to smoke
-        smoking = acceleration < maxAcc * 0.1f;
-    } else {
+        smoking = acceleration < maxAcc * 0.05f;
+
+
+        if (this->getRealSpeed() >= 220.f){
+            if (gearPlayer != 6){
+                gearPlayer = 6;
+                increaseGear = true;
+            }
+            else if (this->getRealSpeed() >= 230.f) {
+                increaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() >= 180.f){
+            if (gearPlayer != 5){
+                gearPlayer = 5;
+                increaseGear = true;
+            }
+            else if (this->getRealSpeed() >= 190.f) {
+                increaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() >= 130.f){
+            if (gearPlayer != 4){
+                gearPlayer = 4;
+                increaseGear = true;
+            }
+            else if (this->getRealSpeed() >= 145.f) {
+                increaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() >= 90.f){
+            if (gearPlayer != 3){
+                gearPlayer = 3;
+                increaseGear = true;
+            }
+            else if (this->getRealSpeed() >= 110.f) {
+                increaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() >= 20.f){
+            if (gearPlayer != 2){
+                gearPlayer = 2;
+                increaseGear = true;
+            }
+            else if (this->getRealSpeed() >= 50.f) {
+                increaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() >= 0.f){
+            if (gearPlayer != 1){
+                gearPlayer = 1;
+            }
+        }
+    }
+    else {
         // The player's car is braking
         float mul = 2.0f;
         if (a == BRAKE)
@@ -322,6 +504,65 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
 
         if (acceleration < 0.0f)
             acceleration = 0.0f;
+
+        increaseGear = false;
+        decreaseGear = false;
+
+        // Update the new gear of the car
+        if (this->getRealSpeed() <= 0.f){
+            if (gearPlayer != 0){
+                gearPlayer = 0;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 20.f){
+            if (gearPlayer != 1){
+                gearPlayer = 1;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 90.f){
+            if (gearPlayer != 2){
+                gearPlayer = 2;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 130.f){
+            if (gearPlayer != 3){
+                gearPlayer = 3;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 180.f){
+            if (gearPlayer != 4){
+                gearPlayer = 4;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
+        else if (this->getRealSpeed() <= 220.f){
+            if (gearPlayer != 5){
+                gearPlayer = 5;
+                decreaseGear = true;
+            }
+            else {
+                decreaseGear = false;
+            }
+        }
     }
 
     // Control if the player's car is going to boot the motor
@@ -357,7 +598,7 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
  */
 Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bool inFork) {
 
-        // The player's car is not skidding by default
+    // The player's car is not skidding by default
     skidding = false;
 
     if (speed > 0.0f) {
@@ -511,6 +752,8 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
             c.effects[6]->stop();
             c.effects[8]->stop();
             c.effects[30]->stop();
+            c.effects[43]->stop();
+            c.effects[44]->stop();
         }
 
         if (a == CRASH && firstCrash) {
@@ -526,6 +769,18 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
                 c.effects[31]->play();
             }
         }
+
+        // Increasing gear sound
+        if (increaseGear && c.effects[43]->getStatus() != SoundSource::Playing){
+            c.effects[43]->stop();
+            c.effects[43]->play();
+        }
+        // Decreasing gear sound
+        else if (decreaseGear && c.effects[44]->getStatus() != SoundSource::Playing){
+            c.effects[44]->stop();
+            c.effects[44]->play();
+        }
+
     }
     else {
         c.effects[12]->stop();
@@ -800,7 +1055,7 @@ void Player::draw(Config &c, const Action &a, const Direction &d, const Elevatio
     c.w.draw(sprite);
 
     // Check if the ferrari is crashing or skidding or smoking
-    if (smoking || skidding || crashing) {
+    if (smoking || skidding || crashing || increaseGear) {
         if (!crashing){
             // Accelerate the counter of changing the sprite
             maxCounterToChange = COUNTER + 1;

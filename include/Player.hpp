@@ -96,6 +96,12 @@ class Player : public Vehicle {
     // Number of angers of the blonde woman
     int numAngers;
 
+    // Controls if the gear of the car has been increased
+    bool increaseGear;
+
+    // Controls if the gear of the car has been decreased
+    bool decreaseGear;
+
     //
 
 

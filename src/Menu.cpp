@@ -34,7 +34,7 @@ using namespace sf;
  */
 State introAnimation(Config &c) {
     // Load the game effects
-    for (int i = 1; i <= 43; i++) {
+    for (int i = 1; i <= 45; i++) {
         // Detect the possible events
         Event e{};
         while (c.window.pollEvent(e)) {
@@ -1095,7 +1095,7 @@ State soundMenu(Config &c, const bool &inGame) {
             if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
                 if (c.volumeEffects != 0) {
                     c.volumeEffects--;
-                    for (int i = 0; i <= 42; i++) {
+                    for (int i = 0; i <= 44; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();
@@ -1105,7 +1105,7 @@ State soundMenu(Config &c, const bool &inGame) {
             } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
                 if (c.volumeEffects != 100) {
                     c.volumeEffects++;
-                    for (int i = 0; i <= 42; i++) {
+                    for (int i = 0; i <= 44; i++) {
                         c.effects[i]->setVolume(float(c.volumeEffects));
                     }
                     c.effects[0]->stop();

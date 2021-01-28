@@ -898,9 +898,6 @@ State Game::play(Config &c) {
             }
         }
 
-        // Update the game context
-        updateAndDraw(c, action, direction, terrain);
-
         // Check if the game has finished badly
         if (!finalGame) {
             // Check if it is on pause
@@ -944,6 +941,9 @@ State Game::play(Config &c) {
                 }
                 gameClockLap.restart();
             }
+
+             // Update the game context
+            updateAndDraw(c, action, direction, terrain);
 
             // Update the indicators
             if (!finalGame){
