@@ -733,11 +733,11 @@ void Game::checkDifficulty(Config &c) {
 
     // Vehicles
     cars.reserve(static_cast<unsigned long>(numCars));
-    if (cars.size() > numCars) {
-        while (cars.size() > numCars)
+    if ((int)cars.size() > numCars) {
+        while ((int)cars.size() > numCars)
             cars.pop_back();
     }
-    else if (cars.size() < numCars) {
+    else if ((int)cars.size() < numCars) {
         const int maxSprites = 12;
         const float vehicleScales[maxSprites] = {1.3f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f, 1.8f};
         for (int i = static_cast<int>(cars.size()); i < numCars; i++) {
@@ -838,12 +838,6 @@ State Game::play(Config &c) {
      // Get the kind of terrain of the landscape
     int terrain = currentMap->getTerrain();
 
-    // Time to update the clock counter
-    Time shot_delayTime = seconds(1.0);
-
-    // Time to update the clock counter lap
-    Time shot_delayLap = seconds(0.01);
-
     // Initialize all the clocks
 
     gameClockTime.restart().asSeconds();
@@ -864,7 +858,7 @@ State Game::play(Config &c) {
     Vehicle::Action action;
     Vehicle::Direction direction;
 
-    State status;
+    State status = GAME;
 
     int localTime;
 
@@ -1622,7 +1616,7 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
             // Any crash detected
             if (!crash)
                 // Detect if the player's car has crashed with any traffic car
-                for (int i = 0; !vehicleCrash && i < cars.size(); i++)
+                for (int i = 0; !vehicleCrash && i < (int)cars.size(); i++)
                     vehicleCrash = cars[i].hasCrashed(player.getPreviousY(), player.getPosY(),
                                                       player.getMinScreenX(), player.getMaxScreenX(),
                                                       crashPos);
@@ -1644,12 +1638,12 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
         for (Enemy &v : cars){
 
             if (currentMap->inFork(v.getPosY())){
-                v.autoControl(c, player.getPosX(), player.getPosY(), true,
-                              currentMap->getCurveCoefficient(v.getPosY()), currentMap->getLine(v.getPosY())->yOffsetX, currentMap->getLinesWithoutFork());
+                v.autoControl(c, player.getPosX(), player.getPosY(), true, currentMap->getCurveCoefficient(v.getPosY()),
+                              currentMap->getLine(v.getPosY())->yOffsetX, currentMap->getLinesWithoutFork());
             }
             else {
-                v.autoControl(c, player.getPosX(), player.getPosY(), false,
-                              currentMap->getCurveCoefficient(v.getPosY()), currentMap->getLine(v.getPosY())->yOffsetX, currentMap->getLinesWithoutFork());
+                v.autoControl(c, player.getPosX(), player.getPosY(), false, currentMap->getCurveCoefficient(v.getPosY()),
+                              currentMap->getLine(v.getPosY())->yOffsetX, currentMap->getLinesWithoutFork());
             }
         }
 
@@ -1792,13 +1786,15 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
     pauseShape.setOutlineThickness(5.0f * c.screenScale);
 
     Text textMenu;
-    textMenu.setPosition(c.w.getSize().x / 2.f - 75.0f * c.screenScale, c.w.getSize().y / 2.f - 150.0f * c.screenScale);
+    textMenu.setString("PAUSE");
     textMenu.setFont(c.options);
     textMenu.setFillColor(Color(214, 234, 12));
     textMenu.setOutlineColor(Color(12, 72, 234));
     textMenu.setOutlineThickness(2.0f * c.screenScale);
     textMenu.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
-    textMenu.setString("PAUSE");
+    textMenu.setPosition(c.w.getSize().x / 2.f - textMenu.getLocalBounds().width / 2.f,
+                         c.w.getSize().y / 2.f - 150.0f * c.screenScale);
+
 
     // Control if the start key is pressed or not
     bool startPressed = false;

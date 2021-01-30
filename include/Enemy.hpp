@@ -121,8 +121,13 @@ public:
      * @param c is the module configuration of the game
      * @param playerPosX is the position of the traffic car in the axis x
      * @param playerPosY is the position of the traffic car in the axis y
+     * @param inForkTrafficCar controls if the traffic car is in the fork
+     * @param curveCoeff is the radius coefficient of the curve
+     * @param yOffsetX is the offset to move to traffic car to the left or to the right in the fork
+     * @param limitMap is the size of the map
      */
-    void autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff, float yOffset, int limitMap);
+    void autoControl(const Config &c, float playerPosX, float playerPosY, bool inForkTrafficCar,
+                     float curveCoeff, float yOffsetX, int limitMap);
 
 
 

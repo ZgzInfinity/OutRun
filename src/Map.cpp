@@ -215,7 +215,7 @@ void Map::addLine(float x, float y, float &z, float prevY, float curve, bool mai
  * @return
  */
 Map::Line *Map::getLine(const int n) {
-    if (n < lines.size() || next == nullptr)
+    if (n < (int)lines.size() || next == nullptr)
         return &lines[n % lines.size()];
     else
         return &next->lines[(n - lines.size()) % next->lines.size()];
@@ -229,7 +229,7 @@ Map::Line *Map::getLine(const int n) {
  * @return
  */
 Map::Line Map::getLine(const int n) const {
-    if (n < lines.size() || next == nullptr)
+    if (n < (int)lines.size() || next == nullptr)
         return lines[n % lines.size()];
     else
         return next->lines[(n - lines.size()) % next->lines.size()];
@@ -243,7 +243,7 @@ Map::Line Map::getLine(const int n) const {
  * @return
  */
 Map::Line *Map::getPreviousLine(const int n) {
-    if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
+    if ((n > 0 && n - 1 < (int)lines.size()) || next == nullptr)
         return &lines[(n - 1) % lines.size()];
     else
         return &next->lines[(n - 1 - lines.size()) % next->lines.size()];
@@ -257,7 +257,7 @@ Map::Line *Map::getPreviousLine(const int n) {
  * @return
  */
 Map::Line Map::getPreviousLine(const int n) const {
-    if ((n > 0 && n - 1 < lines.size()) || next == nullptr)
+    if ((n > 0 && n - 1 < (int)lines.size()) || next == nullptr)
         return lines[(n - 1) % lines.size()];
     else
         return next->lines[(n - 1 - lines.size()) % next->lines.size()];
@@ -485,11 +485,11 @@ vector<vector<string>> readMapFile(const std::string &file) {
                             fileError(buffer[0] + " necessary argument.");
 
                         vector<int> objectIndexes;
-                        for (int i = 2; i < buffer.size() - 1; i++)
+                        for (int i = 2; i < (int)buffer.size() - 1; i++)
                             objectIndexes.push_back(stoi(buffer[i]));
 
                         const vector<vector<string>> randomInstructions = randomMap(stoi(buffer[1]), objectIndexes);
-                        for (int i = 6; i < randomInstructions.size(); i++) {
+                        for (int i = 6; i < (int)randomInstructions.size(); i++) {
                             instructions.push_back(randomInstructions[i]);
                         }
                     } else {
@@ -568,7 +568,7 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
     }
 
     // Iterate throughout the instructions matrix
-    for (int i = 7; i < instructions.size(); i++) {
+    for (int i = 7; i < (int)instructions.size(); i++) {
         const vector<string> &inst = instructions[i];
 
         // Process the different parts of the road and their arguments
@@ -627,11 +627,11 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
                     j++;
                 }
             }
-            if (j >= inst.size() || inst[j] != "-") { // Checkpoint
+            if (j >= (int)inst.size() || inst[j] != "-") { // Checkpoint
                 fileError(inst[0] + " has incorrect arguments.");
             }
             j++;
-            if (j < inst.size()) { // Right object
+            if (j < (int)inst.size()) { // Right object
                 if (inst[j] == "C"){
                     if (checkPointLeft){
                         spriteRight.checkPoint = true;
@@ -648,12 +648,12 @@ void Map::addLines(float x, float y, float &z, float &bgX, const vector<vector<s
                 }
                 spriteRight.spriteNum = stoi(inst[j]) - 1;
                 j++;
-                if (j < inst.size()) {
+                if (j < (int)inst.size()) {
                     spriteRight.offset = stof(inst[j]);
                     j++;
                 }
             }
-            if (j != inst.size()) { // Checkpoint
+            if (j != (int)inst.size()) { // Checkpoint
                 fileError(inst[0] + " has incorrect arguments.");
             }
 
@@ -1010,7 +1010,7 @@ void Map::setColors(const Map &map) {
  * @param increment is how to code id has to be increased
  */
 void Map::incrementSpriteIndex(int line, bool right, int increment) {
-    if (line < lines.size()) {
+    if (line < (int)lines.size()) {
         SpriteInfo &sprite = right ? lines[line].spriteRight : lines[line].spriteNearLeft;
         if (sprite.spriteNum > -1)
             sprite.spriteNum += increment;

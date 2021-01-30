@@ -573,6 +573,9 @@ Vehicle::Action Player::accelerationControlAutomaic(Config &c, bool hasGotOut) {
     else if (a == NONE && acceleration > 0.0f)
         // The player's car accelerates because the rest of actions has not happened
         a = ACCELERATE;
+    else if (a == BRAKE && speed <= 0.f){
+        a = NONE;
+    }
 
     // Calculate the new speed of the player's car
     mainMutex.lock();
@@ -624,7 +627,7 @@ Vehicle::Action Player::accelerationControlManual(Config &c, bool hasGotOut) {
             rpm = 1;
         }
     }
-    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.lowGearKey) || reduceSpeed){
+    if ((c.window.hasFocus() && Keyboard::isKeyPressed(c.lowGearKey)) || reduceSpeed){
         // Decrease the gear
 
         if (!reduceSpeed){
@@ -1150,7 +1153,9 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                     else {
                         posX -= 1.25f * (XINC * 1.65f) * speed / maxSpeed;
                     }
-                    directionFork = -1;
+                    if (directionFork == 0){
+                        directionFork = -1;
+                    }
                 }
             }
             return TURNLEFT;
@@ -1189,7 +1194,9 @@ Vehicle::Direction Player::rotationControl(Config &c, float curveCoefficient, bo
                     else {
                         posX += 1.25f * (XINC * 1.65f) * speed / maxSpeed;
                     }
-                    directionFork = 1;
+                    if (directionFork == 0){
+                        directionFork = 1;
+                    }
                 }
                 return TURNRIGHT;
             }

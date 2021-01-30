@@ -156,8 +156,8 @@ bool saveNewRecord(Config& c, const vector<Score> &globalScores, const Score &ne
         int i = 0;
         // Iterate the vector writing the records until the record to store
         for (int j = 0; !end && j < 7; j++) {
-            if (!saved && ((i < globalScores.size() && globalScores[i].score < newRecord.score) ||
-                           (i >= globalScores.size()))) {
+            if (!saved && ((i < (int)globalScores.size() && globalScores[i].score < newRecord.score) ||
+                           (i >= (int)globalScores.size()))) {
                 // Replace the new record is the right position in the ranking
                 saved = true;
                 fout << newRecord.score << " " << newRecord.name << " " << newRecord.minutes << " " << newRecord.secs
@@ -170,7 +170,7 @@ bool saveNewRecord(Config& c, const vector<Score> &globalScores, const Score &ne
             }
 
             // Stores correctly
-            if (i >= globalScores.size() && saved)
+            if (i >= (int)globalScores.size() && saved)
                 end = true;
         }
         fout.close();

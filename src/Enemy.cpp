@@ -62,11 +62,17 @@ Enemy::Enemy(float maxSpeed, float speedMul, float scale, int maxCounterToChange
  * @param c is the module configuration of the game
  * @param playerPosX is the position of the traffic car in the axis x
  * @param playerPosY is the position of the traffic car in the axis y
+ * @param inForkTrafficCar controls if the traffic car is in the fork
+ * @param curveCoeff is the radius coefficient of the curve
+ * @param yOffsetX is the offset to move to traffic car to the left or to the right in the fork
+ * @param limitMap is the size of the map
  */
-void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, bool inFork, float curveCoeff, float yOffsetX, int limitMap) {
+void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, bool inForkTrafficCar,
+                        float curveCoeff, float yOffsetX, int limitMap)
+{
 
     // Check if the vehicle is in fork
-    if (inFork){
+    if (inForkTrafficCar){
         if (posX == 0.f){
             const int p = random_int(0, 1);
             if (p == 0){
@@ -84,7 +90,9 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
             else if (abs(posX) >= 11.71f){
                 posX = 11.71f;
             }
-            directionFork = 1;
+            if (directionFork == 0){
+                directionFork = 1;
+            }
         }
         else {
             // Left Fork
@@ -94,7 +102,9 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
             else if (abs(posX) >= 11.71f){
                 posX = -11.71f;
             }
-            directionFork = -1;
+            if (directionFork == 0){
+                directionFork = -1;
+            }
         }
     }
     else if (limitMap != -1 && (limitMap - posY <= 420.f)){
@@ -222,7 +232,7 @@ void Enemy::autoControl(const Config &c, float playerPosX, float playerPosY, boo
         speed = 0;
 
     // Control that the enemy is not out of the road in the forks
-    if (!inFork){
+    if (!inForkTrafficCar){
         if (posX > 0.7f) {
             posX = 0.7f;
             currentDirection = RIGHT;

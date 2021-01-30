@@ -217,7 +217,7 @@ int KeywordMapper::lookForKeyBoard(const string key){
     // Index of the keyword to be analyzed
     int i = 0;
     // While the keyword has not been found
-    while (!found){
+    while (!found && i < 75){
         // Check if the current key desired
         if (mapperIdKeyWord[i] == key){
             // Keyword found
@@ -251,7 +251,7 @@ int KeywordMapper::lookForKeyBoardId(const Keyboard::Key key){
     // Index of the keyword to be analyzed
     int i = 0;
     // While the keyword has not been found
-    while (!found){
+    while (!found && i < 75){
         // Check if the current key desired
         if (mapperCodeKeyWord[i] == key){
             // Keyword found

@@ -220,7 +220,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
                     break;
                 }
                 case MUSIC: {
-                    sleep(milliseconds(500));
                     state = selectMusicSoundtrack(c);
                     break;
                 }
@@ -230,7 +229,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
                     break;
                 }
                 case OPTIONS: {
-                    sleep(milliseconds(500));
                     bool inGame = engine.isInGame();
                     state = optionsMenu(c, inGame);
                     engine.checkDifficulty(c);
