@@ -2872,6 +2872,7 @@ State gearsMenu(Config& c, bool& autoGear){
 
     bool pressedKey = false;
     startPressed = false;
+    autoGear = true;
 
     // While the start key is not pressed
     while (!startPressed){
@@ -2914,7 +2915,7 @@ State gearsMenu(Config& c, bool& autoGear){
                     optionSelected++;
                     c.effects[0]->stop();
                     c.effects[0]->play();
-                    autoGear = true;
+                    autoGear = false;
                 }
                 break;
             case 1:
@@ -2924,7 +2925,7 @@ State gearsMenu(Config& c, bool& autoGear){
                     optionSelected--;
                     c.effects[0]->stop();
                     c.effects[0]->play();
-                    autoGear = false;
+                    autoGear = true;
                 }
         }
 

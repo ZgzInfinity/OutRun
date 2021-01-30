@@ -102,7 +102,11 @@ class Player : public Vehicle {
     // Controls if the gear of the car has been decreased
     bool decreaseGear;
 
-    //
+    // Revolutions per minute
+    int rpm;
+
+    // Controls if the speed has to be reduce by force
+    bool reduceSpeed;
 
 
 public:
@@ -167,12 +171,22 @@ public:
 
 
     /**
-     * Updates the logic of the player's vehicle acceleration and braking
+     * Updates the logic of the player's vehicle acceleration and braking automatically
      * @param c is the module configuration of the game
      * @param hasGotOut indicates if it's gone off track
      * @return
      */
-    Action accelerationControl(Config &c, bool hasGotOut);
+    Action accelerationControlAutomaic(Config &c, bool hasGotOut);
+
+
+
+    /**
+     * Updates the logic of the player's vehicle acceleration and braking manually
+     * @param c is the module configuration of the game
+     * @param hasGotOut indicates if it's gone off track
+     * @return
+     */
+    Action accelerationControlManual(Config &c, bool hasGotOut);
 
 
 

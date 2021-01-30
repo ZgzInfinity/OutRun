@@ -24,26 +24,26 @@ DROP 1000
 ROAD           -
 ROAD           -
 ROAD           -
+ROAD        21 -
 ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
-ROAD           -
-ROAD           -
+ROAD        21 -
 ROAD           -
 ROAD           -   3
 ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
+ROAD        21 -
 ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
-ROAD           -
-ROAD           -
+ROAD        21 -
 ROAD           -
 ROAD           -
 ROAD           -
@@ -53,13 +53,13 @@ ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
+ROAD        21 -
 ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
-ROAD           -
-ROAD           -
+ROAD        21 -
 ROAD           -
 
 CLIMB 5000
@@ -1156,7 +1156,7 @@ ROAD   + 7     -
 ROAD   + 7     -
 ROAD   + 7     -   3
 
-CLIMB 4500
+CLIMB 3500
 CURVE -0.75
 
 ROAD   + 7     -
@@ -2325,6 +2325,6 @@ ROAD           -
 ROAD           -
 ROAD           -
 ROAD           -
-ROAD   22 -0.9 - 21 -0.9
+ROAD   28 -0.9 - 27 -0.9
 
 END  /* Obligatorio */

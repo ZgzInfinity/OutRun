@@ -266,7 +266,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.2f, 3.2f, MAX_CO
     const int times[] = {110, 62, 62, 59, 58, 54, 53, 50, 50, 47, 47, 48, 47, 50, 45};
 
     // Vector with the different numbers of elements of each map
-    const int nobjects[] = {22, 32, 39, 39, 29, 33, 30, 32, 38, 34, 32, 32, 36, 38, 35};
+    const int nobjects[] = {28, 32, 39, 39, 29, 33, 30, 32, 38, 34, 32, 32, 36, 38, 35};
     for (int i = 0; i < 5; i++) {
         vector<Map> vm;
         // Store the maps
@@ -1587,8 +1587,18 @@ void Game::updateAndDraw(Config &c, Vehicle::Action &action, Vehicle::Direction 
 
         // Check if the player's vehicle is not crashing
         if (!player.isCrashing()) {
-            // Registers the new actions of the user
-            action = player.accelerationControl(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
+
+            // Control the actions to accelerate or brake the vehicle of the player
+            if (autoMode){
+                // Automatic gears
+                action = player.accelerationControlAutomaic(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
+            }
+            else {
+                // Manual gears
+                action = player.accelerationControlManual(c, currentMap->hasGotOut(player.getPosX(), player.getPosY()));
+            }
+
+            // Control the actions to turn the vehicle of the player
             direction = player.rotationControl(c, currentMap->getCurveCoefficient(player.getPosY()),
                                                currentMap->inFork(player.getPosY()));
         }
@@ -1920,7 +1930,7 @@ State Game::pause(Config &c, const Vehicle::Action &a, const Vehicle::Direction 
  * @return
  */
  void Game::setAutoMode(const bool autoMod){
-    autoMode = autoMode;
+    autoMode = autoMod;
  }
 
 

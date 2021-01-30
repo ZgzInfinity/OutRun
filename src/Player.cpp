@@ -65,6 +65,8 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
     gearPlayer = 0;
     increaseGear = false;
     decreaseGear = false;
+    rpm = 0;
+    reduceSpeed = false;
 }
 
 
@@ -306,6 +308,7 @@ void Player::hitControl(const bool vehicleCrash) {
         speedCollision = 0.0f;
         outSideRoad = false;
         numAngers = 0;
+        rpm = 0;
     }
 }
 
@@ -332,13 +335,12 @@ float Player::getRealSpeed() const {
 
 
 /**
- * Updates the logic of the player's vehicle acceleration and braking
+ * Updates the logic of the player's vehicle acceleration and braking automatically
  * @param c is the module configuration of the game
  * @param hasGotOut indicates if it's gone off track
  * @return
  */
-Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
-
+Vehicle::Action Player::accelerationControlAutomaic(Config &c, bool hasGotOut) {
     // Default action
     Action a = NONE;
     smoking = false;
@@ -436,7 +438,7 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
             acceleration = maxAcc;
 
         // Check if the player's vehicle must start to smoke
-        smoking = acceleration < maxAcc * 0.05f;
+        smoking = (acceleration < maxAcc * 0.05f);
 
 
         if (this->getRealSpeed() >= 220.f){
@@ -575,6 +577,508 @@ Vehicle::Action Player::accelerationControl(Config &c, bool hasGotOut) {
     // Calculate the new speed of the player's car
     mainMutex.lock();
     speed = sqrt(acceleration);
+    mainMutex.unlock();
+
+    // Control the advance of the player's vehicle in the landscape
+    if (speed > 0.0f) {
+        // Store the last position in axis y
+        previousY = posY;
+        // Store the new position using the current speed
+        posY += speed;
+    }
+
+    return a;
+}
+
+
+
+/**
+ * Updates the logic of the player's vehicle acceleration and braking manually
+ * @param c is the module configuration of the game
+ * @param hasGotOut indicates if it's gone off track
+ * @return
+ */
+Vehicle::Action Player::accelerationControlManual(Config &c, bool hasGotOut) {
+
+    // Control if the speed has to be updated
+    bool speedUpdated = false;
+
+    // Default action
+    Action a = NONE;
+    smoking = false;
+
+    // Store the current acceleration
+    float previousAcc = acceleration;
+
+    // Control the possible change of gears of the car
+    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.upGearKey)){
+        // Increase the gear
+        if (gearPlayer != 6){
+            if ((gearPlayer == 0 && rpm == 0) ||
+                (gearPlayer != 0 && rpm == 100))
+            {
+                gearPlayer++;
+            }
+            increaseGear = true;
+            decreaseGear = false;
+            rpm = 1;
+        }
+    }
+    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.lowGearKey) || reduceSpeed){
+        // Decrease the gear
+
+        if (!reduceSpeed){
+            if (gearPlayer != 0){
+                gearPlayer--;
+                increaseGear = false;
+                decreaseGear = true;
+                if (gearPlayer == 0){
+                    rpm = 0;
+                }
+                else {
+                    rpm = 1;
+                }
+            }
+        }
+
+        // Control if the speed is greater than the top speed of the gear
+        switch (gearPlayer){
+            case 0:
+                if (this->getRealSpeed() >= 0.f){
+                    reduceSpeed = true;
+                }
+                else {
+                    reduceSpeed = false;
+                }
+                break;
+            case 1:
+                if (this->getRealSpeed() >= 20.f){
+                    reduceSpeed = true;
+                }
+                else {
+                    reduceSpeed = false;
+                }
+                break;
+            case 2:
+                if (this->getRealSpeed() >= 90.f){
+                    reduceSpeed = true;
+                }
+                else {
+                    reduceSpeed = false;
+                }
+                break;
+            case 3:
+                if (this->getRealSpeed() >= 130.f){
+                    reduceSpeed = true;
+                }
+                else {
+                    reduceSpeed = false;
+                }
+                break;
+            case 4:
+                if (this->getRealSpeed() >= 180.f){
+                    reduceSpeed = true;
+                }
+                else {
+                    reduceSpeed = false;
+                }
+                break;
+            case 5:
+                if (this->getRealSpeed() >= 220.f){
+                    reduceSpeed = true;
+                }
+                else {
+                    reduceSpeed = false;
+                }
+        }
+
+    }
+
+    // Check if the braking control key has been pressed
+    if ((c.window.hasFocus() && Keyboard::isKeyPressed(c.brakeKey))){
+        // Player's car brakes
+        if (gearPlayer == 0 || speed <= 0.f){
+            a = NONE;
+            rpm = 0;
+            speed = 0.f;
+        }
+        else {
+            a = BRAKE;
+
+            // Update the new gear of the car
+            if (this->getRealSpeed() <= 0.f){
+                if (gearPlayer != 0){
+                    gearPlayer = 0;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 0;
+            }
+            else if (this->getRealSpeed() <= 20.f){
+                if (gearPlayer != 1){
+                    gearPlayer = 1;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 90.f){
+                if (gearPlayer != 2){
+                    gearPlayer = 2;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 130.f){
+                if (gearPlayer != 3){
+                    gearPlayer = 3;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 180.f){
+                if (gearPlayer != 4){
+                    gearPlayer = 4;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 220.f){
+                if (gearPlayer != 5){
+                    gearPlayer = 5;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+        }
+    }
+
+    // Check if the accelerating key has been pressed
+    if (a != BRAKE && c.window.hasFocus() && Keyboard::isKeyPressed(c.accelerateKey) && !reduceSpeed) {
+
+        if (gearPlayer != 0){
+
+            // Control the revolutions per minute of the motor
+            if (rpm != 100){
+                if (rpm != 0){
+                    rpm++;
+                    if (rpm == 70){
+                        increaseGear = false;
+                    }
+                }
+            }
+
+            decreaseGear = false;
+
+            // Check if the player's car is outside the road
+            if (hasGotOut) {
+                outSideRoad = true;
+                // The acceleration increases slower
+                if (acceleration < maxAcc / 4.5f){
+
+                    // Compute the new acceleration
+                    float newAcceleration = acceleration + accInc / 3.0f;
+
+                    // Calculate the new speed of the vehicle
+                    float newSpeed = sqrt(newAcceleration) * speedMul;
+
+                    // Check the max speed reached in each gear
+                    switch (gearPlayer){
+                        case 1:
+                            if (newSpeed <= 20.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 0.29f;
+                            }
+                            break;
+                        case 2:
+                            if (newSpeed <= 90.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 1.286f;
+                            }
+                            break;
+                        case 3:
+                            if (newSpeed <= 130.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 1.86f;
+                            }
+                            break;
+                        case 4:
+                            if (newSpeed <= 180.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 2.575f;
+                            }
+                            break;
+                        case 5:
+                            if (newSpeed <= 220.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 3.143f;
+                            }
+                            break;
+                        case 6:
+                            speedUpdated = true;
+                    }
+
+                    // Modify the acceleration
+                    if (speedUpdated){
+                        acceleration += accInc / 3.0f;
+                    }
+                }
+                else {
+
+                    // Compute the new acceleration
+                    float newAcceleration = acceleration - accInc / 1.5f;
+
+                    // Calculate the new speed of the vehicle
+                    float newSpeed = sqrt(newAcceleration) * speedMul;
+
+                    // Check the max speed reached in each gear
+                    switch (gearPlayer){
+                        case 1:
+                            if (newSpeed <= 20.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 0.29f;
+                            }
+                            break;
+                        case 2:
+                            if (newSpeed <= 90.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 1.286f;
+                            }
+                            break;
+                        case 3:
+                            if (newSpeed <= 130.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 1.86f;
+                            }
+                            break;
+                        case 4:
+                            if (newSpeed <= 180.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 2.575f;
+                            }
+                            break;
+                        case 5:
+                            if (newSpeed <= 220.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 3.143f;
+                            }
+                            break;
+                        case 6:
+                            speedUpdated = true;
+                    }
+
+                    // Modify the acceleration
+                    if (speedUpdated){
+                        acceleration -= accInc * 1.5f;
+                    }
+                }
+            }
+            else {
+                // The acceleration increases quicker
+                outSideRoad = false;
+                if (acceleration < maxAcc) {
+
+                    // Compute the new acceleration
+                    float newAcceleration = acceleration + accInc;
+
+                    // Calculate the new speed of the vehicle
+                    float newSpeed = sqrt(newAcceleration) * speedMul;
+
+                    // Check the max speed reached in each gear
+                    switch (gearPlayer){
+                        case 1:
+                            if (newSpeed <= 20.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 0.29f;
+                            }
+                            break;
+                        case 2:
+                            if (newSpeed <= 90.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 1.286f;
+                            }
+                            break;
+                        case 3:
+                            if (newSpeed <= 130.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 1.86f;
+                            }
+                            break;
+                        case 4:
+                            if (newSpeed <= 180.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 2.575f;
+                            }
+                            break;
+                        case 5:
+                            if (newSpeed <= 220.f){
+                                speedUpdated = true;
+                            }
+                            else {
+                                speed = 3.143f;
+                            }
+                            break;
+                        case 6:
+                            speedUpdated = true;
+                    }
+
+                    // Modify the acceleration quicker
+                    if (speedUpdated){
+                        acceleration += accInc;
+                    }
+                }
+            }
+
+            // Control the limit of the acceleration
+            if (acceleration > maxAcc)
+                acceleration = maxAcc;
+
+            // Check if the player's vehicle must start to smoke
+            smoking = rpm <= 70;
+        }
+    }
+    else {
+        // The player's car is braking
+        float mul = 2.0f;
+        if (a == BRAKE)
+            mul *= 2.0f;
+        if (hasGotOut)
+            mul *= 1.5f;
+
+        // Reduces acceleration
+        if (acceleration > 0.0f)
+            acceleration -= accInc * mul;
+
+        if (acceleration < 0.0f)
+            acceleration = 0.0f;
+
+        if (!reduceSpeed){
+            // Update the new gear of the car
+            if (this->getRealSpeed() <= 0.f){
+                if (gearPlayer != 0){
+                    gearPlayer = 0;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 0;
+            }
+            else if (this->getRealSpeed() <= 20.f){
+                if (gearPlayer != 1){
+                    gearPlayer = 1;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 90.f){
+                if (gearPlayer != 2){
+                    gearPlayer = 2;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 130.f){
+                if (gearPlayer != 3){
+                    gearPlayer = 3;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 180.f){
+                if (gearPlayer != 4){
+                    gearPlayer = 4;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            else if (this->getRealSpeed() <= 220.f){
+                if (gearPlayer != 5){
+                    gearPlayer = 5;
+                    decreaseGear = true;
+                }
+                else {
+                    decreaseGear = false;
+                }
+                rpm = 1;
+            }
+            speedUpdated = true;
+        }
+    }
+
+    // Control if the player's car is going to boot the motor
+    if (previousAcc == 0.0f && acceleration > 0.0f)
+        a = BOOT;
+
+    else if (a == NONE && acceleration > 0.0f)
+        // The player's car accelerates because the rest of actions has not happened
+        a = ACCELERATE;
+
+    // Calculate the new speed of the player's car
+    mainMutex.lock();
+    if (speedUpdated || a == BRAKE || reduceSpeed){
+        speed = sqrt(acceleration);
+        if (speed == 0.f){
+            gearPlayer = 0;
+            reduceSpeed = false;
+        }
+    }
     mainMutex.unlock();
 
     // Control the advance of the player's vehicle in the landscape
