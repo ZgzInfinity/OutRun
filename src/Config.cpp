@@ -223,11 +223,14 @@ State Config::graphicsMenu() {
         // Main Text of the menu
         Text optionsText;
         optionsText.setString("GRAPHICS MENU");
-        optionsText.setPosition(w.getSize().x / 2.f - 160.0f * screenScale, w.getSize().y / 2.f - 220.0f * screenScale);
-        optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * screenScale)));
+        optionsText.setCharacterSize(static_cast<unsigned int>(int(55.0f * screenScale)));
         optionsText.setFont(options);
         optionsText.setStyle(Text::Bold | Text::Underlined);
         optionsText.setFillColor(Color::Red);
+        optionsText.setOutlineColor(Color(12, 12, 12));
+        optionsText.setOutlineThickness(3.0f * screenScale);
+        optionsText.setPosition((w.getSize().x / 2.f) - optionsText.getLocalBounds().width / 2.f,
+                                 w.getSize().y / 2.f - 230.0f * screenScale);
 
         // Option indicators
         menuButtons.emplace_back(w.getSize().x / 2.f - 270.0f * screenScale, w.getSize().y / 2.f - 70.0f * screenScale,

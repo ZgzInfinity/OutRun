@@ -649,8 +649,8 @@ State changeCarControllers(Config &c) {
     textureShape.setRepeated(true);
 
     RectangleShape shape;
-    shape.setPosition((c.w.getSize().x / 2.f) - 300.0f * c.screenScale, c.w.getSize().y / 2.f - 300.0f * c.screenScale);
-    shape.setSize(sf::Vector2f(610.0f * c.screenScale, 600.0f * c.screenScale));
+    shape.setPosition((c.w.getSize().x / 2.f) - 358.0f * c.screenScale, c.w.getSize().y / 2.f - 250.0f * c.screenScale);
+    shape.setSize(sf::Vector2f(710.0f * c.screenScale, 500.0f * c.screenScale));
     shape.setOutlineColor(Color(19, 186, 251));
     shape.setOutlineThickness(5.0f * c.screenScale);
     shape.setTexture(&textureShape, true);
@@ -660,63 +660,56 @@ State changeCarControllers(Config &c) {
     // Main Text of the menu
     Text optionsText;
     optionsText.setString("CONTROLLERS");
-    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
-                            c.w.getSize().y / 2.f - 270.0f * c.screenScale);
-    optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
+    optionsText.setCharacterSize(static_cast<unsigned int>(int(55.0f * c.screenScale)));
     optionsText.setFont(c.options);
     optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
+    optionsText.setOutlineColor(Color(12, 12, 12));
+    optionsText.setOutlineThickness(3.0f * c.screenScale);
+    optionsText.setPosition((c.w.getSize().x / 2.f) - optionsText.getLocalBounds().width / 2.f,
+                             c.w.getSize().y / 2.f - 255.0f * c.screenScale);
 
     Text info1;
-    info1.setString("Hold down Space to select a controller");
+    info1.setString("Hold down Space to select a controller and then press a key to change its configuration");
+    info1.setFont(c.options);
     info1.setFillColor(Color(10, 201, 235));
     info1.setOutlineColor(Color(3, 39, 8));
-    info1.setOutlineThickness(3.0f * c.screenScale);
     info1.setCharacterSize(static_cast<unsigned int>(int(15.0f * c.screenScale)));
+    info1.setOutlineThickness(3.0f * c.screenScale);
     info1.setStyle(Text::Bold);
-    info1.setPosition(c.w.getSize().x / 2.f - 235.0f * c.screenScale, c.w.getSize().y / 2.f - 210.0f * c.screenScale);
-    info1.setFont(c.options);
+    info1.setPosition(c.w.getSize().x / 2.f - info1.getLocalBounds().width / 2.f,
+                      c.w.getSize().y / 2.f - 185.0f * c.screenScale);
     c.w.draw(info1);
-
-    Text info2;
-    info2.setString("Then press a key to change its configuration");
-    info2.setFillColor(Color(10, 201, 235));
-    info2.setOutlineColor(Color(3, 39, 8));
-    info2.setCharacterSize(static_cast<unsigned int>(int(15.0f * c.screenScale)));
-    info2.setOutlineThickness(3.0f * c.screenScale);
-    info2.setStyle(Text::Bold);
-    info2.setPosition(c.w.getSize().x / 2.f - 265.0f * c.screenScale, c.w.getSize().y / 2.f - 170.0f * c.screenScale);
-    info2.setFont(c.options);
-    c.w.draw(info2);
 
     // Option indicators
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f - 120.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 150.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Turning left", Color(0, 255, 0), Color(255, 255, 0), 1, c.screenScale);
 
-    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale, c.w.getSize().y / 2.f - 50.f,
-                             200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 80.f * c.screenScale, 200.0f * c.screenScale,
+                             30.0f * c.screenScale, c.options,
                              "Turning right", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 20.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 10.f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Acceleration", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 90.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 60.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Brake", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 160.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 130.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Up gear", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
     menuButtons.emplace_back(c.w.getSize().x / 2.f - 270.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 230.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 200.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              "Down gear", Color(0, 255, 0), Color(255, 255, 0), 0, c.screenScale);
 
@@ -725,41 +718,41 @@ State changeCarControllers(Config &c) {
     int code;
     code = kM.mapperCodeKeyWord[c.leftKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f - 120.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 150.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 1,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.rightKey];
-    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale, c.w.getSize().y / 2.f - 50.f,
-                             200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
+    menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 80.f * c.screenScale, 200.0f * c.screenScale, 30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.accelerateKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 20.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f - 10.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.brakeKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 90.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 60.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.upGearKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 160.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 130.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
 
     code = kM.mapperCodeKeyWord[c.lowGearKey];
     menuButtons.emplace_back(c.w.getSize().x / 2.f + 80.0f * c.screenScale,
-                             c.w.getSize().y / 2.f + 230.0f * c.screenScale, 200.0f * c.screenScale,
+                             c.w.getSize().y / 2.f + 200.0f * c.screenScale, 200.0f * c.screenScale,
                              30.0f * c.screenScale, c.options,
                              kM.mapperIdKeyWord[code], Color(0, 255, 0), Color(255, 255, 0), 0,
                              c.screenScale);
@@ -776,7 +769,6 @@ State changeCarControllers(Config &c) {
         c.w.draw(shape);
         c.w.draw(optionsText);
         c.w.draw(info1);
-        c.w.draw(info2);
 
         // Show the buttons of the menu
         for (auto &menuButton : menuButtons) {
@@ -989,12 +981,14 @@ State soundMenu(Config &c, const bool &inGame) {
     // Main Text of the menu
     Text optionsText;
     optionsText.setString("SOUND MENU");
-    optionsText.setPosition(c.w.getSize().x / 2.f - 160.0f * c.screenScale,
-                            c.w.getSize().y / 2.f - 220.0f * c.screenScale);
-    optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
+    optionsText.setCharacterSize(static_cast<unsigned int>(int(55.0f * c.screenScale)));
     optionsText.setFont(c.options);
     optionsText.setStyle(Text::Bold | Text::Underlined);
     optionsText.setFillColor(Color::Red);
+    optionsText.setOutlineColor(Color(12, 12, 12));
+    optionsText.setOutlineThickness(3.0f * c.screenScale);
+    optionsText.setPosition((c.w.getSize().x / 2.f) - optionsText.getLocalBounds().width / 2.f,
+                             c.w.getSize().y / 2.f - 230.0f * c.screenScale);
 
     // Option indicators
 
@@ -1416,9 +1410,17 @@ State optionsMenu(Config &c, const bool &inGame) {
                             shape.setPosition((c.w.getSize().x / 2.f) - 350.0f * c.screenScale,
                                               c.w.getSize().y / 2.f - 250.0f * c.screenScale);
                             shape.setSize(sf::Vector2f(710.0f * c.screenScale, 500.0f * c.screenScale));
-                            optionsText.setPosition((c.w.getSize().x / 2.f) - 90.0f * c.screenScale,
-                                                    c.w.getSize().y / 2.f - 230.0f * c.screenScale);
-                            optionsText.setCharacterSize(static_cast<unsigned int>(int(35.0f * c.screenScale)));
+
+                            // Main Text of the menu
+                            optionsText.setString("OPTIONS");
+                            optionsText.setCharacterSize(static_cast<unsigned int>(int(55.0f * c.screenScale)));
+                            optionsText.setFont(c.options);
+                            optionsText.setStyle(Text::Bold | Text::Underlined);
+                            optionsText.setFillColor(Color::Red);
+                            optionsText.setOutlineColor(Color(12, 12, 12));
+                            optionsText.setOutlineThickness(3.0f * c.screenScale);
+                            optionsText.setPosition((c.w.getSize().x / 2.f) - optionsText.getLocalBounds().width / 2.f,
+                                                     c.w.getSize().y / 2.f - 230.0f * c.screenScale);
 
                             menuButtons.clear();
 
@@ -1597,6 +1599,13 @@ State optionsMenu(Config &c, const bool &inGame) {
         // Make possible more modifications
         c.modifiedConfig = false;
     }
+
+    // Clean the console window
+    c.w.clear(Color(0, 0, 0));
+    Sprite bufferSprite(c.w.getTexture());
+    c.w.display();
+    c.window.draw(bufferSprite);
+    c.window.display();
 
     if (inGame) {
         return GAME;
@@ -2358,17 +2367,17 @@ State showLoadingAnimation(Config& c, const bool autoMod){
         }
         else {
             controllersText.setPosition(c.w.getSize().x / 2.f - 130.0f * c.screenScale,
-                                    c.w.getSize().y / 2.f - 210.0f * c.screenScale);
+                                    c.w.getSize().y / 2.f - 220.0f * c.screenScale);
         }
     }
     else {
         if (autoMod){
             controllersText.setPosition(c.w.getSize().x / 2.f - 130.0f * c.screenScale,
-                                        c.w.getSize().y / 2.f - 190.0f * c.screenScale);
+                                        c.w.getSize().y / 2.f - 200.0f * c.screenScale);
         }
         else {
             controllersText.setPosition(c.w.getSize().x / 2.f - 130.0f * c.screenScale,
-                                        c.w.getSize().y / 2.f - 195.0f * c.screenScale);
+                                        c.w.getSize().y / 2.f - 205.0f * c.screenScale);
         }
     }
 
