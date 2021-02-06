@@ -865,13 +865,13 @@ State Game::play(Config &c) {
     // The options menu was not in the screen
     if (!comeFromOptions){
         // Thread to control the elapsed time
-        timer0 = thread(updateTimeElapsed, this);
+        timer0 = thread(&Game::updateTimeElapsed, this);
 
         // Thread to control the time of the landscape
-        timer1 = thread(updateTimeLandScape, this);
+        timer1 = thread(&Game::updateTimeLandScape, this);
 
         // Thread to counter the score of the game
-        timer2 = thread(updateScore, this);
+        timer2 = thread(&Game::updateScore, this);
     }
 
     // While the game is in curse
@@ -919,9 +919,9 @@ State Game::play(Config &c) {
                 }
                 // Resume
                 else if (status == GAME) {
-                    timer0 = thread(updateTimeElapsed, this);
-                    timer1 = thread(updateTimeLandScape, this);
-                    timer2 = thread(updateScore, this);
+                    timer0 = thread(&Game::updateTimeElapsed, this);
+                    timer1 = thread(&Game::updateTimeLandScape, this);
+                    timer2 = thread(&Game::updateScore, this);
                     c.themes[c.currentSoundtrack]->play();
                 }
                 // Close the game

@@ -296,7 +296,7 @@ State Config::graphicsMenu() {
             if (optionSelected == 0) {
                 // Screen resolutions
                 // Check if left or left cursor keys have been pressed or not
-                if (window.hasFocus() && Keyboard::isKeyPressed(leftKey)) {
+                if (window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
                     if (resized) {
                         // The screen has not been resized during the game before
                         resized = false;
@@ -338,7 +338,7 @@ State Config::graphicsMenu() {
                     }
                 }
                 // Check if the right cursor keys have been pressed or not
-                else if (window.hasFocus() && Keyboard::isKeyPressed(rightKey)) {
+                else if (window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
                     if (resized) {
                         // The screen has not been resized during the game before
                         resized = false;
@@ -371,12 +371,12 @@ State Config::graphicsMenu() {
             } else {
                 // Pixel art
                 // Check if left or right cursor keys have been pressed or not
-                if (window.hasFocus() && Keyboard::isKeyPressed(leftKey)) {
+                if (window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
                     if (enablePixelArt) {
                         enablePixelArt = false;
                         menuButtons[optionSelected + 2].setTextButton("DISABLED");
                     }
-                } else if (window.hasFocus() && Keyboard::isKeyPressed(rightKey)) {
+                } else if (window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
                     if (!enablePixelArt) {
                         enablePixelArt = true;
                         menuButtons[optionSelected + 2].setTextButton("ENABLED");

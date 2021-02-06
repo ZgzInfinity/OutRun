@@ -1058,7 +1058,7 @@ State soundMenu(Config &c, const bool &inGame) {
         if (optionSelected == 0) {
             // Volume music
             // Check if left or right cursor keys have been pressed or not
-            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
                 if (c.volumeMusic != 0) {
                     c.volumeMusic--;
                     for (int i = 0; i <= 6; i++) {
@@ -1070,7 +1070,7 @@ State soundMenu(Config &c, const bool &inGame) {
                     }
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeMusic)));
                 }
-            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
                 if (c.volumeMusic != 100) {
                     c.volumeMusic++;
                     for (int i = 0; i <= 6; i++) {
@@ -1086,7 +1086,7 @@ State soundMenu(Config &c, const bool &inGame) {
         } else {
             // Volume effects
             // Check if left or right cursor keys have been pressed or not
-            if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+            if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
                 if (c.volumeEffects != 0) {
                     c.volumeEffects--;
                     for (int i = 0; i <= 44; i++) {
@@ -1096,7 +1096,7 @@ State soundMenu(Config &c, const bool &inGame) {
                     c.effects[0]->play();
                     menuButtons[optionSelected + 2].setTextButton((to_string(c.volumeEffects)));
                 }
-            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+            } else if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
                 if (c.volumeEffects != 100) {
                     c.volumeEffects++;
                     for (int i = 0; i <= 44; i++) {
@@ -1318,7 +1318,7 @@ State optionsMenu(Config &c, const bool &inGame) {
             switch (optionSelected) {
                 case 0:
                     // Check if left or right cursor keys have been pressed or not
-                    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+                    if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
                         if (c.level != PEACEFUL) {
                             // Change the difficult level
                             if (c.level == EASY) {
@@ -1335,7 +1335,7 @@ State optionsMenu(Config &c, const bool &inGame) {
                             }
                             c.modifiedConfig = true;
                         }
-                    } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+                    } else if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
                         if (c.level != HARD) {
                             // Change the difficult level
                             if (c.level == PEACEFUL) {
@@ -1357,14 +1357,14 @@ State optionsMenu(Config &c, const bool &inGame) {
                 case 1:
                     // AI aggressiveness level
                     // Check if left or right cursor keys have been pressed or not
-                    if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+                    if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
                         if (c.enableAI) {
                             c.enableAI = false;
                             menuButtons[optionSelected + 5].setTextButton("DISABLED");
                             c.modifiedConfig = true;
                         }
                     }
-                    else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+                    else if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
                         if (!c.enableAI) {
                             c.enableAI = true;
                             menuButtons[optionSelected + 5].setTextButton("ENABLED");
@@ -1702,7 +1702,7 @@ State selectMusicSoundtrack(Config &c) {
                 return EXIT;
 
         // Control if the left or right cursor keys are pressed or not
-        if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+        if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
             // Up cursor pressed and change the soundtrack selected in the list
             if (c.currentSoundtrack != 1) {
                 c.effects[1]->stop();
@@ -1711,7 +1711,7 @@ State selectMusicSoundtrack(Config &c) {
                 c.currentSoundtrack--;
                 c.themes[c.currentSoundtrack]->play();
             }
-        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+        } else if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
             // Down cursor pressed and change the soundtrack selected in the list
             if (c.currentSoundtrack != NUM_SOUNDTRACKS - 1) {
                 c.effects[1]->stop();
@@ -2919,7 +2919,7 @@ State gearsMenu(Config& c, bool& autoGear){
         switch (optionSelected) {
             case 0:
                 // Check if right cursor key has been pressed or not
-                if (c.window.hasFocus() && Keyboard::isKeyPressed(c.rightKey)) {
+                if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Right)) {
                     pressedKey = true;
                     optionSelected++;
                     c.effects[0]->stop();
@@ -2929,7 +2929,7 @@ State gearsMenu(Config& c, bool& autoGear){
                 break;
             case 1:
                 // Check if left cursor key has been pressed or not
-                if (c.window.hasFocus() && Keyboard::isKeyPressed(c.leftKey)) {
+                if (c.window.hasFocus() && Keyboard::isKeyPressed(Keyboard::Left)) {
                     pressedKey = true;
                     optionSelected--;
                     c.effects[0]->stop();
