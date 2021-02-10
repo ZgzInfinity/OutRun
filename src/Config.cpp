@@ -25,8 +25,11 @@
 
 #include "../include/Config.hpp"
 
+
+
 /**
  * Assigns to the game the configuration read from the xml configuration file
+ * @param exitsSettings controls if there is a default configuration of the game
  * @param difficulty is the difficulty level of the game
  * @param pixelArt controls if the graphics of the game have to be drawn with pixel art effect
  * @param fullScreen controls if the game is in full screen
@@ -39,48 +42,141 @@
  * @param controlUpGear is the code of the key to change to a higher gear
  * @param controlLowGear is the code of the key to change to a lower gear
  */
-Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabledAi, const bool fullScreen, const int axis_x,
+Config::Config(const bool exitsSettings, const Difficult difficulty, const bool pixelArt, const bool enabledAi, const bool fullScreen, const int axis_x,
                const int axis_y, const string controlLeft,const string controlRight, const string controlAccelerate,
                const string controlBrake, const string controlUpGear, const string controlLowGear, const int volEffects, const int volSoundtracks)
                : resolutions({SCREEN_DEFAULT, SCREEN_1, SCREEN_2, SCREEN_3, SCREEN_4, SCREEN_5}), camD(0.87), renderLen(450)
 {
-    // Check if the screen is in default resolution or not
-    if (axis_x == SCREEN_DEFAULT_X && axis_y == SCREEN_DEFAULT_Y){
-        isDefaultScreen = true;
+
+    // Check if exits a default configuration for the game
+    if (!exitsSettings){
+        // Create a default configuration for the game
+        string path = "Resources/Settings/Settings.info";
+        writeDefaultConfiguration(path);
+
         resIndex = 0;
-    }
-    else {
-        isDefaultScreen = false;
-    }
 
-    // Establish the index of the resolution currently used in the vector
-    if (axis_x == SCREEN_1.first && axis_y == SCREEN_1.second){
-        resIndex = 1;
-    }
-    else if (axis_x == SCREEN_2.first && axis_y == SCREEN_2.second){
-        resIndex = 2;
-    }
-    else if (axis_x == SCREEN_3.first && axis_y == SCREEN_3.second){
-        resIndex = 3;
-    }
-    else if (axis_x == SCREEN_4.first && axis_y == SCREEN_5.second){
-        resIndex = 4;
-    }
-    else if (axis_x == SCREEN_4.first && axis_y == SCREEN_5.second){
-        resIndex = 5;
-    }
-
-    // Check if it's full screen or not
-    if (!fullScreen){
         // Create the screen with not full screen resolution
         window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
                                 static_cast<unsigned int>(resolutions[resIndex].second)), "Out Run",
-                      Style::Titlebar | Style::Close);
+                        Style::Titlebar | Style::Close);
+
+        volumeEffects = 100;
+        volumeMusic = 100;
+
+
+        // Default configuration of the keys
+        leftKey = Keyboard::Left;
+        rightKey = Keyboard::Right;
+        accelerateKey = Keyboard::LControl;
+        brakeKey = Keyboard::LAlt;
+        upGearKey = Keyboard::Z;
+        lowGearKey = Keyboard::RControl;
+
+        // Store the difficult of the game
+        level = NORMAL;
+
+        // By default any aspect of the configuration has been modified
+        modifiedConfig = false;
+
+        // Default level of AI aggressiveness
+        maxAggressiveness = 0.0f;
+
+        // AI always active
+        enableAI = true;
+
+        // Assigns the pixel art flag
+        enablePixelArt = true;
+
+        // Default screen size
+        isDefaultScreen = true;
     }
     else {
-        // Create a screen with full screen resolution
-        window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
-        resIndex = -1;
+
+        // Check if the screen is in default resolution or not
+        if (axis_x == SCREEN_DEFAULT_X && axis_y == SCREEN_DEFAULT_Y){
+            isDefaultScreen = true;
+            resIndex = 0;
+        }
+        else {
+            isDefaultScreen = false;
+        }
+
+        // Establish the index of the resolution currently used in the vector
+        if (axis_x == SCREEN_1.first && axis_y == SCREEN_1.second){
+            resIndex = 1;
+        }
+        else if (axis_x == SCREEN_2.first && axis_y == SCREEN_2.second){
+            resIndex = 2;
+        }
+        else if (axis_x == SCREEN_3.first && axis_y == SCREEN_3.second){
+            resIndex = 3;
+        }
+        else if (axis_x == SCREEN_4.first && axis_y == SCREEN_5.second){
+            resIndex = 4;
+        }
+        else if (axis_x == SCREEN_4.first && axis_y == SCREEN_5.second){
+            resIndex = 5;
+        }
+
+        // Check if it's full screen or not
+        if (!fullScreen){
+            // Create the screen with not full screen resolution
+            window.create(VideoMode(static_cast<unsigned int>(resolutions[resIndex].first),
+                                    static_cast<unsigned int>(resolutions[resIndex].second)), "Out Run",
+                          Style::Titlebar | Style::Close);
+        }
+        else {
+            // Create a screen with full screen resolution
+            window.create(VideoMode::getFullscreenModes()[0], "Out Run", Style::Fullscreen);
+            resIndex = -1;
+        }
+
+        volumeEffects = volEffects;
+        volumeMusic = volSoundtracks;
+
+        // Initialize the keyword mapper
+        int index;
+        KeywordMapper kM = KeywordMapper();
+
+        // Look for the keyboard to control the turning left
+        index = kM.lookForKeyBoard(controlLeft);
+        leftKey = kM.mapperCodeKeyWord[index];
+
+        // Look for the keyboard to control the turning right
+        index = kM.lookForKeyBoard(controlRight);
+        rightKey = kM.mapperCodeKeyWord[index];
+
+        // Look for the keyboard to control the acceleration
+        index = kM.lookForKeyBoard(controlAccelerate);
+        accelerateKey = kM.mapperCodeKeyWord[index];
+
+        // Look for the keyboard to control the braking
+        index = kM.lookForKeyBoard(controlBrake);
+        brakeKey = kM.mapperCodeKeyWord[index];
+
+        // Look for the keyboard to change to a higher gear
+        index = kM.lookForKeyBoard(controlUpGear);
+        upGearKey = kM.mapperCodeKeyWord[index];
+
+        // Look for the keyboard to change to a lower gear
+        index = kM.lookForKeyBoard(controlLowGear);
+        lowGearKey = kM.mapperCodeKeyWord[index];
+
+        // Store the difficult of the game
+        level = difficulty;
+
+        // By default any aspect of the configuration has been modified
+        modifiedConfig = false;
+
+        // Default level of AI aggressiveness
+        maxAggressiveness = 0.0f;
+
+        // AI always active
+        enableAI = enabledAi;
+
+        // Assigns the pixel art flag
+        enablePixelArt = pixelArt;
     }
 
     // Set the FPS of the game
@@ -99,9 +195,6 @@ Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabl
     w.create(static_cast<unsigned int>(window.getView().getSize().x),
                static_cast<unsigned int>(window.getView().getSize().y));
 
-    // Calculate the factor of screen
-    screenScale = float(w.getSize().x) / float(SCREEN_DEFAULT_X);
-
     // Assign icon to the screen of the game
     Image i;
     i.loadFromFile("Resources/Icon/OutRun.png");
@@ -116,56 +209,10 @@ Config::Config(const Difficult difficulty, const bool pixelArt, const bool enabl
     menuDownKey = Keyboard::Down;
     menuEnterKey = Keyboard::Enter;
 
-    volumeEffects = volEffects;
-    volumeMusic = volSoundtracks;
-
-    // Initialize the keyword mapper
-    int index;
-    KeywordMapper kM = KeywordMapper();
-
-    // Look for the keyboard to control the turning left
-    index = kM.lookForKeyBoard(controlLeft);
-    leftKey = kM.mapperCodeKeyWord[index];
-
-    // Look for the keyboard to control the turning right
-    index = kM.lookForKeyBoard(controlRight);
-    rightKey = kM.mapperCodeKeyWord[index];
-
-    // Look for the keyboard to control the acceleration
-    index = kM.lookForKeyBoard(controlAccelerate);
-    accelerateKey = kM.mapperCodeKeyWord[index];
-
-    // Look for the keyboard to control the braking
-    index = kM.lookForKeyBoard(controlBrake);
-    brakeKey = kM.mapperCodeKeyWord[index];
-
-    // Look for the keyboard to change to a higher gear
-    index = kM.lookForKeyBoard(controlUpGear);
-    upGearKey = kM.mapperCodeKeyWord[index];
-
-        // Look for the keyboard to change to a lower gear
-    index = kM.lookForKeyBoard(controlLowGear);
-    lowGearKey = kM.mapperCodeKeyWord[index];
-
     // Store all the fonts of the text used by the game
     timeToPlay = initializeFontTimePlay();
     speedVehicle = initializeFontSpeed();
     options = initializeFontMenus();
-
-    // Store the difficult of the game
-    level = difficulty;
-
-    // By default any aspect of the configuration has been modified
-    modifiedConfig = false;
-
-    // Default level of AI aggressiveness
-    maxAggressiveness = 0.0f;
-
-    // AI always active
-    enableAI = enabledAi;
-
-    // Assigns the pixel art flag
-    enablePixelArt = pixelArt;
 }
 
 
@@ -413,6 +460,37 @@ State Config::graphicsMenu() {
         }
     }
     return OPTIONS;
+}
+
+
+
+/**
+ * Write a default configuration for the game
+ * @param path is the path with the default configuration of the game
+ */
+void Config::writeDefaultConfiguration(const string path){
+        //  New file which stores the new configuration of the game
+    ofstream f(path);
+    // Check if the file has been opened correctly
+    if (f.is_open()){
+        // Write all the configuration of the game
+        f << "DIFFICULTY: Normal" << endl;
+        f << "AI: Enabled" << endl;
+        f << "VOLUME_SOUNDTRACKS: 100" << endl;
+        f << "VOLUME_EFFECTS: 100" << endl;
+        f << "PIXEL_ART: Enabled" << endl;
+        f << "FULL_SCREEN: Disabled" << endl;
+        f << "RESOLUTION_X: 921" << endl;
+        f << "RESOLUTION_Y: 691" << endl;
+        f << "CONTROLLER_LEFT: LEFT CURSOR" << endl;
+        f << "CONTROLLER_RIGHT: RIGHT CURSOR" << endl;
+        f << "CONTROLLER_ACCELERATE: LCTRL" << endl;
+        f << "CONTROLLER_BRAKE: LALT" << endl;
+        f << "CONTROLLER_UP_GEAR: Z" << endl;
+        f << "CONTROLLER_LOW_GEAR: RCTRL" << endl;
+    }
+    // Close the flux of the configuration file
+    f.close();
 }
 
 

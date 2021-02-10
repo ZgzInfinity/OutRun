@@ -17,7 +17,10 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <windows.h>
+
+
+#include <unistd.h>
+#include <fcntl.h>
 #include <SFML/Graphics.hpp>
 #include "../include/Menu.hpp"
 #include "../include/Game.hpp"
@@ -174,12 +177,30 @@ void loadGameConfiguration (const string path, Difficult& difficulty, bool& enab
 
 
 /**
+ * Returns true if a the configuration file of the game exits or not. Otherwise returns false
+ * @param path is the path of the configuration file of the game
+ */
+bool existSettingsFile(const char path[]){
+    // Check if the configuration file exits
+    int fd = open(path, O_RDONLY);
+    if (fd > 0){
+        // The file exits and the flux is closed
+        close(fd);
+        return true;
+    }
+    else {
+        // Creates the file with writing and reading permissions
+        creat(path, 0777);
+        return false;
+    }
+}
+
+
+
+/**
  * Main program that controls Out Run
  */
-int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
-
-    // Throw the application with hight priority
-    SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
+int main(){
 
     // Variables to control the configuration of the game
     Difficult difficulty;
@@ -190,11 +211,17 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show){
     // Load the properties of the game
     string path = "Resources/Settings/Settings.info";
 
-    loadGameConfiguration(path, difficulty, enabledAi, volumeSoundtracks, volumeEffects, pixelArt, fullScreen, axis_x, axis_y,
-                          controlLeft, controlRight, controlAccelerate, controlBrake, controlUpGear, controlLowGear);
+    // Check if the configuration file exists
+    bool exitsSettings = existSettingsFile(path.c_str());
+
+    // Read the current configuration of the game
+    if (exitsSettings){
+        loadGameConfiguration(path, difficulty, enabledAi, volumeSoundtracks, volumeEffects, pixelArt, fullScreen, axis_x, axis_y,
+                              controlLeft, controlRight, controlAccelerate, controlBrake, controlUpGear, controlLowGear);
+    }
 
     // Creation of the configuration module of the game
-    Config c(difficulty, pixelArt, enabledAi, fullScreen, axis_x, axis_y, controlLeft, controlRight, controlAccelerate,
+    Config c(exitsSettings, difficulty, pixelArt, enabledAi, fullScreen, axis_x, axis_y, controlLeft, controlRight, controlAccelerate,
              controlBrake, controlUpGear, controlLowGear, volumeEffects, volumeSoundtracks);
 
     State state = ANIMATION;

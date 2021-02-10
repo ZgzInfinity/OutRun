@@ -157,8 +157,10 @@ struct Config {
     bool enablePixelArt;
 
 
+
     /**
      * Assigns to the game the configuration read from the xml configuration file
+     * @param exitsSettings controls if there is a default configuration of the game
      * @param difficulty is the difficulty level of the game
      * @param pixelArt controls if the graphics of the game have to be drawn with pixel art effect
      * @param fullScreen controls if the game is in full screen
@@ -171,9 +173,17 @@ struct Config {
      * @param controlUpGear is the code of the key to change to a higher gear
      * @param controlLowGear is the code of the key to change to a lower gear
      */
-    Config(const Difficult difficulty, const bool pixelArt, const bool enabledAi, const bool fullScreen, const int axis_x,
+    Config(const bool exitsSettings, const Difficult difficulty, const bool pixelArt, const bool enabledAi, const bool fullScreen, const int axis_x,
            const int axis_y, const string controlLeft,const string controlRight, const string controlAccelerate,
            const string controlBrake, const string controlUpGear, const string controlLowGear, const int volEffects, const int volSoundtracks);
+
+
+
+    /**
+     * Write a default configuration for the game
+     * @param path is the path with the default configuration of the game
+     */
+    void writeDefaultConfiguration(const string path);
 
 
 
