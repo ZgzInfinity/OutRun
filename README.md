@@ -148,9 +148,9 @@ Below are some captures of the video game developed:
 
 The following link shows the trailer and a gameplay of the videogame in the followuing links:
 
-https://www.youtube.com/watch?v=IVZdkIx5NXg
+https://www.youtube.com/watch?v=0_w2vPQEhbo
 
-https://www.youtube.com/watch?v=7iA3PpbELm8
+https://www.youtube.com/watch?v=eC4hLKCD8O0
 
 &nbsp;
 
