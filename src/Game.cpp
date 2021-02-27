@@ -263,7 +263,7 @@ Game::Game(Config &c) : player(MAX_SPEED, SPEED_MUL, ACC_INC, 3.2f, 3.2f, MAX_CO
     int nm = 0;
 
     // Vector with the times of the maps
-    const int times[] = {130, 82, 82, 69, 68, 64, 59, 55, 55, 50, 47, 48, 47, 50, 45};
+    const int times[] = {100, 85, 82, 66, 64, 65, 57, 53, 54, 51, 44, 43, 42, 44, 45};
 
     // Vector with the different numbers of elements of each map
     const int nobjects[] = {28, 32, 39, 39, 29, 33, 30, 32, 38, 34, 32, 32, 36, 38, 35};

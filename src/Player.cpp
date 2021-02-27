@@ -67,6 +67,7 @@ Player::Player(float maxSpeed, float speedMul, float accInc, float scaleX, float
     decreaseGear = false;
     rpm = 0;
     reduceSpeed = false;
+    onBorderRoad = false;
 }
 
 
@@ -128,46 +129,91 @@ void Player::hitControl(const bool vehicleCrash) {
     // Check the destination coordinate in axis x of the crash
     if (xDest > 0.f){
         // Increment to the right depending if the speed of the devastator
-        if (speedCollision <= 40.f){
-            posX = posX + (acceleration * XINC / maxAcc) * 40.f;
+        if (!onBorderRoad){
+            if (speedCollision <= 40.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 40.f;
+            }
+            else if (speedCollision > 40.f && speedCollision < 85.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 20.f;
+            }
+            else if (speedCollision >= 85.f && speedCollision < 100.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 10.f;
+            }
+            else if (speedCollision >= 100.f && speedCollision < 120.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 5.f;
+            }
+            else {
+                posX = posX + (acceleration * XINC / maxAcc) * 1.5f;
+            }
         }
-        else if (speedCollision > 40.f && speedCollision < 85.f){
-            posX = posX + (acceleration * XINC / maxAcc) * 20.f;
-        }
-        else if (speedCollision >= 85.f && speedCollision < 100.f){
-            posX = posX + (acceleration * XINC / maxAcc) * 10.f;
-        }
-        else if (speedCollision >= 100.f && speedCollision < 120.f){
-            posX = posX + (acceleration * XINC / maxAcc) * 5.f;
-        }
-        else {
-            posX = posX + (acceleration * XINC / maxAcc) * 1.5f;
-        }
+
         // Avoid to be trapped inside the obstacles of the left
-        if (posX > 1.2f){
-            posX = 1.2f;
+        if (posX > 0.9f){
+            posX = 0.9f;
+            onBorderRoad = true;
+        }
+
+        if (onBorderRoad){
+            // Increment to the left depending if the speed of the devastator
+            if (speedCollision <= 40.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 40.f;
+            }
+            else if (speedCollision > 40.f && speedCollision <= 85.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 20.f;
+            }
+            else if (speedCollision > 85.f && speedCollision < 100.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 10.f;
+            }
+            else if (speedCollision >= 100.f && speedCollision < 120.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 5.f;
+            }
+            else {
+                posX = posX - (acceleration * XINC / maxAcc) * 1.5f;
+            }
         }
     }
     else {
         // Increment to the left depending if the speed of the devastator
-        if (speedCollision <= 40.f){
-            posX = posX - (acceleration * XINC / maxAcc) * 40.f;
-        }
-        else if (speedCollision > 40.f && speedCollision <= 85.f){
-            posX = posX - (acceleration * XINC / maxAcc) * 20.f;
-        }
-        else if (speedCollision > 85.f && speedCollision < 100.f){
-            posX = posX - (acceleration * XINC / maxAcc) * 10.f;
-        }
-        else if (speedCollision >= 100.f && speedCollision < 120.f){
-            posX = posX - (acceleration * XINC / maxAcc) * 5.f;
-        }
-        else {
-            posX = posX - (acceleration * XINC / maxAcc) * 1.5f;
+        if (!onBorderRoad){
+            if (speedCollision <= 40.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 40.f;
+            }
+            else if (speedCollision > 40.f && speedCollision <= 85.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 20.f;
+            }
+            else if (speedCollision > 85.f && speedCollision < 100.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 10.f;
+            }
+            else if (speedCollision >= 100.f && speedCollision < 120.f){
+                posX = posX - (acceleration * XINC / maxAcc) * 5.f;
+            }
+            else {
+                posX = posX - (acceleration * XINC / maxAcc) * 1.5f;
+            }
         }
         // Avoid to be trapped inside the obstacles of the right
-        if (posX < -1.2f){
-            posX = -1.2f;
+        if (posX < -0.9f){
+            posX = -0.9f;
+            onBorderRoad = true;
+        }
+
+        if (onBorderRoad){
+            // Increment to the left depending if the speed of the devastator
+            if (speedCollision <= 40.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 40.f;
+            }
+            else if (speedCollision > 40.f && speedCollision <= 85.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 20.f;
+            }
+            else if (speedCollision > 85.f && speedCollision < 100.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 10.f;
+            }
+            else if (speedCollision >= 100.f && speedCollision < 120.f){
+                posX = posX + (acceleration * XINC / maxAcc) * 5.f;
+            }
+            else {
+                posX = posX + (acceleration * XINC / maxAcc) * 1.5f;
+            }
         }
     }
 
@@ -295,6 +341,11 @@ void Player::hitControl(const bool vehicleCrash) {
         }
     }
 
+    // Control the possible overflow with the negative positions
+    if (posY <= 0.f){
+        posY = 0.f;
+    }
+
     // Control if the crash animation has been finished
     if (acceleration <= minCrashAcc && numAngers == 3){
         speed = sqrt(acceleration);
@@ -309,6 +360,7 @@ void Player::hitControl(const bool vehicleCrash) {
         outSideRoad = false;
         numAngers = 0;
         rpm = 0;
+        onBorderRoad = false;
     }
 }
 

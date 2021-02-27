@@ -108,6 +108,9 @@ class Player : public Vehicle {
     // Controls if the speed has to be reduce by force
     bool reduceSpeed;
 
+    // Control if the car crashes with the border of the road
+    bool onBorderRoad;
+
 
 public:
 
