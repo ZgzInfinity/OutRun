@@ -10,8 +10,9 @@
 
 ![State](https://img.shields.io/badge/Context-Up%20to%20date-%20%2329f305)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 
-[![windows](https://img.shields.io/badge/Windows%20-compatible-f305b2.svg)](https://www.microsoft.com/es-es/windows) 
-[![Version](https://img.shields.io/badge/Version%20-1.0-0fd5f9.svg)](https://github.com/ZgzInfinity/OutRun/releases)
+[![windows](https://img.shields.io/badge/Windows%20-compatible-f305b2.svg)](https://www.microsoft.com/es-es/windows)
+[![Linux](https://img.shields.io/badge/Linux%20-compatible-f305b2.svg)](https://www.linux.org/)
+[![Version](https://img.shields.io/badge/Version%20-3.0-0fd5f9.svg)](https://github.com/ZgzInfinity/OutRun/releases)
 ![made-with-C++](https://img.shields.io/badge/Made%20with-C++-600ff9.svg)
 [![SFML](https://img.shields.io/badge/Requeriment%20-SFML-f9720f.svg)](https://www.sfml-dev.org/)
 
@@ -60,7 +61,7 @@ These are the default controllers of the game, but the player can change them wh
 * Braking: Left Alt.
 * Turning left: Left arrow of the cursor.
 * Turning right: Right arrow of the cursor.
-* Up gears: Z.
+* Up gear: Z.
 * Down gear: Right control
 * Select an option: Enter.
 * exit the game during the navigation in the interface, pause the game while the player is driving: Esc.
@@ -108,25 +109,38 @@ complexity. The fact that the project is open source is the real way for the com
 
 Below are some captures of the video game developed:
 
-![initial menu](https://i.ibb.co/t4SLsND/Inicio.png)
+![initial menu](https://i.ibb.co/KbSv89S/init.png)
 
-![Radio](https://i.ibb.co/540Rbzf/Radio.png)
+![gears menu](https://i.ibb.co/VwvyXPq/gears.png)
 
-![Beach](https://i.ibb.co/jfchqwW/Beach.png)
+![Radio](https://i.ibb.co/mR7VCHf/music.png)
 
-![Desert](https://i.ibb.co/fF1yGwd/Desert.png)
+![Start](https://i.ibb.co/cg57Crz/start.png)
 
-![Desert2](https://i.ibb.co/KVhJsc8/Desert2.png)
+![Beach](https://i.ibb.co/XX2rBpb/beach.png)
 
-![Grass](https://i.ibb.co/R0PY9PH/Grass.png)
+![Desert](https://i.ibb.co/xYp0bf1/check-Point.png)
 
-![Crash](https://i.ibb.co/N1CnCK1/Crash.png)
+![Desert2](https://i.ibb.co/swVzdjS/fork.png)
 
-![Forest](https://i.ibb.co/wgjRP0P/Forest.png)
+![Desert3](https://i.ibb.co/pQ5M9Kk/desert.png)
 
-![City](https://i.ibb.co/m6kNQLv/City.png)
+![Grass](https://i.ibb.co/nzgGNZC/forest2.png)
 
-![Ice](https://i.ibb.co/VBTX91k/Ice.png)
+![Grass2](https://i.ibb.co/KqSkXKk/forest.png)
+
+![City](https://i.ibb.co/fCNKRtv/city.png)
+
+![Ice](https://i.ibb.co/wzMVKqX/snow.png)
+
+![CheckPoint](https://i.ibb.co/qm40VVG/fog.png)
+
+![Crash](https://i.ibb.co/PjPwGpX/crash.png)
+
+![Options](https://i.ibb.co/D8Q1WNf/options.png)
+
+![Controllers](https://i.ibb.co/XWmqZ01/controllers.png
+)
 
 &nbsp;
 
