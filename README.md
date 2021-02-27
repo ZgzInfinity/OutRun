@@ -62,7 +62,7 @@ These are the default controllers of the game, but the player can change them wh
 * Turning left: Left arrow of the cursor.
 * Turning right: Right arrow of the cursor.
 * Up gear: Z.
-* Down gear: Right control
+* Down gear: Right control.
 * Select an option: Enter.
 * Exit the game during the navigation in the interface, pause the game while the player is driving: Esc.
 
