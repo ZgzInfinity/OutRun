@@ -86,13 +86,13 @@ on your computer or make use of the executables provided in the Release section 
 played Windows, like before, and also it is available for Linux. 
 
 **Windows version**: [Out Run Windows x64](https://github.com/ZgzInfinity/OutRun/releases/download/v3.0-Windows/outrun-3.0-W64.zip)
-<pre><code>1. Extract all files from outrun-1.0-W64.zip
+<pre><code>1. Extract all files from outrun-3.0-W64.zip
 2. Run the executable file Outrun.exe
 </code></pre>
   
 **Linux based version**: [Out Run Linux](https://github.com/ZgzInfinity/OutRun/releases/download/v3.0-Linux/outrun-3.0-linux.zip)
 <pre><code>1. sudo apt-get install libsfml-dev 
-2. Extract all files from outrun-1.0-W64.zip
+2. Extract all files from outrun-3.0-linux.zip
 3. ./Outrun
 </code></pre>
 
