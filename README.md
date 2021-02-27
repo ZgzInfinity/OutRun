@@ -64,7 +64,7 @@ These are the default controllers of the game, but the player can change them wh
 * Up gear: Z.
 * Down gear: Right control
 * Select an option: Enter.
-* exit the game during the navigation in the interface, pause the game while the player is driving: Esc.
+* Exit the game during the navigation in the interface, pause the game while the player is driving: Esc.
 
 &nbsp;
 
