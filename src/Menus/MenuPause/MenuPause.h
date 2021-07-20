@@ -29,6 +29,7 @@
 #include "../../Gui/Button/Button.h"
 #include "../../Scene/Map/Map.h"
 #include "../../Car/PlayerCar/PlayerCar.h"
+#include "../../Car/TrafficCar/TrafficCar.h"
 #include "../../Gui/Hud/Hud.h"
 
 class MenuPause : public Menu {
@@ -39,6 +40,8 @@ class MenuPause : public Menu {
 
         vector<Button> menuButtons;
 
+        vector<TrafficCar*> cars;
+
         sf::Font fontMenu;
         sf::Text textMenu;
 
@@ -47,7 +50,7 @@ class MenuPause : public Menu {
 
     public:
 
-        MenuPause(const Map& m, const PlayerCar& p);
+        MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*> trafficCars);
 
         void loadMenu(Input& input) override;
 

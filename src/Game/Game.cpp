@@ -67,6 +67,21 @@ void Game::playRound(Input& input){
         tick_timer = clock();
         Hud::loadHud();
         Hud::configureHud(input);
+
+        TrafficCar* car1 = new TrafficCar(1, 0.5f, 120.f, 190.f * SEGMENT_LENGTH, false, true, 1);
+        TrafficCar* car2 = new TrafficCar(2, 0.f, 120.f, 170.f * SEGMENT_LENGTH, false, true, 1);
+        TrafficCar* car3 = new TrafficCar(3, 0.5f, 120.f, 165.f * SEGMENT_LENGTH, false, true, 1);
+        TrafficCar* car4 = new TrafficCar(4, -0.5f, 120.f, 160.f * SEGMENT_LENGTH, false, true, 1);
+        TrafficCar* car5 = new TrafficCar(5, 0.5f, 120.f, 155.f * SEGMENT_LENGTH, false, true, 1);
+        TrafficCar* car6 = new TrafficCar(6, 0.f, 120.f, 150.f * SEGMENT_LENGTH, false, true, 1);
+
+        cars.push_back(car1);
+        cars.push_back(car2);
+        cars.push_back(car3);
+        cars.push_back(car4);
+        cars.push_back(car5);
+        cars.push_back(car6);
+
     }
     else {
         pauseMode = false;
@@ -77,8 +92,8 @@ void Game::playRound(Input& input){
         time = (float)((clock() - tick_timer) / (double)CLOCKS_PER_SEC);
         tick_timer = clock();
         handleEvent(input, time);
-        m->updateMap(input, *player, time);
-        m->renderMap(input, *player);
+        m->updateMap(input, cars, *player, time);
+        m->renderMap(input, cars, *player);
         player->draw(input, false);
         Hud::drawHud(input);
         input.gameWindow.display();
@@ -181,7 +196,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::PAUSE: {
-                MenuPause mP = MenuPause(*m, *player);
+                MenuPause mP = MenuPause(*m, *player, cars);
                 mP.loadMenu(input);
                 mP.draw(input);
                 gameStatus = mP.returnMenu(input);

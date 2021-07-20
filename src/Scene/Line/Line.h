@@ -23,6 +23,7 @@
 
 #include "../Point/Point.h"
 #include "../../Input/Input.h"
+#include "../../Car/TrafficCar/TrafficCar.h"
 
 /**
  * Coefficient aliases to control the types of collision
@@ -71,8 +72,9 @@ public:
 
 	void renderProps(Input& input, int i);
 
-	void Blit(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);
+	void renderCars(Input& input, TrafficCar* car);
 
+	void Blit(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);
 
 public:
 

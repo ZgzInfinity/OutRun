@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2020 Andres Gavin
  * Copyright (c) 2020 Ruben Rodriguez
@@ -23,8 +24,8 @@
  * Module Player interface file
  */
 
-#ifndef OUTRUN_PLAYER_HPP
-#define OUTRUN_PLAYER_HPP
+#ifndef PLAYER_CAR_H
+#define PLAYER_CAR_H
 
 
 #include "../../Globals.h"
@@ -32,7 +33,7 @@
 #include "../../Scene/Line/Line.h"
 
 
-enum class Direction : int {
+enum class Player_Direction : int {
     TURNLEFT,
     FRONT,
     TURNRIGHT,
@@ -85,7 +86,7 @@ class PlayerCar {
         float thresholdX, varThresholdX, forceX;
         float collisionDir;
 
-        Direction direction;
+        Player_Direction direction;
         Action action;
         Elevation elevation;
 
@@ -95,8 +96,6 @@ class PlayerCar {
         // Numeric code of the sprite to be drawn in the screen
         int current_code_image;
 
-
-        int numTextures;
 
         // Counter to change actual_code_image
         int counter_code_image;
@@ -191,7 +190,10 @@ public:
 
     void controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance);
 
-    void checkCollision(Input& input, const Line* playerLine);
+    void checkCollisionProps(Input& input, const Line* playerLine, bool& crashed);
+
+    void checkCollisionTrafficCar(Input& input, const Line* playerLine, const Line* trafficCarLine,
+                                  const TrafficCar* c, bool& crashed);
 
     bool hasCrashed(float x1, int w1, float x2, float w2, float scale);
 
@@ -211,4 +213,6 @@ public:
 };
 
 
-#endif // OUTRUN_PLAYER_HPP
+#endif // PLAYER_CAR_H
+
+

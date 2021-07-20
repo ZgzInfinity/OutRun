@@ -51,6 +51,11 @@ Map::~Map()
 {}
 
 
+Line* Map::getLine(const int& index){
+    return lines[index];
+}
+
+
 int Map::computeRoadTracks(const int numTracks){
     switch (numTracks){
         case 2:
@@ -303,7 +308,47 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 }
 
 
-void Map::updateMap(Input &input, PlayerCar& p, const float time){
+void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p){
+    for (int i = 0; i < cars.size(); i++){
+		TrafficCar* c = cars[i];
+		c->zPos += c->speed;
+		Line* l = lines[(int)((c->zPos) / segmentL) % lines.size()];
+		Line* playerLine = lines[(int)((position + p.getPlayerZ()) / segmentL) % lines.size()];
+		switch (c->active) {
+            case false:
+                if (l->index < playerLine->index + drawDistance && l->index > playerLine->index)
+                {
+                    c->active = true;
+                    c->speed = 120.f;
+                }
+                break;
+            case true:
+                if (l->index > playerLine->index + drawDistance || l->index < playerLine->index)
+                {
+                    if (l->index < playerLine->index)
+                        // score += 20000;
+
+                    c->side = rand() % 2;
+                    c->active = false;
+                    c->speed = 0.f;
+                    c->zPos += (rand() % (680) + 220)*SEGMENT_LENGTH;
+                }
+                break;
+		}
+
+		float posCar = (c->side ? c->offset * ROAD_WIDTH + mapDistance : c->offset * ROAD_WIDTH);
+		if (posCar > p.getPlayerX() * ROAD_WIDTH)
+			c->direction = Traffic_Direction::TURNLEFT;
+		else
+			c->direction = Traffic_Direction::TURNRIGHT;
+	}
+}
+
+
+void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time){
+
+    updateCars(cars, p);
+
     //Update player position
 	iniPosition = position;
 	position = position + p.getSpeed();
@@ -316,13 +361,28 @@ void Map::updateMap(Input &input, PlayerCar& p, const float time){
 	Line* playerLine = lines[(int)((position + p.getPlayerZ()) / segmentL) % lines.size()];
 	p.elevationControl(playerLine->p1.yWorld, playerLine->p2.yWorld);
 
-	p.checkCollision(input, playerLine);
+	bool hasCrashed = false;
+	p.checkCollisionProps(input, playerLine, hasCrashed);
+
+	if (!hasCrashed){
+        for (auto& car : cars)
+        {
+            Line* lc = lines[(int)(car->zPos / SEGMENT_LENGTH) % lines.size()];
+            p.checkCollisionTrafficCar(input, playerLine, lc, car, hasCrashed);
+
+            if (hasCrashed)
+                break;
+        }
+        if (hasCrashed){
+            cout << "LOLO" << endl;
+        }
+	}
+	else {
+        cout << "LALA" << endl;
+	}
 
 	float playerPerc = (float)(((position + p.getPlayerZ()) % (int)segmentL) / segmentL);
 	p.setPlayerY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
-
-
-
 
 	if (abs(playerLine->p1.xCamera) <= abs(playerLine->p11.xCamera)){
      	p.setPlayerMap(playerR::LEFTROAD);
@@ -370,7 +430,7 @@ void Map::updateMap(Input &input, PlayerCar& p, const float time){
 
 
 // Update: draw background
-void Map::renderMap(Input &input, PlayerCar& p){
+void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 
 	Line* playerLine = lines[(int)((position + p.getPlayerZ()) / segmentL) % lines.size()];
 	Line* baseLine = lines[(int)(position / segmentL) % lines.size()];
@@ -489,6 +549,17 @@ void Map::renderMap(Input &input, PlayerCar& p){
 		{
 			Prop* p = l->lineProps[i];
 			l->renderProps(input, i);
+		}
+
+
+		Line* l2;
+		for (unsigned int n = 0; n < cars.size(); ++n)
+		{
+			l2 = lines[(int)(cars[n]->zPos / segmentL) % lines.size()];
+			if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
+			{
+                l2->renderCars(input, cars[n]);
+			}
 		}
 	}
 }

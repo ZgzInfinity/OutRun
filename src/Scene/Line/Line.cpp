@@ -97,6 +97,48 @@ void Line::renderProps(Input& input, int i)
 }
 
 
+void Line::renderCars(Input& input, TrafficCar* car) {
+
+	PointLine p = p1;
+	PointLine px = p2;
+	if (car->side)
+	{
+		p = p11;
+		px = p21;
+	}
+
+	float perc = (float)(((int)(car->zPos) % (int)SEGMENT_LENGTH) / (float)SEGMENT_LENGTH);
+	float scaleOffset = p.scale + (px.scale - p.scale)* perc;
+	float xOffset = p.xScreen + (px.xScreen - p.xScreen)* perc;
+	float yOffset = p.yScreen + (px.yScreen - p.yScreen)* perc;
+
+	float spriteX = xOffset + (car->offset * scaleOffset * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+	float spriteY = yOffset;
+	fPoint pivot = { 0.5f, 1.f };
+	car->draw();
+	sf::Texture rectDest = car->textures[car->current_code_image - 1];
+
+    float width = rectDest.getSize().x;
+    float height = rectDest.getSize().y;
+
+	float destW = (width * scaleOffset * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
+	float destH = (height * scaleOffset * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
+
+	//If has to be clipped
+	if (clip < spriteY)
+	{
+		float clipH = MAX(0, clip - (spriteY - (destH*3.43f*1.2f)));
+		float clipHPerc = (clipH / (destH*3.43f*1.2f));
+		height = (int)(height * clipHPerc);
+		spriteY = clip;
+		destH *= clipHPerc;
+	}
+
+	if (height > 0)
+		Blit(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET), &(rectDest), 1.f, { (destW / width) * 3.2f *1.2f, (destH / height) * 3.43f * 1.2f }, pivot);
+}
+
+
 void Line::Blit(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot){
 
     if (t != nullptr){
@@ -118,4 +160,3 @@ void Line::Blit(Input& input, int x, int y, sf::Texture* t, float speed, fPoint 
         input.gameWindow.draw(sprite);
     }
 }
-

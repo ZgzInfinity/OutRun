@@ -30,6 +30,7 @@
 #include "../Line/Line.h"
 #include "../../Globals.h"
 #include "../../Car/PlayerCar/PlayerCar.h"
+#include "../../Car/TrafficCar/TrafficCar.h"
 
 class Map {
 public:
@@ -38,6 +39,8 @@ public:
     Map();
 	Map(Input& input);
 	~Map();
+
+    Line* getLine(const int& index);
 
 	int computeRoadTracks(const int numTracks);
 
@@ -49,9 +52,11 @@ public:
 
     void drawPoly4(Input &input, short x1, short y1, short x2, short y2, short x3, short y3, short x4, short y4, sf::Color color);
 
-    void updateMap(Input &input, PlayerCar& p, const float time);
+    void updateCars(vector<TrafficCar*> cars, const PlayerCar& p);
 
-	void renderMap(Input &input, PlayerCar& p);
+    void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time);
+
+	void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
 
 	void addProp(int line, Prop* p, float offsetX, float offsetY, bool side);
 

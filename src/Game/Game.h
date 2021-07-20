@@ -38,6 +38,7 @@
 #include "../Menus/MenuLoading/MenuLoading.h"
 #include "../Menus/MenuControls/MenuControls.h"
 #include "../Menus/MenuPause/MenuPause.h"
+#include "../Car/TrafficCar/TrafficCar.h"
 #include "../Gui/Hud/Hud.h"
 
 
@@ -75,6 +76,8 @@
 
         Map* m;
 
+        vector<TrafficCar*> cars;
+
         PlayerCar* player;
 
         bool pauseMode;
@@ -89,6 +92,8 @@
         Game(Input& input);
 
         void handleEvent(Input& input, const float& time);
+
+        void updateCats(const float& time);
 
         void playRound(Input& input);
 
