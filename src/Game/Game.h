@@ -93,8 +93,6 @@
 
         void handleEvent(Input& input, const float& time);
 
-        void updateCats(const float& time);
-
         void playRound(Input& input);
 
         State returnRound();

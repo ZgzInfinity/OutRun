@@ -31,31 +31,7 @@
 #include "../../Globals.h"
 #include "../../Input/Input.h"
 #include "../../Scene/Line/Line.h"
-
-
-enum class Player_Direction : int {
-    TURNLEFT,
-    FRONT,
-    TURNRIGHT,
-    __COUNT
-};
-
-// Actions that can be made with the vehicle
-enum class Action : int {
-    NONE,
-    BRAKE,
-    ACCELERATE,
-    CRASH,
-    BOOT,
-    __COUNT
-};
-
-enum class Elevation : int {
-    UP,
-    FLAT,
-    DOWN,
-    __COUNT
-};
+#include "../Vehicle/Vehicle.h"
 
 enum class StateWheel : int {
     NORMAL,
@@ -76,29 +52,17 @@ enum class playerR : int {
  * Represents a player as an available vehicle to be
  * chosen by the player in the vehicle selection menu
  */
-class PlayerCar {
+class PlayerCar : public Vehicle {
 
     private:
 
-        float playerX;
-        int playerY, playerZ;
-        float speed, maxSpeed, lowAccel, highAccel;
+        float maxSpeed, lowAccel, highAccel;
         float thresholdX, varThresholdX, forceX;
         float collisionDir;
 
-        Player_Direction direction;
+        Direction direction;
         Action action;
         Elevation elevation;
-
-        // Vector with the textures of the vehicle
-        vector<sf::Texture> textures;
-
-        // Numeric code of the sprite to be drawn in the screen
-        int current_code_image;
-
-
-        // Counter to change actual_code_image
-        int counter_code_image;
 
         // Minimum coefficient to draw the vehicle in the screen
         float minScreenX;
@@ -144,31 +108,13 @@ class PlayerCar {
 
 public:
 
-
-
-    /**
-     * Initialize the player's vehicle
-     * Default constructor
-     */
     PlayerCar();
 
-    float getSpeed() const;
+    PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures, const std::string& name);
 
     float getMaxSpeed() const;
 
-    void setPlayerX(const float& pX);
-
-    void setPlayerY(const int& pY);
-
-    void setPlayerZ(const int& pZ);
-
     float getThresholdX() const;
-
-    float getPlayerX() const;
-
-    int getPlayerY() const;
-
-    int getPlayerZ() const;
 
     void setPlayerMap(const playerR& playerRoad);
 

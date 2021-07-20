@@ -33,32 +33,35 @@
 #include <SFML/Graphics.hpp>
 #include "../../Globals.h"
 #include "../../Input/Input.h"
+#include "../Vehicle/Vehicle.h"
 
+class TrafficCar : public Vehicle {
 
-enum class Traffic_Direction : int {
-    TURNLEFT,
-    TURNRIGHT,
-    __COUNT
-};
+    private:
 
-
-class TrafficCar {
-
-    public:
-
-        Traffic_Direction direction;
-        int current_code_image;
-        int counter_code_image;
-        int maxCounterToChange;
         int id;
-        float offset, speed, zPos, percent;
+        float offset, percent;
         bool active, side;
         int lane;
 
-        vector<sf::Texture> textures;
+    public:
 
-        TrafficCar(const int& _id, const float& _offset, const float& _speed,
-                   const float& _zPos, const bool& _active, const bool& _side, const int& _lane);
+        TrafficCar();
+
+        TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures, const std::string& name,
+                   const int& _id, const float& _offset, const bool& _active, const bool& _side, const int& _lane);
+
+        void setActive(const bool& _active);
+
+        bool getActive() const;
+
+        void setSide(const bool& _side);
+
+        bool getSide() const;
+
+        void setOffset(const float& _offset);
+
+        bool getOffset() const;
 
         void draw();
 };

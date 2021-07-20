@@ -138,7 +138,6 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
 void Map::initMap(){
 
     string info;
-    bool mapInProgress = false;
     int redChannel, greenChannel, blueChannel, alpha;
     const string file = "Resources/Maps/Map1/map.txt";
     ifstream fluxInput(file, std::ifstream::in);
@@ -311,15 +310,15 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p){
     for (int i = 0; i < cars.size(); i++){
 		TrafficCar* c = cars[i];
-		c->zPos += c->speed;
-		Line* l = lines[(int)((c->zPos) / segmentL) % lines.size()];
-		Line* playerLine = lines[(int)((position + p.getPlayerZ()) / segmentL) % lines.size()];
-		switch (c->active) {
+		c->setPosZ(c->getPosZ() + c->getSpeed());
+		Line* l = lines[(int)((c->getPosZ()) / segmentL) % lines.size()];
+		Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
+		switch (c->getActive()) {
             case false:
                 if (l->index < playerLine->index + drawDistance && l->index > playerLine->index)
                 {
-                    c->active = true;
-                    c->speed = 120.f;
+                    c->setActive(true);
+                    c->setSpeed(120.f);
                 }
                 break;
             case true:
@@ -328,19 +327,20 @@ void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p){
                     if (l->index < playerLine->index)
                         // score += 20000;
 
-                    c->side = rand() % 2;
-                    c->active = false;
-                    c->speed = 0.f;
-                    c->zPos += (rand() % (680) + 220)*SEGMENT_LENGTH;
+                    c->setSide(rand() % 2);
+                    c->setActive(false);
+                    c->setSpeed(0.f);
+                    float adv = (rand() % (680) + 220)*SEGMENT_LENGTH;
+                    c->setPosZ(c->getPosZ() + adv);
                 }
                 break;
 		}
 
-		float posCar = (c->side ? c->offset * ROAD_WIDTH + mapDistance : c->offset * ROAD_WIDTH);
-		if (posCar > p.getPlayerX() * ROAD_WIDTH)
-			c->direction = Traffic_Direction::TURNLEFT;
+		float posCar = (c->getSide() ? c->getOffset() * ROAD_WIDTH + mapDistance : c->getOffset() * ROAD_WIDTH);
+		if (posCar > p.getPosX() * ROAD_WIDTH)
+			c->setDirection(Direction::TURNLEFT);
 		else
-			c->direction = Traffic_Direction::TURNRIGHT;
+			c->setDirection(Direction::TURNRIGHT);
 	}
 }
 
@@ -358,7 +358,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 		position += trackLength;
 
 	//Calculate playerY for hills
-	Line* playerLine = lines[(int)((position + p.getPlayerZ()) / segmentL) % lines.size()];
+	Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
 	p.elevationControl(playerLine->p1.yWorld, playerLine->p2.yWorld);
 
 	bool hasCrashed = false;
@@ -367,22 +367,16 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	if (!hasCrashed){
         for (auto& car : cars)
         {
-            Line* lc = lines[(int)(car->zPos / SEGMENT_LENGTH) % lines.size()];
+            Line* lc = lines[(int)(car->getPosZ() / SEGMENT_LENGTH) % lines.size()];
             p.checkCollisionTrafficCar(input, playerLine, lc, car, hasCrashed);
 
             if (hasCrashed)
                 break;
         }
-        if (hasCrashed){
-            cout << "LOLO" << endl;
-        }
-	}
-	else {
-        cout << "LALA" << endl;
 	}
 
-	float playerPerc = (float)(((position + p.getPlayerZ()) % (int)segmentL) / segmentL);
-	p.setPlayerY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
+	float playerPerc = (float)(((position + p.getPosZ()) % (int)segmentL) / segmentL);
+	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
 
 	if (abs(playerLine->p1.xCamera) <= abs(playerLine->p11.xCamera)){
      	p.setPlayerMap(playerR::LEFTROAD);
@@ -395,19 +389,19 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	mapDistance = (int)playerLine->distance;
 
 	//Check road limits for player
-	if (p.getPlayerX() < -1.5f)
-		p.setPlayerX(-1.48f);
-	else if (p.getPlayerX() > 1.5f + ((float)mapDistance / (float)ROAD_WIDTH))
-		p.setPlayerX(1.48f + ((float)mapDistance / (float)ROAD_WIDTH));
+	if (p.getPosX() < -1.5f)
+		p.setPosX(-1.48f);
+	else if (p.getPosX() > 1.5f + ((float)mapDistance / (float)ROAD_WIDTH))
+		p.setPosX(1.48f + ((float)mapDistance / (float)ROAD_WIDTH));
 
 	if (playerLine->mirror)
 	{
-		if ((float)mapDistance / (float)ROAD_WIDTH > 3.5f && p.getPlayerX() > 1.75f && p.getPlayerX() < (float)mapDistance / (float)ROAD_WIDTH - 1.75f)
+		if ((float)mapDistance / (float)ROAD_WIDTH > 3.5f && p.getPosX() > 1.75f && p.getPosX() < (float)mapDistance / (float)ROAD_WIDTH - 1.75f)
 		{
 			if (p.getPlayerMap() == playerR::LEFTROAD)
-				p.setPlayerX(1.73f);
+				p.setPosX(1.73f);
 			else
-				p.setPlayerX((float)mapDistance / (float)ROAD_WIDTH - 1.73f);
+				p.setPosX((float)mapDistance / (float)ROAD_WIDTH - 1.73f);
 		}
 	}
 
@@ -432,15 +426,15 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 // Update: draw background
 void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 
-	Line* playerLine = lines[(int)((position + p.getPlayerZ()) / segmentL) % lines.size()];
+	Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
 	Line* baseLine = lines[(int)(position / segmentL) % lines.size()];
 	float percent = (float)((position % (int)segmentL) / segmentL);
 	float difX = -(baseLine->curve * percent);
 	float sumX = 0;
 	Line* l;
 
-    playerLine->projection(input, playerLine->p1, (int)((p.getPlayerX() * ROAD_WIDTH) - sumX),
-                           (int)((float)CAMERA_HEIGHT + p.getPlayerY()), position, CAMERA_DISTANCE);
+    playerLine->projection(input, playerLine->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
+                           (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
 	float maxY = playerLine->p1.yScreen;
 
@@ -450,7 +444,6 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
     drawQuad(input, x1, y1, width, height, sf::Color(0, 148, 255, 255));
 
 	for (int n = 0; n < drawDistance; n++) {
-        bool no = true;
 		l = lines[(baseLine->index + n) % lines.size()];
 		l->clip = maxY;
 
@@ -459,27 +452,27 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 		l->light ? rumble = rumble1 : rumble = rumble2;
 		l->light ? lane = lane1 : lane = lane2;
 
-		l->projection(input, l->p1, (int)((p.getPlayerX() * ROAD_WIDTH) - sumX),
-                (int)((float)CAMERA_HEIGHT + p.getPlayerY()), position, CAMERA_DISTANCE);
+		l->projection(input, l->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
+                (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-		l->projection(input, l->p2, (int)((p.getPlayerX() * ROAD_WIDTH) - sumX - difX),
-                (int)((float)CAMERA_HEIGHT + p.getPlayerY()), position, CAMERA_DISTANCE);
+		l->projection(input, l->p2, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX),
+                (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
 		if (l->mirror)
 		{
-			l->projection(input, l->p11, (int)((p.getPlayerX() * ROAD_WIDTH) + sumX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPlayerY()), position, CAMERA_DISTANCE);
+			l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) + sumX - mapDistance),
+                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-			l->projection(input, l->p21, (int)((p.getPlayerX() * ROAD_WIDTH) + sumX + difX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPlayerY()), position, CAMERA_DISTANCE);
+			l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) + sumX + difX - mapDistance),
+                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 		}
 		else
 		{
-			l->projection(input, l->p11, (int)((p.getPlayerX() * ROAD_WIDTH) - sumX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPlayerY()), position, CAMERA_DISTANCE);
+			l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) - sumX - mapDistance),
+                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-			l->projection(input, l->p21, (int)((p.getPlayerX() * ROAD_WIDTH) - sumX - difX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPlayerY()), position, CAMERA_DISTANCE);
+			l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX - mapDistance),
+                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 		}
 
 		sumX += difX;
@@ -547,7 +540,6 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 
 		for (unsigned int i = 0; i < l->lineProps.size(); ++i)
 		{
-			Prop* p = l->lineProps[i];
 			l->renderProps(input, i);
 		}
 
@@ -555,7 +547,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 		Line* l2;
 		for (unsigned int n = 0; n < cars.size(); ++n)
 		{
-			l2 = lines[(int)(cars[n]->zPos / segmentL) % lines.size()];
+			l2 = lines[(int)(cars[n]->getPosZ() / segmentL) % lines.size()];
 			if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
 			{
                 l2->renderCars(input, cars[n]);
@@ -566,7 +558,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 
 
 void Map::addProp(int line, Prop* p, float offsetX, float offsetY, bool side){
-	if (line < lines.size()){
+	if (line < (int)lines.size()){
 		lines[line]->lineProps.push_back(p);
 		lines[line]->offsetsX.push_back(offsetX);
 		lines[line]->offsetsY.push_back(offsetY);

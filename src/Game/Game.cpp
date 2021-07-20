@@ -63,17 +63,17 @@ void Game::playRound(Input& input){
     if (!pauseMode){
         m = new Map(input);
         m->initMap();
-        player = new PlayerCar();
+        player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, PLAYER_TEXTURES, "Ferrari");
         tick_timer = clock();
         Hud::loadHud();
         Hud::configureHud(input);
 
-        TrafficCar* car1 = new TrafficCar(1, 0.5f, 120.f, 190.f * SEGMENT_LENGTH, false, true, 1);
-        TrafficCar* car2 = new TrafficCar(2, 0.f, 120.f, 170.f * SEGMENT_LENGTH, false, true, 1);
-        TrafficCar* car3 = new TrafficCar(3, 0.5f, 120.f, 165.f * SEGMENT_LENGTH, false, true, 1);
-        TrafficCar* car4 = new TrafficCar(4, -0.5f, 120.f, 160.f * SEGMENT_LENGTH, false, true, 1);
-        TrafficCar* car5 = new TrafficCar(5, 0.5f, 120.f, 155.f * SEGMENT_LENGTH, false, true, 1);
-        TrafficCar* car6 = new TrafficCar(6, 0.f, 120.f, 150.f * SEGMENT_LENGTH, false, true, 1);
+        TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car1", 1, 0.5f, false, true, 1);
+        TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car2", 2, 0.f, false, true, 1);
+        TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car3", 3, 0.5f, false, true, 1);
+        TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car4", 4, -0.5f, false, true, 1);
+        TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car5", 5, 0.5f, false, true, 1);
+        TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car6", 6, 0.f, false, true, 1);
 
         cars.push_back(car1);
         cars.push_back(car2);

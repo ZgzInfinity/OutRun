@@ -28,6 +28,7 @@ MenuPause::MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*>
     cars = trafficCars;
 }
 
+
 void MenuPause::loadMenu(Input& input){
 
     shape.setPosition(0, 0);
@@ -106,7 +107,7 @@ void MenuPause::draw(Input& input){
         handleEvent(input);
 
         input.gameWindow.clear();
-        map.renderMap(input, cars, this->player);
+        map.renderMap(input, cars, player);
         player.draw(input, true, false);
         Hud::drawHud(input);
         input.gameWindow.draw(shape);

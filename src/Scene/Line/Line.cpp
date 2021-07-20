@@ -101,22 +101,22 @@ void Line::renderCars(Input& input, TrafficCar* car) {
 
 	PointLine p = p1;
 	PointLine px = p2;
-	if (car->side)
+	if (car->getSide())
 	{
 		p = p11;
 		px = p21;
 	}
 
-	float perc = (float)(((int)(car->zPos) % (int)SEGMENT_LENGTH) / (float)SEGMENT_LENGTH);
+	float perc = (float)(((int)(car->getPosZ()) % (int)SEGMENT_LENGTH) / (float)SEGMENT_LENGTH);
 	float scaleOffset = p.scale + (px.scale - p.scale)* perc;
 	float xOffset = p.xScreen + (px.xScreen - p.xScreen)* perc;
 	float yOffset = p.yScreen + (px.yScreen - p.yScreen)* perc;
 
-	float spriteX = xOffset + (car->offset * scaleOffset * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+	float spriteX = xOffset + (car->getOffset() * scaleOffset * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
 	float spriteY = yOffset;
 	fPoint pivot = { 0.5f, 1.f };
 	car->draw();
-	sf::Texture rectDest = car->textures[car->current_code_image - 1];
+	sf::Texture rectDest = car->getTexture();
 
     float width = rectDest.getSize().x;
     float height = rectDest.getSize().y;

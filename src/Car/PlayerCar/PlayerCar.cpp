@@ -34,24 +34,21 @@ using namespace sf;
 #define MAX_INERTIA 10
 
 
+PlayerCar::PlayerCar() : Vehicle(){}
 
-/**
- * Initialize the player's vehicle
- * Default constructor
- */
-PlayerCar::PlayerCar(){
 
-    playerX = 0.f;
-	playerY = 0;
-	playerZ = (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241;
+PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed,
+                     const int numTextures, const std::string& name)
+                     : Vehicle(_posX, _posY, _posZ, _speed, numTextures, name)
+{
 	playerW = 77;
-	speed = 0.f;
 	highAccel = 10.f;
 	thresholdX = 1.f;
 	varThresholdX = 0.06f;
 	maxSpeed = 300.f;
 	lowAccel = maxSpeed / 6.5f;
 	forceX = 0.3f;
+	direction = Direction::FRONT;
 
 	offsetCrash1 = 0.f;
 	collisionDir = 0.f;
@@ -66,17 +63,8 @@ PlayerCar::PlayerCar(){
 	thresholdX = 0.f;
     playerMap = playerR::LEFTROAD;
 
-
 	wheelL = StateWheel::NORMAL;
 	wheelR = StateWheel::NORMAL;
-
-    textures.reserve(static_cast<unsigned long>(PLAYER_TEXTURES));
-    for (int i = 1; i <= PLAYER_TEXTURES; i++) {
-        Texture t;
-        t.loadFromFile("Resources/Vehicles/Ferrari/c" + std::to_string(i) + ".png");
-        t.setRepeated(false);
-        textures.push_back(t);
-    }
 
     firstCrash = true;
     firstTurnLeft = true;
@@ -85,40 +73,8 @@ PlayerCar::PlayerCar(){
     skidding = false;
 }
 
-float PlayerCar::getSpeed() const {
-    return speed;
-}
-
-float PlayerCar::getMaxSpeed() const {
-    return maxSpeed;
-}
-
-void PlayerCar::setPlayerX(const float& pX){
-    playerX = pX;
-}
-
-void PlayerCar::setPlayerY(const int& pY){
-    playerY = pY;
-}
-
-void PlayerCar::setPlayerZ(const int& pZ){
-    playerZ = pZ;
-}
-
 float PlayerCar::getThresholdX() const{
     return thresholdX;
-}
-
-float PlayerCar::getPlayerX() const {
-    return playerX;
-}
-
-int PlayerCar::getPlayerY() const {
-    return playerY;
-}
-
-int PlayerCar::getPlayerZ() const {
-    return playerZ;
 }
 
 void PlayerCar::setPlayerMap(const playerR& playerRoad){
@@ -155,7 +111,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
 
     sf::Event event;
     action = Action::ACCELERATE;
-    direction = Player_Direction::FRONT;
+    direction = Direction::FRONT;
 
     if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed < maxSpeed){
         speed += lowAccel * time;
@@ -205,7 +161,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
     //Check input for side
 	if (input.pressed(Key::TURN_LEFT, event) || input.held(Key::TURN_LEFT))
 	{
-        direction = Player_Direction::TURNLEFT;
+        direction = Direction::TURNLEFT;
 	    if (thresholdX > -varThresholdX)
             thresholdX -= 0.15f;
         else if (thresholdX < -varThresholdX)
@@ -213,14 +169,14 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
 	}
 	else if (input.pressed(Key::TURN_RIGHT, event) || input.held(Key::TURN_RIGHT))
 	{
-        direction = Player_Direction::TURNRIGHT;
+        direction = Direction::TURNRIGHT;
         if (thresholdX < varThresholdX)
             thresholdX += 0.15f;
         else if (thresholdX > varThresholdX)
             thresholdX -= 0.15f;
 	}
 	else {
-        direction = Player_Direction::FRONT;
+        direction = Direction::FRONT;
         if (thresholdX != 0.f)
         {
             thresholdX -= thresholdX * 0.1f;
@@ -228,7 +184,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
                 thresholdX = 0.f;
         }
 	}
-    playerX += (thresholdX * time);
+    posX += (thresholdX * time);
 }
 
 
@@ -255,14 +211,14 @@ void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& tim
 	case playerR::RIGHTROAD:
 		//Displacement when player is in right road, and roads are changing distance between them
 		if (mapDistance != playerLine->distance)
-			playerX += (playerLine->distance - mapDistance) / (float)ROAD_WIDTH;
+			posX += (playerLine->distance - mapDistance) / (float)ROAD_WIDTH;
 		if (playerLine->mirror)
-			playerX += (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
+			posX += (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
 		else
-			playerX -= (playerLine->curve * MIN((speed / maxSpeed),1.f) * centrifugal * time);
+			posX -= (playerLine->curve * MIN((speed / maxSpeed),1.f) * centrifugal * time);
 		break;
 	case playerR::LEFTROAD:
-        playerX -= (playerLine->curve * MIN((speed /maxSpeed),1.f) * centrifugal * time);
+        posX -= (playerLine->curve * MIN((speed /maxSpeed),1.f) * centrifugal * time);
 		break;
 	}
 }
@@ -289,7 +245,7 @@ void PlayerCar::checkCollisionProps(Input& input, const Line* playerLine, bool& 
 
 			if (hasCrashed((int)(input.gameWindow.getSize().x / 2) + 5, playerW, x2, p->wCol, scale))
 			{
-				collisionDir = playerX;
+				collisionDir = posX;
 				if (action != Action::CRASH){
                     action = Action::CRASH;
                     crashed = true;
@@ -308,24 +264,24 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
     {
         PointLine point = playerLine->p1;
         PointLine point2 = playerLine->p2;
-        if (c->side)
+        if (c->getSide())
         {
             point = playerLine->p11;
             point2 = playerLine->p21;
         }
 
-        float perc = (float)(((int)(c->zPos) % (int)SEGMENT_LENGTH) / (float)SEGMENT_LENGTH);
+        float perc = (float)(((int)(c->getPosZ()) % (int)SEGMENT_LENGTH) / (float)SEGMENT_LENGTH);
         float scaleOffset = point.scale + (point2.scale - point.scale)*perc;
         float xOffset = point.xScreen + (point2.xScreen - point.xScreen)*perc;
         float yOffset = point.yScreen + (point2.yScreen - point.yScreen)*perc;
 
-        float x2 = xOffset + (c->offset * scaleOffset * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+        float x2 = xOffset + (c->getOffset() * scaleOffset * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
         float scale = 1.6f * (0.3f * (1.f / 170.f)) * scaleOffset * input.gameWindow.getSize().x * ROAD_WIDTH * 1.2f;
 
         if (hasCrashed((float)(input.gameWindow.getSize().x / 2) + 5.f, playerW, x2,
-                        (float)c->textures[c->current_code_image].getSize().x, scale))
+                        (float)c->getTexture().getSize().x, scale))
         {
-            collisionDir = playerX;
+            collisionDir = posX;
             crashed = true;
         }
     }
@@ -385,10 +341,10 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
         Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
     }
 
-    if (direction != Player_Direction::TURNLEFT){
+    if (direction != Direction::TURNLEFT){
         firstTurnLeft = true;
     }
-    if (direction != Player_Direction::TURNRIGHT){
+    if (direction != Direction::TURNRIGHT){
         firstTurnRight = true;
     }
 
@@ -404,11 +360,11 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
             if (textures.size() == PLAYER_TEXTURES){
                 if (action == Action::ACCELERATE || action == Action::BOOT){
                     if (elevation == Elevation::FLAT) {
-                        if (direction == Player_Direction::FRONT) {
+                        if (direction == Direction::FRONT) {
                             if (current_code_image < 1 || current_code_image > 4)
                                 current_code_image = 1;
                         }
-                        else if (direction == Player_Direction::TURNLEFT) {
+                        else if (direction == Direction::TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 5 || current_code_image > 12)
                                     current_code_image = 5;
@@ -434,11 +390,11 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                         }
                     }
                     else if (elevation == Elevation::UP){
-                        if (direction == Player_Direction::FRONT) {
+                        if (direction == Direction::FRONT) {
                             if (current_code_image < 21 || current_code_image > 24)
                                 current_code_image = 21;
                         }
-                        else if (direction == Player_Direction::TURNLEFT) {
+                        else if (direction == Direction::TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 25 || current_code_image > 32)
                                     current_code_image = 25;
@@ -462,11 +418,11 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                         }
                     }
                     else {
-                        if (direction == Player_Direction::FRONT) {
+                        if (direction == Direction::FRONT) {
                             if (current_code_image < 41 || current_code_image > 44)
                                 current_code_image = 41;
                         }
-                        else if (direction == Player_Direction::TURNLEFT) {
+                        else if (direction == Direction::TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 45 || current_code_image > 52)
                                     current_code_image = 45;
@@ -492,11 +448,11 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                 }
                 else if (action == Action::BRAKE){
                     if (elevation == Elevation::FLAT){
-                        if (direction == Player_Direction::FRONT) {
+                        if (direction == Direction::FRONT) {
                             if (current_code_image < 61 || current_code_image > 64)
                                 current_code_image = 61;
                         }
-                        else if (direction == Player_Direction::TURNLEFT) {
+                        else if (direction == Direction::TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 65 || current_code_image > 72)
                                     current_code_image = 65;
@@ -522,11 +478,11 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                         }
                     }
                     else if (elevation == Elevation::UP) {
-                        if (direction == Player_Direction::FRONT) {
+                        if (direction == Direction::FRONT) {
                             if (current_code_image < 81 || current_code_image > 84)
                                 current_code_image = 81;
                         }
-                        else if (direction == Player_Direction::TURNLEFT) {
+                        else if (direction == Direction::TURNLEFT) {
                             if (firstTurnLeft) {
                                 if (current_code_image < 85 || current_code_image > 92)
                                     current_code_image = 85;
@@ -552,11 +508,11 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                         }
                     }
                     else { // Down
-                        if (direction == Player_Direction::FRONT){
+                        if (direction == Direction::FRONT){
                             if (current_code_image < 101 || current_code_image > 104)
                                 current_code_image = 104;
                         }
-                        else if (direction == Player_Direction::TURNLEFT){
+                        else if (direction == Direction::TURNLEFT){
                             if (firstTurnLeft) {
                                 if (current_code_image < 105 || current_code_image > 112)
                                     current_code_image = 105;
