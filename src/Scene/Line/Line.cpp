@@ -92,7 +92,8 @@ void Line::renderProps(Input& input, int i)
 	}
 
 	if (height > 0){
-		Blit(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET), &(rectDest), 1.f, { (destW / width) * 3.2f * lineProps[i]->scale, (destH / height) * 3.43f * lineProps[i]->scale}, pivot);
+		drawObject(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET),
+             &(rectDest), 1.f, { (destW / width) * 3.2f * lineProps[i]->scale, (destH / height) * 3.43f * lineProps[i]->scale}, pivot);
 	}
 }
 
@@ -135,12 +136,12 @@ void Line::renderCars(Input& input, TrafficCar* car) {
 	}
 
 	if (height > 0)
-		Blit(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET), &(rectDest), 1.f, { (destW / width) * 3.2f *1.2f, (destH / height) * 3.43f * 1.2f }, pivot);
+		drawObject(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET),
+             &(rectDest), 1.f, { (destW / width) * 3.2f *1.2f, (destH / height) * 3.43f * 1.2f }, pivot);
 }
 
 
-void Line::Blit(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot){
-
+void Line::drawObject(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot){
     if (t != nullptr){
         sf::Sprite sprite;
         int w, h;
@@ -160,3 +161,6 @@ void Line::Blit(Input& input, int x, int y, sf::Texture* t, float speed, fPoint 
         input.gameWindow.draw(sprite);
     }
 }
+
+
+

@@ -74,7 +74,7 @@ public:
 
 	void renderCars(Input& input, TrafficCar* car);
 
-	void Blit(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);
+	void drawObject(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);
 
 public:
 

@@ -53,7 +53,7 @@ void Game::handleEvent(Input& input, const float& time){
             Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
         }
     }
-    if (!escape && !pauseMode)
+    if (!escape && !pauseMode && !player->getCrashing())
         player->accelerationControlAutomaic(input, time);
 }
 

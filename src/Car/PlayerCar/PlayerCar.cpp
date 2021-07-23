@@ -45,20 +45,16 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	highAccel = 10.f;
 	thresholdX = 1.f;
 	varThresholdX = 0.06f;
-	maxSpeed = 300.f;
-	lowAccel = maxSpeed / 6.5f;
-	forceX = 0.3f;
+	maxSpeed = 100.f;
+	lowAccel = maxSpeed / 7.0f;
 	direction = Direction::FRONT;
+	offsetCrash = 0.f;
 
-	offsetCrash1 = 0.f;
 	collisionDir = 0.f;
-	minScreenX = 0;
-	maxScreenX = 0;
+
 	current_code_image = 1;
 	maxCounterToChange = 2;
 	counter_code_image = 0;
-	scale = 3.2f;
-	scaleY = 3.2f;
 	numAngers = 0;
 	thresholdX = 0.f;
     playerMap = playerR::LEFTROAD;
@@ -66,14 +62,26 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	wheelL = StateWheel::NORMAL;
 	wheelR = StateWheel::NORMAL;
 
-    firstCrash = true;
+    crashing = false;
     firstTurnLeft = true;
     firstTurnRight = true;
     motorEngineSound = false;
     skidding = false;
 }
 
-float PlayerCar::getThresholdX() const{
+void PlayerCar::setNumAngers(){
+    numAngers = 3;
+}
+
+int PlayerCar::getNumAngers() const {
+    return numAngers;
+}
+
+float PlayerCar::getMaxSpeed() const {
+    return maxSpeed;
+}
+
+float PlayerCar::getThresholdX() const {
     return thresholdX;
 }
 
@@ -83,6 +91,35 @@ void PlayerCar::setPlayerMap(const playerR& playerRoad){
 
 playerR PlayerCar::getPlayerMap() const {
     return playerMap;
+}
+
+void PlayerCar::setLowAccel(const float& _lowAccel){
+    lowAccel = _lowAccel;
+}
+
+float PlayerCar::getLowAccel() const {
+    return lowAccel;
+}
+
+void PlayerCar::setCollisionDir(){
+    collisionDir = 0.f;
+}
+
+float PlayerCar::getCollisionDir() const {
+    return collisionDir;
+}
+
+void PlayerCar::setCrashing(const bool& _crashing){
+    crashing = _crashing;
+}
+
+void PlayerCar::setOffsetCrash(){
+    offsetCrash = 0.f;
+}
+
+
+bool PlayerCar::getCrashing() const {
+    return crashing;
 }
 
 void PlayerCar::setSkidding(const bool& skid){
@@ -113,7 +150,19 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
     action = Action::ACCELERATE;
     direction = Direction::FRONT;
 
-    if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed < maxSpeed){
+    if ((input.pressed(Key::BRAKE, event) || input.held(Key::BRAKE)) && speed > 0.f){
+        speed -= lowAccel * time;
+		if (speed < 0.f) {
+			speed = 0.f;
+			motorEngineSound = false;
+			wheelL = StateWheel::NORMAL;
+			wheelR = StateWheel::NORMAL;
+		}
+        wheelL = StateWheel::SMOKE;
+        wheelR = StateWheel::SMOKE;
+		action = (speed == 0.f) ? Action::NONE : Action::BRAKE;
+    }
+    else if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed < maxSpeed){
         speed += lowAccel * time;
 		if (speed > maxSpeed){
 			speed = maxSpeed;
@@ -135,25 +184,15 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
             wheelL = StateWheel::NORMAL;
         }
     }
-    else if ((input.pressed(Key::BRAKE, event) || input.held(Key::BRAKE)) && speed > 0.f){
-        speed -= lowAccel * time;
-		if (speed < 0.f) {
-			speed = 0.f;
-			motorEngineSound = false;
-			wheelL = StateWheel::NORMAL;
-			wheelR = StateWheel::NORMAL;
-		}
-		action = (speed == 0.f) ? Action::NONE : Action::BRAKE;
-    }
     else {
         speed -= lowAccel * time;
 		if (speed < 0.f) {
 			speed = 0.f;
 			action = Action::NONE;
 			motorEngineSound = false;
-            wheelL = StateWheel::NORMAL;
-			wheelR = StateWheel::NORMAL;
 		}
+		wheelL = StateWheel::NORMAL;
+        wheelR = StateWheel::NORMAL;
     }
 
     varThresholdX = speed * time;
@@ -246,10 +285,20 @@ void PlayerCar::checkCollisionProps(Input& input, const Line* playerLine, bool& 
 			if (hasCrashed((int)(input.gameWindow.getSize().x / 2) + 5, playerW, x2, p->wCol, scale))
 			{
 				collisionDir = posX;
-				if (action != Action::CRASH){
-                    action = Action::CRASH;
-                    crashed = true;
-				}
+                crashing = true;
+                crashed = true;
+                modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A, (int)Collision::TYPE_B));
+                if (speed <= 80 ) {
+                    lowAccel = speed / 2.0f;
+                }
+                else if (speed >= 80 && speed <= 150){
+                    lowAccel = speed / 0.8f;
+                }
+                else if (speed > 150 && speed <= 190){
+                    lowAccel = speed / 1.6f;
+                }
+                wheelL = StateWheel::SMOKE;
+                wheelR = StateWheel::SMOKE;
 			}
 		}
 	}
@@ -282,21 +331,33 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
                         (float)c->getTexture().getSize().x, scale))
         {
             collisionDir = posX;
+            crashing = true;
             crashed = true;
+            modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A, (int)Collision::TYPE_B));
+            if (speed <= 80 ) {
+                lowAccel = speed / 2.0f;
+            }
+            else if (speed >= 80 && speed <= 150){
+                lowAccel = speed / 0.8f;
+            }
+            else if (speed > 150 && speed <= 190){
+                lowAccel = speed / 1.6f;
+            }
+            wheelL = StateWheel::SMOKE;
+            wheelR = StateWheel::SMOKE;
         }
     }
 }
 
 
 bool PlayerCar::hasCrashed(float x1, int w1, float x2, float w2, float scale){
-	//Player offsetX at 0.5
+
 	float min1 = x1 - (((float)w1*3.2f) / 2.f);
 	float max1 = x1 + (((float)w1*3.2f) / 2.f);
 
 	float min2 = x2 - ((w2*scale) / 2.f);
 	float max2 = x2 + ((w2*scale) / 2.f);
 
-	// App->renderer->DrawQuad({ (int)min1, 60, (int)(max1 - min1), 90 }, 255, 0, 0, 255, false);
 	return (max1 >= min2 && max2 >= min1);
 }
 
@@ -347,6 +408,9 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
     if (direction != Direction::TURNRIGHT){
         firstTurnRight = true;
     }
+
+    if (crashing)
+        action = Action::CRASH;
 
     // Check the current action of the devastator to be drawn in the screen
     if (action != Action::NONE) {
@@ -510,7 +574,7 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                     else { // Down
                         if (direction == Direction::FRONT){
                             if (current_code_image < 101 || current_code_image > 104)
-                                current_code_image = 104;
+                                current_code_image = 101;
                         }
                         else if (direction == Direction::TURNLEFT){
                             if (firstTurnLeft) {
@@ -538,6 +602,47 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                         }
                     }
                 }
+                else if (action == Action::CRASH){
+                    // The devastator is crashing
+                    if (modeCollision == Collision::TYPE_A) {
+                        // First type of animation
+                        if (speed <= 0.f){
+                            if (numAngers < 3){
+                                if (current_code_image < 129 || current_code_image > 133){
+                                    current_code_image = 129;
+                                }
+                                else {
+                                    if (current_code_image == 133){
+                                        numAngers++;
+                                    }
+                                 }
+                            }
+                        }
+                        else {
+                            if (current_code_image < 121 || current_code_image > 128)
+                                current_code_image = 121;
+                        }
+                    }
+                    else {
+                        // Second type of animation
+                        if (speed <= 0.f){
+                            if (numAngers < 3){
+                                 if (current_code_image < 142 || current_code_image > 146){
+                                    current_code_image = 142;
+                                 }
+                                 else {
+                                    if (current_code_image == 146){
+                                        numAngers++;
+                                    }
+                                 }
+                            }
+                        }
+                        else {
+                            if (current_code_image < 134 || current_code_image > 141)
+                                current_code_image = 134;
+                        }
+                    }
+                }
             }
         }
         else {
@@ -557,11 +662,28 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
     }
 
     sprite.setTexture(textures[current_code_image - 1], true);
-    sprite.setScale(scale * input.screenScaleX, scaleY * input.screenScaleY);
-    minScreenX = ((float) input.gameWindow.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
-    maxScreenX = minScreenX + sprite.getGlobalBounds().width;
+    sprite.setScale(3.2f * input.screenScaleX, 3.2f * input.screenScaleY);
+    float minScreenX = ((float) input.gameWindow.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
     sprite.setPosition(minScreenX, ((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f);
     input.gameWindow.draw(sprite);
+
+    if (crashing) {
+        if (speed <= 0.f){
+            maxCounterToChange = 6;
+        }
+        else if (speed > 0.f && speed < 20.f){
+            maxCounterToChange = 5;
+        }
+        else if (speed >= 20.f && speed < 60.f){
+            maxCounterToChange = 4;
+        }
+        else if (speed >= 60.f && speed < 100.f){
+            maxCounterToChange = 3;
+        }
+    }
+    else {
+         maxCounterToChange = 2;
+    }
 
     if (wheelL == StateWheel::SMOKE){
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;

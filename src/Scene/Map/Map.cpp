@@ -262,7 +262,7 @@ void Map::initMap(){
 	for (int i = 299; i < 350; i += 3)
 	{
 		addProp(i + (int)sep, palm1, -0.8f, 0.f, false);
-		addProp(i + (int)sep, palm1, 0.8f, 0.f, false);
+		addProp(i + (int)sep, palm2, 0.8f, 0.f, false);
 		sep *= 1.1f;
 	}
 
@@ -351,7 +351,8 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 
     //Update player position
 	iniPosition = position;
-	position = position + p.getSpeed();
+    if (p.getSpeed() > 0.f)
+        position = position + p.getSpeed();
 	while (position >= trackLength)
 		position -= trackLength;
 	while (position < 0)
@@ -361,8 +362,33 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
 	p.elevationControl(playerLine->p1.yWorld, playerLine->p2.yWorld);
 
+    if (p.getCrashing()){
+
+        if (p.getSpeed() > 0.f){
+            p.setSpeed(p.getSpeed() - (p.getLowAccel() * time));
+
+            if (p.getCollisionDir() >= 0.f){
+                p.setPosX(p.getPosX() - (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+            }
+            else {
+                p.setPosX(p.getPosX() + (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+            }
+        }
+        else {
+            p.setLowAccel(p.getMaxSpeed() / 7.0f);
+            p.setCollisionDir();
+            if (p.getNumAngers() == 3){
+                p.setCrashing(false);
+                p.setNumAngers();
+                p.setOffsetCrash();
+            }
+            p.setStateWheelLeft(StateWheel::NORMAL);
+            p.setStateWheelRight(StateWheel::NORMAL);
+        }
+    }
+
 	bool hasCrashed = false;
-	p.checkCollisionProps(input, playerLine, hasCrashed);
+    p.checkCollisionProps(input, playerLine, hasCrashed);
 
 	if (!hasCrashed){
         for (auto& car : cars)
@@ -413,11 +439,6 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 		    p.setSkidding(true);
 			p.setStateWheelLeft(StateWheel::SMOKE);
 			p.setStateWheelRight(StateWheel::SMOKE);
-		}
-		else {
-            p.setSkidding(false);
-            p.setStateWheelLeft(StateWheel::NORMAL);
-			p.setStateWheelRight(StateWheel::NORMAL);
 		}
 	}
 }

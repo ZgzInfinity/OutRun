@@ -32,8 +32,7 @@
 enum class Direction : int {
     TURNLEFT,
     FRONT,
-    TURNRIGHT,
-    __COUNT
+    TURNRIGHT
 };
 
 // Actions that can be made with the vehicle
@@ -42,15 +41,13 @@ enum class Action : int {
     BRAKE,
     ACCELERATE,
     CRASH,
-    BOOT,
-    __COUNT
+    BOOT
 };
 
 enum class Elevation : int {
     UP,
     FLAT,
-    DOWN,
-    __COUNT
+    DOWN
 };
 
 /**

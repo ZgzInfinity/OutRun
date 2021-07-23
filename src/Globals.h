@@ -64,7 +64,6 @@ const float FOV = 120.f;
 const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * M_PI / 180.0f));
 const float CAMERA_HEIGHT = 800.f;
 
-
 #define MIN( a, b ) ( ((a) < (b)) ? (a) : (b) )
 #define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
 

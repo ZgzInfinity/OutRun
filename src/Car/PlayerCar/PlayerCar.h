@@ -56,6 +56,11 @@ class PlayerCar : public Vehicle {
 
     private:
 
+        enum class Collision : int {
+            TYPE_A,
+            TYPE_B
+        };
+
         float maxSpeed, lowAccel, highAccel;
         float thresholdX, varThresholdX, forceX;
         float collisionDir;
@@ -64,53 +69,33 @@ class PlayerCar : public Vehicle {
         Action action;
         Elevation elevation;
 
-        // Minimum coefficient to draw the vehicle in the screen
-        float minScreenX;
-
-        // Maximum coefficient to draw the vehicle in the screen
-        float maxScreenX;
-
-        // Scale coefficient to be drawn on the screen depending of the resolutions
-        float scale;
-
-        // Counter to change the direction path of the vehicle
-        int maxCounterToChange;
-
-        // Scaling factor of the player's vehicle in axis y
-        float scaleY;
-
-        // Control if the player's vehicle has crashed more than one time
-        bool firstCrash;
-
+        bool crashing;
 
         bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding;
 
-        // Mode type of collision
-        int mode;
+        Collision modeCollision;
 
-        // Number of angers of the blonde woman
         int numAngers;
 
-
-        float offsetCrash1;
-
+        float offsetCrash;
 
         int playerW;
-
 
         StateWheel wheelL, wheelR;
 
         playerR playerMap;
 
-        // Sprite to draw the texture of the player's vehicle in the screen
         sf::Sprite sprite;
-
 
 public:
 
     PlayerCar();
 
     PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures, const std::string& name);
+
+    void setNumAngers();
+
+    int getNumAngers() const;
 
     float getMaxSpeed() const;
 
@@ -119,6 +104,20 @@ public:
     void setPlayerMap(const playerR& playerRoad);
 
     playerR getPlayerMap() const;
+
+    void setLowAccel(const float& _lowAccel);
+
+    float getLowAccel() const;
+
+    void setCollisionDir();
+
+    float getCollisionDir() const;
+
+    void setCrashing(const bool& _crashing);
+
+    void setOffsetCrash();
+
+    bool getCrashing() const;
 
     void setSkidding(const bool& skid);
 
