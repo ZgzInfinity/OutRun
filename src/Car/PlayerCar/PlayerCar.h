@@ -69,15 +69,12 @@ class PlayerCar : public Vehicle {
         Action action;
         Elevation elevation;
 
-        bool crashing;
-
-        bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding;
+        bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding,
+             crashing, outsideRoad, angryWoman;
 
         Collision modeCollision;
 
-        int numAngers;
-
-        float offsetCrash;
+        int numAngers, out, counterOut;
 
         int playerW;
 
@@ -115,7 +112,11 @@ public:
 
     void setCrashing(const bool& _crashing);
 
-    void setOffsetCrash();
+    void setAngryWoman();
+
+    void setOutsideRoad(const bool& _outsideRoad);
+
+    bool getOutiseRoad() const;
 
     bool getCrashing() const;
 

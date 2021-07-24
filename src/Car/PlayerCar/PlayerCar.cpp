@@ -48,14 +48,14 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	maxSpeed = 100.f;
 	lowAccel = maxSpeed / 7.0f;
 	direction = Direction::FRONT;
-	offsetCrash = 0.f;
-
 	collisionDir = 0.f;
+	out = 0;
 
 	current_code_image = 1;
 	maxCounterToChange = 2;
 	counter_code_image = 0;
 	numAngers = 0;
+	counterOut = 0;
 	thresholdX = 0.f;
     playerMap = playerR::LEFTROAD;
 
@@ -67,10 +67,12 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
     firstTurnRight = true;
     motorEngineSound = false;
     skidding = false;
+    outsideRoad = false;
+    angryWoman = false;
 }
 
 void PlayerCar::setNumAngers(){
-    numAngers = 3;
+    numAngers = 0;
 }
 
 int PlayerCar::getNumAngers() const {
@@ -113,10 +115,17 @@ void PlayerCar::setCrashing(const bool& _crashing){
     crashing = _crashing;
 }
 
-void PlayerCar::setOffsetCrash(){
-    offsetCrash = 0.f;
+void PlayerCar::setAngryWoman(){
+    angryWoman = false;
 }
 
+void PlayerCar::setOutsideRoad(const bool& _outsideRoad){
+    outsideRoad = _outsideRoad;
+}
+
+bool PlayerCar::getOutiseRoad() const {
+    return outsideRoad;
+}
 
 bool PlayerCar::getCrashing() const {
     return crashing;
@@ -287,7 +296,8 @@ void PlayerCar::checkCollisionProps(Input& input, const Line* playerLine, bool& 
 				collisionDir = posX;
                 crashing = true;
                 crashed = true;
-                modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A, (int)Collision::TYPE_B));
+                modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A,
+                                                                  (int)Collision::TYPE_B));
                 if (speed <= 80 ) {
                     lowAccel = speed / 2.0f;
                 }
@@ -299,6 +309,9 @@ void PlayerCar::checkCollisionProps(Input& input, const Line* playerLine, bool& 
                 }
                 wheelL = StateWheel::SMOKE;
                 wheelR = StateWheel::SMOKE;
+                Audio::play(Sfx::FERRARI_CRASH, false);
+                Audio::play(static_cast<Sfx>(random_int((int)Sfx::SPECTATORS_FIRST_SHOUT,
+                                                        (int)Sfx::SPECTATORS_EIGHTH_SHOUT)), false);
 			}
 		}
 	}
@@ -345,6 +358,7 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
             }
             wheelL = StateWheel::SMOKE;
             wheelR = StateWheel::SMOKE;
+            Audio::play(Sfx::FERRARI_CRASH, false);
         }
     }
 }
@@ -381,25 +395,55 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                     Audio::play(Sfx::FERRARI_ENGINE_START, false);
                 }
             }
-            else {
-                if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN)) {
-                    Audio::play(Sfx::FERRARI_ENGINE_RUN, false);
-                }
+            else if (action == Action::ACCELERATE){
+
+                Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
+
+                if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
+                    Audio::play(Sfx::FERRARI_ENGINE_RUN, true);
             }
+            else if (action == Action::BRAKE){
+                Audio::stop(Sfx::FERRARI_ENGINE_RUN);
+
+                if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
+                    Audio::play(Sfx::FERRARI_ENGINE_BRAKE, true);
+            }
+
+
             if (skidding && !Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING)) {
-                Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, false);
+                Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, true);
+            }
+            else if (!skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING)) {
+                Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
+            }
+
+            if (outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)) {
+                Audio::play(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, true);
+            }
+            else if (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)){
+                Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
             }
         }
         else {
             Audio::stop(Sfx::FERRARI_ENGINE_START);
             Audio::stop(Sfx::FERRARI_ENGINE_RUN);
             Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
+            Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
         }
     }
     else {
         Audio::stop(Sfx::FERRARI_ENGINE_START);
         Audio::stop(Sfx::FERRARI_ENGINE_RUN);
         Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
+        Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
+    }
+
+    if (crashing && speed > 0.f) {
+        if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_DRIFT))
+            Audio::play(Sfx::FERRARI_ENGINE_DRIFT, true);
+    }
+    else {
+        Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
     }
 
     if (direction != Direction::TURNLEFT){
@@ -409,8 +453,19 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
         firstTurnRight = true;
     }
 
-    if (crashing)
+    if (crashing){
         action = Action::CRASH;
+
+        if (Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
+            Audio::stop(Sfx::FERRARI_ENGINE_RUN);
+
+        if (Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
+            Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
+
+        if (angryWoman && numAngers == 1)
+            Audio::play(Sfx::BLOND_WOMAN_DIE, false);
+    }
+
 
     // Check the current action of the devastator to be drawn in the screen
     if (action != Action::NONE) {
@@ -607,6 +662,7 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                     if (modeCollision == Collision::TYPE_A) {
                         // First type of animation
                         if (speed <= 0.f){
+
                             if (numAngers < 3){
                                 if (current_code_image < 129 || current_code_image > 133){
                                     current_code_image = 129;
@@ -614,9 +670,13 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                                 else {
                                     if (current_code_image == 133){
                                         numAngers++;
+
+                                        if (numAngers == 1)
+                                            angryWoman = true;
                                     }
                                  }
                             }
+
                         }
                         else {
                             if (current_code_image < 121 || current_code_image > 128)
@@ -626,6 +686,7 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                     else {
                         // Second type of animation
                         if (speed <= 0.f){
+
                             if (numAngers < 3){
                                  if (current_code_image < 142 || current_code_image > 146){
                                     current_code_image = 142;
@@ -633,9 +694,13 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
                                  else {
                                     if (current_code_image == 146){
                                         numAngers++;
+
+                                        if (numAngers == 1)
+                                            angryWoman = true;
                                     }
                                  }
                             }
+
                         }
                         else {
                             if (current_code_image < 134 || current_code_image > 141)
@@ -661,10 +726,23 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
         }
     }
 
+    if (outsideRoad){
+        if (counterOut == 5){
+            out = (out == -1) ? 0 : -1;
+            counterOut = 0;
+        }
+        else
+            counterOut++;
+    }
+    else {
+        out = 0;
+        counterOut = 0;
+    }
+
     sprite.setTexture(textures[current_code_image - 1], true);
     sprite.setScale(3.2f * input.screenScaleX, 3.2f * input.screenScaleY);
     float minScreenX = ((float) input.gameWindow.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
-    sprite.setPosition(minScreenX, ((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f);
+    sprite.setPosition(minScreenX, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
     input.gameWindow.draw(sprite);
 
     if (crashing) {
@@ -685,19 +763,34 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
          maxCounterToChange = 2;
     }
 
+    const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+
     if (wheelL == StateWheel::SMOKE){
-        const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
         sprite.setTexture(textures[146 + current_code_image % 4], true);
         sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
         sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
-                           j - sprite.getGlobalBounds().height);
+                           j - sprite.getGlobalBounds().height + out);
         input.gameWindow.draw(sprite);
     }
+    else if (wheelL == StateWheel::SAND){
+        sprite.setTexture(textures[150 + current_code_image % 4], true);
+        sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+        sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
+                            j - sprite.getGlobalBounds().height + out);
+        input.gameWindow.draw(sprite);
+    }
+
     if (wheelR == StateWheel::SMOKE){
-        const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
         sprite.setTexture(textures[146 + current_code_image % 4], true);
         sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-        sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height);
+        sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height + out);
         input.gameWindow.draw(sprite);
     }
+    else if (wheelR == StateWheel::SAND){
+        sprite.setTexture(textures[150 + current_code_image % 4], true);
+        sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+        sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
+        input.gameWindow.draw(sprite);
+    }
+
 }

@@ -33,6 +33,8 @@ Map::Map(Input& input)
 	mapLanes = 3;
 	lineW = 20;
 	mapDistance = 0;
+    pWheelL = -210;
+	pWheelR = 210;
 
 	//Initial position
 	iniPosition = position = 300 * (int)SEGMENT_LENGTH;
@@ -345,6 +347,52 @@ void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p){
 }
 
 
+void Map::updateCarPlayerWheels(PlayerCar& p){
+
+	pWheelL = p.getPosX() * ROAD_WIDTH - 210;
+	pWheelR = p.getPosX() * ROAD_WIDTH + 210;
+
+	if (p.getSpeed() > 0.f) {
+		if (pWheelR < -1831 || pWheelR > mapDistance + 1831){
+            p.setStateWheelRight(StateWheel::SAND);
+            p.setOutsideRoad(true);
+		}
+		else {
+            p.setOutsideRoad(false);
+		}
+
+		if (pWheelL < -1831 || pWheelL > mapDistance + 1831){
+			p.setStateWheelLeft(StateWheel::SAND);
+            p.setOutsideRoad(true);
+		}
+        else {
+            if (!p.getOutiseRoad())
+                p.setOutsideRoad(false);
+		}
+
+		if (!p.getOutiseRoad() && mapDistance > 3662)
+		{
+			if (pWheelR > 1831 && pWheelR < 1831 + (mapDistance - 3662)){
+                p.setStateWheelRight(StateWheel::SAND);
+                p.setOutsideRoad(true);
+			}
+            else {
+                p.setOutsideRoad(false);
+            }
+
+			if (pWheelL > 1831 && pWheelL < 1831 + (mapDistance - 3662)){
+                p.setStateWheelLeft(StateWheel::SAND);
+                p.setOutsideRoad(true);
+			}
+            else {
+                if (!p.getOutiseRoad())
+                    p.setOutsideRoad(false);
+            }
+		}
+	}
+}
+
+
 void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time){
 
     updateCars(cars, p);
@@ -380,7 +428,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
             if (p.getNumAngers() == 3){
                 p.setCrashing(false);
                 p.setNumAngers();
-                p.setOffsetCrash();
+                p.setAngryWoman();
             }
             p.setStateWheelLeft(StateWheel::NORMAL);
             p.setStateWheelRight(StateWheel::NORMAL);
@@ -431,6 +479,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 		}
 	}
 
+
+	updateCarPlayerWheels(p);
+
 	//Make smoke if sliding to the side when in a huge curve
 	if (p.getStateWheelLeft() != StateWheel::SAND && p.getStateWheelRight() != StateWheel::SAND && p.getSpeed() > 70.f)
 	{
@@ -439,6 +490,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 		    p.setSkidding(true);
 			p.setStateWheelLeft(StateWheel::SMOKE);
 			p.setStateWheelRight(StateWheel::SMOKE);
+		}
+		else {
+            p.setSkidding(false);
 		}
 	}
 }

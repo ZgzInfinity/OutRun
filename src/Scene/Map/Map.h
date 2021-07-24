@@ -54,6 +54,8 @@ public:
 
     void updateCars(vector<TrafficCar*> cars, const PlayerCar& p);
 
+    void updateCarPlayerWheels(PlayerCar& p);
+
     void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time);
 
 	void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);

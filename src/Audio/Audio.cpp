@@ -53,9 +53,10 @@ void Audio::loadAll(Input& input){
 
     instance.load(Sfx::FERRARI_ENGINE_START, "Resources/SoundEffects/Ferrari_Engine_Start.ogg");
     instance.load(Sfx::FERRARI_ENGINE_RUN, "Resources/SoundEffects/Ferrari_Engine_Run.ogg");
+    instance.load(Sfx::FERRARI_ENGINE_BRAKE, "Resources/SoundEffects/Ferrari_Engine_Brake.ogg");
     instance.load(Sfx::FERRARI_ENGINE_SKIDDING, "Resources/SoundEffects/Ferrari_Engine_Skidding.ogg");
     instance.load(Sfx::FERRARI_ENGINE_DRIFT, "Resources/SoundEffects/Ferrari_Engine_Drift.ogg");
-    instance.load(Sfx::FERRARI_ENGINE_Map_OUTSIDE, "Resources/SoundEffects/Ferrari_Engine_Outside.ogg");
+    instance.load(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, "Resources/SoundEffects/Ferrari_Engine_Outside.ogg");
     instance.load(Sfx::FERRARI_ENGINE_UP_GEAR, "Resources/SoundEffects/Ferrari_Engine_Up_Gear.ogg");
     instance.load(Sfx::FERRARI_ENGINE_DOWN_GEAR, "Resources/SoundEffects/Ferrari_Engine_Down_Gear.ogg");
     instance.load(Sfx::FERRARI_CRASH, "Resources/SoundEffects/Ferrari_Crash.ogg");
@@ -67,9 +68,17 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::BLOND_WOMAN_SECOND_SHOUT, "Resources/SoundEffects/Blond_Woman_Second_Shout.ogg");
     instance.load(Sfx::BLOND_WOMAN_THIRD_SHOUT, "Resources/SoundEffects/Blond_Woman_Third_Shout.ogg");
     instance.load(Sfx::BLOND_WOMAN_TEN_SECONDS, "Resources/SoundEffects/Blond_Woman_Ten_Seconds.ogg");
+    instance.load(Sfx::BLOND_WOMAN_DIE, "Resources/SoundEffects/Blond_Woman_Die.ogg");
 
     instance.load(Sfx::SPECTATORS_FIRST_SHOUT, "Resources/SoundEffects/Spectators_First_Shout.ogg");
     instance.load(Sfx::SPECTATORS_SECOND_SHOUT, "Resources/SoundEffects/Spectators_Second_Shout.ogg");
+    instance.load(Sfx::SPECTATORS_THIRD_SHOUT, "Resources/SoundEffects/Spectators_Third_Shout.ogg");
+    instance.load(Sfx::SPECTATORS_FOURTH_SHOUT, "Resources/SoundEffects/Spectators_Fourth_Shout.ogg");
+    instance.load(Sfx::SPECTATORS_FIFTH_SHOUT, "Resources/SoundEffects/Spectators_Fifth_Shout.ogg");
+    instance.load(Sfx::SPECTATORS_SIXTH_SHOUT, "Resources/SoundEffects/Spectators_Sixth_Shout.ogg");
+    instance.load(Sfx::SPECTATORS_SEVENTH_SHOUT, "Resources/SoundEffects/Spectators_Seventh_Shout.ogg");
+    instance.load(Sfx::SPECTATORS_EIGHTH_SHOUT, "Resources/SoundEffects/Spectators_Eighth_Shout.ogg");
+
     instance.load(Sfx::SPECTATORS_CONGRATULATIONS, "Resources/SoundEffects/Spectators_Congratulations.ogg");
 
     instance.load(Sfx::TRAFFIC_FIRST_ENGINE, "Resources/SoundEffects/Traffic_First_Engine.ogg");
@@ -235,7 +244,6 @@ void Audio::setVolumeSfx(const float sfxVolumePct) {
         instance.effects[i]->setVolume(instance.sfxVolumePct);
     }
 }
-
 
 sf::Time Audio::getDurationMusic(const Soundtrack sd){
     return instance.themes[(int)sd]->getDuration();
