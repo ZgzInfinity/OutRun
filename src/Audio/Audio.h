@@ -81,6 +81,7 @@ enum class Sfx : int {
     BLOND_WOMAN_THIRD_SHOUT,
     BLOND_WOMAN_TEN_SECONDS,
     BLOND_WOMAN_DIE,
+    BLONDE_WOMAN_HURRY_UP,
 
     SPECTATORS_FIRST_SHOUT,
     SPECTATORS_SECOND_SHOUT,
@@ -106,6 +107,7 @@ enum class Sfx : int {
     WAVE,
     WIND,
     GAME_OVER,
+    COUNTDOWN,
     __COUNT
 };
 

@@ -81,12 +81,16 @@ void MenuGame::handleEvent(Input& input){
         }
         else {
             if (input.pressed(Key::MENU_UP, event) && input.held(Key::MENU_UP)){
-                optionSelected = 0;
-                Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                if (optionSelected != 0){
+                    optionSelected = 0;
+                    Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                }
             }
             else if (input.pressed(Key::MENU_DOWN, event) && input.held(Key::MENU_DOWN)){
-                optionSelected = 1;
-                Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                if (optionSelected != 1){
+                    optionSelected = 1;
+                    Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                }
             }
             else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
                 startPressed = true;

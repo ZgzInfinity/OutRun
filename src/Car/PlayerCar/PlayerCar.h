@@ -63,20 +63,20 @@ class PlayerCar : public Vehicle {
 
         float maxSpeed, lowAccel, highAccel;
         float thresholdX, varThresholdX, forceX;
-        float collisionDir;
+        float collisionDir, speedGear;
 
         Direction direction;
         Action action;
         Elevation elevation;
 
         bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding,
-             crashing, outsideRoad, angryWoman;
+             crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode;
 
         Collision modeCollision;
 
         int numAngers, out, counterOut;
 
-        int playerW;
+        int playerW, gear;
 
         StateWheel wheelL, wheelR;
 
@@ -88,11 +88,14 @@ public:
 
     PlayerCar();
 
-    PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures, const std::string& name);
+    PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures,
+              const std::string& name, const bool _automaticMode);
 
     void setNumAngers();
 
     int getNumAngers() const;
+
+    int getGear() const;
 
     float getMaxSpeed() const;
 

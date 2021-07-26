@@ -50,6 +50,7 @@ const sf::Color BUTTON_HOVER_COLOR = sf::Color(233, 240, 100);
 const sf::Color BUTTON_SELECTED_COLOR = sf::Color(255, 255, 0);
 
 // Configuration -----------
+const int SCORE_TRAFFIC_BONUS = 20000;
 const int ROAD_WIDTH = 1600;
 const int SEGMENT_LENGTH = 150;
 const int SCREEN_Y_OFFSET = 130;

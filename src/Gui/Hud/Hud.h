@@ -62,6 +62,7 @@ enum class Hud_Text_Indicator : int {
     SPEED_TEXT,
     LEVEL_TEXT,
     GEAR_TEXT,
+    GAME_OVER_TEXT,
     __COUNT
 };
 
@@ -90,6 +91,12 @@ class Hud {
 
         int level;
 
+        int gear;
+
+        float speed, speedHud;
+
+        float maxSpeed;
+
         std::array<sf::Texture, (int)Hud_Texture_Indicator::__COUNT> hudTextures;
 
         std::array<sf::Sprite, (int)Hud_Texture_Indicator::__COUNT> hudSprites;
@@ -97,6 +104,8 @@ class Hud {
         std::array<sf::Text, (int)Hud_Text_Indicator::__COUNT> hudTexts;
 
         sf::Font hudIndicatorSpeed, hudIndicatorText;
+
+        sf::Texture speedMotorIndicator;
 
         static void loadHudTextureIndicator(const Hud_Texture_Indicator hudInd, const std::string& name);
 
@@ -106,6 +115,7 @@ class Hud {
 
         static void setTextHudIndicator(const Hud_Text_Indicator& hudInd, const std::string message, const sf::Vector2f& pos);
 
+        static void setTextHudIndicator(const Hud_Text_Indicator& hudInd, const std::string message);
 
     public:
 
@@ -114,6 +124,12 @@ class Hud {
         static void loadHud();
 
         static void configureHud(Input& input);
+
+        static void setHud(const int _time, const long long int _score, const float _minutes,
+                           const float _secs, const float _cents_second, const int _level,
+                           const int _gear, const float _speed, const float _maxSpeed);
+
+        static void setAllHudIndicators(Input& input);
 
         static void drawHud(Input& input);
 };

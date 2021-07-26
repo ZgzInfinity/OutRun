@@ -25,9 +25,10 @@ MenuStart::MenuStart() : Menu(){
 }
 
 
-void MenuStart::setMenuStart(const bool& first, const bool& pause){
+void MenuStart::setMenuStart(const bool& first, const bool& pause, const bool& newRound){
     firstLoad = first;
     pauseMode = pause;
+    newGame = newRound;
 }
 
 bool MenuStart::getFirstLoad() const {
@@ -162,7 +163,7 @@ void MenuStart::draw(Input& input){
     }
 
     // Draw the landscape animation
-    if (firstLoad || pauseMode){
+    if (firstLoad || pauseMode || newGame){
         for (int i = 255; i >= 0; i -= 5){
 
             handleEvent(input);

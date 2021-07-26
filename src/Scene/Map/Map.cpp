@@ -53,6 +53,10 @@ Map::~Map()
 {}
 
 
+int Map::getTime() const {
+    return time;
+}
+
 Line* Map::getLine(const int& index){
     return lines[index];
 }
@@ -309,7 +313,7 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 }
 
 
-void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p){
+void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score){
     for (int i = 0; i < cars.size(); i++){
 		TrafficCar* c = cars[i];
 		c->setPosZ(c->getPosZ() + c->getSpeed());
@@ -327,7 +331,7 @@ void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p){
                 if (l->index > playerLine->index + drawDistance || l->index < playerLine->index)
                 {
                     if (l->index < playerLine->index)
-                        // score += 20000;
+                        score += SCORE_TRAFFIC_BONUS;
 
                     c->setSide(rand() % 2);
                     c->setActive(false);
@@ -393,9 +397,9 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 }
 
 
-void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time){
+void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score){
 
-    updateCars(cars, p);
+    updateCars(cars, p, score);
 
     //Update player position
 	iniPosition = position;
@@ -423,6 +427,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
             }
         }
         else {
+            p.setSpeed(0.f);
             p.setLowAccel(p.getMaxSpeed() / 7.0f);
             p.setCollisionDir();
             if (p.getNumAngers() == 3){

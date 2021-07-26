@@ -46,6 +46,14 @@
 
     private:
 
+        const sf::Time shot_delayTime = sf::seconds(1.0);
+
+        const sf::Time shot_delayLap = sf::seconds(0.01);
+
+        sf::Clock gameClockTime;
+
+        sf::Clock gameClockLap;
+
         State gameStatus;
 
         bool automaticMode;
@@ -84,7 +92,14 @@
 
         bool escape;
 
-        // (Block, num. map), ex: map0 = (0, 0); map1 = (1, 0); map2 = (1, 1); map14 = (4, 4)
+        bool outOfTime;
+
+        bool arrival;
+
+        bool start;
+
+        float elapsed1, elapsed2, elapsed3, elapsed4;
+
         std::pair<int, int> mapId;
 
     public:
@@ -93,9 +108,13 @@
 
         void handleEvent(Input& input, const float& time);
 
+        void updateRound(Input& input);
+
         void playRound(Input& input);
 
         State returnRound();
+
+        State gameOverRound(Input& input);
 
         void run(Input& input);
  };

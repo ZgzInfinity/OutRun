@@ -69,6 +69,7 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::BLOND_WOMAN_THIRD_SHOUT, "Resources/SoundEffects/Blond_Woman_Third_Shout.ogg");
     instance.load(Sfx::BLOND_WOMAN_TEN_SECONDS, "Resources/SoundEffects/Blond_Woman_Ten_Seconds.ogg");
     instance.load(Sfx::BLOND_WOMAN_DIE, "Resources/SoundEffects/Blond_Woman_Die.ogg");
+    instance.load(Sfx::BLONDE_WOMAN_HURRY_UP, "Resources/SoundEffects/Blond_Woman_Hurry_Up.ogg");
 
     instance.load(Sfx::SPECTATORS_FIRST_SHOUT, "Resources/SoundEffects/Spectators_First_Shout.ogg");
     instance.load(Sfx::SPECTATORS_SECOND_SHOUT, "Resources/SoundEffects/Spectators_Second_Shout.ogg");
@@ -95,6 +96,8 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::WAVE, "Resources/SoundEffects/Wave.ogg");
     instance.load(Sfx::WIND, "Resources/SoundEffects/Wind.ogg");
     instance.load(Sfx::GAME_OVER, "Resources/SoundEffects/Game_Over.ogg");
+    instance.load(Sfx::COUNTDOWN, "Resources/SoundEffects/Countdown.ogg");
+
 
     if (input.exitsSettings){
         if ((input.volumeMusic % 5 == 0 && input.volumeMusic >= 0 && input.volumeMusic <= 100) &&

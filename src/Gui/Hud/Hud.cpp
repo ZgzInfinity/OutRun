@@ -27,11 +27,14 @@ Hud::Hud(){
     score = 0;
     minutes = 0.f;
     secs = 0.f;
-    cents_second;
+    cents_second = 0.f;
     minutesTrip = 0.f;
     secsTrip = 0.f;
     cents_secondTrip = 0.f;
+    speed = 0.f;
+    maxSpeed = 0.f;
     level = 0;
+    speedHud = 0.0f;
 }
 
 void Hud::loadHudTextureIndicator(const Hud_Texture_Indicator hudInd , const std::string& name){
@@ -85,6 +88,51 @@ void Hud::setTextHudIndicator(const Hud_Text_Indicator& hudInd, const std::strin
     instance.hudTexts[(int)hudInd].setString(message);
 }
 
+
+void Hud::setTextHudIndicator(const Hud_Text_Indicator& hudInd, const std::string message){
+    if (hudInd == Hud_Text_Indicator::SPEED_TEXT || hudInd == Hud_Text_Indicator::SCORE_TEXT)
+    {
+        sf::Vector2f posSpeedTextIndicator = instance.hudTexts[(int)hudInd].getPosition();
+        float widthPrev = instance.hudTexts[(int)hudInd].getLocalBounds().width;
+        instance.hudTexts[(int)hudInd].setString(message);
+        float widthNew = instance.hudTexts[(int)hudInd].getLocalBounds().width;
+        float widthDiff = widthNew - widthPrev;
+        if (widthDiff > 0.f)
+            instance.hudTexts[(int)hudInd].setPosition(posSpeedTextIndicator.x - widthDiff , posSpeedTextIndicator.y);
+        else
+            instance.hudTexts[(int)hudInd].setPosition(posSpeedTextIndicator.x + abs(widthDiff), posSpeedTextIndicator.y);
+    }
+    else
+        instance.hudTexts[(int)hudInd].setString(message);
+}
+
+void Hud::setAllHudIndicators(Input& input){
+    setTextHudIndicator(Hud_Text_Indicator::TIME_TEXT, std::to_string(instance.time));
+    setTextHudIndicator(Hud_Text_Indicator::SCORE_TEXT, std::to_string(instance.score));
+
+    std::string lap;
+    lap = (instance.minutes < 10.f) ? "0" + to_string(int(instance.minutes)) + " '" : to_string(int(instance.minutes)) + " '";
+    lap += (instance.secs < 10.f) ? "0" + to_string(int(instance.secs)) + " ''" : to_string(int(instance.secs)) + " ''";
+    lap += to_string(int(instance.cents_second * 100.f));
+    setTextHudIndicator(Hud_Text_Indicator::LAP_TEXT, lap);
+
+    setTextHudIndicator(Hud_Text_Indicator::SPEED_TEXT, std::to_string((int)instance.speed));
+    setTextHudIndicator(Hud_Text_Indicator::LEVEL_TEXT, std::to_string(instance.level));
+
+    string playerGear = (instance.gear == 1) ? "H" : "L";
+    setTextHudIndicator(Hud_Text_Indicator::GEAR_TEXT, playerGear);
+
+    int width = int(instance.speedHud * 120.f / instance.maxSpeed);
+    if (width > 0){
+        instance.speedMotorIndicator.loadFromFile("Resources/Hud/Speed_Motor_Indicator.png",
+                            sf::IntRect(0, 0, width, int(20.0f * input.screenScaleX)));
+        instance.hudSprites[(int)Hud_Texture_Indicator::SPEED_MOTOR_INDICATOR].setTexture(instance.speedMotorIndicator, true);
+    }
+    else
+        instance.speedHud = 0.0f;
+}
+
+
 void Hud::configureHud(Input& input){
 
     const float up = float(input.gameWindow.getSize().y) / 10.0f;
@@ -109,7 +157,7 @@ void Hud::configureHud(Input& input){
     posX = initial;
     posY = up - 1.1f * float(instance.hudTexts[(int)Hud_Text_Indicator::TIME_TEXT].getCharacterSize());
     sf::Vector2f posTimeTextIndicator(posX, posY);
-    setTextHudIndicator(Hud_Text_Indicator::TIME_TEXT, "120", posTimeTextIndicator);
+    setTextHudIndicator(Hud_Text_Indicator::TIME_TEXT, std::to_string(instance.time), posTimeTextIndicator);
 
 
     setScaleHudIndicator(Hud_Texture_Indicator::SCORE_INDICATOR,
@@ -122,14 +170,14 @@ void Hud::configureHud(Input& input){
 
 
     instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].setFont(instance.hudIndicatorText);
-    instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].setCharacterSize(static_cast<unsigned int>(int(34.0f * input.screenScaleX)));
+    instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].setCharacterSize(static_cast<unsigned int>(int(35.0f * input.screenScaleX)));
     instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].setFillColor(sf::Color(183, 164, 190));
     instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].setOutlineColor(sf::Color::Black);
     instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].setOutlineThickness(3.0f * input.screenScaleX);
     posX *= 2.f;
-    posY = up - 1.15f * float(instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].getCharacterSize());
+    posY = up - 1.21f * float(instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT].getCharacterSize());
     sf::Vector2f posScoreTextIndicator(posX, posY);
-    setTextHudIndicator(Hud_Text_Indicator::SCORE_TEXT, "0", posScoreTextIndicator);
+    setTextHudIndicator(Hud_Text_Indicator::SCORE_TEXT, std::to_string(instance.score), posScoreTextIndicator);
 
     setScaleHudIndicator(Hud_Texture_Indicator::LAP_INDICATOR,
                          sf::Vector2f(2.5f * input.screenScaleX, 2.5f * input.screenScaleX));
@@ -141,15 +189,19 @@ void Hud::configureHud(Input& input){
 
 
     instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].setFont(instance.hudIndicatorText);
-    instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].setCharacterSize(static_cast<unsigned int>(int(34.0f * input.screenScaleX)));
+    instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].setCharacterSize(static_cast<unsigned int>(int(35.0f * input.screenScaleX)));
     instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].setFillColor(sf::Color(146, 194, 186));
     instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].setOutlineColor(sf::Color::Black);
     instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].setOutlineThickness(3.0f * input.screenScaleX);
     posX = float(input.gameWindow.getSize().x) * 0.8f;
-    posY = up - 1.15f * float(instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].getCharacterSize());
+    posY = up - 1.21f * float(instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT].getCharacterSize());
     sf::Vector2f posLapTextIndicator(posX, posY);
-    setTextHudIndicator(Hud_Text_Indicator::LAP_TEXT, "00' 00'' 00", posLapTextIndicator);
 
+    std::string lap;
+    lap = (instance.minutes < 10.f) ? "0" + to_string(int(instance.minutes)) + " '" : to_string(int(instance.minutes)) + " '";
+    lap += (instance.secs < 10.f) ? "0" + to_string(int(instance.secs)) + " ''" : to_string(int(instance.secs)) + " ''";
+    lap += to_string(int(instance.cents_second * 100.f));
+    setTextHudIndicator(Hud_Text_Indicator::LAP_TEXT, lap, posLapTextIndicator);
 
 
     setScaleHudIndicator(Hud_Texture_Indicator::SPEED_MOTOR_INDICATOR,
@@ -163,23 +215,22 @@ void Hud::configureHud(Input& input){
     sf::Vector2f posSpeedMotorIndicator(posX, posY);
     setPositionHudIndicator(Hud_Texture_Indicator::SPEED_MOTOR_INDICATOR, posSpeedMotorIndicator);
 
-
     instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT].setFont(instance.hudIndicatorSpeed);
     instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT].setCharacterSize(static_cast<unsigned int>(int(70.0f * input.screenScaleX)));
     instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT].setFillColor(sf::Color(206, 73, 73));
     instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT].setOutlineColor(sf::Color::Black);
     instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT].setOutlineThickness(3.0f * input.screenScaleX);
     posX = float(input.gameWindow.getSize().x) / 7.8f;
-    posY = down - float(instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT].getCharacterSize());
+    posY = down - 1.05f * float(instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT].getCharacterSize());
     sf::Vector2f posSpeedTextIndicator(posX, posY);
-    setTextHudIndicator(Hud_Text_Indicator::SPEED_TEXT, "0", posSpeedTextIndicator);
+    setTextHudIndicator(Hud_Text_Indicator::SPEED_TEXT, std::to_string((int)instance.speed), posSpeedTextIndicator);
 
 
     setScaleHudIndicator(Hud_Texture_Indicator::SPEED_INDICATOR,
                          sf::Vector2f(2.f * input.screenScaleX, 2.f * input.screenScaleX));
 
     posX = initial / 1.6f;
-    posY = down - instance.hudSprites[(int)Hud_Texture_Indicator::SPEED_INDICATOR].getGlobalBounds().height;
+    posY = down - 1.05f * instance.hudSprites[(int)Hud_Texture_Indicator::SPEED_INDICATOR].getGlobalBounds().height;
     sf::Vector2f posSpeedIndicator(posX, posY);
     setPositionHudIndicator(Hud_Texture_Indicator::SPEED_INDICATOR, posSpeedIndicator);
 
@@ -215,7 +266,7 @@ void Hud::configureHud(Input& input){
     posX = float(input.gameWindow.getSize().x) * 0.85f;
     posY =  down - 1.09f * float(instance.hudTexts[(int)Hud_Text_Indicator::LEVEL_TEXT].getCharacterSize());
     sf::Vector2f posLevelTextIndicator(posX, posY);
-    setTextHudIndicator(Hud_Text_Indicator::LEVEL_TEXT, "1", posLevelTextIndicator);
+    setTextHudIndicator(Hud_Text_Indicator::LEVEL_TEXT, std::to_string(instance.level), posLevelTextIndicator);
 
     setScaleHudIndicator(Hud_Texture_Indicator::GEAR_INDICATOR,
                          sf::Vector2f(2.7f * input.screenScaleX, 2.7f * input.screenScaleX));
@@ -225,7 +276,7 @@ void Hud::configureHud(Input& input){
     sf::Vector2f posGearIndicator(posX, posY);
     setPositionHudIndicator(Hud_Texture_Indicator::GEAR_INDICATOR, posGearIndicator);
 
-
+    string playerGear = (instance.gear == 1) ? "H" : "L";
     instance.hudTexts[(int)Hud_Text_Indicator::GEAR_TEXT].setFont(instance.hudIndicatorText);
     instance.hudTexts[(int)Hud_Text_Indicator::GEAR_TEXT].setCharacterSize(static_cast<unsigned int>(int(40.0f * input.screenScaleX)));
     instance.hudTexts[(int)Hud_Text_Indicator::GEAR_TEXT].setFillColor(sf::Color(146, 194, 186));
@@ -234,27 +285,63 @@ void Hud::configureHud(Input& input){
     posX = float(input.gameWindow.getSize().x) * 0.85f;
     posY =  down - 2.15f * float(instance.hudTexts[(int)Hud_Text_Indicator::GEAR_TEXT].getCharacterSize());
     sf::Vector2f posGearTextIndicator(posX, posY);
-    setTextHudIndicator(Hud_Text_Indicator::GEAR_TEXT, "1", posGearTextIndicator);
+    setTextHudIndicator(Hud_Text_Indicator::GEAR_TEXT, playerGear, posGearTextIndicator);
 
+    instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].setFont(instance.hudIndicatorText);
+    instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].setCharacterSize(static_cast<unsigned int>(int(60.0f * input.screenScaleX)));
+    instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].setString("GAME OVER");
+    instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].setFillColor(sf::Color::Yellow);
+    instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].setOutlineColor(sf::Color(14, 29, 184));
+    instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].setOutlineThickness(3.0f * input.screenScaleX);
+
+    posX = float(input.gameWindow.getSize().x / 2.f -
+                 instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].getGlobalBounds().width / 2.0f);
+    posY = float(input.gameWindow.getSize().y / 2.f -
+                 instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].getCharacterSize() / 2.0f);
+
+    sf::Vector2f posGameOverTextIndicator(posX, posY);
+    instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT].setPosition(posGameOverTextIndicator);
 }
 
-void Hud::drawHud(Input& input){
-    /*
-    for (int i = 0; i < (int)Hud_Texture_Indicator::__COUNT; i++) {
-        input.gameWindow.draw(instance.hudSprites[i]);
-    }
-    for (int i = 0; i < (int)Hud_Text_Indicator::__COUNT; i++) {
-        input.gameWindow.draw(instance.hudTexts[i]);
-    }
-    */
-    for (int i = 0; i < 6; i++) {
-        input.gameWindow.draw(instance.hudSprites[i]);
-    }
-    input.gameWindow.draw(instance.hudSprites[20]);
-    input.gameWindow.draw(instance.hudSprites[21]);
 
-    for (int i = 0; i < 6; i++) {
-        input.gameWindow.draw(instance.hudTexts[i]);
-    }
+void Hud::setHud(const int _time, const long long int _score, const float _minutes, const float _secs,
+                 const float _cents_second, const int _level, const int _gear, const float _speed, const float _maxSpeed)
+{
+    instance.time = _time;
+    instance.score = _score;
+    instance.minutes = _minutes;
+    instance.secs = _secs;
+    instance.cents_second = _cents_second;
+    instance.level = _level;
+    instance.gear = _gear;
+    instance.speed = _speed * 2.24f;
+    instance.maxSpeed = _maxSpeed;
+    instance.speedHud = _speed;
+}
+
+
+void Hud::drawHud(Input& input){
+
+    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::TIME_INDICATOR]);
+    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::SCORE_INDICATOR]);
+    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::LAP_INDICATOR]);
+    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::SPEED_INDICATOR]);
+
+    if (instance.speedHud > 0.0f)
+        input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::SPEED_MOTOR_INDICATOR]);
+
+    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR]);
+    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::STAGE_INDICATOR]);
+    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::GEAR_INDICATOR]);
+
+    input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::TIME_TEXT]);
+    input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::SCORE_TEXT]);
+    input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::LAP_TEXT]);
+    input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::SPEED_TEXT]);
+    input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::LEVEL_TEXT]);
+    input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::GEAR_TEXT]);
+
+    if (instance.time == 0)
+        input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT]);
 }
 

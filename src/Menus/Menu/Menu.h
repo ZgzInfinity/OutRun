@@ -40,6 +40,7 @@ enum class State : int {
     LOADING,
     PLAY,
     PAUSE,
+    GAME_OVER,
     RANKING,
     CREDITS,
     EXIT,

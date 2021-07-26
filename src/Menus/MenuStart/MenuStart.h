@@ -48,12 +48,13 @@ class MenuStart : public Menu {
         bool blink;
         bool firstLoad;
         bool pauseMode;
+        bool newGame;
 
     public:
 
         MenuStart();
 
-        void setMenuStart(const bool& first, const bool& pause);
+        void setMenuStart(const bool& first, const bool& pause, const bool& newRound);
 
         bool getFirstLoad() const;
 

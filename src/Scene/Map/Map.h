@@ -40,6 +40,8 @@ public:
 	Map(Input& input);
 	~Map();
 
+	int getTime() const;
+
     Line* getLine(const int& index);
 
 	int computeRoadTracks(const int numTracks);
@@ -52,11 +54,11 @@ public:
 
     void drawPoly4(Input &input, short x1, short y1, short x2, short y2, short x3, short y3, short x4, short y4, sf::Color color);
 
-    void updateCars(vector<TrafficCar*> cars, const PlayerCar& p);
+    void updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score);
 
     void updateCarPlayerWheels(PlayerCar& p);
 
-    void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time);
+    void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score);
 
 	void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
 
