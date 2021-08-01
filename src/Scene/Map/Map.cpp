@@ -83,49 +83,58 @@ int Map::computeRoadTracks(const int numTracks){
 
 
 
-void Map::loadObjects(const string &path, const vector<string> &objectNames, vector<int> &objectIndexes) {
-    // Index of element to be processed
-    int k = 0;
-    objectIndexes.reserve(objectNames.size());
+void Map::loadObjects(const string &path, const vector<string> &objectNames){
+
     objects.reserve(objectNames.size());
-    hitCoeffs.reserve(objectNames.size());
-    hitCoeffTypes.reserve(objectNames.size());
+    widthCollisionCoeffs.reserve(objectNames.size());;
+    pivotLeftPoints.reserve(objectNames.size());;
+    pivotRightPoints.reserve(objectNames.size());;
+    pivotLeftColPoints.reserve(objectNames.size());;
+    pivotRightColPoints.reserve(objectNames.size());;
+
     for (const string &objName : objectNames) {
-        // Load indexes
-        objectIndexes.push_back(k);
-        k++;
 
         // Load textures
         sf::Texture t;
         t.loadFromFile(path + objName + ".png");
         objects.push_back(t);
 
-        // Load hit percentage from center and scale coeff
         ifstream fin(path + objName + ".txt");
-        float hitC = 1.0f, scaleC = 1.0f;
-        HitCoeffType hitCoeffType = HitCoeffType::HIT_CENTER;
+
+        float scale = 1.f;
+        float widthCollision = t.getSize().x;
+        fPoint pivotLeft = {1.f, 1.f};
+        fPoint pivotRight = {0.f, 1.f};
+        fPoint pivotColLeft = {0.5f, 1.f};
+        fPoint pivotColRight = {0.5f, 1.f};
+
+        float pointX, pointY;
+
         if (fin.is_open()) {
             while (!fin.eof()) {
                 string s;
                 fin >> s;
-                if (s == "HIT:" && !fin.eof()) {
-                    fin >> hitC;
-                    hitCoeffType = HitCoeffType::HIT_CENTER;
+                if (s == "SCALE:" && !fin.eof()){
+                    fin >> scale;
                 }
-                else if (s == "HIT_LEFT:" && !fin.eof()) {
-                    fin >> hitC;
-                    hitCoeffType = HitCoeffType::HIT_LEFT;
+                else if (s == "WIDTH_COLLISION:" && !fin.eof()){
+                    fin >> widthCollision;
                 }
-                else if (s == "HIT_RIGHT:" && !fin.eof()) {
-                    fin >> hitC;
-                    hitCoeffType = HitCoeffType::HIT_RIGHT;
+                else if (s == "PIVOT_LEFT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotLeft = {pointX, pointY};
                 }
-                else if (s == "HIT_SIDES:" && !fin.eof()) {
-                    fin >> hitC;
-                    hitCoeffType = HitCoeffType::HIT_SIDES;
+                else if (s == "PIVOT_RIGHT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotRight = {pointX, pointY};
                 }
-                else if (s == "SCALE:" && !fin.eof()) {
-                    fin >> scaleC;
+                else if (s == "PIVOT_COL_LEFT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotColLeft = {pointX, pointY};
+                }
+                else if (s == "PIVOT_COL_RIGHT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotColRight = {pointX, pointY};
                 }
                 else if (!s.empty()) {
                     cerr << "WARNING: '" << s << "' at file " << path + objName + ".info" << endl;
@@ -133,9 +142,12 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames, vec
             }
             fin.close();
         }
-        hitCoeffs.push_back(hitC);
-        hitCoeffTypes.push_back(hitCoeffType);
-        scaleCoeffs.push_back(scaleC);
+        scaleCoeffs.push_back(scale);
+        widthCollisionCoeffs.push_back(widthCollision);
+        pivotLeftPoints.push_back(pivotLeft);
+        pivotRightPoints.push_back(pivotRight);
+        pivotLeftColPoints.push_back(pivotColLeft);
+        pivotRightColPoints.push_back(pivotColRight);
     }
 }
 
@@ -221,6 +233,43 @@ void Map::initMap(){
                 numTracks = computeRoadTracks(numTracks);
                 addMap(enter, hold, enter, direction, slope, mirror, numTracks);
             }
+            else if (info == "SUBMAP"){
+                int startPosition, endPosition, incrementor, frequency;
+                fluxInput >> startPosition >> endPosition >> incrementor >> frequency;
+
+                fluxInput >> info;
+
+                if (info == "SPRITE_LEFT"){
+                    int idPropLeft, offsetXLeft, offsetYLeft;
+                    bool sideLeft;
+
+                    fluxInput >> idPropLeft >> offsetXLeft >> offsetYLeft >> sideLeft;
+
+                    SpriteInfo spriteLeft = SpriteInfo(idPropLeft - 1, pivotLeftPoints[idPropLeft - 1], pivotRightPoints[idPropLeft - 1],
+                                                       scaleCoeffs[idPropLeft - 1], widthCollisionCoeffs[idPropLeft - 1],
+                                                       pivotLeftColPoints[idPropLeft - 1], pivotRightColPoints[idPropLeft - 1],
+                                                       offsetXLeft, offsetYLeft, sideLeft);
+
+                    for (int i = startPosition; i < endPosition; i += incrementor){
+                        // addProp(i, p,offsetXLeft, offsetYLeft, false, true);
+                    }
+                }
+                else if (info == "SPRITE_RIGHT"){
+                    int idPropRight, offsetXRight, offsetYRight;
+                    bool sideRight;
+
+                    fluxInput >> idPropRight >> offsetXRight >> offsetYRight;
+
+                    SpriteInfo spriteRight = SpriteInfo(idPropRight - 1, pivotLeftPoints[idPropRight - 1], pivotRightPoints[idPropRight - 1],
+                                                        scaleCoeffs[idPropRight - 1], widthCollisionCoeffs[idPropRight - 1],
+                                                        pivotLeftColPoints[idPropRight - 1], pivotRightColPoints[idPropRight - 1],
+                                                        offsetXRight, offsetYRight, sideRight);
+
+                    for (int i = startPosition; i < endPosition; i += incrementor){
+                        // addProp(i, p,offsetXLeft, offsetYLeft, false, true);
+                    }
+                }
+            }
             fluxInput >> info;
         }
         fluxInput.close();
@@ -229,19 +278,16 @@ void Map::initMap(){
 	addMap(10, 400, 50, -2, 0, true, dist3);
 	addMap(100, 100, 100, 0, 0, true, distM);
 
-	/*
     vector<string> objectNames;
-    objectNames.reserve(28);
-    for (int i = 1; i <= 28; i++){
+    objectNames.reserve(26);
+    for (int i = 1; i <= 26; i++){
         objectNames.push_back(std::to_string(i));
     }
 
-	 // Load objects
-    vector<int> objectIndexes;
     string path = "Resources/Maps/Map1/";
-    loadObjects(path, objectNames, objectIndexes);
-    */
+    loadObjects(path, objectNames);
 
+    /*
     sf::Texture t;
     t.loadFromFile("Resources/Maps/Map1/4.png");
     Prop* palm1 = new Prop();
@@ -271,6 +317,7 @@ void Map::initMap(){
 		addProp(i + (int)sep, palm2, 0.8f, 0.f, false);
 		sep *= 1.1f;
 	}
+	*/
 
 
     mapDistance = lines[0]->distance;
@@ -643,6 +690,20 @@ void Map::addProp(int line, Prop* p, float offsetX, float offsetY, bool side){
 		lines[line]->offsetsX.push_back(offsetX);
 		lines[line]->offsetsY.push_back(offsetY);
 		lines[line]->sides.push_back(side);
+	}
+}
+
+
+void Map::addSpriteInfo(int line, SpriteInfo* p, bool left){
+	if (line < (int)lines.size()){
+		if (left){
+            lines[line]->spriteLeft = p;
+            lines[line]->hasSpriteLeft = true;
+		}
+        else {
+            lines[line]->spriteRight = p;
+            lines[line]->hasSpriteRight = true;
+        }
 	}
 }
 

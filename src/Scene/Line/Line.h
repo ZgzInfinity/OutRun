@@ -22,6 +22,7 @@
 #define LINE_H
 
 #include "../Point/Point.h"
+#include "../SpriteInfo/SpriteInfo.h"
 #include "../../Input/Input.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
 
@@ -81,13 +82,16 @@ public:
 	int index;
 	PointLine p1, p2;
 	PointLine p11, p21;
-	bool light, mirror;
+	bool light, mirror, hasSpriteLeft, hasSpriteRight;
 	float curve, distance, clip;
 
     vector<Prop*> lineProps;
 	vector<float> offsetsX;
 	vector<float> offsetsY;
 	vector<bool> sides;
+
+	SpriteInfo* spriteLeft;
+	SpriteInfo* spriteRight;
 };
 
 #endif // LINE_H

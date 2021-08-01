@@ -46,7 +46,7 @@ public:
 
 	int computeRoadTracks(const int numTracks);
 
-    void loadObjects(const string &path, const vector<string> &objectNames, vector<int> &objectIndexes);
+    void loadObjects(const string &path, const vector<string> &objectNames);
 
 	void initMap();
 
@@ -63,6 +63,8 @@ public:
 	void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
 
 	void addProp(int line, Prop* p, float offsetX, float offsetY, bool side);
+
+	void addSpriteInfo(int line, SpriteInfo* p, bool left);
 
 private:
 
@@ -102,11 +104,20 @@ private:
     sf::Texture backGround2;
     sf::Sprite background2;
 
-        // Objects of the map
+    // Objects of the map
     vector<sf::Texture> objects;
-    vector<float> hitCoeffs;
-    vector<HitCoeffType> hitCoeffTypes;
-    vector<float> scaleCoeffs;
+
+    vector<float>scaleCoeffs;
+
+    vector<int> widthCollisionCoeffs;
+
+    vector<fPoint> pivotLeftPoints;
+
+    vector<fPoint> pivotRightPoints;
+
+    vector<fPoint> pivotLeftColPoints;
+
+    vector<fPoint> pivotRightColPoints;
 };
 
 #endif // MAP_H
