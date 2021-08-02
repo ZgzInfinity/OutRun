@@ -73,6 +73,8 @@ public:
 
 	void renderProps(Input& input, int i);
 
+    void renderSpriteInfo(Input& input, SpriteInfo* sprite);
+
 	void renderCars(Input& input, TrafficCar* car);
 
 	void drawObject(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);

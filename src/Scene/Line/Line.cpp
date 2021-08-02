@@ -50,6 +50,36 @@ void Line::projection(Input& input, PointLine &p, int cameraX, int cameraY, int 
 	p.wScreen = p.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2;
 }
 
+void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
+{
+    PointLine p = p1;
+	if (sprite->side)
+		p = p11;
+
+	float spriteX = p.xScreen + (sprite->offsetX * p.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+	float spriteY = p.yScreen + (sprite->offsetX * p.scale * 1000.f * input.gameWindow.getSize().y / 2);
+
+    float width = sprite->textureSprite->getSize().x;
+    float height = sprite->textureSprite->getSize().y;
+
+	float destW = (width * p.scale * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
+	float destH = (height * p.scale * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
+
+	//If has to be clipped
+	if (clip < spriteY)
+	{
+		float clipH = MAX(0, clip - (spriteY - (destH * 3.43f * sprite->scale)));
+		float clipHPerc = (clipH / (destH * 3.43f * sprite->scale));
+		height = (int)(height * clipHPerc);
+		spriteY = clip;
+		destH *= clipHPerc;
+	}
+
+	if (height > 0){
+		drawObject(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET),
+             sprite->textureSprite, 1.f, { (destW / width) * 3.2f * sprite->scale, (destH / height) * 3.43f * sprite->scale}, sprite->pivot);
+	}
+}
 
 
 void Line::renderProps(Input& input, int i)

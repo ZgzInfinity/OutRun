@@ -22,18 +22,16 @@
 
 SpriteInfo::SpriteInfo(){}
 
-SpriteInfo::SpriteInfo(const int _id, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
-                       const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const float _offsetX,
+SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivot, const float _scale,
+                       const int _wCol, const fPoint _pivotCol, const float _offsetX,
                        const float _offsetY, const bool _side)
 {
-    id = _id;
-    pivotL = _pivotL;
-    pivotR = _pivotR;
+    textureSprite = _textureSprite;
+    pivot = _pivot;
     scale = _scale;
     collider = true;
     wCol = _wCol;
-    pivotColL = _pivotColL;
-    pivotColR = _pivotColR;
+    pivotCol = _pivotCol;
     offsetX = _offsetX;
     offsetY = _offsetY;
     side = _side;

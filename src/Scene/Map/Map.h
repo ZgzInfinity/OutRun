@@ -111,13 +111,10 @@ private:
 
     vector<int> widthCollisionCoeffs;
 
-    vector<fPoint> pivotLeftPoints;
+    vector<fPoint> pivotPoints;
 
-    vector<fPoint> pivotRightPoints;
+    vector<fPoint> pivotColPoints;
 
-    vector<fPoint> pivotLeftColPoints;
-
-    vector<fPoint> pivotRightColPoints;
 };
 
 #endif // MAP_H

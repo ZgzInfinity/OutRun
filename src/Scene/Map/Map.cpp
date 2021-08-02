@@ -87,10 +87,8 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames){
 
     objects.reserve(objectNames.size());
     widthCollisionCoeffs.reserve(objectNames.size());;
-    pivotLeftPoints.reserve(objectNames.size());;
-    pivotRightPoints.reserve(objectNames.size());;
-    pivotLeftColPoints.reserve(objectNames.size());;
-    pivotRightColPoints.reserve(objectNames.size());;
+    pivotPoints.reserve(objectNames.size());;
+    pivotColPoints.reserve(objectNames.size());;
 
     for (const string &objName : objectNames) {
 
@@ -116,25 +114,31 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames){
                 fin >> s;
                 if (s == "SCALE:" && !fin.eof()){
                     fin >> scale;
+                    scaleCoeffs.push_back(scale);
                 }
                 else if (s == "WIDTH_COLLISION:" && !fin.eof()){
                     fin >> widthCollision;
+                    widthCollisionCoeffs.push_back(widthCollision);
                 }
                 else if (s == "PIVOT_LEFT:" && !fin.eof()){
                     fin >> pointX >> pointY;
                     pivotLeft = {pointX, pointY};
+                    pivotPoints.push_back(pivotLeft);
                 }
                 else if (s == "PIVOT_RIGHT:" && !fin.eof()){
                     fin >> pointX >> pointY;
                     pivotRight = {pointX, pointY};
+                    pivotPoints.push_back(pivotRight);
                 }
                 else if (s == "PIVOT_COL_LEFT:" && !fin.eof()){
                     fin >> pointX >> pointY;
                     pivotColLeft = {pointX, pointY};
+                    pivotColPoints.push_back(pivotColLeft);
                 }
                 else if (s == "PIVOT_COL_RIGHT:" && !fin.eof()){
                     fin >> pointX >> pointY;
                     pivotColRight = {pointX, pointY};
+                    pivotColPoints.push_back(pivotColRight);
                 }
                 else if (!s.empty()) {
                     cerr << "WARNING: '" << s << "' at file " << path + objName + ".info" << endl;
@@ -142,12 +146,6 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames){
             }
             fin.close();
         }
-        scaleCoeffs.push_back(scale);
-        widthCollisionCoeffs.push_back(widthCollision);
-        pivotLeftPoints.push_back(pivotLeft);
-        pivotRightPoints.push_back(pivotRight);
-        pivotLeftColPoints.push_back(pivotColLeft);
-        pivotRightColPoints.push_back(pivotColRight);
     }
 }
 
@@ -245,10 +243,9 @@ void Map::initMap(){
 
                     fluxInput >> idPropLeft >> offsetXLeft >> offsetYLeft >> sideLeft;
 
-                    SpriteInfo spriteLeft = SpriteInfo(idPropLeft - 1, pivotLeftPoints[idPropLeft - 1], pivotRightPoints[idPropLeft - 1],
+                    SpriteInfo spriteLeft = SpriteInfo(&objects[idPropLeft - 1], pivotPoints[idPropLeft - 1],
                                                        scaleCoeffs[idPropLeft - 1], widthCollisionCoeffs[idPropLeft - 1],
-                                                       pivotLeftColPoints[idPropLeft - 1], pivotRightColPoints[idPropLeft - 1],
-                                                       offsetXLeft, offsetYLeft, sideLeft);
+                                                       pivotColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
 
                     for (int i = startPosition; i < endPosition; i += incrementor){
                         // addProp(i, p,offsetXLeft, offsetYLeft, false, true);
@@ -260,10 +257,9 @@ void Map::initMap(){
 
                     fluxInput >> idPropRight >> offsetXRight >> offsetYRight;
 
-                    SpriteInfo spriteRight = SpriteInfo(idPropRight - 1, pivotLeftPoints[idPropRight - 1], pivotRightPoints[idPropRight - 1],
+                    SpriteInfo spriteRight = SpriteInfo(&objects[idPropRight - 1], pivotPoints[idPropRight - 1],
                                                         scaleCoeffs[idPropRight - 1], widthCollisionCoeffs[idPropRight - 1],
-                                                        pivotLeftColPoints[idPropRight - 1], pivotRightColPoints[idPropRight - 1],
-                                                        offsetXRight, offsetYRight, sideRight);
+                                                        pivotColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
 
                     for (int i = startPosition; i < endPosition; i += incrementor){
                         // addProp(i, p,offsetXLeft, offsetYLeft, false, true);
@@ -664,6 +660,15 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 
 		if (l->index < playerLine->index)
 			continue;
+
+        if (l->hasSpriteLeft)
+        {
+           l->renderSpriteInfo(input, l->spriteLeft);
+        }
+        if (l->hasSpriteRight)
+        {
+            l->renderSpriteInfo(input, l->spriteRight);
+        }
 
 		for (unsigned int i = 0; i < l->lineProps.size(); ++i)
 		{

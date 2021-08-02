@@ -24,23 +24,23 @@
 #define SPRITE_INFO_H
 
 #include "../Point/Point.h"
+#include "SFML/Graphics.hpp"
 
 class SpriteInfo {
 
 public:
 
-    int id;
-	fPoint pivotL;
-	fPoint pivotR;
+    sf::Texture* textureSprite;
+	fPoint pivot;
 	float scale;
 	bool collider, side;
 	float wCol, offsetX, offsetY;
-	fPoint pivotColL, pivotColR;
+	fPoint pivotCol;
 
 	SpriteInfo();
 
-	SpriteInfo(const int _id, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
-               const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const float _offsetX,
+	SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivot, const float _scale,
+               const int _wCol, const fPoint _pivotCol, const float _offsetX,
                const float _offsetY, const bool _side);
 
 };
