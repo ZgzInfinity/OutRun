@@ -363,23 +363,23 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
     else
         p = playerLine->spriteRight;
 
-    if (p->collider)
+    if (p->getCollider())
     {
         PointLine point = playerLine->p1;
-        if (p->side)
+        if (p->getSide())
             point = playerLine->p11;
 
-        float x2 = point.xScreen + (p->offsetX * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
-        float scale = 1.6f * (0.3f * (1.f / 170.f)) * point.scale * input.gameWindow.getSize().x * ROAD_WIDTH * p->scale;
-        int width = p->textureSprite->getSize().x;
+        float x2 = point.xScreen + (p->getOffsetX() * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+        float scale = 1.6f * (0.3f * (1.f / 170.f)) * point.scale * input.gameWindow.getSize().x * ROAD_WIDTH * p->getScale();
+        int width = p->getTextureSprite()->getSize().x;
 
-        if (p->offsetX >= 0)
-            x2 += x2 + width * scale * p->pivotColRight.x;
+        if (p->getOffsetX() >= 0)
+            x2 += x2 + width * scale * p->getPivotColRight().x;
 
         else
-            x2 = x2 - width * scale * (1 - p->pivotColLeft.x);
+            x2 = x2 - width * scale * (1 - p->getPivotColLeft().x);
 
-        if (hasCrashed((int)(input.gameWindow.getSize().x / 2) + 5, playerW, x2, p->wCol, scale))
+        if (hasCrashed((int)(input.gameWindow.getSize().x / 2) + 5, playerW, x2, p->getWidthCol(), scale))
         {
             collisionDir = posX;
             crashing = true;
