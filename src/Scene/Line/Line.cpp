@@ -57,7 +57,16 @@ void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
 		p = p11;
 
 	float spriteX = p.xScreen + (sprite->offsetX * p.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
-	float spriteY = p.yScreen + (sprite->offsetX * p.scale * 1000.f * input.gameWindow.getSize().y / 2);
+	float spriteY = p.yScreen + (sprite->offsetY * p.scale * 1000.f * input.gameWindow.getSize().y / 2);
+
+    fPoint pivot;
+
+	if (sprite->offsetX >= 0){
+		pivot = sprite->pivotRight;
+	}
+	else {
+		pivot = sprite->pivotLeft;
+	}
 
     float width = sprite->textureSprite->getSize().x;
     float height = sprite->textureSprite->getSize().y;
@@ -77,7 +86,7 @@ void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
 
 	if (height > 0){
 		drawObject(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET),
-             sprite->textureSprite, 1.f, { (destW / width) * 3.2f * sprite->scale, (destH / height) * 3.43f * sprite->scale}, sprite->pivot);
+             sprite->textureSprite, 1.f, { (destW / width) * 3.2f * sprite->scale, (destH / height) * 3.43f * sprite->scale}, pivot);
 	}
 }
 

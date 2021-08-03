@@ -107,13 +107,18 @@ private:
     // Objects of the map
     vector<sf::Texture> objects;
 
+
     vector<float>scaleCoeffs;
 
     vector<int> widthCollisionCoeffs;
 
-    vector<fPoint> pivotPoints;
+    vector<fPoint> pivotLeftPoints;
 
-    vector<fPoint> pivotColPoints;
+    vector<fPoint> pivotRightPoints;
+
+    vector<fPoint> pivotLeftColPoints;
+
+    vector<fPoint> pivotRightColPoints;
 
 };
 

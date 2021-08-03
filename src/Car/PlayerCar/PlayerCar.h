@@ -61,7 +61,7 @@ class PlayerCar : public Vehicle {
             TYPE_B
         };
 
-        float maxSpeed, lowAccel, highAccel;
+        float maxSpeed, lowAccel, brakeAccel, highAccel;
         float thresholdX, varThresholdX, forceX;
         float collisionDir, speedGear;
 
@@ -139,7 +139,7 @@ public:
 
     void controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance);
 
-    void checkCollisionProps(Input& input, const Line* playerLine, bool& crashed);
+    void checkCollisionSpriteInfo(Input& input, const Line* playerLine, bool& crashed, const bool& left);
 
     void checkCollisionTrafficCar(Input& input, const Line* playerLine, const Line* trafficCarLine,
                                   const TrafficCar* c, bool& crashed);

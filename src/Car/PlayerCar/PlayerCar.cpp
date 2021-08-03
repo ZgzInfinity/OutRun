@@ -45,8 +45,9 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	highAccel = 10.f;
 	thresholdX = 1.f;
 	varThresholdX = 0.06f;
-	maxSpeed = 150.f;
-	lowAccel = maxSpeed / 10.f;
+	maxSpeed = 87.f;
+	lowAccel = 15.f;
+	brakeAccel = maxSpeed / 3.5f;
 	direction = Direction::FRONT;
 	collisionDir = 0.f;
 	out = 0;
@@ -180,7 +181,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
 
     if ((input.pressed(Key::BRAKE, event) || input.held(Key::BRAKE)) && speed > 0.f){
 
-        speed -= lowAccel * time;
+        speed -= brakeAccel * time;
 		if (speed <= 0.f) {
 			speed = 0.f;
 			motorEngineSound = false;
@@ -210,7 +211,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
         else
             speed = maxSpeed;
 
-		action = (speed > 20.f) ? Action::ACCELERATE : Action::BOOT;
+		action = (speed > 15.f) ? Action::ACCELERATE : Action::BOOT;
 		motorEngineSound = true;
 
 		if (speed < 50.f && wheelL != StateWheel::SAND && wheelR != StateWheel::SAND){
@@ -354,49 +355,53 @@ void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& tim
 }
 
 
-void PlayerCar::checkCollisionProps(Input& input, const Line* playerLine, bool& crashed){
-    for (unsigned int n = 0; !crashed && n < playerLine->lineProps.size(); ++n) {
-		Prop* p = playerLine->lineProps[n];
+void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, bool& crashed, const bool& left){
 
-		if (p->collider)
-		{
-			PointLine point = playerLine->p1;
-			if (playerLine->sides[n])
-				point = playerLine->p11;
+    SpriteInfo* p;
+    if (left)
+        p = playerLine->spriteLeft;
+    else
+        p = playerLine->spriteRight;
 
-			float x2 = point.xScreen + (playerLine->offsetsX[n] * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
-			float scale = 1.6f * (0.3f * (1.f / 170.f)) * point.scale * input.gameWindow.getSize().x * ROAD_WIDTH * p->scale;
+    if (p->collider)
+    {
+        PointLine point = playerLine->p1;
+        if (p->side)
+            point = playerLine->p11;
 
-			if (playerLine->offsetsX[n] >= 0)
-				x2 = x2 + p->animRight.getSize().x * scale * p->pivotColR.x;
+        float x2 = point.xScreen + (p->offsetX * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+        float scale = 1.6f * (0.3f * (1.f / 170.f)) * point.scale * input.gameWindow.getSize().x * ROAD_WIDTH * p->scale;
+        int width = p->textureSprite->getSize().x;
 
-			else
-				x2 = x2 - p->animRight.getSize().x * scale * (1 - p->pivotColL.x);
+        if (p->offsetX >= 0)
+            x2 += x2 + width * scale * p->pivotColRight.x;
 
-			if (hasCrashed((int)(input.gameWindow.getSize().x / 2) + 5, playerW, x2, p->wCol, scale))
-			{
-				collisionDir = posX;
-                crashing = true;
-                crashed = true;
-                modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A,
-                                                                  (int)Collision::TYPE_B));
-                if (speed <= 80 ) {
-                    lowAccel = speed / 2.0f;
-                }
-                else if (speed >= 80 && speed <= 150){
-                    lowAccel = speed / 0.8f;
-                }
-                else if (speed > 150 && speed <= 190){
-                    lowAccel = speed / 1.6f;
-                }
-                wheelL = StateWheel::SMOKE;
-                wheelR = StateWheel::SMOKE;
-                Audio::play(Sfx::FERRARI_CRASH, false);
-                Audio::play(static_cast<Sfx>(random_int((int)Sfx::SPECTATORS_FIRST_SHOUT,
-                                                        (int)Sfx::SPECTATORS_EIGHTH_SHOUT)), false);
-			}
-		}
-	}
+        else
+            x2 = x2 - width * scale * (1 - p->pivotColLeft.x);
+
+        if (hasCrashed((int)(input.gameWindow.getSize().x / 2) + 5, playerW, x2, p->wCol, scale))
+        {
+            collisionDir = posX;
+            crashing = true;
+            crashed = true;
+            modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A,
+                                                              (int)Collision::TYPE_B));
+            if (speed <= 80 ) {
+                lowAccel = speed / 2.0f;
+            }
+            else if (speed >= 80 && speed <= 150){
+                lowAccel = speed / 0.8f;
+            }
+            else if (speed > 150 && speed <= 190){
+                lowAccel = speed / 1.6f;
+            }
+            wheelL = StateWheel::SMOKE;
+            wheelR = StateWheel::SMOKE;
+            Audio::play(Sfx::FERRARI_CRASH, false);
+            Audio::play(static_cast<Sfx>(random_int((int)Sfx::SPECTATORS_FIRST_SHOUT,
+                                                    (int)Sfx::SPECTATORS_EIGHTH_SHOUT)), false);
+        }
+    }
 }
 
 

@@ -31,16 +31,16 @@ class SpriteInfo {
 public:
 
     sf::Texture* textureSprite;
-	fPoint pivot;
+	fPoint pivotLeft, pivotRight;
 	float scale;
 	bool collider, side;
 	float wCol, offsetX, offsetY;
-	fPoint pivotCol;
+	fPoint pivotColLeft, pivotColRight;
 
 	SpriteInfo();
 
-	SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivot, const float _scale,
-               const int _wCol, const fPoint _pivotCol, const float _offsetX,
+	SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
+               const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const float _offsetX,
                const float _offsetY, const bool _side);
 
 };
