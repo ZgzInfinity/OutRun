@@ -31,12 +31,56 @@ SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const 
     pivotRight = _pivotR;
     scale = _scale;
     collider = true;
-    wCol = _wCol;
+    widthCol = _wCol;
     offsetX = _offsetX;
     offsetY = _offsetY;
     side = _side;
     pivotColLeft = _pivotColL;
     pivotColRight = _pivotColR;
 };
+
+sf::Texture* SpriteInfo::getTextureSprite() const {
+    return textureSprite;
+}
+
+fPoint SpriteInfo::getPivotLeft() const {
+    return pivotLeft;
+}
+
+fPoint SpriteInfo::getPivotRight() const {
+    return pivotRight;
+}
+
+float SpriteInfo::getScale() const {
+    return scale;
+}
+
+bool SpriteInfo::getCollider() const {
+    return collider;
+}
+
+bool SpriteInfo::getSide() const {
+    return side;
+}
+
+float SpriteInfo::getWidthCol() const {
+    return widthCol;
+}
+
+float SpriteInfo::getOffsetX() const {
+    return offsetX;
+}
+
+float SpriteInfo::getOffsetY() const {
+    return offsetY;
+}
+
+fPoint SpriteInfo::getPivotColLeft() const {
+    return pivotColLeft;
+}
+
+fPoint SpriteInfo::getPivotColRight() const {
+    return pivotColRight;
+}
 
 

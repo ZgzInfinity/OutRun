@@ -26,32 +26,6 @@
 #include "../../Input/Input.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
 
-/**
- * Coefficient aliases to control the types of collision
- */
-enum class HitCoeffType : int {
-    HIT_CENTER,
-    HIT_LEFT,
-    HIT_RIGHT,
-    HIT_SIDES,
-    __COUNT
-};
-
-struct Prop {
-	sf::Texture animLeft;
-	sf::Texture animRight;
-	fPoint pivotL;
-	fPoint pivotR;
-	float scale;
-	bool collider;
-	float wCol;
-	fPoint pivotColL, pivotColR;
-	Prop() : pivotL({ 1.f, 1.f }), pivotR({ 0.f, 1.f }),
-		scale(1.f),
-		collider(false),
-		wCol(0.f),
-		pivotColL({ 0.5f, 1.f }), pivotColR({ 0.5f, 1.f }) {}
-};
 
 struct PointLine {
 	float xCamera, yCamera, zCamera;
@@ -61,9 +35,16 @@ struct PointLine {
 };
 
 
-class Line{
+struct Line {
 
-public:
+    int index;
+	PointLine p1, p2;
+	PointLine p11, p21;
+	bool light, mirror, hasSpriteLeft, hasSpriteRight;
+	float curve, distance, clip;
+
+	SpriteInfo* spriteLeft;
+	SpriteInfo* spriteRight;
 
 	Line();
 
@@ -71,29 +52,12 @@ public:
 
 	void projection(Input& input, PointLine &p, int cameraX, int cameraY, int cameraZ, float cameraD);
 
-	void renderProps(Input& input, int i);
-
     void renderSpriteInfo(Input& input, SpriteInfo* sprite);
 
 	void renderCars(Input& input, TrafficCar* car);
 
 	void drawObject(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);
 
-public:
-
-	int index;
-	PointLine p1, p2;
-	PointLine p11, p21;
-	bool light, mirror, hasSpriteLeft, hasSpriteRight;
-	float curve, distance, clip;
-
-    vector<Prop*> lineProps;
-	vector<float> offsetsX;
-	vector<float> offsetsY;
-	vector<bool> sides;
-
-	SpriteInfo* spriteLeft;
-	SpriteInfo* spriteRight;
 };
 
 #endif // LINE_H

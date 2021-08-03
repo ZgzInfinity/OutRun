@@ -62,8 +62,6 @@ public:
 
 	void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
 
-	void addProp(int line, Prop* p, float offsetX, float offsetY, bool side);
-
 	void addSpriteInfo(int line, SpriteInfo* p, bool left);
 
 private:

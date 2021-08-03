@@ -28,11 +28,6 @@ Line::Line()
 	p2.xWorld = p2.yWorld = p2.zWorld = p21.xWorld = p21.yWorld = p21.zWorld = 0;
 	curve = distance = 0, clip = 0;
 	light = mirror = hasSpriteLeft =  hasSpriteRight = false;
-
-	lineProps.reserve(2);
-	offsetsX.reserve(2);
-	offsetsY.reserve(2);
-	sides.reserve(2);
 }
 
 Line::~Line()
@@ -40,7 +35,6 @@ Line::~Line()
 
 void Line::projection(Input& input, PointLine &p, int cameraX, int cameraY, int cameraZ, float cameraD)
 {
-	// scale = (zWorld - cameraZ != 0 ? cameraD / (zWorld - cameraZ) : cameraD);
     p.xCamera = p.xWorld - cameraX;
 	p.yCamera = p.yWorld - cameraY;
 	p.zCamera = p.zWorld - cameraZ;
@@ -53,23 +47,23 @@ void Line::projection(Input& input, PointLine &p, int cameraX, int cameraY, int 
 void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
 {
     PointLine p = p1;
-	if (sprite->side)
+	if (sprite->getSide())
 		p = p11;
 
-	float spriteX = p.xScreen + (sprite->offsetX * p.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
-	float spriteY = p.yScreen + (sprite->offsetY * p.scale * 1000.f * input.gameWindow.getSize().y / 2);
+	float spriteX = p.xScreen + (sprite->getOffsetX() * p.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+	float spriteY = p.yScreen + (sprite->getOffsetY() * p.scale * 1000.f * input.gameWindow.getSize().y / 2);
 
     fPoint pivot;
 
-	if (sprite->offsetX >= 0){
-		pivot = sprite->pivotRight;
+	if (sprite->getOffsetX() >= 0){
+		pivot = sprite->getPivotRight();
 	}
 	else {
-		pivot = sprite->pivotLeft;
+		pivot = sprite->getPivotLeft();
 	}
 
-    float width = sprite->textureSprite->getSize().x;
-    float height = sprite->textureSprite->getSize().y;
+    float width = sprite->getTextureSprite()->getSize().x;
+    float height = sprite->getTextureSprite()->getSize().y;
 
 	float destW = (width * p.scale * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
 	float destH = (height * p.scale * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
@@ -77,8 +71,8 @@ void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
 	//If has to be clipped
 	if (clip < spriteY)
 	{
-		float clipH = MAX(0, clip - (spriteY - (destH * 3.43f * sprite->scale)));
-		float clipHPerc = (clipH / (destH * 3.43f * sprite->scale));
+		float clipH = MAX(0, clip - (spriteY - (destH * 3.43f * sprite->getScale())));
+		float clipHPerc = (clipH / (destH * 3.43f * sprite->getScale()));
 		height = (int)(height * clipHPerc);
 		spriteY = clip;
 		destH *= clipHPerc;
@@ -86,53 +80,7 @@ void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
 
 	if (height > 0){
 		drawObject(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET),
-             sprite->textureSprite, 1.f, { (destW / width) * 3.2f * sprite->scale, (destH / height) * 3.43f * sprite->scale}, pivot);
-	}
-}
-
-
-void Line::renderProps(Input& input, int i)
-{
-
-    PointLine p = p1;
-	if (sides[i])
-		p = p11;
-
-
-	float spriteX = p.xScreen + (offsetsX[i] * p.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
-	float spriteY = p.yScreen + (offsetsY[i] * p.scale * 1000.f * input.gameWindow.getSize().y / 2);
-
-	sf::Texture rectDest;
-	fPoint pivot;
-
-	if (offsetsX[i] >= 0){
-		rectDest = lineProps[i]->animRight;
-		pivot = lineProps[i]->pivotR;
-	}
-	else {
-		rectDest = lineProps[i]->animLeft;
-		pivot = lineProps[i]->pivotL;
-	}
-
-    float width = rectDest.getSize().x;
-    float height = rectDest.getSize().y;
-
-	float destW = (width * p.scale * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
-	float destH = (height * p.scale * input.gameWindow.getSize().x / 2) * ((0.3f * (1.f / 170.f)) * ROAD_WIDTH);
-
-	//If has to be clipped
-	if (clip < spriteY)
-	{
-		float clipH = MAX(0, clip - (spriteY - (destH*3.43f * lineProps[i]->scale)));
-		float clipHPerc = (clipH / (destH * 3.43f * lineProps[i]->scale));
-		height = (int)(height * clipHPerc);
-		spriteY = clip;
-		destH *= clipHPerc;
-	}
-
-	if (height > 0){
-		drawObject(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET),
-             &(rectDest), 1.f, { (destW / width) * 3.2f * lineProps[i]->scale, (destH / height) * 3.43f * lineProps[i]->scale}, pivot);
+             sprite->getTextureSprite(), 1.f, { (destW / width) * 3.2f * sprite->getScale(), (destH / height) * 3.43f * sprite->getScale()}, pivot);
 	}
 }
 

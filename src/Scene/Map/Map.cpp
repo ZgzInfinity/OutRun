@@ -255,9 +255,9 @@ void Map::initMap(){
 
                     fluxInput >> idPropLeft >> offsetXLeft >> offsetYLeft >> sideLeft;
                     SpriteInfo* spriteLeft = new SpriteInfo(&objects[idPropLeft - 1], pivotLeftPoints[idPropLeft - 1],
-                                                       pivotRightPoints[idPropLeft - 1], scaleCoeffs[idPropLeft - 1],
-                                                       widthCollisionCoeffs[idPropLeft - 1], pivotLeftColPoints[idPropLeft - 1],
-                                                       pivotRightColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
+                                                            pivotRightPoints[idPropLeft - 1], scaleCoeffs[idPropLeft - 1],
+                                                            widthCollisionCoeffs[idPropLeft - 1], pivotLeftColPoints[idPropLeft - 1],
+                                                            pivotRightColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
 
                     for (int i = startPosition; i < endPosition; i += incrementor){
                         if (i % frequency == 0){
@@ -272,9 +272,9 @@ void Map::initMap(){
 
                     fluxInput >> idPropRight >> offsetXRight >> offsetYRight >> sideRight;
                     SpriteInfo* spriteRight = new SpriteInfo(&objects[idPropRight - 1], pivotLeftPoints[idPropRight - 1],
-                                                        pivotRightPoints[idPropRight - 1], scaleCoeffs[idPropRight - 1],
-                                                        widthCollisionCoeffs[idPropRight - 1], pivotLeftColPoints[idPropRight - 1],
-                                                        pivotRightColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
+                                                             pivotRightPoints[idPropRight - 1], scaleCoeffs[idPropRight - 1],
+                                                             widthCollisionCoeffs[idPropRight - 1], pivotLeftColPoints[idPropRight - 1],
+                                                             pivotRightColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
 
                     for (int i = startPosition; i < endPosition; i += incrementor){
                         if (i % frequency == 0){
@@ -658,16 +658,6 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
                 l2->renderCars(input, cars[n]);
 			}
 		}
-	}
-}
-
-
-void Map::addProp(int line, Prop* p, float offsetX, float offsetY, bool side){
-	if (line < (int)lines.size()){
-		lines[line]->lineProps.push_back(p);
-		lines[line]->offsetsX.push_back(offsetX);
-		lines[line]->offsetsY.push_back(offsetY);
-		lines[line]->sides.push_back(side);
 	}
 }
 

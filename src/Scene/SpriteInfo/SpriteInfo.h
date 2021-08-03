@@ -28,21 +28,44 @@
 
 class SpriteInfo {
 
-public:
+    private:
 
-    sf::Texture* textureSprite;
-	fPoint pivotLeft, pivotRight;
-	float scale;
-	bool collider, side;
-	float wCol, offsetX, offsetY;
-	fPoint pivotColLeft, pivotColRight;
+        sf::Texture* textureSprite;
+        fPoint pivotLeft, pivotRight;
+        float scale;
+        bool collider, side;
+        float widthCol, offsetX, offsetY;
+        fPoint pivotColLeft, pivotColRight;
 
-	SpriteInfo();
+    public:
 
-	SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
-               const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const float _offsetX,
-               const float _offsetY, const bool _side);
+        SpriteInfo();
 
+        SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
+                   const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const float _offsetX,
+                   const float _offsetY, const bool _side);
+
+        sf::Texture* getTextureSprite() const;
+
+        fPoint getPivotLeft() const;
+
+        fPoint getPivotRight() const;
+
+        float getScale() const;
+
+        bool getCollider() const;
+
+        bool getSide() const;
+
+        float getWidthCol() const;
+
+        float getOffsetX() const;
+
+        float getOffsetY() const;
+
+        fPoint getPivotColLeft() const;
+
+        fPoint getPivotColRight() const;
 };
 
 #endif // SPRITE_INFO_H
