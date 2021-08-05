@@ -165,6 +165,7 @@ void Map::initMap(){
     loadObjects(path, objectNames);
 
     string info;
+    bool onlyOne = false;
     int redChannel, greenChannel, blueChannel, alpha;
     const string file = "Resources/Maps/Map1/map.txt";
     ifstream fluxInput(file, std::ifstream::in);
@@ -242,48 +243,68 @@ void Map::initMap(){
                 numTracks = computeRoadTracks(numTracks);
                 addMap(enter, hold, enter, direction, slope, mirror, numTracks);
             }
-            else if (info == "SUBMAP"){
+            else if (info == "SUBMAP" || "LINE"){
+                onlyOne = false;
                 int startPosition, endPosition, incrementor, frequency;
-                fluxInput >> startPosition >> endPosition >> incrementor >> frequency;
+                string order = info;
 
-                fluxInput >> info;
+                fluxInput >> startPosition;
 
-                if (info == "SPRITE_LEFT"){
-                    int idPropLeft;
-                    float offsetXLeft, offsetYLeft;
-                    bool sideLeft;
+                if (info == "SUBMAP")
+                    fluxInput >> endPosition >> incrementor >> frequency;
 
-                    fluxInput >> idPropLeft >> offsetXLeft >> offsetYLeft >> sideLeft;
-                    SpriteInfo* spriteLeft = new SpriteInfo(&objects[idPropLeft - 1], pivotLeftPoints[idPropLeft - 1],
-                                                            pivotRightPoints[idPropLeft - 1], scaleCoeffs[idPropLeft - 1],
-                                                            widthCollisionCoeffs[idPropLeft - 1], pivotLeftColPoints[idPropLeft - 1],
-                                                            pivotRightColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
+                for (int i = 1; i <= 2; i++){
+                    fluxInput >> info;
 
-                    for (int i = startPosition; i < endPosition; i += incrementor){
-                        if (i % frequency == 0){
-                            addSpriteInfo(i, spriteLeft, true);
+                    if (info == "SPRITE_LEFT"){
+                        int idPropLeft;
+                        float offsetXLeft, offsetYLeft;
+                        bool sideLeft;
+
+                        fluxInput >> idPropLeft >> offsetXLeft >> offsetYLeft >> sideLeft;
+                        SpriteInfo* spriteLeft = new SpriteInfo(&objects[idPropLeft - 1], pivotLeftPoints[idPropLeft - 1],
+                                                                pivotRightPoints[idPropLeft - 1], scaleCoeffs[idPropLeft - 1],
+                                                                widthCollisionCoeffs[idPropLeft - 1], pivotLeftColPoints[idPropLeft - 1],
+                                                                pivotRightColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
+
+                        if (order == "SUBMAP"){
+                            for (int i = startPosition; i < endPosition; i += incrementor){
+                                if (i % frequency == 0)
+                                    addSpriteInfo(i, spriteLeft, true);
+                            }
+                        }
+                        else {
+                            addSpriteInfo(startPosition, spriteLeft, true);
                         }
                     }
-                }
-                else if (info == "SPRITE_RIGHT"){
-                    int idPropRight;
-                    float offsetXRight, offsetYRight;
-                    bool sideRight;
+                    else if (info == "SPRITE_RIGHT"){
+                        int idPropRight;
+                        float offsetXRight, offsetYRight;
+                        bool sideRight;
 
-                    fluxInput >> idPropRight >> offsetXRight >> offsetYRight >> sideRight;
-                    SpriteInfo* spriteRight = new SpriteInfo(&objects[idPropRight - 1], pivotLeftPoints[idPropRight - 1],
-                                                             pivotRightPoints[idPropRight - 1], scaleCoeffs[idPropRight - 1],
-                                                             widthCollisionCoeffs[idPropRight - 1], pivotLeftColPoints[idPropRight - 1],
-                                                             pivotRightColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
+                        fluxInput >> idPropRight >> offsetXRight >> offsetYRight >> sideRight;
+                        SpriteInfo* spriteRight = new SpriteInfo(&objects[idPropRight - 1], pivotLeftPoints[idPropRight - 1],
+                                                                 pivotRightPoints[idPropRight - 1], scaleCoeffs[idPropRight - 1],
+                                                                 widthCollisionCoeffs[idPropRight - 1], pivotLeftColPoints[idPropRight - 1],
+                                                                 pivotRightColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
 
-                    for (int i = startPosition; i < endPosition; i += incrementor){
-                        if (i % frequency == 0){
-                            addSpriteInfo(i, spriteRight, false);
+                        if (order == "SUBMAP"){
+                            for (int i = startPosition; i < endPosition; i += incrementor){
+                                if (i % frequency == 0)
+                                    addSpriteInfo(i, spriteRight, false);
+                            }
                         }
+                        else {
+                            addSpriteInfo(startPosition, spriteRight, false);
+                        }
+                    }
+                    else {
+                        onlyOne = true;
                     }
                 }
             }
-            fluxInput >> info;
+            if (!onlyOne)
+                fluxInput >> info;
         }
         fluxInput.close();
     }
@@ -637,17 +658,14 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 	{
 		l = lines[(baseLine->index + n) % lines.size()];
 
+
 		if (l->index < playerLine->index)
 			continue;
 
         if (l->hasSpriteLeft)
-        {
-           l->renderSpriteInfo(input, l->spriteLeft);
-        }
+            l->renderSpriteInfo(input, l->spriteLeft);
         if (l->hasSpriteRight)
-        {
             l->renderSpriteInfo(input, l->spriteRight);
-        }
 
 		Line* l2;
 		for (unsigned int n = 0; n < cars.size(); ++n)

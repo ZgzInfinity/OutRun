@@ -1,1 +1,1 @@
-SCALE: 2.5
+SCALE: 1.6

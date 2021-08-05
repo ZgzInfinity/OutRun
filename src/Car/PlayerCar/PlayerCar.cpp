@@ -336,7 +336,7 @@ void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& tim
     //Apply centrifugal to curves
 	float centrifugal = (speed > 26) ? 0.5f : 0.f;
 	if (speed >= 70)
-		centrifugal = (speed - 50.f) / 70.f;
+		centrifugal = (speed - 50.f) / 90.f;
 	switch (playerMap)
 	{
 	case playerR::RIGHTROAD:
@@ -346,10 +346,10 @@ void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& tim
 		if (playerLine->mirror)
 			posX += (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
 		else
-			posX -= (playerLine->curve * MIN((speed / maxSpeed),1.f) * centrifugal * time);
+			posX -= (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
 		break;
 	case playerR::LEFTROAD:
-        posX -= (playerLine->curve * MIN((speed /maxSpeed),1.f) * centrifugal * time);
+        posX -= (playerLine->curve * MIN((speed /maxSpeed), 1.f) * centrifugal * time);
 		break;
 	}
 }
@@ -374,12 +374,13 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
         int width = p->getTextureSprite()->getSize().x;
 
         if (p->getOffsetX() >= 0)
-            x2 += x2 + width * scale * p->getPivotColRight().x;
+            x2 = x2 + width * scale * p->getPivotColRight().x;
 
         else
             x2 = x2 - width * scale * (1 - p->getPivotColLeft().x);
 
-        if (hasCrashed((int)(input.gameWindow.getSize().x / 2) + 5, playerW, x2, p->getWidthCol(), scale))
+        if (hasCrashed(((float) input.gameWindow.getSize().x) / 2.0f + 5,
+                       playerW, x2, p->getWidthCol(), scale))
         {
             collisionDir = posX;
             crashing = true;
