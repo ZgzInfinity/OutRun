@@ -243,14 +243,14 @@ void Map::initMap(){
                 numTracks = computeRoadTracks(numTracks);
                 addMap(enter, hold, enter, direction, slope, mirror, numTracks);
             }
-            else if (info == "SUBMAP" || "LINE"){
+            else if (info == "GROUPLINES" || "LINE"){
                 onlyOne = false;
                 int startPosition, endPosition, incrementor, frequency;
                 string order = info;
 
                 fluxInput >> startPosition;
 
-                if (info == "SUBMAP")
+                if (info == "GROUPLINES")
                     fluxInput >> endPosition >> incrementor >> frequency;
 
                 for (int i = 1; i <= 2; i++){
@@ -267,7 +267,7 @@ void Map::initMap(){
                                                                 widthCollisionCoeffs[idPropLeft - 1], pivotLeftColPoints[idPropLeft - 1],
                                                                 pivotRightColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
 
-                        if (order == "SUBMAP"){
+                        if (order == "GROUPLINES"){
                             for (int i = startPosition; i < endPosition; i += incrementor){
                                 if (i % frequency == 0)
                                     addSpriteInfo(i, spriteLeft, true);
@@ -288,7 +288,7 @@ void Map::initMap(){
                                                                  widthCollisionCoeffs[idPropRight - 1], pivotLeftColPoints[idPropRight - 1],
                                                                  pivotRightColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
 
-                        if (order == "SUBMAP"){
+                        if (order == "GROUPLINES"){
                             for (int i = startPosition; i < endPosition; i += incrementor){
                                 if (i % frequency == 0)
                                     addSpriteInfo(i, spriteRight, false);
@@ -439,12 +439,17 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score){
 
     updateCars(cars, p, score);
-
-    //Update player position
 	iniPosition = position;
-    if (p.getSpeed() > 0.f)
-        position = position + p.getSpeed();
+
+    if (p.getSpeed() > 0.f){
+        if (p.getTrafficCrash())
+            position = position - (p.getSpeed() * 0.5f);
+        else
+            position = position + p.getSpeed();
+    }
+
 	while (position >= trackLength)
+
 		position -= trackLength;
 	while (position < 0)
 		position += trackLength;
@@ -454,15 +459,23 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	p.elevationControl(playerLine->p1.yWorld, playerLine->p2.yWorld);
 
     if (p.getCrashing()){
-
         if (p.getSpeed() > 0.f){
-            p.setSpeed(p.getSpeed() - (p.getLowAccel() * time));
+            if (p.getSpeed() >= 20.f)
+                p.setSpeed(p.getSpeed() - (p.getLowAccel() * time * 0.7f));
+            else
+                p.setSpeed(p.getSpeed() - (p.getLowAccel() * time * 0.9f));
 
             if (p.getCollisionDir() >= 0.f){
-                p.setPosX(p.getPosX() - (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+                if (p.getSpeed() <= 75.f)
+                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+                else
+                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getMaxSpeed() * 3 * time));
             }
             else {
-                p.setPosX(p.getPosX() + (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+                if (p.getSpeed() <= 75.f)
+                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+                else
+                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getMaxSpeed() * 3 * time));
             }
         }
         else {
@@ -473,6 +486,15 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
                 p.setCrashing(false);
                 p.setNumAngers();
                 p.setAngryWoman();
+                p.setTrafficCrash();
+
+                float dif = 0.f;
+                if (p.getPlayerMap() == playerR::RIGHTROAD)
+                    dif = ((float)mapDistance / (float)ROAD_WIDTH);
+                if (p.getPosX() < -0.05f + dif)
+                    p.setPosX(p.getPosX() + 0.012f);
+                else if (p.getPosX() > 0.05f + dif)
+                    p.setPosX(p.getPosX() - 0.012f);
             }
             p.setStateWheelLeft(StateWheel::NORMAL);
             p.setStateWheelRight(StateWheel::NORMAL);

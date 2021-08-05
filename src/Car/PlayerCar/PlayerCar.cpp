@@ -30,10 +30,6 @@
 using namespace std;
 using namespace sf;
 
-#define PLAYER_TEXTURES 170
-#define MAX_INERTIA 10
-
-
 PlayerCar::PlayerCar() : Vehicle(){}
 
 
@@ -45,9 +41,9 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	highAccel = 10.f;
 	thresholdX = 1.f;
 	varThresholdX = 0.06f;
-	maxSpeed = 87.f;
-	lowAccel = 15.f;
-	brakeAccel = maxSpeed / 3.5f;
+	maxSpeed = 100.f;
+	lowAccel = maxSpeed / 6.5f;
+	brakeAccel = maxSpeed / 3.0f;
 	direction = Direction::FRONT;
 	collisionDir = 0.f;
 	out = 0;
@@ -75,6 +71,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
     angryWoman = false;
     increaseGear = false;
     decreaseGear = false;
+    trafficCrash = false;
 }
 
 void PlayerCar::setNumAngers(){
@@ -125,6 +122,14 @@ void PlayerCar::setCrashing(const bool& _crashing){
     crashing = _crashing;
 }
 
+bool PlayerCar::getTrafficCrash() const {
+    return trafficCrash;
+}
+
+void PlayerCar::setTrafficCrash(){
+    trafficCrash = false;
+}
+
 void PlayerCar::setAngryWoman(){
     angryWoman = false;
 }
@@ -170,13 +175,13 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
     direction = Direction::FRONT;
 
     if (wheelL == StateWheel::SAND && wheelR == StateWheel::SAND)
-		maxSpeed = 70.f;
+		maxSpeed = 75.f;
 	else
 	{
 		if (gear == 1)
 			maxSpeed = (int)SEGMENT_LENGTH;
 		else
-			maxSpeed = 87.f;
+			maxSpeed = 100.f;
 	}
 
     if ((input.pressed(Key::BRAKE, event) || input.held(Key::BRAKE)) && speed > 0.f){
@@ -189,12 +194,12 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
 			wheelR = StateWheel::NORMAL;
 		}
 
-		if (gear == 1 && speed < 87.f){
+		if (gear == 1 && speed < 100.f){
             gear = 0;
             decreaseGear = true;
 		}
 		else if (decreaseGear)
-            if (speed < 65.f)
+            if (speed < 90.f)
                 decreaseGear = false;
 
         wheelL = StateWheel::SMOKE;
@@ -211,7 +216,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
         else
             speed = maxSpeed;
 
-		action = (speed > 15.f) ? Action::ACCELERATE : Action::BOOT;
+		action = (speed > 20.f) ? Action::ACCELERATE : Action::BOOT;
 		motorEngineSound = true;
 
 		if (speed < 50.f && wheelL != StateWheel::SAND && wheelR != StateWheel::SAND){
@@ -232,7 +237,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
                 gear = 1;
                 increaseGear = true;
             }
-            if (increaseGear && speed > 97.f)
+            if (increaseGear && speed > 110.f)
                 increaseGear = false;
         }
         else {
@@ -245,12 +250,12 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
                 gear = 0;
                 decreaseGear = true;
 
-                if (speed > 87.f)
+                if (speed > 100.f)
                     speed -= lowAccel * time;
             }
             if (increaseGear && (speed > speedGear + 10.f))
                 increaseGear = false;
-            else if (decreaseGear && speed < 77.f)
+            else if (decreaseGear && speed < 90.f)
                 decreaseGear = false;
         }
     }
@@ -268,12 +273,12 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
 
         increaseGear = false;
 
-        if (gear == 1 && speed < 87.f){
+        if (gear == 1 && speed < 100.f){
             gear = 0;
             decreaseGear = true;
 		}
 		else if (decreaseGear){
-            if (speed < 77.f)
+            if (speed < 90.f)
                 decreaseGear = false;
 
             action = Action::BRAKE;
@@ -385,17 +390,16 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
             collisionDir = posX;
             crashing = true;
             crashed = true;
+            trafficCrash = false;
             modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A,
                                                               (int)Collision::TYPE_B));
-            if (speed <= 80 ) {
+            if (speed <= 80 )
                 lowAccel = speed / 2.0f;
-            }
-            else if (speed >= 80 && speed <= 150){
+            else if (speed >= 80 && speed <= 150)
                 lowAccel = speed / 0.8f;
-            }
-            else if (speed > 150 && speed <= 190){
+            else if (speed > 150 && speed <= 190)
                 lowAccel = speed / 1.6f;
-            }
+
             wheelL = StateWheel::SMOKE;
             wheelR = StateWheel::SMOKE;
             Audio::play(Sfx::FERRARI_CRASH, false);
@@ -434,19 +438,21 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
             collisionDir = posX;
             crashing = true;
             crashed = true;
+            trafficCrash = true;
             modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A, (int)Collision::TYPE_B));
-            if (speed <= 80 ) {
+
+            if (speed <= 80 )
                 lowAccel = speed / 2.0f;
-            }
-            else if (speed >= 80 && speed <= 150){
+            else if (speed >= 80 && speed <= 150)
                 lowAccel = speed / 0.8f;
-            }
-            else if (speed > 150 && speed <= 190){
+            else if (speed > 150 && speed <= 190)
                 lowAccel = speed / 1.6f;
-            }
+
             wheelL = StateWheel::SMOKE;
             wheelR = StateWheel::SMOKE;
             Audio::play(Sfx::FERRARI_CRASH, false);
+            Audio::play(static_cast<Sfx>(random_int((int)Sfx::SPECTATORS_FIRST_SHOUT,
+                                                    (int)Sfx::SPECTATORS_EIGHTH_SHOUT)), false);
         }
     }
 }
@@ -534,6 +540,7 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
 
         if (crashing){
             action = Action::CRASH;
+            outsideRoad = false;
 
             if (Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
                 Audio::stop(Sfx::FERRARI_ENGINE_RUN);
@@ -547,8 +554,13 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
 
         if (increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
             Audio::play(Sfx::FERRARI_ENGINE_UP_GEAR, false);
-        else if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
+        else if (!increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
+            Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
+
+        if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
             Audio::play(Sfx::FERRARI_ENGINE_DOWN_GEAR, false);
+        else if (!decreaseGear && Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
+            Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
 
     }
     else {

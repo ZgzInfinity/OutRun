@@ -196,6 +196,9 @@ State Game::gameOverRound(Input& input){
     Hud::setAllHudIndicators(input);
     Audio::play(Soundtrack::GAME_OVER, true);
 
+    if (player->getOutiseRoad())
+        player->setOutsideRoad(false);
+
     while (!escape && !start){
         handleEvent(input, time);
         m->renderMap(input, cars, *player);
