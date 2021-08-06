@@ -26,7 +26,7 @@ Line::Line()
 {
     p1.xWorld = p1.yWorld = p1.zWorld = p11.xWorld = p11.yWorld = p11.zWorld = 0;
 	p2.xWorld = p2.yWorld = p2.zWorld = p21.xWorld = p21.yWorld = p21.zWorld = 0;
-	curve = distance = 0, clip = 0;
+	curve = distance = clip = 0.f;
 	light = mirror = hasSpriteLeft =  hasSpriteRight = false;
 }
 
@@ -71,7 +71,7 @@ void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
 	//If has to be clipped
 	if (clip < spriteY)
 	{
-		float clipH = MAX(0, clip - (spriteY - (destH * 3.43f * sprite->getScale())));
+		float clipH = MAX(5, clip - (spriteY - (destH * 3.43f * sprite->getScale())));
 		float clipHPerc = (clipH / (destH * 3.43f * sprite->getScale()));
 		height = (int)(height * clipHPerc);
 		spriteY = clip;

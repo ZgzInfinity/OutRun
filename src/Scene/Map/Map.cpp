@@ -435,7 +435,6 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 	}
 }
 
-
 void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score){
 
     updateCars(cars, p, score);
@@ -449,7 +448,6 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
     }
 
 	while (position >= trackLength)
-
 		position -= trackLength;
 	while (position < 0)
 		position += trackLength;
