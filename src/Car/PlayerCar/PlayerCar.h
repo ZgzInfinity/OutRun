@@ -69,7 +69,7 @@ class PlayerCar : public Vehicle {
         Action action;
         Elevation elevation;
 
-        bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding, trafficCrash,
+        bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding, trafficCrash, drawCar,
              crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode;
 
         Collision modeCollision;
@@ -102,6 +102,8 @@ public:
     float getThresholdX() const;
 
     void setPlayerMap(const playerR& playerRoad);
+
+    void setDrawCar(const bool _drawCar);
 
     playerR getPlayerMap() const;
 

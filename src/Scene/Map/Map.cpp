@@ -483,10 +483,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
             p.setLowAccel(15.f);
             p.setCollisionDir();
             if (p.getNumAngers() == 3){
-                p.setCrashing(false);
-                p.setNumAngers();
                 p.setAngryWoman();
                 p.setTrafficCrash();
+                p.setDrawCar(false);
 
                 float dif = 0.f;
                 if (p.getPlayerMap() == playerR::RIGHTROAD)
@@ -495,6 +494,11 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
                     p.setPosX(p.getPosX() + 0.012f);
                 else if (p.getPosX() > 0.05f + dif)
                     p.setPosX(p.getPosX() - 0.012f);
+                else {
+                    p.setCrashing(false);
+                    p.setNumAngers();
+                    p.setDrawCar(true);
+                }
             }
             p.setStateWheelLeft(StateWheel::NORMAL);
             p.setStateWheelRight(StateWheel::NORMAL);

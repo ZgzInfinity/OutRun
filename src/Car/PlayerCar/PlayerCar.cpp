@@ -72,6 +72,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
     increaseGear = false;
     decreaseGear = false;
     trafficCrash = false;
+    drawCar = true;
 }
 
 void PlayerCar::setNumAngers(){
@@ -97,6 +98,11 @@ float PlayerCar::getThresholdX() const {
 void PlayerCar::setPlayerMap(const playerR& playerRoad){
     playerMap = playerRoad;
 }
+
+void PlayerCar::setDrawCar(const bool _drawCar){
+    drawCar = _drawCar;
+}
+
 
 playerR PlayerCar::getPlayerMap() const {
     return playerMap;
@@ -480,44 +486,99 @@ bool PlayerCar::hasCrashed(float x1, int w1, float x2, float w2, float scale){
  */
 void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngineSound) {
 
-    // Control the sounds of the devastator
-    if (motorEngineSound) {
-        if (speed > 0.0f) {
-            if (action == Action::BOOT) {
-                // Acceleration sound
-                if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_START)) {
-                    Audio::play(Sfx::FERRARI_ENGINE_START, false);
+    if (drawCar){
+        if (motorEngineSound) {
+            if (speed > 0.0f) {
+                if (action == Action::BOOT) {
+                    // Acceleration sound
+                    if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_START)) {
+                        Audio::play(Sfx::FERRARI_ENGINE_START, false);
+                    }
+                }
+                else if (action == Action::ACCELERATE){
+
+                    Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
+
+                    if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
+                        Audio::play(Sfx::FERRARI_ENGINE_RUN, true);
+                }
+                else if (action == Action::BRAKE){
+                    if (!decreaseGear)
+                        Audio::stop(Sfx::FERRARI_ENGINE_RUN);
+
+                    if (!decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
+                        Audio::play(Sfx::FERRARI_ENGINE_BRAKE, true);
+                }
+
+
+                if (skidding && !Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING)) {
+                    Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, true);
+                }
+                else if (!skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING)) {
+                    Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
+                }
+
+                if (outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)) {
+                    Audio::play(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, true);
+                }
+                else if (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)){
+                    Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
                 }
             }
-            else if (action == Action::ACCELERATE){
-
+            else {
+                Audio::stop(Sfx::FERRARI_ENGINE_START);
+                Audio::stop(Sfx::FERRARI_ENGINE_RUN);
+                Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
+                Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
                 Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
-
-                if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
-                    Audio::play(Sfx::FERRARI_ENGINE_RUN, true);
+                Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
+                Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
+                Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
             }
-            else if (action == Action::BRAKE){
-                if (!decreaseGear)
+
+            if (crashing && speed > 0.f) {
+                if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_DRIFT))
+                    Audio::play(Sfx::FERRARI_ENGINE_DRIFT, true);
+            }
+            else {
+                Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
+            }
+
+            if (crashing){
+                action = Action::CRASH;
+                outsideRoad = false;
+
+                if (speed > 0.f){
+                    wheelL = StateWheel::SMOKE;
+                    wheelR = StateWheel::SMOKE;
+                }
+
+                if (Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
                     Audio::stop(Sfx::FERRARI_ENGINE_RUN);
 
-                if (!decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
-                    Audio::play(Sfx::FERRARI_ENGINE_BRAKE, true);
+                if (Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
+                    Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
+
+                if (angryWoman && numAngers == 1)
+                    Audio::play(Sfx::BLOND_WOMAN_DIE, false);
+            }
+            else {
+                if (speed <= 0.f) {
+                    wheelL = StateWheel::NORMAL;
+                    wheelR = StateWheel::NORMAL;
+                }
             }
 
+            if (increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
+                Audio::play(Sfx::FERRARI_ENGINE_UP_GEAR, false);
+            else if (!increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
+                Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
 
-            if (skidding && !Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING)) {
-                Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, true);
-            }
-            else if (!skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING)) {
-                Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
-            }
+            if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
+                Audio::play(Sfx::FERRARI_ENGINE_DOWN_GEAR, false);
+            else if (!decreaseGear && Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
+                Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
 
-            if (outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)) {
-                Audio::play(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, true);
-            }
-            else if (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)){
-                Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
-            }
         }
         else {
             Audio::stop(Sfx::FERRARI_ENGINE_START);
@@ -530,302 +591,337 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
             Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
         }
 
-        if (crashing && speed > 0.f) {
-            if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_DRIFT))
-                Audio::play(Sfx::FERRARI_ENGINE_DRIFT, true);
+        if (direction != Direction::TURNLEFT){
+            firstTurnLeft = true;
         }
-        else {
-            Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
-        }
-
-        if (crashing){
-            action = Action::CRASH;
-            outsideRoad = false;
-
-            if (Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
-                Audio::stop(Sfx::FERRARI_ENGINE_RUN);
-
-            if (Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
-                Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
-
-            if (angryWoman && numAngers == 1)
-                Audio::play(Sfx::BLOND_WOMAN_DIE, false);
+        if (direction != Direction::TURNRIGHT){
+            firstTurnRight = true;
         }
 
-        if (increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
-            Audio::play(Sfx::FERRARI_ENGINE_UP_GEAR, false);
-        else if (!increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
-            Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
+        // Check the current action of the devastator to be drawn in the screen
+        if (action != Action::NONE) {
+            if (counter_code_image >= maxCounterToChange) {
+                counter_code_image = 0;
 
-        if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
-            Audio::play(Sfx::FERRARI_ENGINE_DOWN_GEAR, false);
-        else if (!decreaseGear && Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
-            Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
+                // Increment the texture counter only if it moves
+                if ((!pauseMode) && (speed > 0.0f || speed <= 0.0f && numAngers < 3))
+                    current_code_image++;
 
-    }
-    else {
-        Audio::stop(Sfx::FERRARI_ENGINE_START);
-        Audio::stop(Sfx::FERRARI_ENGINE_RUN);
-        Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
-        Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
-        Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
-        Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
-        Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
-        Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
-    }
-
-    if (direction != Direction::TURNLEFT){
-        firstTurnLeft = true;
-    }
-    if (direction != Direction::TURNRIGHT){
-        firstTurnRight = true;
-    }
-
-    // Check the current action of the devastator to be drawn in the screen
-    if (action != Action::NONE) {
-        if (counter_code_image >= maxCounterToChange) {
-            counter_code_image = 0;
-
-            // Increment the texture counter only if it moves
-            if ((!pauseMode) && (speed > 0.0f || speed <= 0.0f && numAngers < 3))
-                current_code_image++;
-
-            if (textures.size() == PLAYER_TEXTURES){
-                if (action == Action::ACCELERATE || action == Action::BOOT){
-                    if (elevation == Elevation::FLAT) {
-                        if (direction == Direction::FRONT) {
-                            if (current_code_image < 1 || current_code_image > 4)
-                                current_code_image = 1;
-                        }
-                        else if (direction == Direction::TURNLEFT) {
-                            if (firstTurnLeft) {
-                                if (current_code_image < 5 || current_code_image > 12)
-                                    current_code_image = 5;
-                                if (current_code_image == 9)
-                                    firstTurnLeft = false;
+                if (textures.size() == PLAYER_TEXTURES){
+                    if (action == Action::ACCELERATE || action == Action::BOOT){
+                        if (elevation == Elevation::FLAT) {
+                            if (direction == Direction::FRONT) {
+                                if (current_code_image < 1 || current_code_image > 4)
+                                    current_code_image = 1;
                             }
-                            else {
-                                if (current_code_image < 9 || current_code_image > 12)
-                                    current_code_image = 9;
-                            }
-                        }
-                        else { // Turn right
-                            if (firstTurnRight) {
-                                if (current_code_image < 13 || current_code_image > 20)
-                                    current_code_image = 13;
-                                if (current_code_image == 17)
-                                    firstTurnRight = false;
-                            }
-                            else {
-                                if (current_code_image < 17 || current_code_image > 20)
-                                    current_code_image = 17;
-                            }
-                        }
-                    }
-                    else if (elevation == Elevation::UP){
-                        if (direction == Direction::FRONT) {
-                            if (current_code_image < 21 || current_code_image > 24)
-                                current_code_image = 21;
-                        }
-                        else if (direction == Direction::TURNLEFT) {
-                            if (firstTurnLeft) {
-                                if (current_code_image < 25 || current_code_image > 32)
-                                    current_code_image = 25;
-                                if (current_code_image == 29)
-                                    firstTurnLeft = false;
-                            } else {
-                                if (current_code_image < 29 || current_code_image > 32)
-                                    current_code_image = 29;
-                            }
-                        }
-                        else { // Turn right
-                            if (firstTurnRight) {
-                                if (current_code_image < 33 || current_code_image > 40)
-                                    current_code_image = 33;
-                                if (current_code_image == 37)
-                                    firstTurnRight = false;
-                            } else {
-                                if (current_code_image < 37 || current_code_image > 40)
-                                    current_code_image = 37;
-                            }
-                        }
-                    }
-                    else {
-                        if (direction == Direction::FRONT) {
-                            if (current_code_image < 41 || current_code_image > 44)
-                                current_code_image = 41;
-                        }
-                        else if (direction == Direction::TURNLEFT) {
-                            if (firstTurnLeft) {
-                                if (current_code_image < 45 || current_code_image > 52)
-                                    current_code_image = 45;
-                                if (current_code_image == 49)
-                                    firstTurnLeft = false;
-                            } else {
-                                if (current_code_image < 49 || current_code_image > 52)
-                                    current_code_image = 49;
-                            }
-                        }
-                        else { // Turn right
-                            if (firstTurnRight) {
-                                if (current_code_image < 53 || current_code_image > 60)
-                                    current_code_image = 53;
-                                if (current_code_image == 57)
-                                    firstTurnRight = false;
-                            } else {
-                                if (current_code_image < 57 || current_code_image > 60)
-                                    current_code_image = 57;
-                            }
-                        }
-                    }
-                }
-                else if (action == Action::BRAKE){
-                    if (elevation == Elevation::FLAT){
-                        if (direction == Direction::FRONT) {
-                            if (current_code_image < 61 || current_code_image > 64)
-                                current_code_image = 61;
-                        }
-                        else if (direction == Direction::TURNLEFT) {
-                            if (firstTurnLeft) {
-                                if (current_code_image < 65 || current_code_image > 72)
-                                    current_code_image = 65;
-                                if (current_code_image == 69)
-                                    firstTurnLeft = false;
-                            }
-                            else {
-                                if (current_code_image < 69 || current_code_image > 72)
-                                    current_code_image = 69;
-                            }
-                        }
-                        else { // Turn right
-                            if (firstTurnRight) {
-                                if (current_code_image < 73 || current_code_image > 80)
-                                    current_code_image = 73;
-                                if (current_code_image == 77)
-                                    firstTurnRight = false;
-                            }
-                            else {
-                                if (current_code_image < 77 || current_code_image > 80)
-                                    current_code_image = 77;
-                            }
-                        }
-                    }
-                    else if (elevation == Elevation::UP) {
-                        if (direction == Direction::FRONT) {
-                            if (current_code_image < 81 || current_code_image > 84)
-                                current_code_image = 81;
-                        }
-                        else if (direction == Direction::TURNLEFT) {
-                            if (firstTurnLeft) {
-                                if (current_code_image < 85 || current_code_image > 92)
-                                    current_code_image = 85;
-                                if (current_code_image == 89)
-                                    firstTurnLeft = false;
-                            }
-                            else {
-                                if (current_code_image < 89 || current_code_image > 92)
-                                    current_code_image = 89;
-                            }
-                        }
-                        else { // Turn right
-                            if (firstTurnRight) {
-                                if (current_code_image < 93 || current_code_image > 100)
-                                    current_code_image = 93;
-                                if (current_code_image == 97)
-                                    firstTurnRight = false;
-                            }
-                            else {
-                                if (current_code_image < 97 || current_code_image > 100)
-                                    current_code_image = 97;
-                            }
-                        }
-                    }
-                    else { // Down
-                        if (direction == Direction::FRONT){
-                            if (current_code_image < 101 || current_code_image > 104)
-                                current_code_image = 101;
-                        }
-                        else if (direction == Direction::TURNLEFT){
-                            if (firstTurnLeft) {
-                                if (current_code_image < 105 || current_code_image > 112)
-                                    current_code_image = 105;
-                                if (current_code_image == 109)
-                                    firstTurnLeft = false;
-                            }
-                            else {
-                                if (current_code_image < 109 || current_code_image > 112)
-                                    current_code_image = 109;
-                            }
-                        }
-                        else {
-                            if (firstTurnRight) {
-                                if (current_code_image < 113 || current_code_image > 120)
-                                    current_code_image = 113;
-                                if (current_code_image == 117)
-                                    firstTurnRight = false;
-                            }
-                            else {
-                                if (current_code_image < 117 || current_code_image > 120)
-                                    current_code_image = 117;
-                            }
-                        }
-                    }
-                }
-                else if (action == Action::CRASH){
-                    // The devastator is crashing
-                    if (modeCollision == Collision::TYPE_A) {
-                        // First type of animation
-                        if (speed <= 0.f){
-
-                            if (numAngers < 3){
-                                if (current_code_image < 129 || current_code_image > 133){
-                                    current_code_image = 129;
+                            else if (direction == Direction::TURNLEFT) {
+                                if (firstTurnLeft) {
+                                    if (current_code_image < 5 || current_code_image > 12)
+                                        current_code_image = 5;
+                                    if (current_code_image == 9)
+                                        firstTurnLeft = false;
                                 }
                                 else {
-                                    if (current_code_image == 133){
-                                        numAngers++;
-
-                                        if (numAngers == 1)
-                                            angryWoman = true;
-                                    }
-                                 }
+                                    if (current_code_image < 9 || current_code_image > 12)
+                                        current_code_image = 9;
+                                }
                             }
-
+                            else { // Turn right
+                                if (firstTurnRight) {
+                                    if (current_code_image < 13 || current_code_image > 20)
+                                        current_code_image = 13;
+                                    if (current_code_image == 17)
+                                        firstTurnRight = false;
+                                }
+                                else {
+                                    if (current_code_image < 17 || current_code_image > 20)
+                                        current_code_image = 17;
+                                }
+                            }
+                        }
+                        else if (elevation == Elevation::UP){
+                            if (direction == Direction::FRONT) {
+                                if (current_code_image < 21 || current_code_image > 24)
+                                    current_code_image = 21;
+                            }
+                            else if (direction == Direction::TURNLEFT) {
+                                if (firstTurnLeft) {
+                                    if (current_code_image < 25 || current_code_image > 32)
+                                        current_code_image = 25;
+                                    if (current_code_image == 29)
+                                        firstTurnLeft = false;
+                                } else {
+                                    if (current_code_image < 29 || current_code_image > 32)
+                                        current_code_image = 29;
+                                }
+                            }
+                            else { // Turn right
+                                if (firstTurnRight) {
+                                    if (current_code_image < 33 || current_code_image > 40)
+                                        current_code_image = 33;
+                                    if (current_code_image == 37)
+                                        firstTurnRight = false;
+                                } else {
+                                    if (current_code_image < 37 || current_code_image > 40)
+                                        current_code_image = 37;
+                                }
+                            }
                         }
                         else {
-                            if (current_code_image < 121 || current_code_image > 128)
-                                current_code_image = 121;
+                            if (direction == Direction::FRONT) {
+                                if (current_code_image < 41 || current_code_image > 44)
+                                    current_code_image = 41;
+                            }
+                            else if (direction == Direction::TURNLEFT) {
+                                if (firstTurnLeft) {
+                                    if (current_code_image < 45 || current_code_image > 52)
+                                        current_code_image = 45;
+                                    if (current_code_image == 49)
+                                        firstTurnLeft = false;
+                                } else {
+                                    if (current_code_image < 49 || current_code_image > 52)
+                                        current_code_image = 49;
+                                }
+                            }
+                            else { // Turn right
+                                if (firstTurnRight) {
+                                    if (current_code_image < 53 || current_code_image > 60)
+                                        current_code_image = 53;
+                                    if (current_code_image == 57)
+                                        firstTurnRight = false;
+                                } else {
+                                    if (current_code_image < 57 || current_code_image > 60)
+                                        current_code_image = 57;
+                                }
+                            }
                         }
                     }
-                    else {
-                        // Second type of animation
-                        if (speed <= 0.f){
-
-                            if (numAngers < 3){
-                                 if (current_code_image < 142 || current_code_image > 146){
-                                    current_code_image = 142;
-                                 }
-                                 else {
-                                    if (current_code_image == 146){
-                                        numAngers++;
-
-                                        if (numAngers == 1)
-                                            angryWoman = true;
-                                    }
-                                 }
+                    else if (action == Action::BRAKE){
+                        if (elevation == Elevation::FLAT){
+                            if (direction == Direction::FRONT) {
+                                if (current_code_image < 61 || current_code_image > 64)
+                                    current_code_image = 61;
                             }
+                            else if (direction == Direction::TURNLEFT) {
+                                if (firstTurnLeft) {
+                                    if (current_code_image < 65 || current_code_image > 72)
+                                        current_code_image = 65;
+                                    if (current_code_image == 69)
+                                        firstTurnLeft = false;
+                                }
+                                else {
+                                    if (current_code_image < 69 || current_code_image > 72)
+                                        current_code_image = 69;
+                                }
+                            }
+                            else { // Turn right
+                                if (firstTurnRight) {
+                                    if (current_code_image < 73 || current_code_image > 80)
+                                        current_code_image = 73;
+                                    if (current_code_image == 77)
+                                        firstTurnRight = false;
+                                }
+                                else {
+                                    if (current_code_image < 77 || current_code_image > 80)
+                                        current_code_image = 77;
+                                }
+                            }
+                        }
+                        else if (elevation == Elevation::UP) {
+                            if (direction == Direction::FRONT) {
+                                if (current_code_image < 81 || current_code_image > 84)
+                                    current_code_image = 81;
+                            }
+                            else if (direction == Direction::TURNLEFT) {
+                                if (firstTurnLeft) {
+                                    if (current_code_image < 85 || current_code_image > 92)
+                                        current_code_image = 85;
+                                    if (current_code_image == 89)
+                                        firstTurnLeft = false;
+                                }
+                                else {
+                                    if (current_code_image < 89 || current_code_image > 92)
+                                        current_code_image = 89;
+                                }
+                            }
+                            else { // Turn right
+                                if (firstTurnRight) {
+                                    if (current_code_image < 93 || current_code_image > 100)
+                                        current_code_image = 93;
+                                    if (current_code_image == 97)
+                                        firstTurnRight = false;
+                                }
+                                else {
+                                    if (current_code_image < 97 || current_code_image > 100)
+                                        current_code_image = 97;
+                                }
+                            }
+                        }
+                        else { // Down
+                            if (direction == Direction::FRONT){
+                                if (current_code_image < 101 || current_code_image > 104)
+                                    current_code_image = 101;
+                            }
+                            else if (direction == Direction::TURNLEFT){
+                                if (firstTurnLeft) {
+                                    if (current_code_image < 105 || current_code_image > 112)
+                                        current_code_image = 105;
+                                    if (current_code_image == 109)
+                                        firstTurnLeft = false;
+                                }
+                                else {
+                                    if (current_code_image < 109 || current_code_image > 112)
+                                        current_code_image = 109;
+                                }
+                            }
+                            else {
+                                if (firstTurnRight) {
+                                    if (current_code_image < 113 || current_code_image > 120)
+                                        current_code_image = 113;
+                                    if (current_code_image == 117)
+                                        firstTurnRight = false;
+                                }
+                                else {
+                                    if (current_code_image < 117 || current_code_image > 120)
+                                        current_code_image = 117;
+                                }
+                            }
+                        }
+                    }
+                    else if (action == Action::CRASH){
+                        // The devastator is crashing
+                        if (modeCollision == Collision::TYPE_A) {
+                            // First type of animation
+                            if (speed <= 0.f){
 
+                                if (numAngers < 3){
+                                    if (current_code_image < 129 || current_code_image > 133){
+                                        current_code_image = 129;
+                                    }
+                                    else {
+                                        if (current_code_image == 133){
+                                            numAngers++;
+
+                                            if (numAngers == 1)
+                                                angryWoman = true;
+                                        }
+                                     }
+                                }
+
+                            }
+                            else {
+                                if (current_code_image < 121 || current_code_image > 128)
+                                    current_code_image = 121;
+                            }
                         }
                         else {
-                            if (current_code_image < 134 || current_code_image > 141)
-                                current_code_image = 134;
+                            // Second type of animation
+                            if (speed <= 0.f){
+
+                                if (numAngers < 3){
+                                     if (current_code_image < 142 || current_code_image > 146){
+                                        current_code_image = 142;
+                                     }
+                                     else {
+                                        if (current_code_image == 146){
+                                            numAngers++;
+
+                                            if (numAngers == 1)
+                                                angryWoman = true;
+                                        }
+                                     }
+                                }
+
+                            }
+                            else {
+                                if (current_code_image < 134 || current_code_image > 141)
+                                    current_code_image = 134;
+                            }
                         }
                     }
                 }
             }
+            else {
+                counter_code_image++;
+            }
         }
         else {
-            counter_code_image++;
+            if (elevation == Elevation::FLAT) {
+                current_code_image = 1;
+            }
+            else if (elevation == Elevation::UP){
+                current_code_image = 21;
+            }
+            else {
+                current_code_image = 41;
+            }
+        }
+
+        if (outsideRoad && speed > 0.f){
+            if (counterOut == 5){
+                out = (out == -1) ? 0 : -1;
+                counterOut = 0;
+            }
+            else
+                counterOut++;
+        }
+        else {
+            out = 0;
+            counterOut = 0;
+        }
+
+        sprite.setTexture(textures[current_code_image - 1], true);
+        sprite.setScale(3.2f * input.screenScaleX, 3.2f * input.screenScaleY);
+        float minScreenX = ((float) input.gameWindow.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
+        sprite.setPosition(minScreenX, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
+        input.gameWindow.draw(sprite);
+
+        if (crashing) {
+            if (speed <= 0.f){
+                maxCounterToChange = 6;
+            }
+            else if (speed > 0.f && speed < 20.f){
+                maxCounterToChange = 5;
+            }
+            else if (speed >= 20.f && speed < 60.f){
+                maxCounterToChange = 4;
+            }
+            else if (speed >= 60.f && speed < 100.f){
+                maxCounterToChange = 3;
+            }
+        }
+        else {
+             maxCounterToChange = 2;
+        }
+
+        const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+
+        if (wheelL == StateWheel::SMOKE){
+            sprite.setTexture(textures[146 + current_code_image % 4], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
+                               j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+        else if (wheelL == StateWheel::SAND){
+            sprite.setTexture(textures[150 + current_code_image % 4], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
+                                j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+
+        if (wheelR == StateWheel::SMOKE){
+            sprite.setTexture(textures[146 + current_code_image % 4], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+        else if (wheelR == StateWheel::SAND){
+            sprite.setTexture(textures[150 + current_code_image % 4], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
         }
     }
     else {
@@ -838,73 +934,7 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
         else {
             current_code_image = 41;
         }
+        wheelL = StateWheel::NORMAL;
+        wheelR = StateWheel::NORMAL;
     }
-
-    if (outsideRoad && speed > 0.f){
-        if (counterOut == 5){
-            out = (out == -1) ? 0 : -1;
-            counterOut = 0;
-        }
-        else
-            counterOut++;
-    }
-    else {
-        out = 0;
-        counterOut = 0;
-    }
-
-    sprite.setTexture(textures[current_code_image - 1], true);
-    sprite.setScale(3.2f * input.screenScaleX, 3.2f * input.screenScaleY);
-    float minScreenX = ((float) input.gameWindow.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
-    sprite.setPosition(minScreenX, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
-    input.gameWindow.draw(sprite);
-
-    if (crashing) {
-        if (speed <= 0.f){
-            maxCounterToChange = 6;
-        }
-        else if (speed > 0.f && speed < 20.f){
-            maxCounterToChange = 5;
-        }
-        else if (speed >= 20.f && speed < 60.f){
-            maxCounterToChange = 4;
-        }
-        else if (speed >= 60.f && speed < 100.f){
-            maxCounterToChange = 3;
-        }
-    }
-    else {
-         maxCounterToChange = 2;
-    }
-
-    const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
-
-    if (wheelL == StateWheel::SMOKE){
-        sprite.setTexture(textures[146 + current_code_image % 4], true);
-        sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-        sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
-                           j - sprite.getGlobalBounds().height + out);
-        input.gameWindow.draw(sprite);
-    }
-    else if (wheelL == StateWheel::SAND){
-        sprite.setTexture(textures[150 + current_code_image % 4], true);
-        sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-        sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
-                            j - sprite.getGlobalBounds().height + out);
-        input.gameWindow.draw(sprite);
-    }
-
-    if (wheelR == StateWheel::SMOKE){
-        sprite.setTexture(textures[146 + current_code_image % 4], true);
-        sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-        sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height + out);
-        input.gameWindow.draw(sprite);
-    }
-    else if (wheelR == StateWheel::SAND){
-        sprite.setTexture(textures[150 + current_code_image % 4], true);
-        sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-        sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
-        input.gameWindow.draw(sprite);
-    }
-
 }
