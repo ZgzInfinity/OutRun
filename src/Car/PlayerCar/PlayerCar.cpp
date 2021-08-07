@@ -255,13 +255,14 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
             else if ((input.pressed(Key::DOWN_GEAR, event) || input.held(Key::DOWN_GEAR)) && gear != 0){
                 gear = 0;
                 decreaseGear = true;
+                speedGear = speed;
 
                 if (speed > 100.f)
                     speed -= lowAccel * time;
             }
             if (increaseGear && (speed > speedGear + 10.f))
                 increaseGear = false;
-            else if (decreaseGear && speed < 90.f)
+            else if (decreaseGear && speed + 10.f < speedGear)
                 decreaseGear = false;
         }
     }
@@ -344,24 +345,20 @@ void PlayerCar::elevationControl(const int& yWorld1, const int& yWorld2){
 
 
 void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance){
-    //Apply centrifugal to curves
 	float centrifugal = (speed > 26) ? 0.5f : 0.f;
-	if (speed >= 70)
-		centrifugal = (speed - 50.f) / 90.f;
-	switch (playerMap)
-	{
-	case playerR::RIGHTROAD:
-		//Displacement when player is in right road, and roads are changing distance between them
-		if (mapDistance != playerLine->distance)
-			posX += (playerLine->distance - mapDistance) / (float)ROAD_WIDTH;
-		if (playerLine->mirror)
-			posX += (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
-		else
-			posX -= (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
-		break;
-	case playerR::LEFTROAD:
-        posX -= (playerLine->curve * MIN((speed /maxSpeed), 1.f) * centrifugal * time);
-		break;
+	if (speed >= 100.f)
+		centrifugal = (speed - 50.f) / 100.f;
+	switch (playerMap){
+        case playerR::RIGHTROAD:
+            if (mapDistance != playerLine->distance)
+                posX += (playerLine->distance - mapDistance) / (float)ROAD_WIDTH;
+            if (playerLine->mirror)
+                posX += (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
+            else
+                posX -= (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
+            break;
+        case playerR::LEFTROAD:
+            posX -= (playerLine->curve * MIN((speed /maxSpeed), 1.f) * centrifugal * time);
 	}
 }
 
@@ -574,11 +571,9 @@ void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngin
             else if (!increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
                 Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
 
-            if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
+            if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR)){
                 Audio::play(Sfx::FERRARI_ENGINE_DOWN_GEAR, false);
-            else if (!decreaseGear && Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
-                Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
-
+            }
         }
         else {
             Audio::stop(Sfx::FERRARI_ENGINE_START);

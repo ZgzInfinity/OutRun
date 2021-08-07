@@ -178,11 +178,13 @@ void MenuOptions::handleEvent(Input& input){
             escapePressed = true;
         }
         else if (input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
-            backPressed = true;
-            Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
-            Audio::stop(Soundtrack::OPTIONS);
-            if (!pauseMode)
-                Audio::play(Sfx::WIND, true);
+            if (!controlSelected){
+                backPressed = true;
+                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+                Audio::stop(Soundtrack::OPTIONS);
+                if (!pauseMode)
+                    Audio::play(Sfx::WIND, true);
+            }
         }
         else if (input.pressed(Key::MENU_UP, event) && input.held(Key::MENU_UP) && !controlSelected){
             changeButtonSelected(true);

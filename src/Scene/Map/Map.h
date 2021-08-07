@@ -76,6 +76,8 @@ private:
 
     float distance(float a, float b);
 
+    void drawBackground(Input& input, int x, int y, sf::RectangleShape background, float speed, fPoint scale, fPoint pivot);
+
 private:
 
 	vector<Line*> lines;
@@ -88,7 +90,7 @@ private:
 	int trackLength;
 	float pWheelL, pWheelR;
 
-	float drawDistance;
+	float drawDistance, offsetXBackground1;
 	float segmentL, rumbleL;
 	int mapLanes, mapDistance;
 	int time, terrain;
@@ -97,10 +99,10 @@ private:
 	int dist3, dist4, dist5, dist6, dist7, dist8, distM;
 
     sf::Texture backGround;
-    sf::Sprite background;
+    sf::RectangleShape backgroundShape;
 
     sf::Texture backGround2;
-    sf::Sprite background2;
+
 
     // Objects of the map
     vector<sf::Texture> objects;

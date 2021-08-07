@@ -35,6 +35,7 @@ Map::Map(Input& input)
 	mapDistance = 0;
     pWheelL = -210;
 	pWheelR = 210;
+    offsetXBackground1 = 1000.f;
 
 	//Initial position
 	iniPosition = position = 300 * (int)SEGMENT_LENGTH;
@@ -154,6 +155,11 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames){
 
 // Load assets
 void Map::initMap(){
+
+    backGround.loadFromFile("Resources/Maps/Map1/bg.png");
+    backGround.setRepeated(true);
+    backgroundShape.setPosition(0, 0);
+    backgroundShape.setSize(sf::Vector2f(4030, 243));
 
     vector<string> objectNames;
     objectNames.reserve(26);
@@ -557,7 +563,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	//Make smoke if sliding to the side when in a huge curve
 	if (p.getStateWheelLeft() != StateWheel::SAND && p.getStateWheelRight() != StateWheel::SAND && p.getSpeed() > 70.f)
 	{
-		if (abs(p.getThresholdX()) >= (p.getSpeed() * time * 0.8f) && abs(playerLine->curve) > 2.5f)
+		if (abs(p.getThresholdX()) >= (p.getSpeed() * time * 0.8f) && abs(playerLine->curve) >= 2.5f)
 		{
 		    p.setSkidding(true);
 			p.setStateWheelLeft(StateWheel::SMOKE);
@@ -676,6 +682,29 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 
 		maxY = l->p2.yScreen;
 	}
+
+	sf::RectangleShape backgroundShapeSliced;
+    float posBackX = backgroundShape.getPosition().x;
+    float posBackY = backgroundShape.getPosition().y;
+    float heightBack = backgroundShape.getSize().y;
+    float widthBack = backgroundShape.getSize().x;
+
+
+    if (!playerLine->mirror)
+        offsetXBackground1 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 2.f;
+
+    backgroundShapeSliced.setSize(sf::Vector2f(input.gameWindow.getSize().x,
+                                               MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
+
+    backgroundShapeSliced.setPosition(posBackX + (int)offsetXBackground1,
+                                MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))));
+
+    backgroundShapeSliced.setTexture(&backGround, true);
+    backgroundShapeSliced.setTextureRect(sf::IntRect(posBackX + (int)offsetXBackground1,
+                                                     MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))),
+                                                     input.gameWindow.getSize().x, MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
+
+    drawBackground(input, 0, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
 
     //Draw sprites and cars
 	for (int n = (int)(drawDistance - 1); n > 0; --n)
@@ -801,9 +830,26 @@ float Map::easeInOut(float a, float b, float percent)
 }
 
 
-float distance(float a, float b)
+float Map::distance(float a, float b)
 {
 	return abs((b - a));
 }
 
+
+void Map::drawBackground(Input& input, int x, int y, sf::RectangleShape background, float speed, fPoint scale, fPoint pivot){
+
+    int w, h;
+    w = background.getSize().x;
+    h = background.getSize().y;
+
+    int xValue = (int)(w - (w * scale.x));
+    int yValue = (int)(h - (h * scale.y));
+
+    background.setPosition((int)(x - (w * pivot.x) + (int)(xValue * pivot.x)),
+                           (int)(y - (h * pivot.y) + (int)(yValue * pivot.y)));
+
+    background.setSize(sf::Vector2f((int)(w * scale.x), (int)(h * scale.y)));
+
+    input.gameWindow.draw(background);
+}
 
