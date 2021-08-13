@@ -42,7 +42,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	thresholdX = 1.f;
 	varThresholdX = 0.06f;
 	maxSpeed = 100.f;
-	lowAccel = maxSpeed / 6.5f;
+	lowAccel = maxSpeed / 10.f;
 	brakeAccel = maxSpeed / 3.0f;
 	direction = Direction::FRONT;
 	collisionDir = 0.f;
@@ -222,7 +222,7 @@ void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
         else
             speed = maxSpeed;
 
-		action = (speed > 20.f) ? Action::ACCELERATE : Action::BOOT;
+		action = (speed > 15.f) ? Action::ACCELERATE : Action::BOOT;
 		motorEngineSound = true;
 
 		if (speed < 50.f && wheelL != StateWheel::SAND && wheelR != StateWheel::SAND){
@@ -346,8 +346,8 @@ void PlayerCar::elevationControl(const int& yWorld1, const int& yWorld2){
 
 void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance){
 	float centrifugal = (speed > 26) ? 0.5f : 0.f;
-	if (speed >= 100.f)
-		centrifugal = (speed - 50.f) / 100.f;
+	if (speed >= 70.f)
+		centrifugal = (speed - 50.f) / 70.f;
 	switch (playerMap){
         case playerR::RIGHTROAD:
             if (mapDistance != playerLine->distance)

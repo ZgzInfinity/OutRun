@@ -40,6 +40,10 @@ public:
 	Map(Input& input);
 	~Map();
 
+	void setTime(const int _time);
+
+    void setTerrain(const int _terrain);
+
 	int getTime() const;
 
     Line* getLine(const int& index);

@@ -53,6 +53,13 @@ Map::Map(Input& input)
 Map::~Map()
 {}
 
+void Map::setTime(const int _time){
+    time = _time;
+}
+
+void Map::setTerrain(const int _terrain){
+    terrain = _terrain;
+}
 
 int Map::getTime() const {
     return time;
@@ -484,7 +491,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
         }
         else {
             p.setSpeed(0.f);
-            p.setLowAccel(15.f);
+            p.setLowAccel(10.f);
             p.setCollisionDir();
             if (p.getNumAngers() == 3){
                 p.setAngryWoman();
