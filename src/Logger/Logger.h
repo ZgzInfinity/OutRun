@@ -55,7 +55,12 @@ class Logger {
 
         bool checkMapFile(const std::string& pathMapFile);
 
-        bool checkGlobalMapConfiguration(Map& m);
+        bool checkTimeAndTerrain(Map& m);
+
+        bool checkColors(Map& m);
+
+        bool readColor(sf::Color& colorRead);
+
 
 };
 
