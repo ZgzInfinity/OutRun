@@ -24,8 +24,21 @@ using namespace std;
 
 #include "Input/Input.h"
 #include "Game/Game.h"
+#include "Logger/Logger.h"
 
 int main(){
+
+    Logger::checkMapFile("Resources/Maps/Map1/map.txt");
+
+    Map m;
+
+    Logger::checkTimeAndTerrain(m);
+
+    if (!Logger::getFailDetected())
+        Logger::checkColors(m);
+
+    if (!Logger::getFailDetected())
+        Logger::checkMapRelief(m);
 
     Input input;
 

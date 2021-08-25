@@ -33,9 +33,11 @@ class Logger {
 
         const std::string LOGGER_PATH_FILE = "Resources/Logger/Logger.txt";
 
-        const std::regex natural_number_regex{"[0-9]+"};
+        const std::regex natural_number_regex{"[1-9][0-9]*"};
 
         const std::regex float_number_regex{"-?[0-9]+.?[0-9]+"};
+
+        const std::regex integer_number_regex{"-?[0-9]+"};
 
         static Logger instance;
 
@@ -53,15 +55,17 @@ class Logger {
 
         Logger();
 
-        bool checkMapFile(const std::string& pathMapFile);
+        bool static getFailDetected();
 
-        bool checkTimeAndTerrain(Map& m);
+        bool static checkMapFile(const std::string& pathMapFile);
 
-        bool checkColors(Map& m);
+        bool static checkTimeAndTerrain(Map& m);
 
-        bool readColor(sf::Color& colorRead);
+        bool static checkColors(Map& m);
 
+        bool static readColor(sf::Color& colorRead);
 
+        bool static checkMapRelief(Map& m);
 };
 
 #endif // LOGGER_H

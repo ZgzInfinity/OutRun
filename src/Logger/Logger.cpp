@@ -31,13 +31,19 @@ Logger::Logger(){
         instance.failDetected = true;
 }
 
+bool Logger::getFailDetected(){
+    return instance.failDetected;
+}
 
 bool Logger::checkMapFile(const std::string& pathMapFile){
     instance.inputFlux.open(pathMapFile);
-    if (instance.inputFlux.is_open())
-        instance.outputFlux << "MAP 1" << std::endl;
+    if (instance.inputFlux.is_open()){
+        instance.outputFlux << "FILE MAP: " << pathMapFile << " FOUND." << std::endl;
+        instance.column = 1;
+        instance.row = 1;
+    }
     else {
-        instance.outputFlux << "FILE MAP: " << pathMapFile << " DOES NOT EXITS." << std::endl;
+        instance.outputFlux << "FILE MAP: " << pathMapFile << " DOES NOT EXIST." << std::endl;
         instance.failDetected = true;
     }
     return instance.failDetected;
@@ -56,7 +62,7 @@ bool Logger::checkTimeAndTerrain(Map& m){
     else {
         if (informationRead != "TIME:"){
             instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                instance.column << ". EXPECTED IDENTIFIER TOKEN TIME: BUT FOUND " << informationRead << std::endl;
+                instance.column << ". EXPECTED IDENTIFIER TOKEN TIME: BUT FOUND " << informationRead << "." << std::endl;
 
             return !instance.failDetected;
         }
@@ -65,36 +71,37 @@ bool Logger::checkTimeAndTerrain(Map& m){
             instance.inputFlux >> informationRead;
             if (instance.inputFlux.eof()){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". TIME VALUE NOT FOUND" << std::endl;
+                    instance.column << ". TIME VALUE NOT FOUND." << std::endl;
 
                 return !instance.failDetected;
             }
             else {
-                if (std::regex_match(informationRead, natural_number_regex)){
+                if (std::regex_match(informationRead, instance.natural_number_regex)){
                     m.setTime(std::stoi(informationRead));
                 }
                 else {
                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                        instance.column << ". TIME VALUE " << informationRead << " IS NOT A POSITIVE INTEGER" << std::endl;
+                        instance.column << ". TIME VALUE " << informationRead << " IS NOT A POSITIVE INTEGER." << std::endl;
 
                     return !instance.failDetected;
                 }
             }
         }
     }
+    instance.column = 1;
     instance.row++;
-    instance.column = 0;
+
     instance.inputFlux >> informationRead;
     if (instance.inputFlux.eof()){
         instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-            instance.column << ". IDENTIFIER TOKEN TERRAIN: NOT FOUND" << std::endl;
+            instance.column << ". IDENTIFIER TOKEN TERRAIN: NOT FOUND." << std::endl;
 
         return !instance.failDetected;
     }
     else {
         if (informationRead != "TERRAIN:"){
             instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                instance.column << ". EXPECTED IDENTIFIER TOKEN TERRAIN: BUT FOUND " << informationRead << std::endl;
+                instance.column << ". EXPECTED IDENTIFIER TOKEN TERRAIN: BUT FOUND " << informationRead << "." << std::endl;
 
             return !instance.failDetected;
         }
@@ -103,55 +110,98 @@ bool Logger::checkTimeAndTerrain(Map& m){
             instance.inputFlux >> informationRead;
             if (instance.inputFlux.eof()){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". TERRAIN VALUE NOT FOUND" << std::endl;
+                    instance.column << ". TERRAIN VALUE NOT FOUND." << std::endl;
 
                 return !instance.failDetected;
             }
             else {
-                if (std::regex_match(informationRead, natural_number_regex)){
-                    m.setTerrain(std::stoi(informationRead));
+                if (std::regex_match(informationRead, instance.natural_number_regex)){
+                    int terrain = std::stoi(informationRead);
+                    if (terrain < 0 || terrain > 2){
+                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                            instance.column << ". TERRAIN VALUE " << informationRead << " IS OUT OF RANGE. MUST BE "
+                                            << "0 (SAND), 1 (GRASS) OR 2 (SNOW)." << std::endl;
+                    }
+                    else {
+                        m.setTerrain(terrain);
+                    }
                 }
                 else {
                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                        instance.column << ". TERRAIN VALUE " << informationRead << " IS NOT A POSITIVE INTEGER" << std::endl;
+                        instance.column << ". TERRAIN VALUE " << informationRead << " IS NOT A POSITIVE INTEGER." << std::endl;
 
                     return !instance.failDetected;
                 }
             }
         }
     }
-    instance.row++;
-    instance.column = 0;
     return instance.failDetected;
 }
 
 bool Logger::checkColors(Map& m){
-    std::string informationRead;
-    instance.inputFlux >> informationRead;
-    if (instance.inputFlux.eof()){
-        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-            instance.column << ". IDENTIFIER TOKEN COLOR_BACKGROUND: NOT FOUND." << std::endl;
+    std::string informationRead, colorToBeRead;
+    std::vector<sf::Color> colorsOfMap;
+    sf::Color colorRead;
 
-        return !instance.failDetected;
-    }
-    else {
-        if (informationRead != "COLOR_BACKGROUND:"){
+    instance.row++;
+    instance.column = 1;
+
+    for (int i = 1; i <= 9; i++){
+        if (i == 1)
+            colorToBeRead = "COLOR_BACKGROUND:";
+        else if (i == 2)
+            colorToBeRead = "COLOR_SAND_1:";
+        else if (i == 3)
+            colorToBeRead = "COLOR_SAND_2:";
+        else if (i == 4)
+            colorToBeRead = "COLOR_ROAD_1:";
+        else if (i == 5)
+            colorToBeRead = "COLOR_ROAD_2:";
+        else if (i == 6)
+            colorToBeRead = "COLOR_RUMBLE_1:";
+        else if (i == 7)
+            colorToBeRead = "COLOR_RUMBLE_2:";
+        else if (i == 8)
+            colorToBeRead = "COLOR_LANE_1:";
+        else
+            colorToBeRead = "COLOR_LANE_2:";
+
+        instance.inputFlux >> informationRead;
+        if (instance.inputFlux.eof()){
             instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                instance.column << ". EXPECTED IDENTIFIER TOKEN COLOR_BACKGROUND: BUT FOUND " << informationRead << std::endl;
+                instance.column << ". IDENTIFIER TOKEN " << colorToBeRead << " NOT FOUND." << std::endl;
 
             return !instance.failDetected;
         }
         else {
-            instance.column += 2;
-            sf::Color sky;
-            readColor(sky);
+            if (informationRead != colorToBeRead){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". EXPECTED IDENTIFIER TOKEN " << colorToBeRead << " BUT FOUND " << informationRead << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                instance.column += 2;
+                instance.failDetected = readColor(colorRead);
+                if (!instance.failDetected){
+                    colorsOfMap.push_back(colorRead);
+                    if (i != 9){
+                        instance.row++;
+                        instance.column = 1;
+                    }
+                }
+                else
+                    return !instance.failDetected;
+            }
         }
     }
+    m.setColors(colorsOfMap);
+    return instance.failDetected;
 }
 
 
 bool Logger::readColor(sf::Color& colorRead){
-    int red, green, blue, alpha, colorChannelsRead = 0;
+    int red = 0, green = 0, blue = 0, alpha = 0, colorChannelsRead = 0;
     string informationRead, channelFailed;
 
     while (!instance.failDetected && colorChannelsRead < 4){
@@ -176,7 +226,7 @@ bool Logger::readColor(sf::Color& colorRead){
             return !instance.failDetected;
         }
         else {
-            if (std::regex_match(informationRead, natural_number_regex)){
+            if (std::regex_match(informationRead, instance.integer_number_regex)){
                 int chanel = std::stoi(informationRead);
                 if (chanel >= 0 && chanel <= 255){
                     switch (colorChannelsRead){
@@ -193,6 +243,9 @@ bool Logger::readColor(sf::Color& colorRead){
                             alpha = chanel;
                     }
                     instance.column += 2;
+                    colorChannelsRead++;
+                    if (colorChannelsRead == 4)
+                        colorRead = sf::Color(red, green, blue, alpha);
                 }
                 else {
                     switch (colorChannelsRead){
@@ -210,7 +263,7 @@ bool Logger::readColor(sf::Color& colorRead){
                     }
                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
                         instance.column << ". " << channelFailed << " " << chanel
-                                        << " IS OUT OF RANGE. MUST BE BETWEEN 0 AND 255" << std::endl;
+                                        << " IS OUT OF RANGE. MUST BE BETWEEN 0 AND 255." << std::endl;
 
                     return !instance.failDetected;
                 }
@@ -230,7 +283,7 @@ bool Logger::readColor(sf::Color& colorRead){
                         channelFailed = "ALPHA CHANNEL VALUE " + informationRead;
                 }
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". " << channelFailed << " IS NOT A POSITIVE INTEGER " << std::endl;
+                    instance.column << ". " << channelFailed << " IS NOT A POSITIVE INTEGER." << std::endl;
 
                 return !instance.failDetected;
             }
@@ -238,3 +291,474 @@ bool Logger::readColor(sf::Color& colorRead){
     }
     return instance.failDetected;
 }
+
+
+bool Logger::checkMapRelief(Map& m){
+    std::string informationRead;
+    while (1){
+        instance.inputFlux >> informationRead;
+
+        instance.row++;
+        instance.column = 1;
+
+        if (instance.inputFlux.eof()){
+            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                instance.column << ". CANDIDATE IDENTIFIER TOKEN FOR RELIEF NOT FOUND." << std::endl;
+
+            return !instance.failDetected;
+        }
+        else {
+            if (informationRead != "STRAIGHT:" && informationRead != "CURVE_LEFT:" && informationRead != "CURVE_RIGHT:" &&
+                informationRead != "HILL_STRAIGHT:" && informationRead != "HILL_LEFT:" && informationRead != "HILL_RIGHT:")
+            {
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                instance.column << ". EXPECTED ONE OF THIS RELIEF IDENTIFIER TOKENS (STRAIGHT:, CURVE_LEFT:, CURVE_RIGHT:"
+                                << " HILL_STRAIGHT:, HILL_LEFT:, HILL_RIGHT:. BUT FOUND " << informationRead << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                int parametersRead = 0, totalParametersToRead;
+                if (informationRead == "STRAIGHT:"){
+                    totalParametersToRead = 5;
+
+                    bool mirror;
+                    int enter, hold, leave, numTracks;
+
+                    while (!instance.failDetected && parametersRead < totalParametersToRead){
+                        instance.inputFlux >> informationRead;
+                        parametersRead++;
+
+                        if (instance.inputFlux.eof()){
+
+                            std::string parameterFailed;
+
+                            if (parametersRead == 1)
+                                parameterFailed = "ENTER";
+                            else if (parametersRead == 2)
+                                parameterFailed = "HOLD";
+                            else if (parametersRead == 3)
+                                parameterFailed = "LEAVE";
+                            else if (parametersRead == 4)
+                                parameterFailed = "MIRROR";
+                            else
+                                parameterFailed = "NUM TRACKS";
+
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". " << parameterFailed << " PARAMETER NOT FOUND." << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                        else {
+                            instance.column += 2;
+                            if (parametersRead == 4){
+                               if (informationRead != "0" && informationRead != "1"){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". CANNOT CONVERT MIRROR VALUE " << informationRead <<
+                                        " TO BOOLEAN. THE VALUE MUST BE 0 OR 1." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else if (informationRead == "1")
+                                    mirror = true;
+                                else
+                                    mirror = false;
+                            }
+                            else if (std::regex_match(informationRead, instance.natural_number_regex)){
+                                if (parametersRead == 1)
+                                    enter = std::stoi(informationRead);
+                                else if (parametersRead == 2)
+                                    hold = std::stoi(informationRead);
+                                else if (parametersRead == 3)
+                                    leave = std::stoi(informationRead);
+                                else {
+                                    numTracks = std::stoi(informationRead);
+                                    if (numTracks < 2 || numTracks > 8){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". NUM TRACKS VALUE " << numTracks <<
+                                            " IS OUT F RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                }
+                            }
+                            else {
+                                if (parametersRead == 1){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". ENTER VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else if (parametersRead == 2){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". HOLD VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else if (parametersRead == 3){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". LEAVE VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else {
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". NUM TRACKS VALUE " << informationRead <<
+                                        " IS OUT OF RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (informationRead == "CURVE_LEFT:" || informationRead == "CURVE_RIGHT:"){
+                    parametersRead = 0;
+                    totalParametersToRead = 7;
+
+                    bool mirror;
+                    int enter, hold, leave, numTracks, factor_length;
+                    float direction;
+
+                    while (!instance.failDetected && parametersRead < totalParametersToRead){
+                        instance.inputFlux >> informationRead;
+                        parametersRead++;
+
+                        if (instance.inputFlux.eof()){
+
+                            std::string parameterFailed;
+
+                            if (parametersRead == 1)
+                                parameterFailed = "ENTER";
+                            else if (parametersRead == 2)
+                                parameterFailed = "HOLD";
+                            else if (parametersRead == 3)
+                                parameterFailed = "LEAVE";
+                            else if (parametersRead == 4)
+                                parameterFailed = "DIRECTION CURVE";
+                            else if (parametersRead == 5)
+                                parameterFailed = "MIRROR";
+                            else if (parametersRead == 6)
+                                parameterFailed = "NUM TRACKS";
+                            else
+                                parameterFailed = "FACTOR LENGTH";
+
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". " << parameterFailed << " PARAMETER NOT FOUND." << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                        else {
+                            instance.column += 2;
+                            if (parametersRead == 4){
+                                if (std::regex_match(informationRead, instance.float_number_regex))
+                                    direction = std::stof(informationRead);
+                                else {
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". DIRECTION CURVE PARAMETER " << informationRead << " MUST BE FLOAT." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else if (parametersRead == 5){
+                                if (informationRead != "0" && informationRead != "1"){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". CANNOT CONVERT MIRROR VALUE " << informationRead <<
+                                        " TO BOOLEAN. THE VALUE MUST BE 0 OR 1." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else if (informationRead == "1")
+                                    mirror = true;
+                                else
+                                    mirror = false;
+                            }
+                            else {
+                                if (std::regex_match(informationRead, instance.natural_number_regex)){
+                                    if (parametersRead == 1)
+                                        enter = std::stoi(informationRead);
+                                    else if (parametersRead == 2)
+                                        hold = std::stoi(informationRead);
+                                    else if (parametersRead == 3)
+                                        leave = std::stoi(informationRead);
+                                    else if (parametersRead == 6){
+                                        numTracks = std::stoi(informationRead);
+                                        if (numTracks < 2 || numTracks > 8){
+                                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                                instance.column << ". NUM TRACKS VALUE " << numTracks <<
+                                                " IS OUT OF RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                            return !instance.failDetected;
+                                        }
+                                    }
+                                    else if (parametersRead == 7)
+                                        factor_length = std::stoi(informationRead);
+                                }
+                                else {
+                                    if (parametersRead == 1){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". ENTER VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 2){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". HOLD VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 3){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". LEAVE VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 6){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". NUM TRACKS VALUE " << informationRead <<
+                                            " IS OUT OF RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 7){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". FACTOR LENGTH VALUE " << informationRead <<
+                                            " MUST BE AN INTEGER POSITIVE AND NOT ZERO." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (informationRead == "HILL_STRAIGHT:"){
+                    parametersRead = 0;
+                    totalParametersToRead = 6;
+
+                    int enter, hold, leave, slope, numTracks, factor_length;
+
+                    while (!instance.failDetected && parametersRead < totalParametersToRead){
+                        instance.inputFlux >> informationRead;
+                        parametersRead++;
+
+                        if (instance.inputFlux.eof()){
+
+                            std::string parameterFailed;
+
+                            if (parametersRead == 1)
+                                parameterFailed = "ENTER";
+                            else if (parametersRead == 2)
+                                parameterFailed = "HOLD";
+                            else if (parametersRead == 3)
+                                parameterFailed = "LEAVE";
+                            else if (parametersRead == 4)
+                                parameterFailed = "SLOPE";
+                            else if (parametersRead == 5)
+                                parameterFailed = "NUM TRACKS";
+                            else
+                                parameterFailed = "FACTOR LENGTH";
+
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". " << parameterFailed << " PARAMETER NOT FOUND." << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                        else {
+                            instance.column += 2;
+                            if (parametersRead == 4){
+                                if (std::regex_match(informationRead, instance.integer_number_regex))
+                                    slope = std::stoi(informationRead);
+                                else {
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". SLOPE PARAMETER " << informationRead << " MUST BE INTEGER." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else {
+                                if (std::regex_match(informationRead, instance.natural_number_regex)){
+                                    if (parametersRead == 1)
+                                        enter = std::stoi(informationRead);
+                                    else if (parametersRead == 2)
+                                        hold = std::stoi(informationRead);
+                                    else if (parametersRead == 3)
+                                        leave = std::stoi(informationRead);
+                                    else if (parametersRead == 5){
+                                        numTracks = std::stoi(informationRead);
+                                        if (numTracks < 2 || numTracks > 8){
+                                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                                instance.column << ". NUM TRACKS VALUE " << numTracks <<
+                                                " IS OUT OF RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                            return !instance.failDetected;
+                                        }
+                                    }
+                                    else if (parametersRead == 6)
+                                        factor_length = std::stoi(informationRead);
+                                }
+                                else {
+                                    if (parametersRead == 1){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". ENTER VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 2){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". HOLD VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 3){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". LEAVE VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 5){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". NUM TRACKS VALUE " << informationRead <<
+                                            " IS OUT OF RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 6){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". FACTOR LENGTH VALUE " << informationRead <<
+                                            " MUST BE AN INTEGER POSITIVE AND NOT ZERO." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    parametersRead = 0;
+                    totalParametersToRead = 7;
+
+                    bool mirror;
+                    int enter, hold, leave, slope, numTracks;
+                    float direction;
+
+                    while (!instance.failDetected && parametersRead < totalParametersToRead){
+                        instance.inputFlux >> informationRead;
+                        parametersRead++;
+
+                        if (instance.inputFlux.eof()){
+
+                            std::string parameterFailed;
+
+                            if (parametersRead == 1)
+                                parameterFailed = "ENTER";
+                            else if (parametersRead == 2)
+                                parameterFailed = "HOLD";
+                            else if (parametersRead == 3)
+                                parameterFailed = "LEAVE";
+                            else if (parametersRead == 4)
+                                parameterFailed = "SLOPE";
+                            else if (parametersRead == 5)
+                                parameterFailed = "DIRECTION CURVE";
+                             else if (parametersRead == 6)
+                                parameterFailed = "MIRROR";
+                            else
+                                parameterFailed = "NUM TRACKS";
+
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". " << parameterFailed << " PARAMETER NOT FOUND." << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                        else {
+                            instance.column += 2;
+                            if (parametersRead == 4){
+                                if (std::regex_match(informationRead, instance.integer_number_regex))
+                                    slope = std::stoi(informationRead);
+                                else {
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". SLOPE PARAMETER " << informationRead << " MUST BE INTEGER." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else if (parametersRead == 5){
+                                if (std::regex_match(informationRead, instance.float_number_regex))
+                                    direction = std::stof(informationRead);
+                                else {
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". DIRECTION CURVE PARAMETER " << informationRead << " MUST BE FLOAT." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else if (parametersRead == 6){
+                                if (informationRead != "0" && informationRead != "1"){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". CANNOT CONVERT MIRROR VALUE " << informationRead <<
+                                        " TO BOOLEAN. THE VALUE MUST BE 0 OR 1." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else if (informationRead == "1")
+                                    mirror = true;
+                                else
+                                    mirror = false;
+                            }
+                            else {
+                                if (std::regex_match(informationRead, instance.natural_number_regex)){
+                                    if (parametersRead == 1)
+                                        enter = std::stoi(informationRead);
+                                    else if (parametersRead == 2)
+                                        hold = std::stoi(informationRead);
+                                    else if (parametersRead == 3)
+                                        leave = std::stoi(informationRead);
+                                    else if (parametersRead == 7){
+                                        numTracks = std::stoi(informationRead);
+                                        if (numTracks < 2 || numTracks > 8){
+                                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                                instance.column << ". NUM TRACKS VALUE " << numTracks <<
+                                                " IS OUT OF RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                            return !instance.failDetected;
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (parametersRead == 1){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". ENTER VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 2){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". HOLD VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 3){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". LEAVE VALUE " << informationRead << " MUST BE AN INTEGER POSITIVE." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                    else if (parametersRead == 7){
+                                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                            instance.column << ". NUM TRACKS VALUE " << informationRead <<
+                                            " IS OUT OF RANGE. MUST BE BETWEEN 2 AND 8." << std::endl;
+
+                                        return !instance.failDetected;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+

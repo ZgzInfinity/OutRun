@@ -33,96 +33,97 @@
 #include "../../Car/TrafficCar/TrafficCar.h"
 
 class Map {
-public:
 
+    private:
 
-    Map();
-	Map(Input& input);
-	~Map();
+        vector<Line*> lines;
+        int position, iniPosition;
 
-	void setTime(const int _time);
+        sf::Color sky, sand1, sand2, road1,
+                    road2, rumble1, rumble2, lane1, lane2,
+                    sand, road, rumble, lane;
 
-    void setTerrain(const int _terrain);
+        int trackLength;
+        float pWheelL, pWheelR;
 
-	int getTime() const;
+        float drawDistance, offsetXBackground1;
+        float segmentL, rumbleL;
+        int mapLanes, mapDistance;
+        int time, terrain;
+        short lineW;
 
-    Line* getLine(const int& index);
+        int dist3, dist4, dist5, dist6, dist7, dist8, distM;
 
-	int computeRoadTracks(const int numTracks);
+        sf::Texture backGround;
+        sf::RectangleShape backgroundShape;
 
-    void loadObjects(const string &path, const vector<string> &objectNames);
+        sf::Texture backGround2;
 
-	void initMap();
+        vector<sf::Texture> objects;
 
-	void drawQuad(Input &input, int x1, int y1, int width, int height, sf::Color sky, bool use_camera = true);
+        vector<float> scaleCoeffs;
 
-    void drawPoly4(Input &input, short x1, short y1, short x2, short y2, short x3, short y3, short x4, short y4, sf::Color color);
+        vector<int> widthCollisionCoeffs;
 
-    void updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score);
+        vector<fPoint> pivotLeftPoints;
 
-    void updateCarPlayerWheels(PlayerCar& p);
+        vector<fPoint> pivotRightPoints;
 
-    void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score);
+        vector<fPoint> pivotLeftColPoints;
 
-	void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
+        vector<fPoint> pivotRightColPoints;
 
-	void addSpriteInfo(int line, SpriteInfo* p, bool left);
+        void addSegment(float curve, float y, bool mirror, float dist);
 
-private:
+        void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
 
-	void addSegment(float curve, float y, bool mirror, float dist);
+        float easeIn(float a, float b, float percent);
 
-	void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
+        float easeInOut(float a, float b, float percent);
 
-    float easeIn(float a, float b, float percent);
+        float distance(float a, float b);
 
-    float easeInOut(float a, float b, float percent);
+        void drawBackground(Input& input, int x, int y, sf::RectangleShape background, float speed, fPoint scale, fPoint pivot);
 
-    float distance(float a, float b);
+    public:
 
-    void drawBackground(Input& input, int x, int y, sf::RectangleShape background, float speed, fPoint scale, fPoint pivot);
+        Map();
 
-private:
+        Map(Input& input);
 
-	vector<Line*> lines;
-	int position, iniPosition;
+        ~Map();
 
-	sf::Color sky, sand1, sand2, road1,
-                road2, rumble1, rumble2, lane1, lane2,
-                sand, road, rumble, lane;
+        void setColors(const std::vector<sf::Color>& colorsOfMap);
 
-	int trackLength;
-	float pWheelL, pWheelR;
+        void setTime(const int _time);
 
-	float drawDistance, offsetXBackground1;
-	float segmentL, rumbleL;
-	int mapLanes, mapDistance;
-	int time, terrain;
-	short lineW;
+        void setTerrain(const int _terrain);
 
-	int dist3, dist4, dist5, dist6, dist7, dist8, distM;
+        int getTime() const;
 
-    sf::Texture backGround;
-    sf::RectangleShape backgroundShape;
+        int getTerrain() const;
 
-    sf::Texture backGround2;
+        Line* getLine(const int& index);
 
+        int computeRoadTracks(const int numTracks);
 
-    // Objects of the map
-    vector<sf::Texture> objects;
+        void loadObjects(const string &path, const vector<string> &objectNames);
 
+        void initMap();
 
-    vector<float>scaleCoeffs;
+        void drawQuad(Input &input, int x1, int y1, int width, int height, sf::Color sky, bool use_camera = true);
 
-    vector<int> widthCollisionCoeffs;
+        void drawPoly4(Input &input, short x1, short y1, short x2, short y2, short x3, short y3, short x4, short y4, sf::Color color);
 
-    vector<fPoint> pivotLeftPoints;
+        void updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score);
 
-    vector<fPoint> pivotRightPoints;
+        void updateCarPlayerWheels(PlayerCar& p);
 
-    vector<fPoint> pivotLeftColPoints;
+        void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score);
 
-    vector<fPoint> pivotRightColPoints;
+        void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
+
+        void addSpriteInfo(int line, SpriteInfo* p, bool left);
 
 };
 

@@ -53,6 +53,18 @@ Map::Map(Input& input)
 Map::~Map()
 {}
 
+void Map::setColors(const std::vector<sf::Color>& colorsOfMap){
+    sky = colorsOfMap[0];
+    sand1 = colorsOfMap[1];
+    sand2 = colorsOfMap[2];
+    road1 = colorsOfMap[3];
+    road2 = colorsOfMap[4];
+    rumble1 = colorsOfMap[5];
+    rumble2 = colorsOfMap[6];
+    lane1 = colorsOfMap[7];
+    lane2 = colorsOfMap[8];
+}
+
 void Map::setTime(const int _time){
     time = _time;
 }
@@ -63,6 +75,10 @@ void Map::setTerrain(const int _terrain){
 
 int Map::getTime() const {
     return time;
+}
+
+int Map::getTerrain() const {
+    return terrain;
 }
 
 Line* Map::getLine(const int& index){
