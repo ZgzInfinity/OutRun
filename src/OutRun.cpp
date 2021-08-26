@@ -32,13 +32,13 @@ int main(){
 
     Map m;
 
-    Logger::checkTimeAndTerrain(m);
+    Logger::setFailDetected(Logger::checkTimeAndTerrain(m));
 
     if (!Logger::getFailDetected())
-        Logger::checkColors(m);
+        Logger::setFailDetected(Logger::checkColors(m));
 
     if (!Logger::getFailDetected())
-        Logger::checkMapRelief(m);
+        Logger::setFailDetected(Logger::checkMapRelief(m));
 
     Input input;
 

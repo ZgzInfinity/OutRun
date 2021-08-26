@@ -75,8 +75,6 @@ class Map {
 
         void addSegment(float curve, float y, bool mirror, float dist);
 
-        void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
-
         float easeIn(float a, float b, float percent);
 
         float easeInOut(float a, float b, float percent);
@@ -92,6 +90,8 @@ class Map {
         Map(Input& input);
 
         ~Map();
+
+        void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
 
         void setColors(const std::vector<sf::Color>& colorsOfMap);
 
