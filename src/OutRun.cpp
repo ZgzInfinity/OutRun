@@ -40,6 +40,18 @@ int main(){
     if (!Logger::getFailDetected())
         Logger::setFailDetected(Logger::checkMapRelief(m));
 
+    vector<string> objectNames;
+    objectNames.reserve(26);
+    for (int i = 1; i <= 26; i++){
+        objectNames.push_back(std::to_string(i));
+    }
+
+    string path = "Resources/Maps/Map1/";
+    Logger::loadObjects(path, objectNames);
+
+    if (!Logger::getFailDetected())
+        Logger::setFailDetected(Logger::checkMapSprites(m));
+
     Input input;
 
     Game g = Game(input);

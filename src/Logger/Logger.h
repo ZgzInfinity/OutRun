@@ -51,9 +51,25 @@ class Logger {
 
         std::ofstream outputFlux;
 
+        vector<sf::Texture> objects;
+
+        vector<float> scaleCoeffs;
+
+        vector<int> widthCollisionCoeffs;
+
+        vector<fPoint> pivotLeftPoints;
+
+        vector<fPoint> pivotRightPoints;
+
+        vector<fPoint> pivotLeftColPoints;
+
+        vector<fPoint> pivotRightColPoints;
+
     public:
 
         Logger();
+
+        void static loadObjects(const string &path, const vector<string> &objectNames);
 
         void static setFailDetected(const bool _failDetected);
 
@@ -74,6 +90,8 @@ class Logger {
         bool static checkReliefHillStraight(Map& m);
 
         bool static checkReliefHillCurve(Map& m);
+
+        bool static checkMapSprites(Map& m);
 
         bool static checkMapRelief(Map& m);
 };

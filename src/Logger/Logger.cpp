@@ -245,6 +245,8 @@ bool Logger::checkColors(Map& m){
                     }
                 }
             }
+            instance.row++;
+            instance.column = 1;
             m.setColors(colorsOfMap);
             instance.outputFlux << "COLORS PART CORRECTLY SPECIFIED." << std::endl;
             return instance.failDetected;
@@ -815,9 +817,396 @@ bool Logger::checkReliefHillCurve(Map& m){
     return instance.failDetected;
 }
 
+bool Logger::checkMapSprites(Map& m){
+
+    std::string informationRead;
+    bool spritesProccessed = false;
+    bool indexSpecified = false, spriteLeft = false, spriteRight = false;
+    int startPos = 0, endPos = -1, incrementor = 0, frequency = 0;
+
+    instance.inputFlux >> informationRead;
+
+
+    while (!instance.inputFlux.eof()){
+        if (informationRead == "GROUPLINES:"){
+            if (indexSpecified){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". INTERVAL OF LINES PROCESSED, SRITE_LEFT: OR SPRITE_RIGHT: TOKEN WAS EXPECTED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                spriteLeft = false;
+                spriteRight = false;
+                instance.column += 2;
+                int parametersToRead = 4;
+                for (int i = 0; i < parametersToRead; i++){
+                    instance.inputFlux >> informationRead;
+                    if (instance.inputFlux.eof()){
+                        std::string parameterFailed;
+                        if (i == 0){
+                            parameterFailed = "START POSITION OF INTERVAL";
+                        }
+                        else if (i == 1){
+                            parameterFailed = "END POSITION OF INTERVAL";
+                        }
+                        else if (i == 2){
+                            parameterFailed = "INCREMENTOR PARAMETER";
+                        }
+                        else {
+                            parameterFailed = "FREQUENCY PARAMETER";
+                        }
+
+                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                            instance.column << ". " << parameterFailed << " NOT FOUND." << std::endl;
+
+                        return !instance.failDetected;
+                    }
+                    else {
+                        if (std::regex_match(informationRead, instance.natural_number_regex)){
+                            if (i == 0){
+                                startPos = std::stoi(informationRead);
+                            }
+                            else if (i == 1){
+                                endPos = std::stoi(informationRead);
+
+                                if (endPos <= startPos){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". END INTERVAL VALUE " << endPos << " MUST BE GREATER THAN "
+                                                        << "START INTERVAL VALUE " << startPos << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else if (i == 2){
+                                incrementor = std::stoi(informationRead);
+                                if (incrementor == 0){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". INCREMENTOR VALUE " << incrementor << " MUST BE POSITIVE." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else {
+                                frequency = std::stoi(informationRead);
+
+                                if (frequency == 0){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". FREQUENCY VALUE " << frequency << " MUST BE POSITIVE." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            instance.column += 2;
+                        }
+                        else {
+                            std::string parameterFailed;
+                            if (i == 0){
+                                parameterFailed = "START POSITION OF INTERVAL";
+                            }
+                            else if (i == 1){
+                                parameterFailed = "END POSITION OF INTERVAL";
+                            }
+                            else if (i == 2){
+                                parameterFailed = "INCREMENTOR PARAMETER";
+                            }
+                            else {
+                                parameterFailed = "FREQUENCY PARAMETER";
+                            }
+
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". " << parameterFailed << " VALUE " << informationRead
+                                                << " MUST BE A AN INTEGER POSITIVE AND NOT ZERO. " << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                    }
+                }
+                instance.row++;
+                instance.column = 1;
+                indexSpecified = true;
+            }
+        }
+        else if (informationRead == "LINE:"){
+            if (indexSpecified){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". INTERVAL OF LINES PROCESSED, SRITE_LEFT OR SPRITE_RIGHT TOKEN WAS EXPECTED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                spriteLeft = false;
+                spriteRight = false;
+                instance.column += 2;
+                instance.inputFlux >> informationRead;
+                if (instance.inputFlux.eof()){
+                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                        instance.column << ". INDEX CODE OF LINE NOT FOUND." << std::endl;
+
+                    return !instance.failDetected;
+                }
+                else {
+                    if (std::regex_match(informationRead, instance.natural_number_regex)){
+                        startPos = std::stoi(informationRead);
+                        instance.row++;
+                        instance.column = 1;
+                    }
+                    else {
+                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                            instance.column << ". INDEX CODE OF LINE " << informationRead
+                                            << " MUST BE AN INTEGER." << std::endl;
+
+                        return !instance.failDetected;
+                    }
+                }
+                indexSpecified = true;
+            }
+        }
+        else if (informationRead == "SPRITE_LEFT:"){
+            if (spriteLeft){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_LEFT ALREADY SPECIFIED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_LEFT MUST BE DEFINED BEFORE SPRITE_RIGHT." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                int idPropLeft;
+                float offsetXLeft, offsetYLeft;
+                bool sideLeft;
+                instance.column += 2;
+
+                if (indexSpecified){
+                    int parametersToRead = 4;
+                    for (int i = 0; i < parametersToRead; i++){
+                        instance.inputFlux >> informationRead;
+                        if (instance.inputFlux.eof()){
+                            std::string parameterFailed;
+                            if (i == 0){
+                                parameterFailed = "IDENTIFIER OF SPRITE";
+                            }
+                            else if (i == 1){
+                                parameterFailed = "POSITION OF SPRITE IN X";
+                            }
+                            else if (i == 2){
+                                parameterFailed = "POSITION OF SPRITE IN Y";
+                            }
+                            else {
+                                parameterFailed = "SIDE OF SPRITE";
+                            }
+
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". " << parameterFailed << " NOT FOUND." << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                        else {
+                            if (i == 0){
+                                if (std::regex_match(informationRead, instance.natural_number_regex) && informationRead != "0"){
+                                    idPropLeft = std::stoi(informationRead);
+                                }
+                                else {
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". IDENTIFIER OF SPRITE " << informationRead << " MUST BE A POSITIVE INTEGER." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else if (i == 3){
+                                if (informationRead != "0" && informationRead != "1"){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". CANNOT CONVERT SIDE OF SPRITE VALUE " << informationRead <<
+                                        " TO BOOLEAN. THE VALUE MUST BE 0 OR 1." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else if (informationRead == "1")
+                                    sideLeft = true;
+                                else
+                                    sideLeft = false;
+                            }
+                            else {
+                                if (std::regex_match(informationRead, instance.float_number_regex)){
+                                    if (i == 1)
+                                        offsetXLeft = std::stof(informationRead);
+                                    else
+                                        offsetYLeft = std::stof(informationRead);
+                                }
+                                else {
+                                    std::string parameterFailed;
+                                    if (i == 1)
+                                        parameterFailed = "POSITION OF SPRITE IN X";
+                                    else
+                                        parameterFailed = "POSITION OF SPRITE IN Y";
+
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". " << parameterFailed << " VALUE MUST BE FLOAT." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                        instance.column << ". SPRITES PART IS TOTALLY EMPTY." << std::endl;
+
+                    return !instance.failDetected;
+                }
+
+                SpriteInfo* newSpriteLeft = new SpriteInfo(&instance.objects[idPropLeft - 1], instance.pivotLeftPoints[idPropLeft - 1],
+                                                        instance.pivotRightPoints[idPropLeft - 1], instance.scaleCoeffs[idPropLeft - 1],
+                                                        instance.widthCollisionCoeffs[idPropLeft - 1], instance.pivotLeftColPoints[idPropLeft - 1],
+                                                        instance.pivotRightColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
+
+                if (endPos == -1)
+                    m.addSpriteInfo(startPos, newSpriteLeft, false);
+                else {
+                    for (int i = startPos; i < endPos; i += incrementor){
+                        if (i % frequency == 0)
+                            m.addSpriteInfo(i, newSpriteLeft, false);
+                    }
+                }
+                spriteLeft = true;
+
+                instance.row++;
+                instance.column = 1;
+            }
+        }
+        else if (informationRead == "SPRITE_RIGHT:"){
+            if (spriteRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_RIGHTA ALREADY SPECIFIED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                int idPropRight;
+                float offsetXRight, offsetYRight;
+                bool sideRight;
+                instance.column += 2;
+
+                if (indexSpecified){
+                    int parametersToRead = 4;
+                    for (int i = 0; i < parametersToRead; i++){
+                        instance.inputFlux >> informationRead;
+                        if (instance.inputFlux.eof()){
+                            std::string parameterFailed;
+                            if (i == 0){
+                                parameterFailed = "IDENTIFIER OF SPRITE";
+                            }
+                            else if (i == 1){
+                                parameterFailed = "POSITION OF SPRITE IN X";
+                            }
+                            else if (i == 2){
+                                parameterFailed = "POSITION OF SPRITE IN Y";
+                            }
+                            else {
+                                parameterFailed = "SIDE OF SPRITE";
+                            }
+
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". " << parameterFailed << " NOT FOUND." << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                        else {
+                            if (i == 0){
+                                if (std::regex_match(informationRead, instance.natural_number_regex) && informationRead != "0"){
+                                    idPropRight = std::stoi(informationRead);
+                                }
+                                else {
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". IDENTIFIER OF SPRITE " << informationRead << " MUST BE A POSITIVE INTEGER." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                            else if (i == 3){
+                                if (informationRead != "0" && informationRead != "1"){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". CANNOT CONVERT SIDE OF SPRITE VALUE " << informationRead <<
+                                        " TO BOOLEAN. THE VALUE MUST BE 0 OR 1." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else if (informationRead == "1")
+                                    sideRight = true;
+                                else
+                                    sideRight = false;
+                            }
+                            else {
+                                if (std::regex_match(informationRead, instance.float_number_regex)){
+                                    if (i == 1)
+                                        offsetXRight = std::stof(informationRead);
+                                    else
+                                        offsetYRight = std::stof(informationRead);
+                                }
+                                else {
+                                    std::string parameterFailed;
+                                    if (i == 1)
+                                        parameterFailed = "POSITION OF SPRITE IN X";
+                                    else
+                                        parameterFailed = "POSITION OF SPRITE IN Y";
+
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". " << parameterFailed << " VALUE MUST BE FLOAT." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                        instance.column << ". SPRITES PART IS TOTALLY EMPTY." << std::endl;
+
+                    return !instance.failDetected;
+                }
+                indexSpecified = false;
+
+                SpriteInfo* newSpriteRight = new SpriteInfo(&instance.objects[idPropRight - 1], instance.pivotLeftPoints[idPropRight - 1],
+                                                         instance.pivotRightPoints[idPropRight - 1], instance.scaleCoeffs[idPropRight - 1],
+                                                         instance.widthCollisionCoeffs[idPropRight - 1], instance.pivotLeftColPoints[idPropRight - 1],
+                                                         instance.pivotRightColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
+
+                if (endPos == -1)
+                    m.addSpriteInfo(startPos, newSpriteRight, false);
+                else {
+                    for (int i = startPos; i < endPos; i += incrementor){
+                        if (i % frequency == 0)
+                            m.addSpriteInfo(i, newSpriteRight, false);
+                    }
+                }
+                spriteRight = true;
+                indexSpecified = false;
+            }
+        }
+        else {
+            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                instance.column << ". EXPECTED IDENTIFIER TOKEN LINE:, GROUPLINES:, SPRITE_LEFT: OR SPRITE_RIGHT: BUT FOUND "
+                                << informationRead << std::endl;
+
+            return !instance.failDetected;
+        }
+        instance.inputFlux >> informationRead;
+    }
+    instance.outputFlux << "SPRITES PART CORRECTLY SPECIFIED." << std::endl;
+    return instance.failDetected;
+}
+
 bool Logger::checkMapRelief(Map& m){
 
     std::string informationRead;
+    bool reliefProccessed = false;
+
     instance.inputFlux >> informationRead;
 
     if (instance.inputFlux.eof()){
@@ -859,24 +1248,108 @@ bool Logger::checkMapRelief(Map& m){
                     }
                     else {
                         if (informationRead == "STRAIGHT:"){
-                            checkReliefStraight(m);
+                            instance.failDetected = checkReliefStraight(m);
                         }
                         else if (informationRead == "CURVE_LEFT:" || informationRead == "CURVE_RIGHT:"){
-                            checkReliefCurve(m);
+                            instance.failDetected = checkReliefCurve(m);
                         }
                         else if (informationRead == "HILL_STRAIGHT:"){
-                            checkReliefHillStraight(m);
+                            instance.failDetected = checkReliefHillStraight(m);
                         }
                         else {
-                            checkReliefHillCurve(m);
+                            instance.failDetected = checkReliefHillCurve(m);
                         }
+                        if (!reliefProccessed)
+                            reliefProccessed = true;
                     }
                 }
                 instance.inputFlux >> informationRead;
             }
-            instance.outputFlux << "RELIEF PART CORRECTLY SPECIFIED." << std::endl;
-            return instance.failDetected;
+            instance.row++;
+            instance.column = 1;
+
+            if (!reliefProccessed){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITES IDENTIFIER TOKEN FOUND BUT RELIEF PART IS TOTALLY EMPTY." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                instance.outputFlux << "RELIEF PART CORRECTLY SPECIFIED." << std::endl;
+                instance.row++;
+                instance.column = 1;
+                return instance.failDetected;
+            }
         }
+    }
+}
+
+
+void Logger::loadObjects(const string &path, const vector<string> &objectNames){
+
+    instance.objects.reserve(objectNames.size());
+    instance.widthCollisionCoeffs.reserve(objectNames.size());
+    instance.pivotLeftPoints.reserve(objectNames.size());
+    instance.pivotRightPoints.reserve(objectNames.size());
+    instance.pivotLeftColPoints.reserve(objectNames.size());
+    instance.pivotRightColPoints.reserve(objectNames.size());
+
+    for (const string &objName : objectNames) {
+
+        // Load textures
+        sf::Texture t;
+        t.loadFromFile(path + objName + ".png");
+        instance.objects.push_back(t);
+
+        ifstream fin(path + objName + ".txt");
+
+        float scale = 1.f;
+        float widthCollision = t.getSize().x;
+        fPoint pivotLeft = {1.f, 1.f};
+        fPoint pivotRight = {0.f, 1.f};
+        fPoint pivotColLeft = {0.5f, 1.f};
+        fPoint pivotColRight = {0.5f, 1.f};
+
+        float pointX, pointY;
+
+        if (fin.is_open()) {
+            while (!fin.eof()) {
+                string s;
+                fin >> s;
+                if (s == "SCALE:" && !fin.eof()){
+                    fin >> scale;
+                }
+                else if (s == "WIDTH_COLLISION:" && !fin.eof()){
+                    fin >> widthCollision;
+                }
+                else if (s == "PIVOT_LEFT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotLeft = {pointX, pointY};
+                }
+                else if (s == "PIVOT_RIGHT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotRight = {pointX, pointY};
+                }
+                else if (s == "PIVOT_COL_LEFT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotColLeft = {pointX, pointY};
+                }
+                else if (s == "PIVOT_COL_RIGHT:" && !fin.eof()){
+                    fin >> pointX >> pointY;
+                    pivotColRight = {pointX, pointY};
+                }
+                else if (!s.empty()) {
+                    cerr << "WARNING: '" << s << "' at file " << path + objName + ".info" << endl;
+                }
+            }
+            fin.close();
+        }
+        instance.scaleCoeffs.push_back(scale);
+        instance.widthCollisionCoeffs.push_back(widthCollision);
+        instance.pivotLeftPoints.push_back(pivotLeft);
+        instance.pivotRightPoints.push_back(pivotRight);
+        instance.pivotLeftColPoints.push_back(pivotColLeft);
+        instance.pivotRightColPoints.push_back(pivotColRight);
     }
 }
 
