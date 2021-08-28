@@ -132,9 +132,33 @@ void Game::updateRound(Input& input){
 void Game::playRound(Input& input){
 
     if (!pauseMode){
-        m = new Map(input);
-        m->initMap();
+        Logger::checkMapFile("Resources/Maps/Map1/map.txt");
+        m = new Map();
+
+        Logger::setFailDetected(Logger::checkTimeAndTerrain(*m));
+
+        if (!Logger::getFailDetected())
+            Logger::setFailDetected(Logger::checkColors(*m));
+
+        if (!Logger::getFailDetected())
+            Logger::setFailDetected(Logger::checkMapRelief(*m));
+
+        vector<string> objectNames;
+        objectNames.reserve(26);
+        for (int i = 1; i <= 26; i++){
+            objectNames.push_back(std::to_string(i));
+        }
+
+        string path = "Resources/Maps/Map1/";
+        Logger::loadObjects(path, objectNames);
+
+        if (!Logger::getFailDetected())
+            Logger::setFailDetected(Logger::checkMapSprites(*m));
+
+        m->setMapDistanceAndTrackLength();
+
         timeToPlay = m->getTime();
+
         player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, PLAYER_TEXTURES,
                                "Ferrari", automaticMode);
 
@@ -156,7 +180,6 @@ void Game::playRound(Input& input){
         cars.push_back(car4);
         cars.push_back(car5);
         cars.push_back(car6);
-
     }
     else {
         pauseMode = false;

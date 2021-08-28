@@ -91,6 +91,9 @@ class Logger {
 
         bool static checkReliefHillCurve(Map& m);
 
+        bool static checkSprite(Map& m, const int startPos, const int endPos, const int incrementor, const int frequency,
+                                bool& indexSpecified, bool& spritesProcessed, const bool left);
+
         bool static checkMapSprites(Map& m);
 
         bool static checkMapRelief(Map& m);

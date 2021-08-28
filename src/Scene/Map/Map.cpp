@@ -22,11 +22,7 @@
 
 Map::Map()
 {
-}
-
-Map::Map(Input& input)
-{
-	//Map parameters
+    //Map parameters
 	drawDistance = 200;
 	segmentL = 150;
 	rumbleL = 3.f;
@@ -175,170 +171,9 @@ void Map::loadObjects(const string &path, const vector<string> &objectNames){
     }
 }
 
+void Map::setMapDistanceAndTrackLength(){
 
-// Load assets
-void Map::initMap(){
-
-    backGround.loadFromFile("Resources/Maps/Map1/bg.png");
-    backGround.setRepeated(true);
-    backgroundShape.setPosition(0, 0);
-    backgroundShape.setSize(sf::Vector2f(4030, 243));
-
-    vector<string> objectNames;
-    objectNames.reserve(26);
-    for (int i = 1; i <= 26; i++){
-        objectNames.push_back(std::to_string(i));
-    }
-
-    string path = "Resources/Maps/Map1/";
-    loadObjects(path, objectNames);
-
-    string info;
-    bool onlyOne = false;
-    int redChannel, greenChannel, blueChannel, alpha;
-    const string file = "Resources/Maps/Map1/map.txt";
-    ifstream fluxInput(file, std::ifstream::in);
-    if (fluxInput.is_open()) {
-        fluxInput >> info;
-        while (!fluxInput.eof()){
-            if (info == "TIME:"){
-                fluxInput >> time;
-            }
-            else if (info == "TERRAIN:"){
-                fluxInput >> terrain;
-            }
-            else if (info == "COLOR_BACKGROUND:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                sky = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_SAND_1:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                sand1 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_SAND_2:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                sand2 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_ROAD_1:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                road1 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_ROAD_2:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                road2 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_RUMBLE_1:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                rumble1 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_RUMBLE_2:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                rumble2 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_LANE_1:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                lane1 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "COLOR_LANE_2:"){
-                fluxInput >> redChannel >> greenChannel >> blueChannel >> alpha;
-                lane2 = sf::Color(redChannel, greenChannel, blueChannel, alpha);
-            }
-            else if (info == "STRAIGHT"){
-                bool mirror;
-                int enter, hold, leave, numTracks;
-                fluxInput >> enter >> hold >> leave >> mirror >> numTracks;
-                numTracks = computeRoadTracks(numTracks);
-                addMap(enter, hold, leave, 0, 0, mirror, numTracks);
-            }
-            else if (info == "CURVE_LEFT" || info == "CURVE_RIGHT"){
-                bool mirror;
-                int enter, hold, leave, numTracks, factor_length;
-                float direction;
-                fluxInput >> enter >> hold >> leave >> direction >> mirror >> numTracks >> factor_length;
-                numTracks = computeRoadTracks(numTracks);
-                addMap(enter, hold * factor_length, leave, direction, 0, mirror, numTracks);
-            }
-            else if (info == "HILL_STRAIGHT"){
-                int enter, hold, leave, slope, numTracks, factor_length;
-                fluxInput >> enter >> hold >> leave >> slope >> numTracks >> factor_length;
-                numTracks = computeRoadTracks(numTracks);
-                addMap(enter, hold * factor_length, leave, 0, slope, false, numTracks);
-            }
-            else if (info == "HILL_LEFT" || info == "HILL_RIGHT"){
-                bool mirror;
-                int enter, hold, leave, slope, numTracks;
-                float direction;
-                fluxInput >> enter >> hold >> leave >> slope >> direction >> mirror >> numTracks;
-                numTracks = computeRoadTracks(numTracks);
-                addMap(enter, hold, enter, direction, slope, mirror, numTracks);
-            }
-            else if (info == "GROUPLINES" || "LINE"){
-                onlyOne = false;
-                int startPosition, endPosition, incrementor, frequency;
-                string order = info;
-
-                fluxInput >> startPosition;
-
-                if (info == "GROUPLINES")
-                    fluxInput >> endPosition >> incrementor >> frequency;
-
-                for (int i = 1; i <= 2; i++){
-                    fluxInput >> info;
-
-                    if (info == "SPRITE_LEFT"){
-                        int idPropLeft;
-                        float offsetXLeft, offsetYLeft;
-                        bool sideLeft;
-
-                        fluxInput >> idPropLeft >> offsetXLeft >> offsetYLeft >> sideLeft;
-                        SpriteInfo* spriteLeft = new SpriteInfo(&objects[idPropLeft - 1], pivotLeftPoints[idPropLeft - 1],
-                                                                pivotRightPoints[idPropLeft - 1], scaleCoeffs[idPropLeft - 1],
-                                                                widthCollisionCoeffs[idPropLeft - 1], pivotLeftColPoints[idPropLeft - 1],
-                                                                pivotRightColPoints[idPropLeft - 1], offsetXLeft, offsetYLeft, sideLeft);
-
-                        if (order == "GROUPLINES"){
-                            for (int i = startPosition; i < endPosition; i += incrementor){
-                                if (i % frequency == 0)
-                                    addSpriteInfo(i, spriteLeft, true);
-                            }
-                        }
-                        else {
-                            addSpriteInfo(startPosition, spriteLeft, true);
-                        }
-                    }
-                    else if (info == "SPRITE_RIGHT"){
-                        int idPropRight;
-                        float offsetXRight, offsetYRight;
-                        bool sideRight;
-
-                        fluxInput >> idPropRight >> offsetXRight >> offsetYRight >> sideRight;
-                        SpriteInfo* spriteRight = new SpriteInfo(&objects[idPropRight - 1], pivotLeftPoints[idPropRight - 1],
-                                                                 pivotRightPoints[idPropRight - 1], scaleCoeffs[idPropRight - 1],
-                                                                 widthCollisionCoeffs[idPropRight - 1], pivotLeftColPoints[idPropRight - 1],
-                                                                 pivotRightColPoints[idPropRight - 1], offsetXRight, offsetYRight, sideRight);
-
-                        if (order == "GROUPLINES"){
-                            for (int i = startPosition; i < endPosition; i += incrementor){
-                                if (i % frequency == 0)
-                                    addSpriteInfo(i, spriteRight, false);
-                            }
-                        }
-                        else {
-                            addSpriteInfo(startPosition, spriteRight, false);
-                        }
-                    }
-                    else {
-                        onlyOne = true;
-                    }
-                }
-            }
-            if (!onlyOne)
-                fluxInput >> info;
-        }
-        fluxInput.close();
-    }
-
-	addMap(10, 400, 50, -2, 0, true, dist3);
+    addMap(10, 400, 50, -2, 0, true, dist3);
 	addMap(100, 100, 100, 0, 0, true, distM);
 
     mapDistance = lines[0]->distance;
@@ -507,7 +342,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
         }
         else {
             p.setSpeed(0.f);
-            p.setLowAccel(10.f);
+            p.setLowAccel(14.2857f);
             p.setCollisionDir();
             if (p.getNumAngers() == 3){
                 p.setAngryWoman();

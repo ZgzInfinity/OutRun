@@ -87,8 +87,6 @@ class Map {
 
         Map();
 
-        Map(Input& input);
-
         ~Map();
 
         void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
@@ -109,7 +107,7 @@ class Map {
 
         void loadObjects(const string &path, const vector<string> &objectNames);
 
-        void initMap();
+        void setMapDistanceAndTrackLength();
 
         void drawQuad(Input &input, int x1, int y1, int width, int height, sf::Color sky, bool use_camera = true);
 

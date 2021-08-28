@@ -42,7 +42,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	thresholdX = 1.f;
 	varThresholdX = 0.06f;
 	maxSpeed = 100.f;
-	lowAccel = maxSpeed / 10.f;
+	lowAccel = maxSpeed / 7.f;
 	brakeAccel = maxSpeed / 3.0f;
 	direction = Direction::FRONT;
 	collisionDir = 0.f;
