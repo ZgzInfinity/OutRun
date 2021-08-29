@@ -105,8 +105,6 @@ class Map {
 
         int computeRoadTracks(const int numTracks);
 
-        void loadObjects(const string &path, const vector<string> &objectNames);
-
         void setMapDistanceAndTrackLength();
 
         void drawQuad(Input &input, int x1, int y1, int width, int height, sf::Color sky, bool use_camera = true);

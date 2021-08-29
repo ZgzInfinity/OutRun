@@ -148,7 +148,7 @@ void MenuMusicRadio::draw(Input& input){
 
 State MenuMusicRadio::returnMenu(Input& input){
     if (startPressed){
-        return State::LOADING;
+        return State::LOAD_MAPS;
     }
     else if (backPressed){
         return State::GEARS;

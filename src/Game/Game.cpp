@@ -36,7 +36,7 @@ Game::Game(Input& input){
     mapId = make_pair(0, 0);
     Audio::loadAll(input);
     level = 0;
-    m = nullptr;
+    currentMap = nullptr;
     player = nullptr;
     pauseMode = false;
     escape = false;
@@ -75,8 +75,8 @@ void Game::updateRound(Input& input){
     Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getMaxSpeed());
     Hud::setAllHudIndicators(input);
 
-    m->updateMap(input, cars, *player, time, score);
-    m->renderMap(input, cars, *player);
+    currentMap->updateMap(input, cars, *player, time, score);
+    currentMap->renderMap(input, cars, *player);
     player->draw(input, false);
     Hud::drawHud(input);
     input.gameWindow.display();
@@ -132,32 +132,7 @@ void Game::updateRound(Input& input){
 void Game::playRound(Input& input){
 
     if (!pauseMode){
-        Logger::checkMapFile("Resources/Maps/Map1/map.txt");
-        m = new Map();
-
-        Logger::setFailDetected(Logger::checkTimeAndTerrain(*m));
-
-        if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkColors(*m));
-
-        if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkMapRelief(*m));
-
-        vector<string> objectNames;
-        objectNames.reserve(26);
-        for (int i = 1; i <= 26; i++){
-            objectNames.push_back(std::to_string(i));
-        }
-
-        string path = "Resources/Maps/Map1/";
-        Logger::loadObjects(path, objectNames);
-
-        if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkMapSprites(*m));
-
-        m->setMapDistanceAndTrackLength();
-
-        timeToPlay = m->getTime();
+        timeToPlay = currentMap->getTime();
 
         player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, PLAYER_TEXTURES,
                                "Ferrari", automaticMode);
@@ -224,7 +199,7 @@ State Game::gameOverRound(Input& input){
 
     while (!escape && !start){
         handleEvent(input, time);
-        m->renderMap(input, cars, *player);
+        currentMap->renderMap(input, cars, *player);
         player->draw(input, true, false);
         Hud::drawHud(input);
         input.gameWindow.display();
@@ -251,6 +226,35 @@ State Game::gameOverRound(Input& input){
         return State::EXIT;
 }
 
+
+State Game::loadMaps(){
+    Logger::checkMapFile("Resources/Maps/Map1/map.txt");
+    currentMap = new Map();
+
+    Logger::setFailDetected(Logger::checkTimeAndTerrain(*currentMap));
+
+    if (!Logger::getFailDetected())
+        Logger::setFailDetected(Logger::checkColors(*currentMap));
+
+    if (!Logger::getFailDetected())
+        Logger::setFailDetected(Logger::checkMapRelief(*currentMap));
+
+    vector<string> objectNames;
+    objectNames.reserve(26);
+    for (int i = 1; i <= 26; i++){
+        objectNames.push_back(std::to_string(i));
+    }
+
+    string path = "Resources/Maps/Map1/";
+    Logger::loadObjects(path, objectNames);
+
+    if (!Logger::getFailDetected())
+        Logger::setFailDetected(Logger::checkMapSprites(*currentMap));
+
+    currentMap->setMapDistanceAndTrackLength();
+
+    return State::LOADING;
+}
 
 void Game::run(Input& input){
     while (input.gameWindow.isOpen() && gameStatus != State::EXIT){
@@ -322,6 +326,9 @@ void Game::run(Input& input){
                 gameStatus =  mMr.returnMenu(input);
                 break;
             }
+            case State::LOAD_MAPS: {
+                gameStatus = this->loadMaps();
+            }
             case State::LOADING: {
                 MenuLoading mL = MenuLoading(automaticMode);
                 mL.loadMenu(input);
@@ -335,7 +342,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::PAUSE: {
-                MenuPause mP = MenuPause(*m, *player, cars);
+                MenuPause mP = MenuPause(*currentMap, *player, cars);
                 mP.loadMenu(input);
                 mP.draw(input);
                 gameStatus = mP.returnMenu(input);
@@ -352,7 +359,7 @@ void Game::run(Input& input){
     }
     Audio::stopMusic();
     Audio::stopSfx();
-    delete m;
+    delete currentMap;
     delete player;
 }
 

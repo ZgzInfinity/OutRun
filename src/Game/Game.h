@@ -82,7 +82,7 @@
 
         int level;
 
-        Map* m;
+        Map* currentMap;
 
         vector<TrafficCar*> cars;
 
@@ -115,6 +115,8 @@
         State returnRound();
 
         State gameOverRound(Input& input);
+
+        State loadMaps();
 
         void run(Input& input);
  };

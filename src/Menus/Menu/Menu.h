@@ -37,6 +37,7 @@ enum class State : int {
     CONTROLS,
     GEARS,
     MUSIC,
+    LOAD_MAPS,
     LOADING,
     PLAY,
     PAUSE,
