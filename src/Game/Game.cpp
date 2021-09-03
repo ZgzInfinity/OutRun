@@ -245,7 +245,7 @@ State Game::loadMaps(){
         objectNames.push_back(std::to_string(i));
     }
 
-    string path = "Resources/Maps/Map1/";
+    string path = "Resources/Maps/MapLevels/Map1/";
     Logger::loadObjects(path, objectNames);
 
     if (!Logger::getFailDetected())
