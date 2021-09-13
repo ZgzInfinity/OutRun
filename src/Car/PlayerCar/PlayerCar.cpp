@@ -363,32 +363,26 @@ void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& tim
 }
 
 
-void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, bool& crashed, const bool& left){
+void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, bool& crashed, const SpriteInfo* sprite){
 
-    SpriteInfo* p;
-    if (left)
-        p = playerLine->spriteLeft;
-    else
-        p = playerLine->spriteRight;
-
-    if (p->getCollider())
+    if (sprite->getCollider())
     {
         PointLine point = playerLine->p1;
-        if (p->getSide())
+        if (sprite->getSide())
             point = playerLine->p11;
 
-        float x2 = point.xScreen + (p->getOffsetX() * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
-        float scale = 1.6f * (0.3f * (1.f / 170.f)) * point.scale * input.gameWindow.getSize().x * ROAD_WIDTH * p->getScale();
-        int width = p->getTextureSprite()->getSize().x;
+        float x2 = point.xScreen + (sprite->getOffsetX() * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+        float scale = 1.6f * (0.3f * (1.f / 170.f)) * point.scale * input.gameWindow.getSize().x * ROAD_WIDTH * sprite->getScale();
+        int width = sprite->getTextureSprite()->getSize().x;
 
-        if (p->getOffsetX() >= 0)
-            x2 = x2 + width * scale * p->getPivotColRight().x;
+        if (sprite->getOffsetX() >= 0)
+            x2 = x2 + width * scale * sprite->getPivotColRight().x;
 
         else
-            x2 = x2 - width * scale * (1 - p->getPivotColLeft().x);
+            x2 = x2 - width * scale * (1 - sprite->getPivotColLeft().x);
 
         if (hasCrashed(((float) input.gameWindow.getSize().x) / 2.0f + 5,
-                       playerW, x2, p->getWidthCol(), scale))
+                       playerW, x2, sprite->getWidthCol(), scale))
         {
             collisionDir = posX;
             crashing = true;

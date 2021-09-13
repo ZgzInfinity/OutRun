@@ -27,6 +27,8 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+class Map;
+
 class Logger {
 
     private:
@@ -91,10 +93,12 @@ class Logger {
 
         bool static checkReliefHillCurve(Map& m);
 
-        bool static checkSprite(Map& m, const int startPos, const int endPos, const int incrementor, const int frequency,
-                                bool& indexSpecified, bool& spritesProcessed, const bool left);
+        bool static loadStartMapSprites(Map& m);
 
-        bool static checkMapSprites(Map& m);
+        bool static checkLevelMapSprite(Map& m, const int startPos, const int endPos, const int incrementor, const int frequency,
+                                        bool& indexSpecified, bool& spritesProcessed, const bool left);
+
+        bool static checkLevelMapSprites(Map& m);
 
         bool static checkMapRelief(Map& m);
 };

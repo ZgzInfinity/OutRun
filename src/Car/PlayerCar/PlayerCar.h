@@ -145,7 +145,7 @@ public:
 
     void controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance);
 
-    void checkCollisionSpriteInfo(Input& input, const Line* playerLine, bool& crashed, const bool& left);
+    void checkCollisionSpriteInfo(Input& input, const Line* playerLine, bool& crashed, const SpriteInfo* sprite);
 
     void checkCollisionTrafficCar(Input& input, const Line* playerLine, const Line* trafficCarLine,
                                   const TrafficCar* c, bool& crashed);

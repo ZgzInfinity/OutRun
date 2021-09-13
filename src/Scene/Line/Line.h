@@ -40,11 +40,13 @@ struct Line {
     int index;
 	PointLine p1, p2;
 	PointLine p11, p21;
-	bool light, mirror, hasSpriteLeft, hasSpriteRight;
+	bool light, mirror, hasSpriteNearLeft, hasSpriteNearRight, hasSpriteFarLeft, hasSpriteFarRight;
 	float curve, distance, clip;
 
-	SpriteInfo* spriteLeft;
-	SpriteInfo* spriteRight;
+	SpriteInfo* spriteFarLeft;
+	SpriteInfo* spriteNearLeft;
+	SpriteInfo* spriteFarRight;
+    SpriteInfo* spriteNearRight;
 
 	Line();
 

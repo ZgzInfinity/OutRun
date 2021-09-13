@@ -84,6 +84,10 @@
 
         Map* currentMap;
 
+        Map* startMap;
+
+        Map* goalMap;
+
         vector<TrafficCar*> cars;
 
         PlayerCar* player;

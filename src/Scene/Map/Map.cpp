@@ -44,10 +44,19 @@ Map::Map()
 	dist7 = dist6 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
 	dist8 = dist7 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
 	distM = dist8 + ((int)ROAD_WIDTH * 16 / 27) * 7 + ((int)ROAD_WIDTH / 18) * 7;
+
+	startMap = goalMap = false;
 }
 
 Map::~Map()
 {}
+
+void Map::setBackground(){
+    backGround.loadFromFile("Resources/Maps/MapLevels/Map1/bg.png");
+    backGround.setRepeated(true);
+    backgroundShape.setPosition(0, 0);
+    backgroundShape.setSize(sf::Vector2f(4030, 243));
+}
 
 void Map::setColors(const std::vector<sf::Color>& colorsOfMap){
     sky = colorsOfMap[0];
@@ -299,10 +308,14 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 
 	bool hasCrashed = false;
 
-	if (playerLine->hasSpriteLeft)
-        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, true);
-    if (!hasCrashed && playerLine->hasSpriteRight)
-        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, false);
+	if (playerLine->hasSpriteFarLeft)
+        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarLeft);
+	if (!hasCrashed && playerLine->hasSpriteNearLeft)
+        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteNearLeft);
+    if (!hasCrashed && playerLine->hasSpriteFarRight)
+        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarRight);
+    if (!hasCrashed && playerLine->hasSpriteNearRight)
+        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteNearRight);
 
 	if (!hasCrashed){
         for (auto& car : cars)
@@ -503,10 +516,19 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 		if (l->index < playerLine->index)
 			continue;
 
-        if (l->hasSpriteLeft)
-            l->renderSpriteInfo(input, l->spriteLeft);
-        if (l->hasSpriteRight)
-            l->renderSpriteInfo(input, l->spriteRight);
+        if (startMap || goalMap){
+            if (l->hasSpriteFarLeft)
+                l->renderSpriteInfo(input, l->spriteFarLeft);
+            if (l->hasSpriteFarRight)
+                l->renderSpriteInfo(input, l->spriteFarRight);
+        }
+
+
+        if (l->hasSpriteNearLeft)
+            l->renderSpriteInfo(input, l->spriteNearLeft);
+        if (l->hasSpriteNearRight)
+            l->renderSpriteInfo(input, l->spriteNearRight);
+
 
 		Line* l2;
 		for (unsigned int n = 0; n < cars.size(); ++n)
@@ -521,18 +543,42 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 }
 
 
-void Map::addSpriteInfo(int line, SpriteInfo* p, bool left){
+void Map::addSpriteInfo(int line, SpriteInfo* p, bool farleft, bool nearLeft){
 	if (line < (int)lines.size()){
-		if (left){
-            lines[line]->spriteLeft = p;
-            lines[line]->hasSpriteLeft = true;
+        if (farleft){
+            lines[line]->spriteFarLeft = p;
+            lines[line]->hasSpriteFarLeft = true;
 		}
         else {
-            lines[line]->spriteRight = p;
-            lines[line]->hasSpriteRight = true;
+            lines[line]->spriteFarRight = p;
+            lines[line]->hasSpriteFarRight = true;
+        }
+		if (nearLeft){
+            lines[line]->spriteNearLeft = p;
+            lines[line]->hasSpriteNearLeft = true;
+		}
+        else {
+            lines[line]->spriteNearRight = p;
+            lines[line]->hasSpriteNearRight = true;
         }
 	}
 }
+
+
+void Map::setColorsAndBackground(const Map& map){
+    sky = map.sky;
+    sand1 = map.sand1;
+    sand2 = map.sand2;
+    road1 = map.road1;
+    road2 = map.road2;
+    rumble1 = map.rumble1;
+    rumble2 = map.rumble2;
+    lane1 = map.lane1;
+    lane2 = map.lane2;
+    backGround = map.backGround;
+    backgroundShape = map.backgroundShape;
+}
+
 
 
 
@@ -557,6 +603,22 @@ void Map::addSegment(float curve, float y, bool mirror, float dist)
 	lines.push_back(l);
 }
 
+void Map::setStartMap(){
+    addMap(400, 400, 400, 0, 0, false, dist8);
+    mapDistance = lines[0]->distance;
+	trackLength = (int)(lines.size() * segmentL);
+
+	vector<string> objectNames;
+    objectNames.reserve(41);
+    for (int i = 1; i <= 41; i++){
+        objectNames.push_back(std::to_string(i));
+    }
+
+    string path = "Resources/Maps/MapStart/";
+    Logger::loadObjects(path, objectNames);
+    Logger::loadStartMapSprites(*this);
+    startMap = true;
+}
 
 void Map::addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance)
 {

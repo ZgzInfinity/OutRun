@@ -37,6 +37,8 @@ Game::Game(Input& input){
     Audio::loadAll(input);
     level = 0;
     currentMap = nullptr;
+    startMap = nullptr;
+    goalMap = nullptr;
     player = nullptr;
     pauseMode = false;
     escape = false;
@@ -228,32 +230,50 @@ State Game::gameOverRound(Input& input){
 
 
 State Game::loadMaps(){
-    Logger::checkMapFile("Resources/Maps/Map1/map.txt");
-    currentMap = new Map();
+    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map1/map.txt"));
 
-    Logger::setFailDetected(Logger::checkTimeAndTerrain(*currentMap));
+    if (!Logger::getFailDetected()){
 
-    if (!Logger::getFailDetected())
-        Logger::setFailDetected(Logger::checkColors(*currentMap));
+        currentMap = new Map();
 
-    if (!Logger::getFailDetected())
-        Logger::setFailDetected(Logger::checkMapRelief(*currentMap));
+        Logger::setFailDetected(Logger::checkTimeAndTerrain(*currentMap));
 
-    vector<string> objectNames;
-    objectNames.reserve(26);
-    for (int i = 1; i <= 26; i++){
-        objectNames.push_back(std::to_string(i));
+        if (!Logger::getFailDetected())
+            Logger::setFailDetected(Logger::checkColors(*currentMap));
+        else
+            return State::EXIT;
+
+        if (!Logger::getFailDetected())
+            Logger::setFailDetected(Logger::checkMapRelief(*currentMap));
+        else
+            return State::EXIT;
+
+        vector<string> objectNames;
+        objectNames.reserve(26);
+        for (int i = 1; i <= 26; i++){
+            objectNames.push_back(std::to_string(i));
+        }
+
+        string path = "Resources/Maps/MapLevels/Map1/";
+        Logger::loadObjects(path, objectNames);
+
+        if (!Logger::getFailDetected())
+            Logger::setFailDetected(Logger::checkLevelMapSprites(*currentMap));
+        else
+            return State::EXIT;
+
+        currentMap->setMapDistanceAndTrackLength();
+        currentMap->setBackground();
+
+        startMap = new Map();
+        startMap->setColorsAndBackground(*currentMap);
+        startMap->setStartMap();
+        currentMap = startMap;
+
+        return State::LOADING;
     }
-
-    string path = "Resources/Maps/MapLevels/Map1/";
-    Logger::loadObjects(path, objectNames);
-
-    if (!Logger::getFailDetected())
-        Logger::setFailDetected(Logger::checkMapSprites(*currentMap));
-
-    currentMap->setMapDistanceAndTrackLength();
-
-    return State::LOADING;
+    else
+        return State::EXIT;
 }
 
 void Game::run(Input& input){
@@ -328,6 +348,7 @@ void Game::run(Input& input){
             }
             case State::LOAD_MAPS: {
                 gameStatus = this->loadMaps();
+                break;
             }
             case State::LOADING: {
                 MenuLoading mL = MenuLoading(automaticMode);

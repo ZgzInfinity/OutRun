@@ -821,7 +821,7 @@ bool Logger::checkReliefHillCurve(Map& m){
     return instance.failDetected;
 }
 
-bool Logger::checkSprite(Map& m, const int startPos, const int endPos, const int incrementor, const int frequency,
+bool Logger::checkLevelMapSprite(Map& m, const int startPos, const int endPos, const int incrementor, const int frequency,
                          bool& indexSpecified, bool& spritesProcessed, const bool left){
 
     std::string informationRead;
@@ -915,11 +915,11 @@ bool Logger::checkSprite(Map& m, const int startPos, const int endPos, const int
                                            instance.pivotRightColPoints[idProp - 1], offsetX, offsetY, side);
 
     if (endPos == -1)
-        m.addSpriteInfo(startPos, newSprite, left);
+        m.addSpriteInfo(startPos, newSprite, false, left);
     else {
         for (int i = startPos; i < endPos; i += incrementor){
             if (i % frequency == 0)
-                m.addSpriteInfo(i, newSprite, left);
+                m.addSpriteInfo(i, newSprite, false, left);
         }
     }
     instance.row++;
@@ -931,7 +931,7 @@ bool Logger::checkSprite(Map& m, const int startPos, const int endPos, const int
     return instance.failDetected;
 }
 
-bool Logger::checkMapSprites(Map& m){
+bool Logger::checkLevelMapSprites(Map& m){
 
     std::string informationRead;
     bool spritesProcessed = false;
@@ -1092,8 +1092,8 @@ bool Logger::checkMapSprites(Map& m){
                 return !instance.failDetected;
             }
             else {
-                instance.failDetected = Logger::checkSprite(m, startPos, endPos, incrementor, frequency,
-                                                            indexSpecified, spritesProcessed, true);
+                instance.failDetected = Logger::checkLevelMapSprite(m, startPos, endPos, incrementor, frequency,
+                                                                    indexSpecified, spritesProcessed, true);
 
                 if (!instance.failDetected)
                     spriteLeft = true;
@@ -1114,8 +1114,8 @@ bool Logger::checkMapSprites(Map& m){
                 return !instance.failDetected;
             }
             else {
-                instance.failDetected = Logger::checkSprite(m, startPos, endPos, incrementor, frequency,
-                                                            indexSpecified, spritesProcessed, false);
+                instance.failDetected = Logger::checkLevelMapSprite(m, startPos, endPos, incrementor, frequency,
+                                                                    indexSpecified, spritesProcessed, false);
 
                 if (!instance.failDetected)
                     spriteRight = true;
@@ -1232,12 +1232,13 @@ bool Logger::checkMapRelief(Map& m){
 
 void Logger::loadObjects(const string &path, const vector<string> &objectNames){
 
-    instance.objects.reserve(objectNames.size());
-    instance.widthCollisionCoeffs.reserve(objectNames.size());
-    instance.pivotLeftPoints.reserve(objectNames.size());
-    instance.pivotRightPoints.reserve(objectNames.size());
-    instance.pivotLeftColPoints.reserve(objectNames.size());
-    instance.pivotRightColPoints.reserve(objectNames.size());
+    instance.objects.clear();
+    instance.scaleCoeffs.clear();
+    instance.widthCollisionCoeffs.clear();
+    instance.pivotLeftPoints.clear();
+    instance.pivotRightPoints.clear();
+    instance.pivotLeftColPoints.clear();
+    instance.pivotRightColPoints.clear();
 
     for (const string &objName : objectNames) {
 
@@ -1296,6 +1297,28 @@ void Logger::loadObjects(const string &path, const vector<string> &objectNames){
         instance.pivotLeftColPoints.push_back(pivotColLeft);
         instance.pivotRightColPoints.push_back(pivotColRight);
     }
+}
+
+bool Logger::loadStartMapSprites(Map& m){
+
+    SpriteInfo* cameraman = new SpriteInfo(&instance.objects[24], instance.pivotLeftPoints[24], instance.pivotRightPoints[24],
+                                           instance.scaleCoeffs[24], instance.widthCollisionCoeffs[24], instance.pivotLeftColPoints[24],
+                                           instance.pivotRightColPoints[24], -0.5f, 0.f, false);
+
+    SpriteInfo* musicman = new SpriteInfo(&instance.objects[32], instance.pivotLeftPoints[32], instance.pivotRightPoints[32],
+                                           instance.scaleCoeffs[32], instance.widthCollisionCoeffs[32], instance.pivotLeftColPoints[32],
+                                           instance.pivotRightColPoints[32], -0.3f, 0.f, false);
+
+    SpriteInfo* woman3 = new SpriteInfo(&instance.objects[30], instance.pivotLeftPoints[30], instance.pivotRightPoints[30],
+                                           instance.scaleCoeffs[30], instance.widthCollisionCoeffs[30], instance.pivotLeftColPoints[30],
+                                           instance.pivotRightColPoints[30], -0.63f, 0.f, false);
+
+    SpriteInfo* woman1 = new SpriteInfo(&instance.objects[32], instance.pivotLeftPoints[32], instance.pivotRightPoints[32],
+                                           instance.scaleCoeffs[32], instance.widthCollisionCoeffs[32], instance.pivotLeftColPoints[32],
+                                           instance.pivotRightColPoints[32], 0.5f, 0.f, false);
+
+    m.addSpriteInfo(305, cameraman, true, false);
+    m.addSpriteInfo(305, musicman, false, true);
 }
 
 

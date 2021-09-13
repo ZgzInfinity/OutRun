@@ -31,6 +31,7 @@
 #include "../../Globals.h"
 #include "../../Car/PlayerCar/PlayerCar.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
+#include "../../Logger/Logger.h"
 
 class Map {
 
@@ -53,6 +54,7 @@ class Map {
         short lineW;
 
         int dist3, dist4, dist5, dist6, dist7, dist8, distM;
+        bool startMap, goalMap;
 
         sf::Texture backGround;
         sf::RectangleShape backgroundShape;
@@ -89,7 +91,11 @@ class Map {
 
         ~Map();
 
+        void setStartMap();
+
         void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
+
+        void setBackground();
 
         void setColors(const std::vector<sf::Color>& colorsOfMap);
 
@@ -119,7 +125,10 @@ class Map {
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
 
-        void addSpriteInfo(int line, SpriteInfo* p, bool left);
+        void addSpriteInfo(int line, SpriteInfo* p, bool farleft, bool nearLeft);
+
+        void setColorsAndBackground(const Map& map);
+
 
 };
 
