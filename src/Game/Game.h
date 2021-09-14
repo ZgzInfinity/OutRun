@@ -100,6 +100,8 @@
 
         bool arrival;
 
+        bool firstGame;
+
         bool start;
 
         float elapsed1, elapsed2, elapsed3, elapsed4;
@@ -120,7 +122,7 @@
 
         State gameOverRound(Input& input);
 
-        State loadMaps();
+        State loadMaps(Input& input);
 
         void run(Input& input);
  };

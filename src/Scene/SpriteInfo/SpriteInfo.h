@@ -26,6 +26,15 @@
 #include "../Point/Point.h"
 #include "SFML/Graphics.hpp"
 
+
+enum class Sprite_Position : int {
+    FAR_LEFT,
+    NEAR_LEFT,
+    FAR_RIGHT,
+    NEAR_RIGHT
+};
+
+
 class SpriteInfo {
 
     private:
@@ -60,6 +69,8 @@ class SpriteInfo {
         float getWidthCol() const;
 
         float getOffsetX() const;
+
+        void setOffsetY(const float _offsetY);
 
         float getOffsetY() const;
 

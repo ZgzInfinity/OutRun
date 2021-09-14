@@ -47,6 +47,8 @@ class Logger {
 
         int row;
 
+        float widthScreen;
+
         bool failDetected;
 
         std::ifstream inputFlux;
@@ -70,6 +72,10 @@ class Logger {
     public:
 
         Logger();
+
+        void static setWidthScreen(const int _widthScreen);
+
+        void static setStartSrpiteScreenY(Map& m);
 
         void static loadObjects(const string &path, const vector<string> &objectNames);
 

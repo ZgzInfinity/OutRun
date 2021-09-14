@@ -35,6 +35,14 @@ void Logger::setFailDetected(const bool _failDetected){
     instance.failDetected = _failDetected;
 }
 
+void Logger::setWidthScreen(const int _widthScreen){
+    instance.widthScreen = _widthScreen;
+}
+
+void Logger::setStartSrpiteScreenY(Map& m){
+    m.setStartSrpiteScreenY(float(instance.widthScreen * -1.6f / SCREEN_0.first));
+}
+
 bool Logger::getFailDetected(){
     return instance.failDetected;
 }
@@ -914,12 +922,13 @@ bool Logger::checkLevelMapSprite(Map& m, const int startPos, const int endPos, c
                                            instance.widthCollisionCoeffs[idProp - 1], instance.pivotLeftColPoints[idProp - 1],
                                            instance.pivotRightColPoints[idProp - 1], offsetX, offsetY, side);
 
+    Sprite_Position spritePos = (left) ? Sprite_Position::NEAR_LEFT : Sprite_Position::NEAR_RIGHT;
     if (endPos == -1)
-        m.addSpriteInfo(startPos, newSprite, false, left);
+        m.addSpriteInfo(startPos, newSprite, spritePos);
     else {
         for (int i = startPos; i < endPos; i += incrementor){
             if (i % frequency == 0)
-                m.addSpriteInfo(i, newSprite, false, left);
+                m.addSpriteInfo(i, newSprite, spritePos);
         }
     }
     instance.row++;
@@ -1301,24 +1310,131 @@ void Logger::loadObjects(const string &path, const vector<string> &objectNames){
 
 bool Logger::loadStartMapSprites(Map& m){
 
+    // First row
     SpriteInfo* cameraman = new SpriteInfo(&instance.objects[24], instance.pivotLeftPoints[24], instance.pivotRightPoints[24],
                                            instance.scaleCoeffs[24], instance.widthCollisionCoeffs[24], instance.pivotLeftColPoints[24],
-                                           instance.pivotRightColPoints[24], -0.5f, 0.f, false);
+                                           instance.pivotRightColPoints[24], -0.6f, 0.f, false);
 
     SpriteInfo* musicman = new SpriteInfo(&instance.objects[32], instance.pivotLeftPoints[32], instance.pivotRightPoints[32],
                                            instance.scaleCoeffs[32], instance.widthCollisionCoeffs[32], instance.pivotLeftColPoints[32],
-                                           instance.pivotRightColPoints[32], -0.3f, 0.f, false);
+                                           instance.pivotRightColPoints[32], -0.32f, 0.f, false);
 
-    SpriteInfo* woman3 = new SpriteInfo(&instance.objects[30], instance.pivotLeftPoints[30], instance.pivotRightPoints[30],
+    SpriteInfo* man1 = new SpriteInfo(&instance.objects[15], instance.pivotLeftPoints[15], instance.pivotRightPoints[15],
+                                           instance.scaleCoeffs[15], instance.widthCollisionCoeffs[15], instance.pivotLeftColPoints[15],
+                                           instance.pivotRightColPoints[15], 0.65f, 0.f, false);
+
+    SpriteInfo* woman1 = new SpriteInfo(&instance.objects[27], instance.pivotLeftPoints[27], instance.pivotRightPoints[27],
+                                           instance.scaleCoeffs[27], instance.widthCollisionCoeffs[27], instance.pivotLeftColPoints[27],
+                                           instance.pivotRightColPoints[27], 0.32f, 0.f, false);
+
+    // Second row
+    SpriteInfo* woman2 = new SpriteInfo(&instance.objects[30], instance.pivotLeftPoints[30], instance.pivotRightPoints[30],
                                            instance.scaleCoeffs[30], instance.widthCollisionCoeffs[30], instance.pivotLeftColPoints[30],
-                                           instance.pivotRightColPoints[30], -0.63f, 0.f, false);
+                                           instance.pivotRightColPoints[30], -0.58f, 0.f, false);
 
-    SpriteInfo* woman1 = new SpriteInfo(&instance.objects[32], instance.pivotLeftPoints[32], instance.pivotRightPoints[32],
-                                           instance.scaleCoeffs[32], instance.widthCollisionCoeffs[32], instance.pivotLeftColPoints[32],
-                                           instance.pivotRightColPoints[32], 0.5f, 0.f, false);
+    SpriteInfo* flagger = new SpriteInfo(&instance.objects[0], instance.pivotLeftPoints[0], instance.pivotRightPoints[0],
+                                           instance.scaleCoeffs[0], instance.widthCollisionCoeffs[0], instance.pivotLeftColPoints[0],
+                                           instance.pivotRightColPoints[0], -0.32f, 0.f, false);
 
-    m.addSpriteInfo(305, cameraman, true, false);
-    m.addSpriteInfo(305, musicman, false, true);
+    SpriteInfo* man2 = new SpriteInfo(&instance.objects[17], instance.pivotLeftPoints[17], instance.pivotRightPoints[17],
+                                           instance.scaleCoeffs[17], instance.widthCollisionCoeffs[17], instance.pivotLeftColPoints[17],
+                                           instance.pivotRightColPoints[17], 0.28f, 0.f, false);
+
+    SpriteInfo* man3 = new SpriteInfo(&instance.objects[21], instance.pivotLeftPoints[21], instance.pivotRightPoints[21],
+                                           instance.scaleCoeffs[21], instance.widthCollisionCoeffs[21], instance.pivotLeftColPoints[21],
+                                           instance.pivotRightColPoints[21], 0.68f, 0.f, false);
+
+    // Third row
+    SpriteInfo* man4 = new SpriteInfo(&instance.objects[19], instance.pivotLeftPoints[19], instance.pivotRightPoints[19],
+                                           instance.scaleCoeffs[19], instance.widthCollisionCoeffs[19], instance.pivotLeftColPoints[19],
+                                           instance.pivotRightColPoints[19], -0.75f, 0.f, false);
+
+
+    SpriteInfo* man5 = new SpriteInfo(&instance.objects[23], instance.pivotLeftPoints[23], instance.pivotRightPoints[23],
+                                           instance.scaleCoeffs[23], instance.widthCollisionCoeffs[23], instance.pivotLeftColPoints[23],
+                                           instance.pivotRightColPoints[23], -0.58f, 0.f, false);
+
+    SpriteInfo* woman3 = new SpriteInfo(&instance.objects[29], instance.pivotLeftPoints[21], instance.pivotRightPoints[21],
+                                           instance.scaleCoeffs[21], instance.widthCollisionCoeffs[21], instance.pivotLeftColPoints[21],
+                                           instance.pivotRightColPoints[21], 0.74f, 0.f, false);
+
+    SpriteInfo* woman4 = new SpriteInfo(&instance.objects[26], instance.pivotLeftPoints[26], instance.pivotRightPoints[26],
+                                           instance.scaleCoeffs[26], instance.widthCollisionCoeffs[26], instance.pivotLeftColPoints[26],
+                                           instance.pivotRightColPoints[26], 0.60f, 0.f, false);
+
+    SpriteInfo* cameramanRight = new SpriteInfo(&instance.objects[24], instance.pivotLeftPoints[24], instance.pivotRightPoints[24],
+                                           instance.scaleCoeffs[24], instance.widthCollisionCoeffs[24], instance.pivotLeftColPoints[24],
+                                           instance.pivotRightColPoints[24], 0.28f, 0.f, false);
+
+    SpriteInfo* man6 = new SpriteInfo(&instance.objects[20], instance.pivotLeftPoints[20], instance.pivotRightPoints[20],
+                                           instance.scaleCoeffs[20], instance.widthCollisionCoeffs[20], instance.pivotLeftColPoints[20],
+                                           instance.pivotRightColPoints[20], -0.31f, 0.f, false);
+
+    SpriteInfo* palm1 = new SpriteInfo(&instance.objects[33], instance.pivotLeftPoints[33], instance.pivotRightPoints[33],
+                                           instance.scaleCoeffs[33], instance.widthCollisionCoeffs[33], instance.pivotLeftColPoints[33],
+                                           instance.pivotRightColPoints[33], -0.8f, 0.f, false);
+
+    SpriteInfo* palm2 = new SpriteInfo(&instance.objects[34], instance.pivotLeftPoints[34], instance.pivotRightPoints[34],
+                                           instance.scaleCoeffs[34], instance.widthCollisionCoeffs[34], instance.pivotLeftColPoints[34],
+                                           instance.pivotRightColPoints[34], 0.8f, 0.f, false);
+
+    // Fifth row
+    SpriteInfo* start = new SpriteInfo(&instance.objects[35], instance.pivotLeftPoints[35], instance.pivotRightPoints[35],
+                                           instance.scaleCoeffs[35], instance.widthCollisionCoeffs[35], instance.pivotLeftColPoints[35],
+                                           instance.pivotRightColPoints[35], -1.33f, float(instance.widthScreen * -1.6f / SCREEN_0.first), false);
+
+    SpriteInfo* trafficLightLeftPanel = new SpriteInfo(&instance.objects[36], instance.pivotLeftPoints[36], instance.pivotRightPoints[36],
+                                           instance.scaleCoeffs[36], instance.widthCollisionCoeffs[36], instance.pivotLeftColPoints[36],
+                                           instance.pivotRightColPoints[36], -0.8f, 0.f, false);
+
+    SpriteInfo* trafficLightRightPanel = new SpriteInfo(&instance.objects[40], instance.pivotLeftPoints[40], instance.pivotRightPoints[40],
+                                           instance.scaleCoeffs[40], instance.widthCollisionCoeffs[40], instance.pivotLeftColPoints[40],
+                                           instance.pivotRightColPoints[40], 0.8f, 0.f, false);
+
+    SpriteInfo* palm1Start = new SpriteInfo(&instance.objects[33], instance.pivotLeftPoints[33], instance.pivotRightPoints[33],
+                                           instance.scaleCoeffs[33], instance.widthCollisionCoeffs[33], instance.pivotLeftColPoints[33],
+                                           instance.pivotRightColPoints[33], -0.6f, 0.f, false);
+
+    SpriteInfo* palm2Start = new SpriteInfo(&instance.objects[34], instance.pivotLeftPoints[34], instance.pivotRightPoints[34],
+                                           instance.scaleCoeffs[34], instance.widthCollisionCoeffs[34], instance.pivotLeftColPoints[34],
+                                           instance.pivotRightColPoints[34], 0.6f, 0.f, false);
+
+    m.addSpriteInfo(305, cameraman, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(305, musicman, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(305, man1, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(305, woman1, Sprite_Position::NEAR_RIGHT);
+
+    m.addSpriteInfo(306, woman2, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(306, flagger, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(306, man2, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(306, man3, Sprite_Position::NEAR_RIGHT);
+
+    m.addSpriteInfo(307, man4, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(307, man5, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(307, woman3, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(307, woman4, Sprite_Position::NEAR_RIGHT);
+
+    m.addSpriteInfo(307, man4, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(307, man5, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(307, woman3, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(307, woman4, Sprite_Position::NEAR_RIGHT);
+
+	for (int i = 294; i < 400; i += 5)
+	{
+	    if (i != 309){
+            m.addSpriteInfo(i, palm1, Sprite_Position::FAR_LEFT);
+            m.addSpriteInfo(i, palm2, Sprite_Position::FAR_RIGHT);
+	    }
+	}
+
+	m.addSpriteInfo(308, palm1Start, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(308, palm2Start, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(308, man6, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(308, cameramanRight, Sprite_Position::NEAR_RIGHT);
+
+	m.addSpriteInfo(309, start, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(310, trafficLightLeftPanel, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(310, trafficLightRightPanel, Sprite_Position::FAR_RIGHT);
 }
 
 

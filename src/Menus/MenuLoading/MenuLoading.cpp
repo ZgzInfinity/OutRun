@@ -58,26 +58,28 @@ void MenuLoading::loadMenu(Input& input){
 
         controlsText.setPosition(input.gameWindow.getSize().x / 2.f - 90.0f * input.screenScaleX,
                                  input.gameWindow.getSize().y / 2.f - 220.0f * input.screenScaleX);
-
-        totalPoints = 25;
-        offsetText = 235;
     }
     else {
         shape.setPosition((input.gameWindow.getSize().x / 2.f) - 300.0f * input.screenScaleX,
                           input.gameWindow.getSize().y / 2.f - 200.0f * input.screenScaleX);
 
-        shape.setSize(sf::Vector2f(610.0f * input.screenScaleX, 400.0f * input.screenScaleX));
+        shape.setSize(sf::Vector2f(610.0f * input.screenScaleX, 390.0f * input.screenScaleX));
 
         controlsText.setPosition(input.gameWindow.getSize().x / 2.f - 90.0f * input.screenScaleX,
                                  input.gameWindow.getSize().y / 2.f - 203.0f * input.screenScaleX);
+    }
 
-        if (input.currentIndexResolution == (int)Resolution::__COUNT){
-            totalPoints = 45;
-        }
-        else {
-            totalPoints = 25;
-        }
+    if (input.currentIndexResolution <= (int)Resolution::SCREEN_1){
+        totalPoints = 25;
+        offsetText = 235;
+    }
+    else if (input.currentIndexResolution == (int)Resolution::__COUNT) {
+        totalPoints = 45;
         offsetText = 215;
+    }
+    else {
+        totalPoints = 35;
+        offsetText = 205;
     }
 
     // Menu text

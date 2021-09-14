@@ -107,6 +107,8 @@ class Map {
 
         int getTerrain() const;
 
+        bool getStartMap() const;
+
         Line* getLine(const int& index);
 
         int computeRoadTracks(const int numTracks);
@@ -125,11 +127,11 @@ class Map {
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
 
-        void addSpriteInfo(int line, SpriteInfo* p, bool farleft, bool nearLeft);
+        void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos);
 
         void setColorsAndBackground(const Map& map);
 
-
+        void setStartSrpiteScreenY(const float _offsetY);
 };
 
 #endif // MAP_H

@@ -45,6 +45,7 @@ Game::Game(Input& input){
     outOfTime = false;
     arrival = false;
     start = false;
+    firstGame = false;
 }
 
 void Game::handleEvent(Input& input, const float& time){
@@ -132,6 +133,9 @@ void Game::updateRound(Input& input){
 
 
 void Game::playRound(Input& input){
+
+    if (!firstGame)
+        firstGame = true;
 
     if (!pauseMode){
         timeToPlay = currentMap->getTime();
@@ -229,7 +233,8 @@ State Game::gameOverRound(Input& input){
 }
 
 
-State Game::loadMaps(){
+State Game::loadMaps(Input& input){
+    Logger::setWidthScreen(input.gameWindow.getSize().x);
     Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map1/map.txt"));
 
     if (!Logger::getFailDetected()){
@@ -315,6 +320,8 @@ void Game::run(Input& input){
                 mO.loadMenu(input);
                 mO.draw(input);
                 gameStatus = mO.returnMenu(input);
+                if (firstGame && currentMap->getStartMap())
+                    Logger::setStartSrpiteScreenY(*currentMap);
                 break;
             }
             case State::MUSIC_CONF: {
@@ -347,7 +354,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::LOAD_MAPS: {
-                gameStatus = this->loadMaps();
+                gameStatus = this->loadMaps(input);
                 break;
             }
             case State::LOADING: {

@@ -86,6 +86,10 @@ int Map::getTerrain() const {
     return terrain;
 }
 
+bool Map::getStartMap() const {
+    return startMap;
+}
+
 Line* Map::getLine(const int& index){
     return lines[index];
 }
@@ -543,27 +547,31 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 }
 
 
-void Map::addSpriteInfo(int line, SpriteInfo* p, bool farleft, bool nearLeft){
+void Map::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos){
 	if (line < (int)lines.size()){
-        if (farleft){
+        switch (spritePos){
+        case Sprite_Position::FAR_LEFT:
             lines[line]->spriteFarLeft = p;
             lines[line]->hasSpriteFarLeft = true;
-		}
-        else {
+            break;
+        case Sprite_Position::NEAR_LEFT:
             lines[line]->spriteFarRight = p;
             lines[line]->hasSpriteFarRight = true;
-        }
-		if (nearLeft){
+            break;
+        case Sprite_Position::FAR_RIGHT:
             lines[line]->spriteNearLeft = p;
             lines[line]->hasSpriteNearLeft = true;
-		}
-        else {
+            break;
+        case Sprite_Position::NEAR_RIGHT:
             lines[line]->spriteNearRight = p;
             lines[line]->hasSpriteNearRight = true;
         }
 	}
 }
 
+void Map::setStartSrpiteScreenY(const float _offsetY) {
+    lines[309]->spriteFarLeft->setOffsetY(_offsetY);
+}
 
 void Map::setColorsAndBackground(const Map& map){
     sky = map.sky;
@@ -578,9 +586,6 @@ void Map::setColorsAndBackground(const Map& map){
     backGround = map.backGround;
     backgroundShape = map.backgroundShape;
 }
-
-
-
 
 void Map::addSegment(float curve, float y, bool mirror, float dist)
 {

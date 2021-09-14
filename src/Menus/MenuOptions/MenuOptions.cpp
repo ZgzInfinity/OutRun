@@ -266,6 +266,7 @@ State MenuOptions::returnMenu(Input& input){
     else if (backPressed){
         if (input.modifiedinputig){
             input.writeNewInput();
+            Logger::setWidthScreen(input.gameWindow.getSize().x);
         }
         input.modifiedinputig = false;
         if (pauseMode){
