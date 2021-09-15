@@ -58,8 +58,9 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	speedGear = 0.f;
     playerMap = playerR::LEFTROAD;
 
-	wheelL = StateWheel::NORMAL;
-	wheelR = StateWheel::NORMAL;
+	wheelL = StateWheel::SMOKE;
+	wheelR = StateWheel::SMOKE;
+	elevation = Elevation::FLAT;
 
     automaticMode = _automaticMode;
     crashing = false;
@@ -73,6 +74,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
     decreaseGear = false;
     trafficCrash = false;
     drawCar = true;
+    endAnimation = false;
 }
 
 void PlayerCar::setNumAngers(){
@@ -114,6 +116,10 @@ void PlayerCar::setLowAccel(const float& _lowAccel){
 
 float PlayerCar::getLowAccel() const {
     return lowAccel;
+}
+
+bool PlayerCar::getEndAnimation() const {
+    return endAnimation;
 }
 
 void PlayerCar::setCollisionDir(){
@@ -466,16 +472,54 @@ bool PlayerCar::hasCrashed(float x1, int w1, float x2, float w2, float scale){
 	return (max1 >= min2 && max2 >= min1);
 }
 
-/**
- * Updates the player's vehicle sprite and draws it in the screen
- * @param c is the module configuration of the game
- * @param r is the sound player module of the game
- * @param a is the action to be done by the player's vehicle
- * @param d is the direction to be followed by the player's vehicle
- * @param e is the current elevation of the player's vehicle in the landscape
- * @param enableSound indicates if the motor of the player's vehicle has to make noise
- */
-void PlayerCar::draw(Input& input, const bool& pauseMode, const bool& motorEngineSound) {
+
+void PlayerCar::drawStartStaticRound(Input& input) {
+    if (textures.size() == PLAYER_TEXTURES) {
+        float x = input.gameWindow.getSize().x / 2;
+        sprite.setTexture(textures[121], true);
+        sprite.setScale(3.2f * input.screenScaleX, 3.2f * input.screenScaleY);
+        sprite.setPosition(x, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
+        input.gameWindow.draw(sprite);
+    }
+}
+
+void PlayerCar::drawStartDriftRound(Input &input, float x, int& code){
+    if (textures.size() == PLAYER_TEXTURES){
+        if (counter_code_image >= maxCounterToChange){
+            current_code_image++;
+            counter_code_image = 0;
+        }
+        if (current_code_image < 146 || current_code_image > 149)
+            current_code_image = 146;
+
+        float width = input.gameWindow.getSize().x;
+        endAnimation = x < width * 0.4f || x >= width;
+        const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+
+        sprite.setTexture(textures[code], true);
+        sprite.setScale(3.2f * input.screenScaleX, 3.2f * input.screenScaleY);
+        sprite.setPosition(x, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
+        input.gameWindow.draw(sprite);
+
+        sprite.setTexture(textures[current_code_image], true);
+        sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+        sprite.setPosition(x, j - sprite.getGlobalBounds().height + out);
+        input.gameWindow.draw(sprite);
+        sprite.setPosition(x * 1.5f, j - sprite.getGlobalBounds().height + out);
+        input.gameWindow.draw(sprite);
+
+        if (endAnimation) {
+            current_code_image = 0;
+            counter_code_image = 0;
+            wheelL == StateWheel::NORMAL;
+            wheelR == StateWheel::NORMAL;
+        }
+        else
+            counter_code_image++;
+    }
+}
+
+void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& motorEngineSound) {
 
     if (drawCar){
         if (motorEngineSound) {

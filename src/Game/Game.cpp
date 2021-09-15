@@ -58,13 +58,14 @@ void Game::handleEvent(Input& input, const float& time){
             pauseMode = true;
             Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
         }
-        else if (outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+        else if (gameStatus == State::PLAY_ROUND && outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
             start = true;
             Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
         }
     }
-    if (!escape && !pauseMode && !outOfTime && !arrival && !player->getCrashing())
+    if (gameStatus == State::PLAY_ROUND && !escape && !pauseMode && !outOfTime && !arrival && !player->getCrashing()){
         player->accelerationControlAutomaic(input, time);
+    }
 }
 
 
@@ -80,7 +81,7 @@ void Game::updateRound(Input& input){
 
     currentMap->updateMap(input, cars, *player, time, score);
     currentMap->renderMap(input, cars, *player);
-    player->draw(input, false);
+    player->drawPlayRound(input, false);
     Hud::drawHud(input);
     input.gameWindow.display();
 
@@ -130,39 +131,80 @@ void Game::updateRound(Input& input){
 		score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (145.f))) / 10.f) * 10;
 }
 
+State Game::startRound(Input& input){
+
+    timeToPlay = currentMap->getTime();
+    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, PLAYER_TEXTURES,
+                           "Ferrari", automaticMode);
+
+    tick_timer = clock();
+    Hud::loadHud();
+    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getMaxSpeed());
+    Hud::configureHud(input);
+
+    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car1", 1, 0.5f, false, true, 1);
+    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car2", 2, 0.f, false, true, 1);
+    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car3", 3, 0.5f, false, true, 1);
+    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car4", 4, -0.5f, false, true, 1);
+    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car5", 5, 0.5f, false, true, 1);
+    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car6", 6, 0.f, false, true, 1);
+
+    cars.push_back(car1);
+    cars.push_back(car2);
+    cars.push_back(car3);
+    cars.push_back(car4);
+    cars.push_back(car5);
+    cars.push_back(car6);
+
+    int counterAnimation = 0;
+    int code = 121;
+    float i = input.gameWindow.getSize().x / 2;
+
+    sf::RectangleShape blackShape;
+    blackShape.setPosition(0, 0);
+    blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y));
+
+    for (int j = 255; j >= 0; j -= 5){
+        handleEvent(input, time);
+
+        input.gameWindow.clear(sf::Color(0, 0, 0));
+        currentMap->renderMap(input, cars, *player);
+        player->drawStartStaticRound(input);
+        Hud::drawHud(input);
+
+        blackShape.setFillColor(sf::Color(0, 0, 0, j));
+        input.gameWindow.draw(blackShape);
+        sleep(sf::milliseconds(30));
+        input.gameWindow.display();
+    }
+
+    while (!player->getEndAnimation() && !escape){
+        handleEvent(input, time);
+
+        input.gameWindow.clear(sf::Color(0, 0, 0));
+        currentMap->renderMap(input, cars, *player);
+        player->drawStartDriftRound(input, float(i), code);
+        Hud::drawHud(input);
+        input.gameWindow.display();
+
+        i -= 3;
+        if (i <= input.gameWindow.getSize().x / 2.f / 1.05f)
+            code = 4;
+        else if (i <= input.gameWindow.getSize().x / 2.f / 1.17f)
+            code = 8;
+        else if (i <= input.gameWindow.getSize().x / 2.f / 1.23f)
+            code = 120;
+    }
+    return State::PLAY_ROUND;
+}
 
 
-void Game::playRound(Input& input){
+State Game::playRound(Input& input){
 
     if (!firstGame)
         firstGame = true;
 
-    if (!pauseMode){
-        timeToPlay = currentMap->getTime();
-
-        player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, PLAYER_TEXTURES,
-                               "Ferrari", automaticMode);
-
-        tick_timer = clock();
-        Hud::loadHud();
-        Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getMaxSpeed());
-        Hud::configureHud(input);
-
-        TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car1", 1, 0.5f, false, true, 1);
-        TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car2", 2, 0.f, false, true, 1);
-        TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car3", 3, 0.5f, false, true, 1);
-        TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car4", 4, -0.5f, false, true, 1);
-        TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car5", 5, 0.5f, false, true, 1);
-        TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car6", 6, 0.f, false, true, 1);
-
-        cars.push_back(car1);
-        cars.push_back(car2);
-        cars.push_back(car3);
-        cars.push_back(car4);
-        cars.push_back(car5);
-        cars.push_back(car6);
-    }
-    else {
+    if (pauseMode){
         pauseMode = false;
         outOfTime = false;
         arrival = false;
@@ -178,10 +220,7 @@ void Game::playRound(Input& input){
     while (!escape && !pauseMode && !outOfTime && !arrival){
         updateRound(input);
     }
-}
 
-
-State Game::returnRound(){
     if (escape){
         return State::EXIT;
     }
@@ -192,7 +231,6 @@ State Game::returnRound(){
         return State::GAME_OVER;
     }
 }
-
 
 State Game::gameOverRound(Input& input){
 
@@ -206,7 +244,7 @@ State Game::gameOverRound(Input& input){
     while (!escape && !start){
         handleEvent(input, time);
         currentMap->renderMap(input, cars, *player);
-        player->draw(input, true, false);
+        player->drawPlayRound(input, true, false);
         Hud::drawHud(input);
         input.gameWindow.display();
     }
@@ -364,9 +402,12 @@ void Game::run(Input& input){
                 gameStatus = mL.returnMenu(input);
                 break;
             }
-            case State::PLAY: {
-                this->playRound(input);
-                gameStatus = this->returnRound();
+            case State::PREPARE_ROUND: {
+                gameStatus = this->startRound(input);
+                break;
+            }
+            case State::PLAY_ROUND: {
+                gameStatus = this->playRound(input);
                 break;
             }
             case State::PAUSE: {

@@ -70,7 +70,7 @@ class PlayerCar : public Vehicle {
         Elevation elevation;
 
         bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding, trafficCrash, drawCar,
-             crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode;
+             crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode, endAnimation;
 
         Collision modeCollision;
 
@@ -110,6 +110,8 @@ public:
     void setLowAccel(const float& _lowAccel);
 
     float getLowAccel() const;
+
+    bool getEndAnimation() const;
 
     void setCollisionDir();
 
@@ -153,16 +155,13 @@ public:
     bool hasCrashed(float x1, int w1, float x2, float w2, float scale);
 
 
-    /**
-     * Updates the player's vehicle sprite and draws it in the screen
-     * @param c is the module configuration of the game
-     * @param r is the sound player module of the game
-     * @param a is the action to be done by the player's vehicle
-     * @param d is the direction to be followed by the player's vehicle
-     * @param e is the current elevation of the player's vehicle in the landscape
-     * @param enableSound indicates if the motor of the player's vehicle has to make noise
-     */
-    void draw(Input& input, const bool& pauseMode, const bool& motorEngineSound = true);
+    void drawStartStaticRound(Input& input);
+
+
+    void drawStartDriftRound(Input &input, float x, int& code);
+
+
+    void drawPlayRound(Input& input, const bool& pauseMode, const bool& motorEngineSound = true);
 
 
 };

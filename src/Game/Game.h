@@ -116,9 +116,9 @@
 
         void updateRound(Input& input);
 
-        void playRound(Input& input);
+        State startRound(Input& input);
 
-        State returnRound();
+        State playRound(Input& input);
 
         State gameOverRound(Input& input);
 

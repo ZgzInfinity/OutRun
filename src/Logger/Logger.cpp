@@ -1401,23 +1401,19 @@ bool Logger::loadStartMapSprites(Map& m){
 
     m.addSpriteInfo(305, cameraman, Sprite_Position::FAR_LEFT);
     m.addSpriteInfo(305, musicman, Sprite_Position::NEAR_LEFT);
-    m.addSpriteInfo(305, man1, Sprite_Position::FAR_RIGHT);
-    m.addSpriteInfo(305, woman1, Sprite_Position::NEAR_RIGHT);
 
+    m.addSpriteInfo(306, man1, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(306, woman1, Sprite_Position::NEAR_RIGHT);
     m.addSpriteInfo(306, woman2, Sprite_Position::FAR_LEFT);
     m.addSpriteInfo(306, flagger, Sprite_Position::NEAR_LEFT);
-    m.addSpriteInfo(306, man2, Sprite_Position::FAR_RIGHT);
-    m.addSpriteInfo(306, man3, Sprite_Position::NEAR_RIGHT);
 
+    m.addSpriteInfo(307, man2, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(307, man3, Sprite_Position::NEAR_RIGHT);
     m.addSpriteInfo(307, man4, Sprite_Position::FAR_LEFT);
     m.addSpriteInfo(307, man5, Sprite_Position::NEAR_LEFT);
-    m.addSpriteInfo(307, woman3, Sprite_Position::FAR_RIGHT);
-    m.addSpriteInfo(307, woman4, Sprite_Position::NEAR_RIGHT);
 
-    m.addSpriteInfo(307, man4, Sprite_Position::FAR_LEFT);
-    m.addSpriteInfo(307, man5, Sprite_Position::NEAR_LEFT);
-    m.addSpriteInfo(307, woman3, Sprite_Position::FAR_RIGHT);
-    m.addSpriteInfo(307, woman4, Sprite_Position::NEAR_RIGHT);
+    m.addSpriteInfo(308, woman3, Sprite_Position::FAR_RIGHT);
+    m.addSpriteInfo(308, woman4, Sprite_Position::NEAR_RIGHT);
 
 	for (int i = 294; i < 400; i += 5)
 	{
@@ -1427,14 +1423,14 @@ bool Logger::loadStartMapSprites(Map& m){
 	    }
 	}
 
-	m.addSpriteInfo(308, palm1Start, Sprite_Position::FAR_LEFT);
-    m.addSpriteInfo(308, palm2Start, Sprite_Position::FAR_RIGHT);
+	m.addSpriteInfo(309, palm1Start, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(309, palm2Start, Sprite_Position::FAR_RIGHT);
     m.addSpriteInfo(308, man6, Sprite_Position::NEAR_LEFT);
     m.addSpriteInfo(308, cameramanRight, Sprite_Position::NEAR_RIGHT);
 
-	m.addSpriteInfo(309, start, Sprite_Position::FAR_LEFT);
-    m.addSpriteInfo(310, trafficLightLeftPanel, Sprite_Position::NEAR_LEFT);
-    m.addSpriteInfo(310, trafficLightRightPanel, Sprite_Position::FAR_RIGHT);
+	m.addSpriteInfo(310, start, Sprite_Position::FAR_LEFT);
+    m.addSpriteInfo(311, trafficLightLeftPanel, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(311, trafficLightRightPanel, Sprite_Position::FAR_RIGHT);
 }
 
 

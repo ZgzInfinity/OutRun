@@ -108,7 +108,7 @@ void MenuPause::draw(Input& input){
 
         input.gameWindow.clear();
         map.renderMap(input, cars, player);
-        player.draw(input, true, false);
+        player.drawPlayRound(input, true, false);
         Hud::drawHud(input);
         input.gameWindow.draw(shape);
         input.gameWindow.draw(pauseShape);
@@ -138,7 +138,7 @@ State MenuPause::returnMenu(Input& input){
     if (startPressed){
         switch(optionSelected){
             case 0:
-                return State::PLAY;
+                return State::PLAY_ROUND;
                 break;
             case 1:
                  Audio::play(Soundtrack::OPTIONS, true);
