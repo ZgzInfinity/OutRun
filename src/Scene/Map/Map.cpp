@@ -382,7 +382,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 
 
 // Update: draw background
-void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
+void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus){
 
 	Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
 	Line* baseLine = lines[(int)(position / segmentL) % lines.size()];
@@ -511,11 +511,13 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p){
 
     drawBackground(input, 0, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
 
+    if (startMap && gameStatus == State::PLAY_ROUND && !Logger::getEndFlaggerAnimation())
+        Logger::updateSprite(*this, Sprite_Animated::FLAGGER);
+
     //Draw sprites and cars
 	for (int n = (int)(drawDistance - 1); n > 0; --n)
 	{
 		l = lines[(baseLine->index + n) % lines.size()];
-
 
 		if (l->index < playerLine->index)
 			continue;
@@ -573,20 +575,6 @@ void Map::setStartSrpiteScreenY(const float _offsetY) {
     lines[309]->spriteFarLeft->setOffsetY(_offsetY);
 }
 
-void Map::setColorsAndBackground(const Map& map){
-    sky = map.sky;
-    sand1 = map.sand1;
-    sand2 = map.sand2;
-    road1 = map.road1;
-    road2 = map.road2;
-    rumble1 = map.rumble1;
-    rumble2 = map.rumble2;
-    lane1 = map.lane1;
-    lane2 = map.lane2;
-    backGround = map.backGround;
-    backgroundShape = map.backgroundShape;
-}
-
 void Map::addSegment(float curve, float y, bool mirror, float dist)
 {
 	int n = (int)lines.size();
@@ -608,7 +596,20 @@ void Map::addSegment(float curve, float y, bool mirror, float dist)
 	lines.push_back(l);
 }
 
-void Map::setStartMap(){
+void Map::setStartMap(const Map& m){
+    sky = m.sky;
+    sand1 = m.sand1;
+    sand2 = m.sand2;
+    road1 = m.road1;
+    road2 = m.road2;
+    rumble1 = m.rumble1;
+    rumble2 = m.rumble2;
+    lane1 = m.lane1;
+    lane2 = m.lane2;
+    backGround = m.backGround;
+    backgroundShape = m.backgroundShape;
+    time = m.getTime();
+
     addMap(400, 400, 400, 0, 0, false, dist8);
     mapDistance = lines[0]->distance;
 	trackLength = (int)(lines.size() * segmentL);

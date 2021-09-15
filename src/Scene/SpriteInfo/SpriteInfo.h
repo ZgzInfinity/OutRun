@@ -34,6 +34,10 @@ enum class Sprite_Position : int {
     NEAR_RIGHT
 };
 
+enum class Sprite_Animated : int {
+    FLAGGER,
+    SEMAPHORE
+};
 
 class SpriteInfo {
 

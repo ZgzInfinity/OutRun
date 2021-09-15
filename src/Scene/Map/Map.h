@@ -32,6 +32,7 @@
 #include "../../Car/PlayerCar/PlayerCar.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
 #include "../../Logger/Logger.h"
+#include "../../Menus/Menu/Menu.h"
 
 class Map {
 
@@ -91,7 +92,7 @@ class Map {
 
         ~Map();
 
-        void setStartMap();
+        void setStartMap(const Map& m);
 
         void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
 
@@ -125,13 +126,13 @@ class Map {
 
         void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score);
 
-        void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p);
+        void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus);
 
         void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos);
 
-        void setColorsAndBackground(const Map& map);
-
         void setStartSrpiteScreenY(const float _offsetY);
+
+        void updateSprite();
 };
 
 #endif // MAP_H

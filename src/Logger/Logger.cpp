@@ -26,7 +26,12 @@ Logger Logger::instance;
 
 Logger::Logger(){
     instance.failDetected = false;
+    instance.endFlaggerAnimation = false;
     instance.outputFlux.open(instance.LOGGER_PATH_FILE);
+    instance.flagger_code_image = 0;
+    instance.semaphore_code_image = 36;
+    instance.attemps = 0;
+    instance.waitingFlagger = instance.FLAGGER_CHANGE_STATUS;
     if (!instance.outputFlux.is_open())
         instance.failDetected = true;
 }
@@ -1332,9 +1337,11 @@ bool Logger::loadStartMapSprites(Map& m){
                                            instance.scaleCoeffs[30], instance.widthCollisionCoeffs[30], instance.pivotLeftColPoints[30],
                                            instance.pivotRightColPoints[30], -0.58f, 0.f, false);
 
-    SpriteInfo* flagger = new SpriteInfo(&instance.objects[0], instance.pivotLeftPoints[0], instance.pivotRightPoints[0],
-                                           instance.scaleCoeffs[0], instance.widthCollisionCoeffs[0], instance.pivotLeftColPoints[0],
-                                           instance.pivotRightColPoints[0], -0.32f, 0.f, false);
+    SpriteInfo* flagger = new SpriteInfo(&instance.objects[instance.flagger_code_image], instance.pivotLeftPoints[instance.flagger_code_image],
+                                         instance.pivotRightPoints[instance.flagger_code_image], instance.scaleCoeffs[instance.flagger_code_image],
+                                         instance.widthCollisionCoeffs[instance.flagger_code_image],
+                                         instance.pivotLeftColPoints[instance.flagger_code_image],
+                                         instance.pivotRightColPoints[instance.flagger_code_image], -0.32f, 0.f, false);
 
     SpriteInfo* man2 = new SpriteInfo(&instance.objects[17], instance.pivotLeftPoints[17], instance.pivotRightPoints[17],
                                            instance.scaleCoeffs[17], instance.widthCollisionCoeffs[17], instance.pivotLeftColPoints[17],
@@ -1383,9 +1390,13 @@ bool Logger::loadStartMapSprites(Map& m){
                                            instance.scaleCoeffs[35], instance.widthCollisionCoeffs[35], instance.pivotLeftColPoints[35],
                                            instance.pivotRightColPoints[35], -1.33f, float(instance.widthScreen * -1.6f / SCREEN_0.first), false);
 
-    SpriteInfo* trafficLightLeftPanel = new SpriteInfo(&instance.objects[36], instance.pivotLeftPoints[36], instance.pivotRightPoints[36],
-                                           instance.scaleCoeffs[36], instance.widthCollisionCoeffs[36], instance.pivotLeftColPoints[36],
-                                           instance.pivotRightColPoints[36], -0.8f, 0.f, false);
+    SpriteInfo* trafficLightLeftPanel = new SpriteInfo(&instance.objects[instance.semaphore_code_image],
+                                                       instance.pivotLeftPoints[instance.semaphore_code_image],
+                                                       instance.pivotRightPoints[instance.semaphore_code_image],
+                                                       instance.scaleCoeffs[instance.semaphore_code_image],
+                                                       instance.widthCollisionCoeffs[instance.semaphore_code_image],
+                                                       instance.pivotLeftColPoints[instance.semaphore_code_image],
+                                                       instance.pivotRightColPoints[instance.semaphore_code_image], -0.8f, 0.f, false);
 
     SpriteInfo* trafficLightRightPanel = new SpriteInfo(&instance.objects[40], instance.pivotLeftPoints[40], instance.pivotRightPoints[40],
                                            instance.scaleCoeffs[40], instance.widthCollisionCoeffs[40], instance.pivotLeftColPoints[40],
@@ -1432,5 +1443,107 @@ bool Logger::loadStartMapSprites(Map& m){
     m.addSpriteInfo(311, trafficLightLeftPanel, Sprite_Position::NEAR_LEFT);
     m.addSpriteInfo(311, trafficLightRightPanel, Sprite_Position::FAR_RIGHT);
 }
+
+void Logger::updateSprite(Map& m, const Sprite_Animated spriteAnimated){
+    if (m.getStartMap()){
+        if (spriteAnimated == Sprite_Animated::FLAGGER){
+            switch (status){
+                case MOVING_FLAG:
+                    if (previousStatus != MOVING_FLAG){
+                        instance.flagger_code_image = instance.FLAGGER_FLAG;
+                        instance.numIterations = 0;
+                    }
+                    else {
+                        if (instance.flagger_code_image != instance.FLAGGER_HAND){
+                            if (instance.numIterations != instance.FLAGGER_CHANGE_STATUS)
+                                instance.numIterations++;
+                            else {
+                                instance.numIterations = 0;
+                                instance.flagger_code_image++;
+                            }
+                        }
+                        else {
+                            instance.previousStatus = status;
+                            if (instance.numIterations == instance.FLAGGER_CHANGE_STATUS)
+                                instance.status = MOVING_FLAG;
+                        }
+                    }
+                    break;
+                case MOVING_HAND:
+                    if (previousStatus != MOVING_HAND){
+                        instance.flagger_code_image = instance.FLAGGER_HAND;
+                        instance.numIterations = 0;
+                    }
+                    else {
+                        if (instance.flagger_code_image != instance.FLAGGER_HAND)
+                            if (instance.numIterations != instance.FLAGGER_CHANGE_STATUS)
+                                instance.numIterations++;
+                            else {
+                                instance.numIterations = 0;
+                                instance.flagger_code_image++;
+                            }
+                        else {
+                            instance.previousStatus = status;
+                            if (numIterations == instance.FLAGGER_CHANGE_STATUS){
+                                instance.totalTimes++;
+                                if (instance.totalTimes == 3)
+                                    instance.status = MOVING_BACK;
+                                else
+                                    instance.status = MOVING_FLAG;
+                            }
+                        }
+                    }
+                    break;
+                case MOVING_BACK:
+                    if (instance.previousStatus != MOVING_BACK){
+                        instance.flagger_code_image = instance.FLAGGER_BACK;
+                        instance.numIterations = 0;
+                    }
+                    else {
+                        if (instance.flagger_code_image != instance.FLAGGER_HAND + 1)
+                            if (instance.numIterations != instance.FLAGGER_CHANGE_STATUS)
+                                instance.numIterations++;
+                            else {
+                                instance.numIterations = 0;
+                                instance.flagger_code_image++;
+                            }
+                        else {
+                            instance.previousStatus = status;
+                        }
+                    }
+            }
+
+            SpriteInfo* newSprite = new SpriteInfo(&instance.objects[instance.flagger_code_image],
+                                                   instance.pivotLeftPoints[instance.flagger_code_image],
+                                                   instance.pivotRightPoints[instance.flagger_code_image],
+                                                   instance.scaleCoeffs[instance.flagger_code_image],
+                                                   instance.widthCollisionCoeffs[instance.flagger_code_image],
+                                                   instance.pivotLeftColPoints[instance.flagger_code_image],
+                                                   instance.pivotRightColPoints[instance.flagger_code_image], -0.32f, 0.f, false);
+
+            m.addSpriteInfo(306, newSprite, Sprite_Position::NEAR_LEFT);
+        }
+        else {
+            if (instance.semaphore_code_image <= instance.MAX_SEMAPHORE_CODE_IMAGE){
+                SpriteInfo* newSprite = new SpriteInfo(&instance.objects[instance.semaphore_code_image],
+                                                       instance.pivotLeftPoints[instance.semaphore_code_image],
+                                                       instance.pivotRightPoints[instance.semaphore_code_image],
+                                                       instance.scaleCoeffs[instance.semaphore_code_image],
+                                                       instance.widthCollisionCoeffs[instance.semaphore_code_image],
+                                                       instance.pivotLeftColPoints[instance.semaphore_code_image],
+                                                       instance.pivotRightColPoints[instance.semaphore_code_image], -0.8f, 0.f, false);
+
+                m.addSpriteInfo(311, newSprite, Sprite_Position::NEAR_LEFT);
+                instance.semaphore_code_image++;
+            }
+        }
+    }
+}
+
+bool Logger::getEndFlaggerAnimation(){
+    return instance.endFlaggerAnimation;
+}
+
+
 
 

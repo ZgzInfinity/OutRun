@@ -484,6 +484,10 @@ void PlayerCar::drawStartStaticRound(Input& input) {
 }
 
 void PlayerCar::drawStartDriftRound(Input &input, float x, int& code){
+
+    if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
+        Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, false);
+
     if (textures.size() == PLAYER_TEXTURES){
         if (counter_code_image >= maxCounterToChange){
             current_code_image++;
@@ -637,8 +641,9 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
                 counter_code_image = 0;
 
                 // Increment the texture counter only if it moves
-                if ((!pauseMode) && (speed > 0.0f || speed <= 0.0f && numAngers < 3))
+                if ((!pauseMode) && (speed > 0.f || speed <= 0.f && numAngers < 3)){
                     current_code_image++;
+                }
 
                 if (textures.size() == PLAYER_TEXTURES){
                     if (action == Action::ACCELERATE || action == Action::BOOT){

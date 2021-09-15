@@ -54,13 +54,15 @@ void Game::handleEvent(Input& input, const float& time){
         if (input.closed(event)){
             escape = true;
         }
-        else if (!outOfTime && !arrival && input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
-            pauseMode = true;
-            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
-        }
-        else if (gameStatus == State::PLAY_ROUND && outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-            start = true;
-            Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+        else if (gameStatus == State::PLAY_ROUND){
+            if (!outOfTime && !arrival && input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
+                pauseMode = true;
+                Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            }
+            else if (outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+                start = true;
+                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+            }
         }
     }
     if (gameStatus == State::PLAY_ROUND && !escape && !pauseMode && !outOfTime && !arrival && !player->getCrashing()){
@@ -80,7 +82,9 @@ void Game::updateRound(Input& input){
     Hud::setAllHudIndicators(input);
 
     currentMap->updateMap(input, cars, *player, time, score);
-    currentMap->renderMap(input, cars, *player);
+
+    input.gameWindow.clear();
+    currentMap->renderMap(input, cars, *player, gameStatus);
     player->drawPlayRound(input, false);
     Hud::drawHud(input);
     input.gameWindow.display();
@@ -164,25 +168,29 @@ State Game::startRound(Input& input){
     blackShape.setPosition(0, 0);
     blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y));
 
-    for (int j = 255; j >= 0; j -= 5){
-        handleEvent(input, time);
+    int j = 255;
+    Audio::play(Sfx::RACE_START, false);
 
-        input.gameWindow.clear(sf::Color(0, 0, 0));
-        currentMap->renderMap(input, cars, *player);
+    while(!escape && j >= 0){
+        handleEvent(input, time);
+        blackShape.setFillColor(sf::Color(0, 0, 0, j));
+
+        input.gameWindow.clear();
+        currentMap->renderMap(input, cars, *player, gameStatus);
         player->drawStartStaticRound(input);
         Hud::drawHud(input);
-
-        blackShape.setFillColor(sf::Color(0, 0, 0, j));
         input.gameWindow.draw(blackShape);
-        sleep(sf::milliseconds(30));
         input.gameWindow.display();
+        j -= 5;
+
+        sleep(sf::milliseconds(30));
     }
 
     while (!player->getEndAnimation() && !escape){
         handleEvent(input, time);
 
-        input.gameWindow.clear(sf::Color(0, 0, 0));
-        currentMap->renderMap(input, cars, *player);
+        input.gameWindow.clear();
+        currentMap->renderMap(input, cars, *player, gameStatus);
         player->drawStartDriftRound(input, float(i), code);
         Hud::drawHud(input);
         input.gameWindow.display();
@@ -195,7 +203,57 @@ State Game::startRound(Input& input){
         else if (i <= input.gameWindow.getSize().x / 2.f / 1.23f)
             code = 120;
     }
-    return State::PLAY_ROUND;
+
+    sf::Clock semaphoreClock;
+
+    const float semaphoreLight = sf::seconds(1.0f).asSeconds();
+    float timeInitial = semaphoreClock.getElapsedTime().asSeconds();
+    float timeElapsed = 0.f;
+
+    input.gameWindow.clear();
+    currentMap->renderMap(input, cars, *player, gameStatus);
+    player->drawPlayRound(input, true);
+    Hud::drawHud(input);
+    input.gameWindow.display();
+
+    Audio::play(Sfx::SHOWMAN_RACE_START, false);
+    while (Audio::isPlaying(Sfx::SHOWMAN_RACE_START))
+        handleEvent(input, time);
+
+    j = 3;
+    while(!escape && j >= 0){
+        handleEvent(input, time);
+
+        timeElapsed = semaphoreClock.getElapsedTime().asSeconds();
+
+        if (timeElapsed - timeInitial >= semaphoreLight){
+
+            if (j < 3 && j > 0)
+                Audio::play(Sfx::RACE_SEMAPHORE_PREPARE, false);
+            else if (j == 0)
+                Audio::play(Sfx::RACE_SEMAPHORE_START, false);
+
+            Logger::updateSprite(*currentMap, Sprite_Animated::SEMAPHORE);
+            semaphoreClock.restart();
+            j--;
+            if (j >= 1){
+                Logger::updateSprite(*currentMap, Sprite_Animated::FLAGGER);
+            }
+        }
+
+        currentMap->renderMap(input, cars, *player, gameStatus);
+        player->drawPlayRound(input, true);
+        Hud::drawHud(input);
+        input.gameWindow.display();
+    }
+
+
+    if (escape)
+        return State::EXIT;
+    else {
+        Audio::play(input.currentSoundtrack, true);
+        return State::PLAY_ROUND;
+    }
 }
 
 
@@ -243,7 +301,7 @@ State Game::gameOverRound(Input& input){
 
     while (!escape && !start){
         handleEvent(input, time);
-        currentMap->renderMap(input, cars, *player);
+        currentMap->renderMap(input, cars, *player, gameStatus);
         player->drawPlayRound(input, true, false);
         Hud::drawHud(input);
         input.gameWindow.display();
@@ -309,8 +367,7 @@ State Game::loadMaps(Input& input){
         currentMap->setBackground();
 
         startMap = new Map();
-        startMap->setColorsAndBackground(*currentMap);
-        startMap->setStartMap();
+        startMap->setStartMap(*currentMap);
         currentMap = startMap;
 
         return State::LOADING;

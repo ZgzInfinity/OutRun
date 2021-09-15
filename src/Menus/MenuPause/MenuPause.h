@@ -48,6 +48,8 @@ class MenuPause : public Menu {
         Map map;
         PlayerCar player;
 
+        State gameStatus;
+
     public:
 
         MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*> trafficCars);
@@ -61,6 +63,8 @@ class MenuPause : public Menu {
         State returnMenu(Input& input) override;
 
         void changeButtonSelected(const bool& menuUpPressed);
+
+        void setGameStatus(State& _gameStatus);
 
 };
 

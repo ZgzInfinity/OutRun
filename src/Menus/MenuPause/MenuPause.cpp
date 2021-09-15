@@ -107,7 +107,7 @@ void MenuPause::draw(Input& input){
         handleEvent(input);
 
         input.gameWindow.clear();
-        map.renderMap(input, cars, player);
+        map.renderMap(input, cars, player, gameStatus);
         player.drawPlayRound(input, true, false);
         Hud::drawHud(input);
         input.gameWindow.draw(shape);
@@ -172,6 +172,10 @@ void MenuPause::changeButtonSelected(const bool& menuUpPressed){
             Audio::play(Sfx::MENU_SELECTION_MOVE, false);
         }
     }
+}
+
+void MenuPause::setGameStatus(State& _gameStatus){
+    gameStatus = _gameStatus;
 }
 
 

@@ -33,6 +33,12 @@ class Logger {
 
     private:
 
+        static constexpr const int FLAGGER_FLAG = 3;
+
+        static constexpr const int FLAGGER_HAND = 10;
+
+        static constexpr const int MOVING_BACK = 12;
+
         const std::string LOGGER_PATH_FILE = "Resources/Logger/Logger.txt";
 
         const std::regex natural_number_regex{"[0-9]+"};
@@ -47,9 +53,15 @@ class Logger {
 
         int row;
 
+        int semaphore_code_image, flagger_code_image;
+
+        int attemps, waitingFlagger;
+
         float widthScreen;
 
         bool failDetected;
+
+        bool endFlaggerAnimation;
 
         std::ifstream inputFlux;
 
@@ -107,6 +119,11 @@ class Logger {
         bool static checkLevelMapSprites(Map& m);
 
         bool static checkMapRelief(Map& m);
+
+        void static updateSprite(Map& m, const Sprite_Animated spriteAnimated);
+
+        bool static getEndFlaggerAnimation();
+
 };
 
 #endif // LOGGER_H
