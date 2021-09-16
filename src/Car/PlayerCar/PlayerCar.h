@@ -88,7 +88,7 @@ public:
 
     PlayerCar();
 
-    PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures,
+    PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale, const int numTextures,
               const std::string& name, const bool _automaticMode);
 
     void setNumAngers();

@@ -31,7 +31,9 @@ Logger::Logger(){
     instance.flagger_code_image = 0;
     instance.semaphore_code_image = 36;
     instance.attemps = 0;
-    instance.waitingFlagger = instance.FLAGGER_CHANGE_STATUS;
+    instance.numIterations = 0;
+    instance.totalTimes = 0;
+    instance.status = Flagger_Status::UPPING_FLAG;
     if (!instance.outputFlux.is_open())
         instance.failDetected = true;
 }
@@ -1447,70 +1449,82 @@ bool Logger::loadStartMapSprites(Map& m){
 void Logger::updateSprite(Map& m, const Sprite_Animated spriteAnimated){
     if (m.getStartMap()){
         if (spriteAnimated == Sprite_Animated::FLAGGER){
-            switch (status){
-                case MOVING_FLAG:
-                    if (previousStatus != MOVING_FLAG){
-                        instance.flagger_code_image = instance.FLAGGER_FLAG;
-                        instance.numIterations = 0;
+            switch (instance.status){
+                case Flagger_Status::UPPING_FLAG:
+                    instance.flagger_code_image++;
+                    if (instance.flagger_code_image == instance.FLAGGER_FLAG)
+                        instance.status = Flagger_Status::MOVING_FLAG;
+                    break;
+                case Flagger_Status::MOVING_FLAG:
+                    if (instance.flagger_code_image < instance.FLAGGER_HAND){
+                        if (instance.numIterations != instance.FLAGGER_CHANGE_ANIM)
+                            instance.numIterations++;
+                        else {
+                            instance.numIterations = 0;
+                            instance.flagger_code_image++;
+                        }
                     }
                     else {
-                        if (instance.flagger_code_image != instance.FLAGGER_HAND){
-                            if (instance.numIterations != instance.FLAGGER_CHANGE_STATUS)
-                                instance.numIterations++;
-                            else {
-                                instance.numIterations = 0;
-                                instance.flagger_code_image++;
-                            }
-                        }
+                        if (instance.numIterations != instance.FLAGGER_CHANGE_ANIM)
+                            instance.numIterations++;
                         else {
-                            instance.previousStatus = status;
-                            if (instance.numIterations == instance.FLAGGER_CHANGE_STATUS)
-                                instance.status = MOVING_FLAG;
+                            instance.attemps++;
+                            if (instance.attemps == instance.FLAGGER_CHANGE_STATUS){
+                                instance.status = Flagger_Status::MOVING_HAND;
+                                instance.flagger_code_image = instance.FLAGGER_HAND;
+                                instance.attemps = 0;
+                            }
+                            else
+                                instance.flagger_code_image = instance.FLAGGER_FLAG + 1;
+
+                            instance.numIterations = 0;
                         }
                     }
                     break;
-                case MOVING_HAND:
-                    if (previousStatus != MOVING_HAND){
-                        instance.flagger_code_image = instance.FLAGGER_HAND;
-                        instance.numIterations = 0;
+                case Flagger_Status::MOVING_HAND:
+                    if (instance.flagger_code_image < instance.FLAGGER_BACK){
+                        if (instance.numIterations != 2 * instance.FLAGGER_CHANGE_ANIM)
+                            instance.numIterations++;
+                        else {
+                            instance.numIterations = 0;
+                            instance.flagger_code_image++;
+                        }
                     }
                     else {
-                        if (instance.flagger_code_image != instance.FLAGGER_HAND)
-                            if (instance.numIterations != instance.FLAGGER_CHANGE_STATUS)
-                                instance.numIterations++;
-                            else {
-                                instance.numIterations = 0;
-                                instance.flagger_code_image++;
-                            }
+                        if (instance.numIterations != 2 * instance.FLAGGER_CHANGE_ANIM)
+                            instance.numIterations++;
                         else {
-                            instance.previousStatus = status;
-                            if (numIterations == instance.FLAGGER_CHANGE_STATUS){
+                            instance.attemps++;
+                            if (instance.attemps == instance.FLAGGER_CHANGE_STATUS){
                                 instance.totalTimes++;
-                                if (instance.totalTimes == 3)
-                                    instance.status = MOVING_BACK;
-                                else
-                                    instance.status = MOVING_FLAG;
+                                if (instance.totalTimes == 3){
+                                    instance.status = Flagger_Status::MOVING_BACK;
+                                    instance.flagger_code_image = instance.FLAGGER_BACK + 1;
+                                }
+                                else {
+                                    instance.status = Flagger_Status::MOVING_FLAG;
+                                    instance.flagger_code_image = instance.FLAGGER_FLAG + 1;
+                                    instance.attemps = 0;
+                                }
                             }
+                            else
+                                instance.flagger_code_image = instance.FLAGGER_HAND + 1;
+
+                            instance.numIterations = 0;
                         }
                     }
                     break;
-                case MOVING_BACK:
-                    if (instance.previousStatus != MOVING_BACK){
-                        instance.flagger_code_image = instance.FLAGGER_BACK;
-                        instance.numIterations = 0;
-                    }
-                    else {
-                        if (instance.flagger_code_image != instance.FLAGGER_HAND + 1)
-                            if (instance.numIterations != instance.FLAGGER_CHANGE_STATUS)
-                                instance.numIterations++;
-                            else {
-                                instance.numIterations = 0;
-                                instance.flagger_code_image++;
-                            }
+                case Flagger_Status::MOVING_BACK:
+                   if (instance.flagger_code_image < instance.FLAGGER_END_ANIMATION){
+                        if (instance.numIterations != 4 * instance.FLAGGER_CHANGE_ANIM)
+                            instance.numIterations++;
                         else {
-                            instance.previousStatus = status;
+                            instance.numIterations = 0;
+                            instance.flagger_code_image++;
                         }
                     }
+                    else
+                        instance.endFlaggerAnimation = true;
             }
 
             SpriteInfo* newSprite = new SpriteInfo(&instance.objects[instance.flagger_code_image],

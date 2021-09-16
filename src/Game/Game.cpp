@@ -138,7 +138,8 @@ void Game::updateRound(Input& input){
 State Game::startRound(Input& input){
 
     timeToPlay = currentMap->getTime();
-    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, PLAYER_TEXTURES,
+    float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
+    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale, PLAYER_TEXTURES,
                            "Ferrari", automaticMode);
 
     tick_timer = clock();
@@ -162,7 +163,7 @@ State Game::startRound(Input& input){
 
     int counterAnimation = 0;
     int code = 121;
-    float i = input.gameWindow.getSize().x / 2;
+    float i = input.gameWindow.getSize().x / 2.f;
 
     sf::RectangleShape blackShape;
     blackShape.setPosition(0, 0);
@@ -182,8 +183,6 @@ State Game::startRound(Input& input){
         input.gameWindow.draw(blackShape);
         input.gameWindow.display();
         j -= 5;
-
-        sleep(sf::milliseconds(30));
     }
 
     while (!player->getEndAnimation() && !escape){
@@ -236,9 +235,9 @@ State Game::startRound(Input& input){
             Logger::updateSprite(*currentMap, Sprite_Animated::SEMAPHORE);
             semaphoreClock.restart();
             j--;
-            if (j >= 1){
+
+            if (j == 1 || j < 0)
                 Logger::updateSprite(*currentMap, Sprite_Animated::FLAGGER);
-            }
         }
 
         currentMap->renderMap(input, cars, *player, gameStatus);
@@ -246,7 +245,6 @@ State Game::startRound(Input& input){
         Hud::drawHud(input);
         input.gameWindow.display();
     }
-
 
     if (escape)
         return State::EXIT;
@@ -275,19 +273,15 @@ State Game::playRound(Input& input){
     gameClockLap.restart();
     elapsed3 = gameClockLap.getElapsedTime().asSeconds();
 
-    while (!escape && !pauseMode && !outOfTime && !arrival){
+    while (!escape && !pauseMode && !outOfTime && !arrival)
         updateRound(input);
-    }
 
-    if (escape){
+    if (escape)
         return State::EXIT;
-    }
-    else if (pauseMode){
+    else if (pauseMode)
         return State::PAUSE;
-    }
-    else if (outOfTime){
+    else if (outOfTime)
         return State::GAME_OVER;
-    }
 }
 
 State Game::gameOverRound(Input& input){
@@ -321,7 +315,6 @@ State Game::gameOverRound(Input& input){
             input.gameWindow.display();
             sf::sleep(sf::milliseconds(10));
         }
-
         return State::START;
     }
     else if (escape)
@@ -415,8 +408,14 @@ void Game::run(Input& input){
                 mO.loadMenu(input);
                 mO.draw(input);
                 gameStatus = mO.returnMenu(input);
+
                 if (firstGame && currentMap->getStartMap())
                     Logger::setStartSrpiteScreenY(*currentMap);
+
+                if (player != nullptr){
+                    float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
+                    player->setScale(scale);
+                }
                 break;
             }
             case State::MUSIC_CONF: {

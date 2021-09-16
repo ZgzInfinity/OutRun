@@ -33,7 +33,7 @@ TrafficCar::TrafficCar() : Vehicle(){}
 
 TrafficCar::TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures, const std::string& name,
                        const int& _id, const float& _offset, const bool& _active, const bool& _side, const int& _lane)
-                       : Vehicle( _posX, _posY, _posZ, _speed, numTextures, name)
+                       : Vehicle( _posX, _posY, _posZ, _speed, scale, numTextures, name)
 {
     id = _id;
     offset = _offset;

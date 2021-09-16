@@ -24,7 +24,6 @@
 Input::Input(){
 
     // Resolutions of the game
-    camD = 0.84;
     currentSoundtrack = 1;
 
     resolutions[(int)Resolution::SCREEN_0] = SCREEN_0;
@@ -78,6 +77,11 @@ Input::Input(){
     set(Key::MENU_CANCEL, sf::Keyboard::Escape);
     set(Key::MENU_PAUSE, sf::Keyboard::Escape);
     set(Key::MENU_CREDITS, sf::Keyboard::Space);
+
+    if (currentIndexResolution <= 1)
+        camD = 0.84;
+    else
+        camD = 0.83;
 
     // input.screenScale = float(w.getSize().x) / float(SCREEN_0.first);
     setGameWindow(static_cast<unsigned int>(resolutions[currentIndexResolution].first),

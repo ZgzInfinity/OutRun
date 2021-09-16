@@ -58,7 +58,7 @@ class Vehicle {
 
     protected:
 
-        float posX;
+        float posX, scale;
         int posY, posZ;
         Direction direction;
         int current_code_image;
@@ -72,13 +72,15 @@ class Vehicle {
 
         Vehicle();
 
-        Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed, const int _numTextures, const std::string& name);
+        Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale, const int _numTextures, const std::string& name);
 
         void setSpeed(const float& sp);
 
         void setDirection(const Direction& _direction);
 
         float getSpeed() const;
+
+        void setScale(const float _scale);
 
         void setPosX(const float& pX);
 

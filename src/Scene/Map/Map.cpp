@@ -515,7 +515,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         Logger::updateSprite(*this, Sprite_Animated::FLAGGER);
 
     //Draw sprites and cars
-	for (int n = (int)(drawDistance - 1); n > 0; --n)
+	for (int n = (int)(drawDistance - 1); n >= 0; --n)
 	{
 		l = lines[(baseLine->index + n) % lines.size()];
 
@@ -572,7 +572,7 @@ void Map::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos
 }
 
 void Map::setStartSrpiteScreenY(const float _offsetY) {
-    lines[309]->spriteFarLeft->setOffsetY(_offsetY);
+    lines[310]->spriteFarLeft->setOffsetY(_offsetY);
 }
 
 void Map::addSegment(float curve, float y, bool mirror, float dist)

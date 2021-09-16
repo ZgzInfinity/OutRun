@@ -412,6 +412,7 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
             input.screenScaleX = float(input.gameWindow.getSize().x) / float(SCREEN_0.first);
             input.screenScaleY = float(input.gameWindow.getSize().y) / float(SCREEN_0.second);
             Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+            input.camD = (input.currentIndexResolution <= 1) ? 0.84 : 0.83;
         }
     }
     else if (event.key.code == input.get(Key::MENU_RIGHT)){
@@ -445,6 +446,7 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
             input.screenScaleX = float(input.gameWindow.getSize().x) / float(SCREEN_0.first);
             input.screenScaleY = float(input.gameWindow.getSize().y) / float(SCREEN_0.second);
             Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+            input.camD = (input.currentIndexResolution <= 1) ? 0.84 : 0.83;
         }
     }
     if (pauseMode){

@@ -23,11 +23,12 @@
 
 Vehicle::Vehicle(){}
 
-Vehicle::Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures, const std::string& name){
+Vehicle::Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale, const int numTextures, const std::string& name){
     posX = _posX;
 	posY = _posY;
 	posZ = _posZ;
 	speed = _speed;
+	scale = _scale;
     current_code_image = 1;
 	maxCounterToChange = 2;
 	counter_code_image = 0;
@@ -52,6 +53,10 @@ void Vehicle::setDirection(const Direction& _direction){
 
 float Vehicle::getSpeed() const {
     return speed;
+}
+
+void Vehicle::setScale(const float _scale){
+    scale = _scale;
 }
 
 void Vehicle::setPosX(const float& pX){

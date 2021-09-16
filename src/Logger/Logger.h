@@ -33,11 +33,26 @@ class Logger {
 
     private:
 
-        static constexpr const int FLAGGER_FLAG = 3;
+        enum class Flagger_Status : int {
+            UPPING_FLAG,
+            MOVING_FLAG,
+            MOVING_HAND,
+            MOVING_BACK
+        };
 
-        static constexpr const int FLAGGER_HAND = 10;
+        static constexpr const int FLAGGER_FLAG = 2;
 
-        static constexpr const int MOVING_BACK = 12;
+        static constexpr const int FLAGGER_HAND = 9;
+
+        static constexpr const int FLAGGER_BACK = 11;
+
+        static constexpr const int FLAGGER_END_ANIMATION = 13;
+
+        static constexpr const int FLAGGER_CHANGE_STATUS = 10;
+
+        static constexpr const int FLAGGER_CHANGE_ANIM = 5;
+
+        static constexpr const int MAX_SEMAPHORE_CODE_IMAGE = 39;
 
         const std::string LOGGER_PATH_FILE = "Resources/Logger/Logger.txt";
 
@@ -55,13 +70,15 @@ class Logger {
 
         int semaphore_code_image, flagger_code_image;
 
-        int attemps, waitingFlagger;
+        int attemps, waitingFlagger, numIterations, totalTimes;
 
         float widthScreen;
 
         bool failDetected;
 
         bool endFlaggerAnimation;
+
+        Flagger_Status previousStatus, status;
 
         std::ifstream inputFlux;
 
