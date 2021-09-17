@@ -509,7 +509,9 @@ void PlayerCar::drawStartDriftRound(Input &input, float x, int& code){
         sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
         sprite.setPosition(x, j - sprite.getGlobalBounds().height + out);
         input.gameWindow.draw(sprite);
-        sprite.setPosition(x * 1.5f, j - sprite.getGlobalBounds().height + out);
+
+        float offsetSkid = (code > 120) ? 1.6f : 1.5f;
+        sprite.setPosition(x * offsetSkid, j - sprite.getGlobalBounds().height + out);
         input.gameWindow.draw(sprite);
 
         if (endAnimation) {

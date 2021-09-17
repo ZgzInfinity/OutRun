@@ -113,7 +113,7 @@ void Hud::setAllHudIndicators(Input& input){
     std::string lap;
     lap = (instance.minutes < 10.f) ? "0" + to_string(int(instance.minutes)) + " '" : to_string(int(instance.minutes)) + " '";
     lap += (instance.secs < 10.f) ? "0" + to_string(int(instance.secs)) + " ''" : to_string(int(instance.secs)) + " ''";
-    lap += to_string(int(instance.cents_second * 100.f));
+    lap += (int(instance.cents_second * 100.f) < 10 ) ? "0" + to_string(int(instance.cents_second * 100.f)) : to_string(int(instance.cents_second * 100.f));
     setTextHudIndicator(Hud_Text_Indicator::LAP_TEXT, lap);
 
     setTextHudIndicator(Hud_Text_Indicator::SPEED_TEXT, std::to_string((int)instance.speed));
@@ -200,7 +200,7 @@ void Hud::configureHud(Input& input){
     std::string lap;
     lap = (instance.minutes < 10.f) ? "0" + to_string(int(instance.minutes)) + " '" : to_string(int(instance.minutes)) + " '";
     lap += (instance.secs < 10.f) ? "0" + to_string(int(instance.secs)) + " ''" : to_string(int(instance.secs)) + " ''";
-    lap += to_string(int(instance.cents_second * 100.f));
+    lap += (int(instance.cents_second * 100.f) < 10) ? "0" + to_string(int(instance.cents_second * 100.f)) : to_string(int(instance.cents_second * 100.f));
     setTextHudIndicator(Hud_Text_Indicator::LAP_TEXT, lap, posLapTextIndicator);
 
 
