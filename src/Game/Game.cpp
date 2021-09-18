@@ -78,9 +78,8 @@ void Game::updateRound(Input& input){
     tick_timer = clock();
     handleEvent(input, time);
 
-    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
-    Hud::setAllHudIndicators(input);
-
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    HudRound::setAllHudRoundIndicators(input);
 
     currentMap->updateMap(input, cars, *player, time, score);
 
@@ -92,7 +91,7 @@ void Game::updateRound(Input& input){
     else
         player->drawEndDriftRound(input);
 
-    Hud::drawHud(input);
+    HudRound::drawHudRound(input);
     input.gameWindow.display();
 
     if (gameStatus == State::PLAY_ROUND){
@@ -151,9 +150,9 @@ State Game::startRound(Input& input){
                            "Ferrari", automaticMode);
 
     tick_timer = clock();
-    Hud::loadHud();
-    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
-    Hud::configureHud(input);
+    HudRound::loadHudRound();
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    HudRound::configureHudRound(input);
 
     TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car1", 1, 0.5f, false, true, 1);
     TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car2", 2, 0.f, false, true, 1);
@@ -187,7 +186,7 @@ State Game::startRound(Input& input){
         input.gameWindow.clear();
         currentMap->renderMap(input, cars, *player, gameStatus);
         player->drawStartStaticRound(input);
-        Hud::drawHud(input);
+        HudRound::drawHudRound(input);
         input.gameWindow.draw(blackShape);
         input.gameWindow.display();
         j -= 5;
@@ -199,7 +198,7 @@ State Game::startRound(Input& input){
         input.gameWindow.clear();
         currentMap->renderMap(input, cars, *player, gameStatus);
         player->drawStartDriftRound(input, float(i), code);
-        Hud::drawHud(input);
+        HudRound::drawHudRound(input);
         input.gameWindow.display();
 
         i -= 3;
@@ -220,7 +219,7 @@ State Game::startRound(Input& input){
     input.gameWindow.clear();
     currentMap->renderMap(input, cars, *player, gameStatus);
     player->drawPlayRound(input, true);
-    Hud::drawHud(input);
+    HudRound::drawHudRound(input);
     input.gameWindow.display();
 
     Audio::play(Sfx::SHOWMAN_RACE_START, false);
@@ -250,7 +249,7 @@ State Game::startRound(Input& input){
 
         currentMap->renderMap(input, cars, *player, gameStatus);
         player->drawPlayRound(input, true);
-        Hud::drawHud(input);
+        HudRound::drawHudRound(input);
         input.gameWindow.display();
     }
 
@@ -299,9 +298,9 @@ State Game::endRound(Input& input){
                            "Ferrari", automaticMode);
 
     tick_timer = clock();
-    Hud::loadHud();
-    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
-    Hud::configureHud(input);
+    HudRound::loadHudRound();
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    HudRound::configureHudRound(input);
 
     if (Audio::isPlaying(input.currentSoundtrack))
             Audio::stop(input.currentSoundtrack);
@@ -317,8 +316,8 @@ State Game::endRound(Input& input){
 
 State Game::gameOverRound(Input& input){
 
-    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
-    Hud::setAllHudIndicators(input);
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    HudRound::setAllHudRoundIndicators(input);
     Audio::play(Soundtrack::GAME_OVER, true);
 
     if (player->getOutiseRoad())
@@ -328,7 +327,7 @@ State Game::gameOverRound(Input& input){
         handleEvent(input, time);
         currentMap->renderMap(input, cars, *player, gameStatus);
         player->drawPlayRound(input, true, false);
-        Hud::drawHud(input);
+        HudRound::drawHudRound(input);
         input.gameWindow.display();
     }
 

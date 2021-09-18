@@ -39,7 +39,7 @@
 #include "../Menus/MenuControls/MenuControls.h"
 #include "../Menus/MenuPause/MenuPause.h"
 #include "../Car/TrafficCar/TrafficCar.h"
-#include "../Gui/Hud/Hud.h"
+#include "../Gui/Huds/HudRound/HudRound.h"
 #include "../Logger/Logger.h"
 
  class Game {

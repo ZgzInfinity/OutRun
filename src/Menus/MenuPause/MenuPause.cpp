@@ -109,7 +109,7 @@ void MenuPause::draw(Input& input){
         input.gameWindow.clear();
         map.renderMap(input, cars, player, gameStatus);
         player.drawPlayRound(input, true, false);
-        Hud::drawHud(input);
+        HudRound::drawHudRound(input);
         input.gameWindow.draw(shape);
         input.gameWindow.draw(pauseShape);
         input.gameWindow.draw(textMenu);

@@ -450,6 +450,6 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
         }
     }
     if (pauseMode){
-        Hud::configureHud(input);
+        HudRound::configureHudRound(input);
     }
 }

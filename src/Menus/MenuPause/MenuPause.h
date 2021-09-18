@@ -30,7 +30,7 @@
 #include "../../Scene/Map/Map.h"
 #include "../../Car/PlayerCar/PlayerCar.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
-#include "../../Gui/Hud/Hud.h"
+#include "../../Gui/Huds/HudRound/HudRound.h"
 
 class MenuPause : public Menu {
 

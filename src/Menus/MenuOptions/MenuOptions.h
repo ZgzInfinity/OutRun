@@ -27,7 +27,7 @@
 #include "../Menu/Menu.h"
 #include "../../Globals.h"
 #include "../../Gui/Button/Button.h"
-#include "../../Gui/Hud/Hud.h"
+#include "../../Gui/Huds/HudRound/HudRound.h"
 #include "../../Logger/Logger.h"
 
 class MenuOptions : public Menu {
