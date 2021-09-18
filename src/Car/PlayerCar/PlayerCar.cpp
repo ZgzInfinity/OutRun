@@ -41,13 +41,13 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	highAccel = 10.f;
 	thresholdX = 1.f;
 	varThresholdX = 0.06f;
-	maxSpeed = 100.f;
-	lowAccel = maxSpeed / 7.f;
-	brakeAccel = maxSpeed / 3.0f;
+	maxLowSpeed = maxHighSpeed = 100.f;
+	lowAccel = maxHighSpeed / 6.5f;
+	brakeAccel = maxHighSpeed / 3.0f;
 	direction = Direction::FRONT;
 	collisionDir = 0.f;
 	out = 0;
-
+    skidIndex = -1;
 	gear = 0;
 	current_code_image = 1;
 	maxCounterToChange = 2;
@@ -74,7 +74,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
     decreaseGear = false;
     trafficCrash = false;
     drawCar = true;
-    endAnimation = false;
+    endAnimation = true;
 }
 
 void PlayerCar::setNumAngers(){
@@ -89,8 +89,12 @@ int PlayerCar::getGear() const {
     return gear;
 }
 
-float PlayerCar::getMaxSpeed() const {
-    return maxSpeed;
+float PlayerCar::getHighMaxSpeed() const {
+    return maxHighSpeed;
+}
+
+float PlayerCar::getLowMaxSpeed() const {
+    return maxLowSpeed;
 }
 
 float PlayerCar::getThresholdX() const {
@@ -116,6 +120,10 @@ void PlayerCar::setLowAccel(const float& _lowAccel){
 
 float PlayerCar::getLowAccel() const {
     return lowAccel;
+}
+
+void PlayerCar::setEndAnimation(const bool _endAnimation){
+    endAnimation = _endAnimation;
 }
 
 bool PlayerCar::getEndAnimation() const {
@@ -180,160 +188,197 @@ StateWheel PlayerCar::getStateWheelRight() const {
 
 
 // Control the actions to accelerate or brake the vehicle of the player
-void PlayerCar::accelerationControlAutomaic(Input& input, const float time){
+void PlayerCar::accelerationControl(Input& input, const State gameStatus, const float time){
 
     sf::Event event;
     action = Action::ACCELERATE;
     direction = Direction::FRONT;
 
-    if (wheelL == StateWheel::SAND && wheelR == StateWheel::SAND)
-		maxSpeed = 75.f;
-	else
-	{
-		if (gear == 1)
-			maxSpeed = (int)SEGMENT_LENGTH;
-		else
-			maxSpeed = 100.f;
-	}
-
-    if ((input.pressed(Key::BRAKE, event) || input.held(Key::BRAKE)) && speed > 0.f){
-
-        speed -= brakeAccel * time;
-		if (speed <= 0.f) {
-			speed = 0.f;
-			motorEngineSound = false;
-			wheelL = StateWheel::NORMAL;
-			wheelR = StateWheel::NORMAL;
-		}
-
-		if (gear == 1 && speed < 100.f){
-            gear = 0;
-            decreaseGear = true;
-		}
-		else if (decreaseGear)
-            if (speed < 90.f)
-                decreaseGear = false;
-
-        wheelL = StateWheel::SMOKE;
-        wheelR = StateWheel::SMOKE;
-		action = (speed == 0.f) ? Action::NONE : Action::BRAKE;
-    }
-    else if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed <= maxSpeed){
-        if (speed <= maxSpeed){
-            speed += lowAccel * time;
-            if (speed > maxSpeed){
-                speed = maxSpeed;
+    switch(gameStatus){
+        case State::PLAY_ROUND:
+            if (wheelL == StateWheel::SAND && wheelR == StateWheel::SAND)
+                maxHighSpeed = 75.f;
+            else
+            {
+                if (gear == 1)
+                    maxHighSpeed = (int)SEGMENT_LENGTH;
+                else
+                    maxHighSpeed = 100.f;
             }
-        }
-        else
-            speed = maxSpeed;
 
-		action = (speed > 15.f) ? Action::ACCELERATE : Action::BOOT;
-		motorEngineSound = true;
+            if ((input.pressed(Key::BRAKE, event) || input.held(Key::BRAKE)) && speed > 0.f){
 
-		if (speed < 50.f && wheelL != StateWheel::SAND && wheelR != StateWheel::SAND){
-			wheelR = StateWheel::SMOKE;
-		}
-		else {
-            wheelR = StateWheel::NORMAL;
-		}
-        if (speed < 50.f && wheelR != StateWheel::SAND && wheelL != StateWheel::SAND){
-            wheelL = StateWheel::SMOKE;
-        }
-        else {
-            wheelL = StateWheel::NORMAL;
-        }
+                speed -= brakeAccel * time;
+                if (speed <= 0.f) {
+                    speed = 0.f;
+                    motorEngineSound = false;
+                    wheelL = wheelR = StateWheel::NORMAL;
+                }
 
-        if (automaticMode){
-            if (speed == maxSpeed && gear == 0){
-                gear = 1;
-                increaseGear = true;
+                if (gear == 1 && speed < 100.f){
+                    gear = 0;
+                    decreaseGear = true;
+                }
+                else if (decreaseGear)
+                    if (speed < 90.f)
+                        decreaseGear = false;
+
+                wheelL = wheelR = StateWheel::SMOKE;
+                action = (speed == 0.f) ? Action::NONE : Action::BRAKE;
             }
-            if (increaseGear && speed > 110.f)
+            else if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed <= maxHighSpeed){
+                if (speed <= maxHighSpeed){
+                    speed += lowAccel * time;
+                    if (speed > maxHighSpeed){
+                        speed = maxHighSpeed;
+                    }
+                }
+                else
+                    speed = maxHighSpeed;
+
+                action = (speed > 15.f) ? Action::ACCELERATE : Action::BOOT;
+                motorEngineSound = true;
+
+                if (speed < 50.f && wheelL != StateWheel::SAND && wheelR != StateWheel::SAND){
+                    wheelR = StateWheel::SMOKE;
+                }
+                else {
+                    wheelR = StateWheel::NORMAL;
+                }
+                if (speed < 50.f && wheelR != StateWheel::SAND && wheelL != StateWheel::SAND){
+                    wheelL = StateWheel::SMOKE;
+                }
+                else {
+                    wheelL = StateWheel::NORMAL;
+                }
+
+                if (automaticMode){
+                    if (speed == maxHighSpeed && gear == 0){
+                        gear = 1;
+                        increaseGear = true;
+                    }
+                    if (increaseGear && speed > 110.f)
+                        increaseGear = false;
+                }
+                else {
+                    if ((input.pressed(Key::UP_GEAR, event) || input.held(Key::UP_GEAR) && gear != 1)){
+                        gear = 1;
+                        increaseGear = true;
+                        speedGear = speed;
+                    }
+                    else if ((input.pressed(Key::DOWN_GEAR, event) || input.held(Key::DOWN_GEAR)) && gear != 0){
+                        gear = 0;
+                        decreaseGear = true;
+                        speedGear = speed;
+
+                        if (speed > 100.f)
+                            speed -= lowAccel * time;
+                    }
+                    if (increaseGear && (speed > speedGear + 10.f))
+                        increaseGear = false;
+                    else if (decreaseGear && speed + 10.f < speedGear)
+                        decreaseGear = false;
+                }
+            }
+            else {
+                if (speed <= 0.f) {
+                    speed = 0.f;
+                    action = Action::NONE;
+                    motorEngineSound = false;
+                }
+                else
+                    speed -= (lowAccel * time * 0.75f);
+
+                wheelL = wheelR = StateWheel::NORMAL;
                 increaseGear = false;
-        }
-        else {
-            if ((input.pressed(Key::UP_GEAR, event) || input.held(Key::UP_GEAR) && gear != 1)){
-                gear = 1;
-                increaseGear = true;
-                speedGear = speed;
+
+                if (gear == 1 && speed < 100.f){
+                    gear = 0;
+                    decreaseGear = true;
+                }
+                else if (decreaseGear){
+                    if (speed < 90.f)
+                        decreaseGear = false;
+
+                    action = Action::BRAKE;
+                    wheelL = wheelR = StateWheel::SMOKE;
+                }
             }
-            else if ((input.pressed(Key::DOWN_GEAR, event) || input.held(Key::DOWN_GEAR)) && gear != 0){
-                gear = 0;
-                decreaseGear = true;
-                speedGear = speed;
+            varThresholdX = speed * time;
 
-                if (speed > 100.f)
-                    speed -= lowAccel * time;
+            //Check input for side
+            if (input.pressed(Key::TURN_LEFT, event) || input.held(Key::TURN_LEFT))
+            {
+                direction = Direction::TURNLEFT;
+                if (thresholdX > -varThresholdX)
+                    thresholdX -= 0.15f;
+                else if (thresholdX < -varThresholdX)
+                    thresholdX += 0.15f;
             }
-            if (increaseGear && (speed > speedGear + 10.f))
-                increaseGear = false;
-            else if (decreaseGear && speed + 10.f < speedGear)
-                decreaseGear = false;
+            else if (input.pressed(Key::TURN_RIGHT, event) || input.held(Key::TURN_RIGHT))
+            {
+                direction = Direction::TURNRIGHT;
+                if (thresholdX < varThresholdX)
+                    thresholdX += 0.15f;
+                else if (thresholdX > varThresholdX)
+                    thresholdX -= 0.15f;
+            }
+            else {
+                direction = Direction::FRONT;
+                if (thresholdX != 0.f)
+                {
+                    thresholdX -= thresholdX * 0.1f;
+                    if (thresholdX < 0.1f && thresholdX > -0.1f)
+                        thresholdX = 0.f;
+                }
+            }
+            posX += (thresholdX * time);
+
+            if (increaseGear)
+                wheelL = wheelR = StateWheel::SMOKE;
+
+            break;
+        case State::END_ROUND:
+            if (endAnimation){
+                if (!gear)
+                    gear = true;
+
+                maxHighSpeed = (int)SEGMENT_LENGTH;
+                speed += lowAccel * time;
+                if (speed > maxHighSpeed)
+                    speed = maxHighSpeed;
+
+                wheelL = wheelR = StateWheel::NORMAL;
+
+                if (posX > 0.1f){
+                    posX -= 0.5f * time;
+                    direction = Direction::TURNLEFT;
+                }
+                if (posX < -0.1f){
+                    posX += 0.5f * time;
+                    direction = Direction::TURNRIGHT;
+                }
+                if (posX != 0.f && posX < 0.1f && posX > -0.1f){
+                    posX = 0.f;
+                    direction = Direction::FRONT;
+                }
+            }
+            else {
+                action = Action::BRAKE;
+
+                if (speed > 0.f){
+                    speed -= lowAccel * time * 3.f;
+                    if (speed < 0.f)
+                        speed = 0.f;
+
+                    wheelL = wheelR = StateWheel::SMOKE;
+                }
+                else {
+                    action = Action::NONE;
+                    wheelL = wheelR = StateWheel::NORMAL;
+                }
+            }
         }
-    }
-    else {
-		if (speed <= 0.f) {
-			speed = 0.f;
-			action = Action::NONE;
-			motorEngineSound = false;
-		}
-		else
-            speed -= (lowAccel * time * 0.75f);
-
-		wheelL = StateWheel::NORMAL;
-        wheelR = StateWheel::NORMAL;
-
-        increaseGear = false;
-
-        if (gear == 1 && speed < 100.f){
-            gear = 0;
-            decreaseGear = true;
-		}
-		else if (decreaseGear){
-            if (speed < 90.f)
-                decreaseGear = false;
-
-            action = Action::BRAKE;
-            wheelL = StateWheel::SMOKE;
-            wheelR = StateWheel::SMOKE;
-		}
-    }
-
-    varThresholdX = speed * time;
-
-    //Check input for side
-	if (input.pressed(Key::TURN_LEFT, event) || input.held(Key::TURN_LEFT))
-	{
-        direction = Direction::TURNLEFT;
-	    if (thresholdX > -varThresholdX)
-            thresholdX -= 0.15f;
-        else if (thresholdX < -varThresholdX)
-            thresholdX += 0.15f;
-	}
-	else if (input.pressed(Key::TURN_RIGHT, event) || input.held(Key::TURN_RIGHT))
-	{
-        direction = Direction::TURNRIGHT;
-        if (thresholdX < varThresholdX)
-            thresholdX += 0.15f;
-        else if (thresholdX > varThresholdX)
-            thresholdX -= 0.15f;
-	}
-	else {
-        direction = Direction::FRONT;
-        if (thresholdX != 0.f)
-        {
-            thresholdX -= thresholdX * 0.1f;
-            if (thresholdX < 0.1f && thresholdX > -0.1f)
-                thresholdX = 0.f;
-        }
-	}
-    posX += (thresholdX * time);
-
-    if (increaseGear){
-        wheelL = StateWheel::SMOKE;
-        wheelR = StateWheel::SMOKE;
-    }
 }
 
 
@@ -359,12 +404,12 @@ void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& tim
             if (mapDistance != playerLine->distance)
                 posX += (playerLine->distance - mapDistance) / (float)ROAD_WIDTH;
             if (playerLine->mirror)
-                posX += (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
+                posX += (playerLine->curve * MIN((speed / maxHighSpeed), 1.f) * centrifugal * time);
             else
-                posX -= (playerLine->curve * MIN((speed / maxSpeed), 1.f) * centrifugal * time);
+                posX -= (playerLine->curve * MIN((speed / maxHighSpeed), 1.f) * centrifugal * time);
             break;
         case playerR::LEFTROAD:
-            posX -= (playerLine->curve * MIN((speed /maxSpeed), 1.f) * centrifugal * time);
+            posX -= (playerLine->curve * MIN((speed / maxHighSpeed), 1.f) * centrifugal * time);
 	}
 }
 
@@ -478,7 +523,7 @@ void PlayerCar::drawStartStaticRound(Input& input) {
         float x = input.gameWindow.getSize().x / 2;
         sprite.setTexture(textures[121], true);
         sprite.setScale(scale * input.screenScaleX, scale * input.screenScaleY);
-        sprite.setPosition(x, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
+        sprite.setPosition(x, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f));
         input.gameWindow.draw(sprite);
     }
 }
@@ -493,8 +538,8 @@ void PlayerCar::drawStartDriftRound(Input &input, float x, int& code){
             current_code_image++;
             counter_code_image = 0;
         }
-        if (current_code_image < 146 || current_code_image > 149)
-            current_code_image = 146;
+        if (current_code_image < 148 || current_code_image > 151)
+            current_code_image = 148;
 
         float width = input.gameWindow.getSize().x;
         endAnimation = x < width * 0.4f || x >= width;
@@ -502,16 +547,16 @@ void PlayerCar::drawStartDriftRound(Input &input, float x, int& code){
 
         sprite.setTexture(textures[code], true);
         sprite.setScale(scale * input.screenScaleX, scale * input.screenScaleY);
-        sprite.setPosition(x, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
+        sprite.setPosition(x, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f));
         input.gameWindow.draw(sprite);
 
         sprite.setTexture(textures[current_code_image], true);
         sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-        sprite.setPosition(x, j - sprite.getGlobalBounds().height + out);
+        sprite.setPosition(x, j - sprite.getGlobalBounds().height);
         input.gameWindow.draw(sprite);
 
         float offsetSkid = (code > 120) ? 1.6f : 1.5f;
-        sprite.setPosition(x * offsetSkid, j - sprite.getGlobalBounds().height + out);
+        sprite.setPosition(x * offsetSkid, j - sprite.getGlobalBounds().height);
         input.gameWindow.draw(sprite);
 
         if (endAnimation) {
@@ -917,14 +962,14 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
 
         if (wheelL == StateWheel::SMOKE){
-            sprite.setTexture(textures[146 + current_code_image % 4], true);
+            sprite.setTexture(textures[148 + current_code_image % 4], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
                                j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
         else if (wheelL == StateWheel::SAND){
-            sprite.setTexture(textures[150 + current_code_image % 4], true);
+            sprite.setTexture(textures[152 + current_code_image % 4], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
                                 j - sprite.getGlobalBounds().height + out);
@@ -932,13 +977,13 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
         }
 
         if (wheelR == StateWheel::SMOKE){
-            sprite.setTexture(textures[146 + current_code_image % 4], true);
+            sprite.setTexture(textures[148 + current_code_image % 4], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
         else if (wheelR == StateWheel::SAND){
-            sprite.setTexture(textures[150 + current_code_image % 4], true);
+            sprite.setTexture(textures[152 + current_code_image % 4], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
@@ -952,7 +997,111 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
         else
             current_code_image = 41;
 
-        wheelL = StateWheel::NORMAL;
-        wheelR = StateWheel::NORMAL;
+        wheelL = wheelR = StateWheel::NORMAL;
     }
 }
+
+
+void PlayerCar::drawEndDriftRound(Input &input){
+
+    if (Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
+        Audio::stop(Sfx::FERRARI_ENGINE_RUN);
+
+    if (textures.size() == PLAYER_TEXTURES){
+        if (speed < 60.f){
+
+            if (Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
+                Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
+
+            if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
+                Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, true);
+
+            int code = (speed >= 40.f) ? 146 : (speed <= 0.f) ? 121 : 147;
+            sprite.setTexture(textures[code], true);
+            sprite.setScale(scale * input.screenScaleX, scale * input.screenScaleY);
+            float minScreenX = ((float) input.gameWindow.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
+            sprite.setPosition(minScreenX, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f) + out);
+            input.gameWindow.draw(sprite);
+
+            if (speed > 0.f){
+                if (current_code_image < 148 || current_code_image > 150)
+                    current_code_image = 148;
+                else {
+                    if (counter_code_image >= maxCounterToChange){
+                        current_code_image++;
+                        counter_code_image = 0;
+                    }
+                    else
+                        counter_code_image++;
+                }
+                const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+                sprite.setTexture(textures[current_code_image], true);
+                sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+                sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
+                               j - sprite.getGlobalBounds().height);
+                input.gameWindow.draw(sprite);
+
+                sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height);
+                input.gameWindow.draw(sprite);
+            }
+            else
+                Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
+        }
+        else {
+            if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
+                Audio::play(Sfx::FERRARI_ENGINE_BRAKE, true);
+
+            if (speed >= 100.f){
+                if (current_code_image < 60 || current_code_image > 62)
+                    current_code_image = 60;
+                else
+                    if (counter_code_image >= maxCounterToChange){
+                        current_code_image++;
+                        counter_code_image = 0;
+                        skidIndex = 148 + current_code_image % 4;
+                    }
+                    else
+                        counter_code_image++;
+            }
+            else if (speed >= 60.f && speed < 100.f){
+                if (current_code_image < 64 || current_code_image > 71)
+                    current_code_image = 64;
+                else
+                    if (counter_code_image >= maxCounterToChange){
+                        if (current_code_image <= 70){
+                            current_code_image++;
+                            skidIndex = 148 + current_code_image % 4;
+                        }
+                        else {
+                            if (skidIndex > 150)
+                                skidIndex = 148;
+                            else
+                                skidIndex++;
+                        }
+                        counter_code_image = 0;
+                    }
+                    else
+                        counter_code_image++;
+            }
+
+            const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
+
+            sprite.setTexture(textures[current_code_image], true);
+            sprite.setScale(scale * input.screenScaleX, scale * input.screenScaleY);
+            float minScreenX = ((float) input.gameWindow.getSize().x) / 2.0f - sprite.getGlobalBounds().width / 2.0f;
+            sprite.setPosition(minScreenX, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f));
+            input.gameWindow.draw(sprite);
+
+            int code = (skidIndex == -1) ? 148 + current_code_image % 4 : skidIndex;
+            sprite.setTexture(textures[code], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
+                               j - sprite.getGlobalBounds().height);
+            input.gameWindow.draw(sprite);
+
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height);
+            input.gameWindow.draw(sprite);
+        }
+    }
+}
+

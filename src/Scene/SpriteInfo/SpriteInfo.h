@@ -72,6 +72,8 @@ class SpriteInfo {
 
         float getWidthCol() const;
 
+        void setOffsetX(const float _offsetX);
+
         float getOffsetX() const;
 
         void setOffsetY(const float _offsetY);

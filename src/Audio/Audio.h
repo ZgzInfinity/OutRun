@@ -58,7 +58,6 @@ enum class Sfx : int {
     MENU_PANEL_DISPLAY,
     MENU_PANEL_HIDE,
 
-
     RACE_SEMAPHORE_PREPARE,
     RACE_SEMAPHORE_START,
     RACE_START,
@@ -139,12 +138,16 @@ class Audio {
         static void setDefaultinput();
 
         static void play(const Soundtrack sd, bool loop = true);
+
         static void play(const Sfx sfx, bool loop = false);
+
         static void play(const int index, bool loop);
 
-
         static bool isPlaying(const Soundtrack sd);
+
         static bool isPlaying(const Sfx sfx);
+
+        static bool isPlaying(const int index);
 
         static void stop(const Sfx sfx);
 

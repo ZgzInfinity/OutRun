@@ -94,6 +94,8 @@ class Map {
 
         void setStartMap(const Map& m);
 
+        void setGoalMap(const Map& m);
+
         void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
 
         void setBackground();
@@ -109,6 +111,8 @@ class Map {
         int getTerrain() const;
 
         bool getStartMap() const;
+
+        bool getgoalMap() const;
 
         Line* getLine(const int& index);
 
@@ -130,7 +134,7 @@ class Map {
 
         void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos);
 
-        void setStartSrpiteScreenY(const float _offsetY);
+        void setSpriteScreenY(const int index, const float _offsetY);
 
         void updateSprite();
 };

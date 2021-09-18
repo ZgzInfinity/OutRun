@@ -23,6 +23,7 @@
 #include <regex>
 #include <fstream>
 #include "../Scene/Map/Map.h"
+#include "../Random/Random.h"
 
 #ifndef LOGGER_H
 #define LOGGER_H
@@ -52,7 +53,7 @@ class Logger {
 
         static constexpr const int FLAGGER_CHANGE_ANIM = 5;
 
-        static constexpr const int MAX_SEMAPHORE_CODE_IMAGE = 39;
+        static constexpr const int MAX_SEMAPHORE_CODE_IMAGE = 41;
 
         const std::string LOGGER_PATH_FILE = "Resources/Logger/Logger.txt";
 
@@ -104,7 +105,7 @@ class Logger {
 
         void static setWidthScreen(const int _widthScreen);
 
-        void static setStartSrpiteScreenY(Map& m);
+        void static setSpriteScreenY(Map& m, const bool startMap);
 
         void static loadObjects(const string &path, const vector<string> &objectNames);
 
@@ -128,7 +129,9 @@ class Logger {
 
         bool static checkReliefHillCurve(Map& m);
 
-        bool static loadStartMapSprites(Map& m);
+        void static loadStartMapSprites(Map& m);
+
+        void static loadGoalMapSprites(Map& m);
 
         bool static checkLevelMapSprite(Map& m, const int startPos, const int endPos, const int incrementor, const int frequency,
                                         bool& indexSpecified, bool& spritesProcessed, const bool left);

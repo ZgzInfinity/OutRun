@@ -297,6 +297,6 @@ State MenuLoading::returnMenu(Input& input){
         return State::EXIT;
     }
     else {
-        return State::PREPARE_ROUND;
+        return State::END_ROUND;
     }
 }

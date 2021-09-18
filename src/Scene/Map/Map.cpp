@@ -90,6 +90,11 @@ bool Map::getStartMap() const {
     return startMap;
 }
 
+bool Map::getgoalMap() const {
+    return goalMap;
+}
+
+
 Line* Map::getLine(const int& index){
     return lines[index];
 }
@@ -259,9 +264,13 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	while (position < 0)
 		position += trackLength;
 
-	//Calculate playerY for hills
 	Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
 	p.elevationControl(playerLine->p1.yWorld, playerLine->p2.yWorld);
+
+	//Activate end sequence
+	if (goalMap && p.getEndAnimation() && playerLine->index >= 700)
+        p.setEndAnimation(false);
+
 
     if (p.getCrashing()){
         if (p.getSpeed() > 0.f){
@@ -272,20 +281,20 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 
             if (p.getCollisionDir() >= 0.f){
                 if (p.getSpeed() <= 75.f)
-                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getHighMaxSpeed() * 2 * time));
                 else
-                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getMaxSpeed() * 3 * time));
+                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getHighMaxSpeed() * 3 * time));
             }
             else {
                 if (p.getSpeed() <= 75.f)
-                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getMaxSpeed() * 2 * time));
+                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getHighMaxSpeed() * 2 * time));
                 else
-                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getMaxSpeed() * 3 * time));
+                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getHighMaxSpeed() * 3 * time));
             }
         }
         else {
             p.setSpeed(0.f);
-            p.setLowAccel(14.2857f);
+            p.setLowAccel(p.getLowMaxSpeed() / 6.5f);
             p.setCollisionDir();
             if (p.getNumAngers() == 3){
                 p.setAngryWoman();
@@ -511,7 +520,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
     drawBackground(input, 0, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
 
-    if (startMap && gameStatus == State::PLAY_ROUND && !Logger::getEndFlaggerAnimation())
+    if ((startMap || goalMap) && (gameStatus == State::PLAY_ROUND || gameStatus == State::END_ROUND) && !Logger::getEndFlaggerAnimation())
         Logger::updateSprite(*this, Sprite_Animated::FLAGGER);
 
     //Draw sprites and cars
@@ -571,8 +580,8 @@ void Map::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos
 	}
 }
 
-void Map::setStartSrpiteScreenY(const float _offsetY) {
-    lines[310]->spriteFarLeft->setOffsetY(_offsetY);
+void Map::setSpriteScreenY(const int index, const float _offsetY) {
+    lines[index]->spriteFarLeft->setOffsetY(_offsetY);
 }
 
 void Map::addSegment(float curve, float y, bool mirror, float dist)
@@ -615,16 +624,48 @@ void Map::setStartMap(const Map& m){
 	trackLength = (int)(lines.size() * segmentL);
 
 	vector<string> objectNames;
-    objectNames.reserve(41);
-    for (int i = 1; i <= 41; i++){
+    objectNames.reserve(45);
+    for (int i = 1; i <= 45; i++){
         objectNames.push_back(std::to_string(i));
     }
 
-    string path = "Resources/Maps/MapStart/";
+    string path = "Resources/Maps/MapStartGoal/";
     Logger::loadObjects(path, objectNames);
     Logger::loadStartMapSprites(*this);
     startMap = true;
 }
+
+
+void Map::setGoalMap(const Map& m){
+    sky = m.sky;
+    sand1 = m.sand1;
+    sand2 = m.sand2;
+    road1 = m.road1;
+    road2 = m.road2;
+    rumble1 = m.rumble1;
+    rumble2 = m.rumble2;
+    lane1 = m.lane1;
+    lane2 = m.lane2;
+    backGround = m.backGround;
+    backgroundShape = m.backgroundShape;
+    time = m.getTime();
+
+    addMap(400, 400, 400, 0, 0, false, dist3);
+    mapDistance = lines[0]->distance;
+	trackLength = (int)(lines.size() * segmentL);
+
+	vector<string> objectNames;
+    objectNames.reserve(45);
+    for (int i = 1; i <= 45; i++){
+        objectNames.push_back(std::to_string(i));
+    }
+
+    string path = "Resources/Maps/MapStartGoal/";
+    Logger::loadObjects(path, objectNames);
+    Logger::loadGoalMapSprites(*this);
+    goalMap = true;
+}
+
 
 void Map::addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance)
 {

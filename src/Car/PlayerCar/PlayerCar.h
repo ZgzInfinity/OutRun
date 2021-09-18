@@ -24,14 +24,16 @@
  * Module Player interface file
  */
 
+#pragma once
+
 #ifndef PLAYER_CAR_H
 #define PLAYER_CAR_H
 
-
+#include "../Vehicle/Vehicle.h"
 #include "../../Globals.h"
 #include "../../Input/Input.h"
 #include "../../Scene/Line/Line.h"
-#include "../Vehicle/Vehicle.h"
+#include "../../Menus/Menu/Menu.h"
 
 enum class StateWheel : int {
     NORMAL,
@@ -47,7 +49,6 @@ enum class playerR : int {
 	__COUNT
 };
 
-
 /**
  * Represents a player as an available vehicle to be
  * chosen by the player in the vehicle selection menu
@@ -61,7 +62,7 @@ class PlayerCar : public Vehicle {
             TYPE_B
         };
 
-        float maxSpeed, lowAccel, brakeAccel, highAccel;
+        float maxHighSpeed, maxLowSpeed, lowAccel, brakeAccel, highAccel;
         float thresholdX, varThresholdX, forceX;
         float collisionDir, speedGear;
 
@@ -76,7 +77,7 @@ class PlayerCar : public Vehicle {
 
         int numAngers, out, counterOut;
 
-        int playerW, gear;
+        int playerW, gear, skidIndex;
 
         StateWheel wheelL, wheelR;
 
@@ -97,7 +98,9 @@ public:
 
     int getGear() const;
 
-    float getMaxSpeed() const;
+    float getHighMaxSpeed() const;
+
+    float getLowMaxSpeed() const;
 
     float getThresholdX() const;
 
@@ -110,6 +113,8 @@ public:
     void setLowAccel(const float& _lowAccel);
 
     float getLowAccel() const;
+
+    void setEndAnimation(const bool _endAnimation);
 
     bool getEndAnimation() const;
 
@@ -141,7 +146,7 @@ public:
 
     StateWheel getStateWheelRight() const;
 
-    void accelerationControlAutomaic(Input& input, const float time);
+    void accelerationControl(Input& input, const State gameStatus, const float time);
 
     void elevationControl(const int& yWorld1, const int& yWorld2);
 
@@ -162,6 +167,10 @@ public:
 
 
     void drawPlayRound(Input& input, const bool& pauseMode, const bool& motorEngineSound = true);
+
+
+    void drawEndDriftRound(Input &input);
+
 
 
 };

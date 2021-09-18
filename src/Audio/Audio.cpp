@@ -168,6 +168,13 @@ bool Audio::isPlaying(const Sfx Sfx) {
     return playing;
 }
 
+bool Audio::isPlaying(const int index){
+    bool playing;
+    playing = instance.themes[index]->getStatus() == sf::SoundSource::Status::Playing;
+    return playing;
+}
+
+
 void Audio::pause(const Soundtrack sd) {
     if (instance.themes[(int)sd]->getStatus() == sf::SoundSource::Status::Playing){
         instance.themes[(int)sd]->pause();

@@ -46,6 +46,7 @@ Game::Game(Input& input){
     arrival = false;
     start = false;
     firstGame = false;
+    endingAnimation = false;
 }
 
 void Game::handleEvent(Input& input, const float& time){
@@ -65,9 +66,8 @@ void Game::handleEvent(Input& input, const float& time){
             }
         }
     }
-    if (gameStatus == State::PLAY_ROUND && !escape && !pauseMode && !outOfTime && !arrival && !player->getCrashing()){
-        player->accelerationControlAutomaic(input, time);
-    }
+    if (gameStatus != State::PREPARE_ROUND && !escape && !pauseMode && !outOfTime && !arrival && !player->getCrashing())
+        player->accelerationControl(input, gameStatus, time);
 }
 
 
@@ -78,56 +78,64 @@ void Game::updateRound(Input& input){
     tick_timer = clock();
     handleEvent(input, time);
 
-    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getMaxSpeed());
+    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     Hud::setAllHudIndicators(input);
+
 
     currentMap->updateMap(input, cars, *player, time, score);
 
     input.gameWindow.clear();
     currentMap->renderMap(input, cars, *player, gameStatus);
-    player->drawPlayRound(input, false);
+
+    if (player->getEndAnimation())
+        player->drawPlayRound(input, false, false);
+    else
+        player->drawEndDriftRound(input);
+
     Hud::drawHud(input);
     input.gameWindow.display();
 
-    elapsed4 = gameClockLap.getElapsedTime().asSeconds();
+    if (gameStatus == State::PLAY_ROUND){
+        elapsed4 = gameClockLap.getElapsedTime().asSeconds();
 
-    if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
-        cents_second += elapsed4;
-        if (cents_second >= 1.f) {
-            cents_second -= 1.f;
-            secs++;
-            if (secs == 60.f) {
-                secs = 0;
-                minutes++;
+        if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
+            cents_second += elapsed4;
+            if (cents_second >= 1.f) {
+                cents_second -= 1.f;
+                secs++;
+                if (secs == 60.f) {
+                    secs = 0;
+                    minutes++;
+                }
             }
-        }
-        cents_secondTrip += elapsed4;
-        if (cents_secondTrip >= 1.f) {
-            cents_secondTrip -= 1.f;
-            secsTrip++;
-            if (secsTrip == 60.f) {
-                secsTrip = 0;
-                minutesTrip++;
+            cents_secondTrip += elapsed4;
+            if (cents_secondTrip >= 1.f) {
+                cents_secondTrip -= 1.f;
+                secsTrip++;
+                if (secsTrip == 60.f) {
+                    secsTrip = 0;
+                    minutesTrip++;
+                }
             }
-        }
-        gameClockLap.restart();
-    }
-
-    elapsed2 = gameClockTime.getElapsedTime().asSeconds();
-
-    if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
-        timeToPlay--;
-        if (timeToPlay == 10)
-            Audio::play(Sfx::BLOND_WOMAN_TEN_SECONDS, false);
-        else if (timeToPlay < 10) {
-            if (timeToPlay == 5)
-                Audio::play(Sfx::BLONDE_WOMAN_HURRY_UP, false);
-            else if (timeToPlay == 0)
-                outOfTime = true;
-            Audio::play(Sfx::COUNTDOWN, false);
+            gameClockLap.restart();
         }
 
-        gameClockTime.restart();
+        elapsed2 = gameClockTime.getElapsedTime().asSeconds();
+
+        if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
+            timeToPlay--;
+            if (timeToPlay == 10)
+                Audio::play(Sfx::BLOND_WOMAN_TEN_SECONDS, false);
+            else if (timeToPlay < 10) {
+                if (timeToPlay == 5)
+                    Audio::play(Sfx::BLONDE_WOMAN_HURRY_UP, false);
+                else if (timeToPlay == 0)
+                    outOfTime = true;
+                Audio::play(Sfx::COUNTDOWN, false);
+            }
+
+            gameClockTime.restart();
+        }
     }
 
     //Player only scores if in road
@@ -144,7 +152,7 @@ State Game::startRound(Input& input){
 
     tick_timer = clock();
     Hud::loadHud();
-    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getMaxSpeed());
+    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     Hud::configureHud(input);
 
     TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car1", 1, 0.5f, false, true, 1);
@@ -284,9 +292,32 @@ State Game::playRound(Input& input){
         return State::GAME_OVER;
 }
 
+State Game::endRound(Input& input){
+    timeToPlay = currentMap->getTime();
+    float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
+    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale, PLAYER_TEXTURES,
+                           "Ferrari", automaticMode);
+
+    tick_timer = clock();
+    Hud::loadHud();
+    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    Hud::configureHud(input);
+
+    if (Audio::isPlaying(input.currentSoundtrack))
+            Audio::stop(input.currentSoundtrack);
+
+    if (!Audio::isPlaying(Sfx::SHOWMAN_CONGRATULATIONS))
+        Audio::play(Sfx::SHOWMAN_CONGRATULATIONS, false);
+
+    while (1){
+        updateRound(input);
+    }
+}
+
+
 State Game::gameOverRound(Input& input){
 
-    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getMaxSpeed());
+    Hud::setHud(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     Hud::setAllHudIndicators(input);
     Audio::play(Soundtrack::GAME_OVER, true);
 
@@ -361,7 +392,11 @@ State Game::loadMaps(Input& input){
 
         startMap = new Map();
         startMap->setStartMap(*currentMap);
-        currentMap = startMap;
+        // currentMap = startMap;
+
+        goalMap = new Map();
+        goalMap->setGoalMap(*currentMap);
+        currentMap = goalMap;
 
         return State::LOADING;
     }
@@ -409,8 +444,12 @@ void Game::run(Input& input){
                 mO.draw(input);
                 gameStatus = mO.returnMenu(input);
 
-                if (firstGame && currentMap->getStartMap())
-                    Logger::setStartSrpiteScreenY(*currentMap);
+                if (currentMap != nullptr){
+                    bool startMap = currentMap->getStartMap();
+
+                    if (firstGame && (startMap || currentMap->getgoalMap()))
+                        Logger::setSpriteScreenY(*currentMap, startMap);
+                }
 
                 if (player != nullptr){
                     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
@@ -464,6 +503,10 @@ void Game::run(Input& input){
             }
             case State::PLAY_ROUND: {
                 gameStatus = this->playRound(input);
+                break;
+            }
+            case State::END_ROUND: {
+                gameStatus = this->endRound(input);
                 break;
             }
             case State::PAUSE: {

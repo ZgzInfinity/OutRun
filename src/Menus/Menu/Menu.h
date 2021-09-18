@@ -41,6 +41,7 @@ enum class State : int {
     LOADING,
     PREPARE_ROUND,
     PLAY_ROUND,
+    END_ROUND,
     PAUSE,
     GAME_OVER,
     RANKING,

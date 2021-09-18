@@ -29,7 +29,7 @@ Logger::Logger(){
     instance.endFlaggerAnimation = false;
     instance.outputFlux.open(instance.LOGGER_PATH_FILE);
     instance.flagger_code_image = 0;
-    instance.semaphore_code_image = 36;
+    instance.semaphore_code_image = 38;
     instance.attemps = 0;
     instance.numIterations = 0;
     instance.totalTimes = 0;
@@ -46,8 +46,13 @@ void Logger::setWidthScreen(const int _widthScreen){
     instance.widthScreen = _widthScreen;
 }
 
-void Logger::setStartSrpiteScreenY(Map& m){
-    m.setStartSrpiteScreenY(float(instance.widthScreen * -1.6f / SCREEN_0.first));
+void Logger::setSpriteScreenY(Map& m, const bool startMap){
+    if (startMap)
+        m.setSpriteScreenY(310, float(instance.widthScreen * -1.6f / SCREEN_0.first));
+    else {
+        m.setSpriteScreenY(706, float(instance.widthScreen * -1.6f / SCREEN_0.first));
+        m.setSpriteScreenY(806, float(instance.widthScreen * -1.6f / SCREEN_0.first));
+    }
 }
 
 bool Logger::getFailDetected(){
@@ -1315,7 +1320,7 @@ void Logger::loadObjects(const string &path, const vector<string> &objectNames){
     }
 }
 
-bool Logger::loadStartMapSprites(Map& m){
+void Logger::loadStartMapSprites(Map& m){
 
     // First row
     SpriteInfo* cameraman = new SpriteInfo(&instance.objects[24], instance.pivotLeftPoints[24], instance.pivotRightPoints[24],
@@ -1379,18 +1384,18 @@ bool Logger::loadStartMapSprites(Map& m){
                                            instance.scaleCoeffs[20], instance.widthCollisionCoeffs[20], instance.pivotLeftColPoints[20],
                                            instance.pivotRightColPoints[20], -0.31f, 0.f, false);
 
-    SpriteInfo* palm1 = new SpriteInfo(&instance.objects[33], instance.pivotLeftPoints[33], instance.pivotRightPoints[33],
-                                           instance.scaleCoeffs[33], instance.widthCollisionCoeffs[33], instance.pivotLeftColPoints[33],
-                                           instance.pivotRightColPoints[33], -0.8f, 0.f, false);
+    SpriteInfo* palm1 = new SpriteInfo(&instance.objects[35], instance.pivotLeftPoints[35], instance.pivotRightPoints[35],
+                                           instance.scaleCoeffs[35], instance.widthCollisionCoeffs[35], instance.pivotLeftColPoints[35],
+                                           instance.pivotRightColPoints[35], -0.8f, 0.f, false);
 
-    SpriteInfo* palm2 = new SpriteInfo(&instance.objects[34], instance.pivotLeftPoints[34], instance.pivotRightPoints[34],
-                                           instance.scaleCoeffs[34], instance.widthCollisionCoeffs[34], instance.pivotLeftColPoints[34],
-                                           instance.pivotRightColPoints[34], 0.8f, 0.f, false);
+    SpriteInfo* palm2 = new SpriteInfo(&instance.objects[36], instance.pivotLeftPoints[36], instance.pivotRightPoints[36],
+                                           instance.scaleCoeffs[36], instance.widthCollisionCoeffs[36], instance.pivotLeftColPoints[36],
+                                           instance.pivotRightColPoints[36], 0.8f, 0.f, false);
 
     // Fifth row
-    SpriteInfo* start = new SpriteInfo(&instance.objects[35], instance.pivotLeftPoints[35], instance.pivotRightPoints[35],
-                                           instance.scaleCoeffs[35], instance.widthCollisionCoeffs[35], instance.pivotLeftColPoints[35],
-                                           instance.pivotRightColPoints[35], -1.33f, float(instance.widthScreen * -1.6f / SCREEN_0.first), false);
+    SpriteInfo* startFlag = new SpriteInfo(&instance.objects[37], instance.pivotLeftPoints[37], instance.pivotRightPoints[37],
+                                           instance.scaleCoeffs[37], instance.widthCollisionCoeffs[37], instance.pivotLeftColPoints[37],
+                                           instance.pivotRightColPoints[37], -1.33f, float(instance.widthScreen * -1.6f / SCREEN_0.first), false);
 
     SpriteInfo* trafficLightLeftPanel = new SpriteInfo(&instance.objects[instance.semaphore_code_image],
                                                        instance.pivotLeftPoints[instance.semaphore_code_image],
@@ -1400,17 +1405,17 @@ bool Logger::loadStartMapSprites(Map& m){
                                                        instance.pivotLeftColPoints[instance.semaphore_code_image],
                                                        instance.pivotRightColPoints[instance.semaphore_code_image], -0.8f, 0.f, false);
 
-    SpriteInfo* trafficLightRightPanel = new SpriteInfo(&instance.objects[40], instance.pivotLeftPoints[40], instance.pivotRightPoints[40],
-                                           instance.scaleCoeffs[40], instance.widthCollisionCoeffs[40], instance.pivotLeftColPoints[40],
-                                           instance.pivotRightColPoints[40], 0.8f, 0.f, false);
+    SpriteInfo* trafficLightRightPanel = new SpriteInfo(&instance.objects[42], instance.pivotLeftPoints[42], instance.pivotRightPoints[42],
+                                           instance.scaleCoeffs[42], instance.widthCollisionCoeffs[42], instance.pivotLeftColPoints[42],
+                                           instance.pivotRightColPoints[42], 0.8f, 0.f, false);
 
-    SpriteInfo* palm1Start = new SpriteInfo(&instance.objects[33], instance.pivotLeftPoints[33], instance.pivotRightPoints[33],
-                                           instance.scaleCoeffs[33], instance.widthCollisionCoeffs[33], instance.pivotLeftColPoints[33],
-                                           instance.pivotRightColPoints[33], -0.6f, 0.f, false);
+    SpriteInfo* palm1Start = new SpriteInfo(&instance.objects[35], instance.pivotLeftPoints[35], instance.pivotRightPoints[35],
+                                           instance.scaleCoeffs[35], instance.widthCollisionCoeffs[35], instance.pivotLeftColPoints[35],
+                                           instance.pivotRightColPoints[35], -0.6f, 0.f, false);
 
-    SpriteInfo* palm2Start = new SpriteInfo(&instance.objects[34], instance.pivotLeftPoints[34], instance.pivotRightPoints[34],
-                                           instance.scaleCoeffs[34], instance.widthCollisionCoeffs[34], instance.pivotLeftColPoints[34],
-                                           instance.pivotRightColPoints[34], 0.6f, 0.f, false);
+    SpriteInfo* palm2Start = new SpriteInfo(&instance.objects[36], instance.pivotLeftPoints[36], instance.pivotRightPoints[36],
+                                           instance.scaleCoeffs[36], instance.widthCollisionCoeffs[36], instance.pivotLeftColPoints[36],
+                                           instance.pivotRightColPoints[36], 0.6f, 0.f, false);
 
     m.addSpriteInfo(305, cameraman, Sprite_Position::FAR_LEFT);
     m.addSpriteInfo(305, musicman, Sprite_Position::NEAR_LEFT);
@@ -1441,13 +1446,176 @@ bool Logger::loadStartMapSprites(Map& m){
     m.addSpriteInfo(308, man6, Sprite_Position::NEAR_LEFT);
     m.addSpriteInfo(308, cameramanRight, Sprite_Position::NEAR_RIGHT);
 
-	m.addSpriteInfo(310, start, Sprite_Position::FAR_LEFT);
+	m.addSpriteInfo(310, startFlag, Sprite_Position::FAR_LEFT);
     m.addSpriteInfo(311, trafficLightLeftPanel, Sprite_Position::NEAR_LEFT);
     m.addSpriteInfo(311, trafficLightRightPanel, Sprite_Position::FAR_RIGHT);
 }
 
+
+void Logger::loadGoalMapSprites(Map& m){
+
+    float offsetPublic = 1.31f;
+    int j = 0;
+
+    for (int i = 0; i <= 790; i++){
+        if (i >= 400){
+            if (i % 52 == 0){
+                SpriteInfo* cameramanLeft = new SpriteInfo(&instance.objects[24], instance.pivotLeftPoints[24], instance.pivotRightPoints[24],
+                                           instance.scaleCoeffs[24], instance.widthCollisionCoeffs[24], instance.pivotLeftColPoints[24],
+                                           instance.pivotRightColPoints[24], -0.5f, 0.f, false);
+
+                SpriteInfo* cameramanRight = new SpriteInfo(&instance.objects[25], instance.pivotLeftPoints[25], instance.pivotRightPoints[25],
+                                                   instance.scaleCoeffs[25], instance.widthCollisionCoeffs[25], instance.pivotLeftColPoints[25],
+                                                   instance.pivotRightColPoints[25], 0.5f, 0.f, false);
+
+                m.addSpriteInfo(i, cameramanLeft, Sprite_Position::NEAR_LEFT);
+                m.addSpriteInfo(i, cameramanRight, Sprite_Position::NEAR_RIGHT);
+            }
+            else if (i % 60 == 0){
+                SpriteInfo* man = new SpriteInfo(&instance.objects[14], instance.pivotLeftPoints[14], instance.pivotRightPoints[14],
+                                                   instance.scaleCoeffs[14], instance.widthCollisionCoeffs[14], instance.pivotLeftColPoints[14],
+                                                   instance.pivotRightColPoints[14], random_float(-0.61f, -0.77f), 0.f, false);
+
+                m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
+            }
+            else if (i % 55 == 0){
+                SpriteInfo* woman = new SpriteInfo(&instance.objects[30], instance.pivotLeftPoints[30], instance.pivotRightPoints[30],
+                                                   instance.scaleCoeffs[30], instance.widthCollisionCoeffs[30], instance.pivotLeftColPoints[30],
+                                                   instance.pivotRightColPoints[30], random_float(-0.35f, -0.84f), 0.f, false);
+
+                SpriteInfo* man = new SpriteInfo(&instance.objects[17], instance.pivotLeftPoints[17], instance.pivotRightPoints[17],
+                                                   instance.scaleCoeffs[17], instance.widthCollisionCoeffs[17], instance.pivotLeftColPoints[17],
+                                                   instance.pivotRightColPoints[17], random_float(0.35f, 0.84f), 0.f, false);
+
+                m.addSpriteInfo(i, woman, Sprite_Position::NEAR_LEFT);
+                m.addSpriteInfo(i, man, Sprite_Position::NEAR_RIGHT);
+            }
+            else if (i % 63 == 0){
+                SpriteInfo* woman = new SpriteInfo(&instance.objects[29], instance.pivotLeftPoints[29], instance.pivotRightPoints[29],
+                                                   instance.scaleCoeffs[29], instance.widthCollisionCoeffs[29], instance.pivotLeftColPoints[29],
+                                                   instance.pivotRightColPoints[29], random_float(0.4f, 0.8f), 0.f, false);
+
+                m.addSpriteInfo(i, woman, Sprite_Position::NEAR_RIGHT);
+            }
+            else if (i % 65 == 0){
+                SpriteInfo* woman = new SpriteInfo(&instance.objects[26], instance.pivotLeftPoints[26], instance.pivotRightPoints[26],
+                                                   instance.scaleCoeffs[26], instance.widthCollisionCoeffs[26], instance.pivotLeftColPoints[26],
+                                                   instance.pivotRightColPoints[26], random_float(-0.4f, -0.7f), 0.f, false);
+
+                m.addSpriteInfo(i, woman, Sprite_Position::NEAR_LEFT);
+            }
+            else if (i % 74 == 0){
+                SpriteInfo* woman = new SpriteInfo(&instance.objects[27], instance.pivotLeftPoints[27], instance.pivotRightPoints[27],
+                                                   instance.scaleCoeffs[27], instance.widthCollisionCoeffs[27], instance.pivotLeftColPoints[27],
+                                                   instance.pivotRightColPoints[27], random_float(0.41f, 0.77f), 0.f, false);
+
+                m.addSpriteInfo(i, woman, Sprite_Position::NEAR_RIGHT);
+            }
+            else if (i % 95 == 0){
+                SpriteInfo* man = new SpriteInfo(&instance.objects[18], instance.pivotLeftPoints[18], instance.pivotRightPoints[18],
+                                                   instance.scaleCoeffs[18], instance.widthCollisionCoeffs[18], instance.pivotLeftColPoints[18],
+                                                   instance.pivotRightColPoints[18], random_float(0.39f, 0.85f), 0.f, false);
+
+                m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
+            }
+            else if (i % 70 == 0){
+                SpriteInfo* man = new SpriteInfo(&instance.objects[23], instance.pivotLeftPoints[23], instance.pivotRightPoints[23],
+                                                   instance.scaleCoeffs[23], instance.widthCollisionCoeffs[23], instance.pivotLeftColPoints[23],
+                                                   instance.pivotRightColPoints[23], random_float(-0.61f, -0.77f), 0.f, false);
+
+                m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
+            }
+            else if (i % 80 == 0){
+                SpriteInfo* man = new SpriteInfo(&instance.objects[19], instance.pivotLeftPoints[19], instance.pivotRightPoints[19],
+                                                   instance.scaleCoeffs[19], instance.widthCollisionCoeffs[19], instance.pivotLeftColPoints[19],
+                                                   instance.pivotRightColPoints[19], -0.66, 0.f, false);
+
+                m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
+            }
+            else if (i % 90 == 0){
+                SpriteInfo* man1 = new SpriteInfo(&instance.objects[20], instance.pivotLeftPoints[20], instance.pivotRightPoints[20],
+                                                   instance.scaleCoeffs[20], instance.widthCollisionCoeffs[20], instance.pivotLeftColPoints[20],
+                                                   instance.pivotRightColPoints[20], random_float(-0.57f, -0.65f), 0.f, false);
+
+                SpriteInfo* man2 = new SpriteInfo(&instance.objects[21], instance.pivotLeftPoints[21], instance.pivotRightPoints[21],
+                                                   instance.scaleCoeffs[21], instance.widthCollisionCoeffs[21], instance.pivotLeftColPoints[21],
+                                                   instance.pivotRightColPoints[21], random_float(0.63f, 0.78f), 0.f, false);
+
+                m.addSpriteInfo(i, man1, Sprite_Position::NEAR_LEFT);
+                m.addSpriteInfo(i, man2, Sprite_Position::NEAR_RIGHT);
+            }
+        }
+
+        SpriteInfo* publicLeft = new SpriteInfo(&instance.objects[33], instance.pivotLeftPoints[33], instance.pivotRightPoints[33],
+                                           instance.scaleCoeffs[33], instance.widthCollisionCoeffs[33], instance.pivotLeftColPoints[33],
+                                           instance.pivotRightColPoints[33], -offsetPublic, 0.f, false);
+
+        SpriteInfo* publicRight = new SpriteInfo(&instance.objects[34], instance.pivotLeftPoints[34], instance.pivotRightPoints[34],
+                                           instance.scaleCoeffs[34], instance.widthCollisionCoeffs[34], instance.pivotLeftColPoints[34],
+                                           instance.pivotRightColPoints[34], offsetPublic, 0.f, false);
+
+        m.addSpriteInfo(j, publicLeft, Sprite_Position::FAR_LEFT);
+        m.addSpriteInfo(j, publicRight, Sprite_Position::FAR_RIGHT);
+
+        if (j < 790)
+            j += 3;
+    }
+
+    for (int i = 794; i <= 807; i++){
+        SpriteInfo* publicLeft = new SpriteInfo(&instance.objects[33], instance.pivotLeftPoints[33], instance.pivotRightPoints[33],
+                                           instance.scaleCoeffs[33], instance.widthCollisionCoeffs[33], instance.pivotLeftColPoints[33],
+                                           instance.pivotRightColPoints[33], -offsetPublic, 0.f, false);
+
+        SpriteInfo* publicRight = new SpriteInfo(&instance.objects[34], instance.pivotLeftPoints[34], instance.pivotRightPoints[34],
+                                           instance.scaleCoeffs[34], instance.widthCollisionCoeffs[34], instance.pivotLeftColPoints[34],
+                                           instance.pivotRightColPoints[34], offsetPublic, 0.f, false);
+
+        m.addSpriteInfo(i, publicLeft, Sprite_Position::FAR_LEFT);
+        m.addSpriteInfo(i, publicRight, Sprite_Position::FAR_RIGHT);
+        offsetPublic -= 0.1f;
+    }
+
+    instance.flagger_code_image = 0;
+    instance.attemps = 0;
+    instance.numIterations = 0;
+    instance.totalTimes = 0;
+    instance.status = Flagger_Status::UPPING_FLAG;
+    instance.endFlaggerAnimation = false;
+
+    SpriteInfo* flagger = new SpriteInfo(&instance.objects[instance.flagger_code_image], instance.pivotLeftPoints[instance.flagger_code_image],
+                                         instance.pivotRightPoints[instance.flagger_code_image], instance.scaleCoeffs[instance.flagger_code_image],
+                                         instance.widthCollisionCoeffs[instance.flagger_code_image],
+                                         instance.pivotLeftColPoints[instance.flagger_code_image],
+                                         instance.pivotRightColPoints[instance.flagger_code_image], -0.32f, 0.f, false);
+
+    SpriteInfo* logRight = new SpriteInfo(&instance.objects[44], instance.pivotLeftPoints[44], instance.pivotRightPoints[44],
+                                           instance.scaleCoeffs[44], instance.widthCollisionCoeffs[44], instance.pivotLeftColPoints[44],
+                                           instance.pivotRightColPoints[44], 1.2f, 0.f, false);
+
+    SpriteInfo* logLeft = new SpriteInfo(&instance.objects[44], instance.pivotLeftPoints[44], instance.pivotRightPoints[44],
+                                           instance.scaleCoeffs[44], instance.widthCollisionCoeffs[44], instance.pivotLeftColPoints[44],
+                                           instance.pivotRightColPoints[44], -1.2f, 0.f, false);
+
+    SpriteInfo* endFlag = new SpriteInfo(&instance.objects[43], instance.pivotLeftPoints[43], instance.pivotRightPoints[43],
+                                           instance.scaleCoeffs[43], instance.widthCollisionCoeffs[43], instance.pivotLeftColPoints[43],
+                                           instance.pivotRightColPoints[43], -1.35f, -1.6f, false);
+
+    m.addSpriteInfo(704, flagger, Sprite_Position::NEAR_LEFT);
+
+    m.addSpriteInfo(705, logLeft, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(705, logRight, Sprite_Position::NEAR_RIGHT);
+    m.addSpriteInfo(706, endFlag, Sprite_Position::NEAR_LEFT);
+
+    m.addSpriteInfo(808, logLeft, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(808, logRight, Sprite_Position::NEAR_RIGHT);
+    m.addSpriteInfo(809, endFlag, Sprite_Position::NEAR_LEFT);
+
+}
+
 void Logger::updateSprite(Map& m, const Sprite_Animated spriteAnimated){
-    if (m.getStartMap()){
+    bool startMap = m.getStartMap();
+    bool goalMap = m.getgoalMap();
+    if ( startMap || goalMap){
         if (spriteAnimated == Sprite_Animated::FLAGGER){
             switch (instance.status){
                 case Flagger_Status::UPPING_FLAG:
@@ -1535,7 +1703,10 @@ void Logger::updateSprite(Map& m, const Sprite_Animated spriteAnimated){
                                                    instance.pivotLeftColPoints[instance.flagger_code_image],
                                                    instance.pivotRightColPoints[instance.flagger_code_image], -0.32f, 0.f, false);
 
-            m.addSpriteInfo(306, newSprite, Sprite_Position::NEAR_LEFT);
+            if (startMap)
+                m.addSpriteInfo(306, newSprite, Sprite_Position::NEAR_LEFT);
+            else
+                m.addSpriteInfo(704, newSprite, Sprite_Position::NEAR_LEFT);
         }
         else {
             if (instance.semaphore_code_image <= instance.MAX_SEMAPHORE_CODE_IMAGE){

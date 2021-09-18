@@ -75,6 +75,9 @@ void SpriteInfo::setOffsetY(const float _offsetY){
     offsetY = _offsetY;
 }
 
+void SpriteInfo::setOffsetX(const float _offsetX){
+    offsetX = _offsetX;
+}
 
 float SpriteInfo::getOffsetY() const {
     return offsetY;

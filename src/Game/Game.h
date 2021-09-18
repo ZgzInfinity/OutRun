@@ -104,6 +104,8 @@
 
         bool start;
 
+        bool endingAnimation;
+
         float elapsed1, elapsed2, elapsed3, elapsed4;
 
         std::pair<int, int> mapId;
@@ -119,6 +121,8 @@
         State startRound(Input& input);
 
         State playRound(Input& input);
+
+        State endRound(Input& input);
 
         State gameOverRound(Input& input);
 
