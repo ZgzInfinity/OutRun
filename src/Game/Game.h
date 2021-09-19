@@ -40,6 +40,7 @@
 #include "../Menus/MenuPause/MenuPause.h"
 #include "../Car/TrafficCar/TrafficCar.h"
 #include "../Gui/Huds/HudRound/HudRound.h"
+#include "../Gui/Huds/HudBonus/HudBonus.h"
 #include "../Logger/Logger.h"
 
  class Game {
@@ -50,9 +51,13 @@
 
         const sf::Time shot_delayLap = sf::seconds(0.01);
 
+        const sf::Time bonus_delay = sf::seconds(0.01);
+
         sf::Clock gameClockTime;
 
         sf::Clock gameClockLap;
+
+        sf::Clock bonusClock;
 
         State gameStatus;
 
@@ -60,13 +65,15 @@
 
         bool firstLoad;
 
+        bool spectatorsCongrats, showmanCongrats;
+
         float time;
 
         clock_t tick_timer;
 
-        int timeToPlay;
+        int timeToPlay, decsTimeBonus, secondsBonus, decs_secondBonus, countHudBonus;
 
-        long long int score;
+        long long int score, totalScore;
 
         float minutes;
 
@@ -106,7 +113,7 @@
 
         bool endingAnimation;
 
-        float elapsed1, elapsed2, elapsed3, elapsed4;
+        float elapsed1, elapsed2, elapsed3, elapsed4, bonusTime, elapsedBonusTime;
 
         std::pair<int, int> mapId;
 

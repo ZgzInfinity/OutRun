@@ -50,6 +50,8 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::RACE_SEMAPHORE_PREPARE, "Resources/SoundEffects/Race_Semaphore_Prepare.ogg");
     instance.load(Sfx::RACE_SEMAPHORE_START, "Resources/SoundEffects/Race_Semaphore_Start.ogg");
     instance.load(Sfx::RACE_START, "Resources/SoundEffects/Race_Start.ogg");
+    instance.load(Sfx::RACE_END, "Resources/SoundEffects/Race_End.ogg");
+
 
     instance.load(Sfx::FERRARI_ENGINE_START, "Resources/SoundEffects/Ferrari_Engine_Start.ogg");
     instance.load(Sfx::FERRARI_ENGINE_RUN, "Resources/SoundEffects/Ferrari_Engine_Run.ogg");
@@ -62,7 +64,7 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::FERRARI_CRASH, "Resources/SoundEffects/Ferrari_Crash.ogg");
 
     instance.load(Sfx::SHOWMAN_RACE_START, "Resources/SoundEffects/Showman_Race_Start.ogg");
-    instance.load(Sfx::SHOWMAN_CONGRATULATIONS, "Resources/SoundEffects/Showman_Race_Congratulations.ogg");
+    instance.load(Sfx::SHOWMAN_CONGRATULATIONS, "Resources/SoundEffects/Showman_Congratulations.ogg");
 
     instance.load(Sfx::BLOND_WOMAN_FIRST_SHOUT, "Resources/SoundEffects/Blond_Woman_First_Shout.ogg");
     instance.load(Sfx::BLOND_WOMAN_SECOND_SHOUT, "Resources/SoundEffects/Blond_Woman_Second_Shout.ogg");
@@ -92,6 +94,8 @@ void Audio::loadAll(Input& input){
 
     instance.load(Sfx::CHECKPOINT_ALARM, "Resources/SoundEffects/Checkpoint_Alarm.ogg");
     instance.load(Sfx::CHECKPOINT_VOICE, "Resources/SoundEffects/Checkpoint_Voice.ogg");
+
+    instance.load(Sfx::SCORE_BONUS, "Resources/SoundEffects/Score_Bonus.ogg");
 
     instance.load(Sfx::WAVE, "Resources/SoundEffects/Wave.ogg");
     instance.load(Sfx::WIND, "Resources/SoundEffects/Wind.ogg");

@@ -61,6 +61,7 @@ enum class Sfx : int {
     RACE_SEMAPHORE_PREPARE,
     RACE_SEMAPHORE_START,
     RACE_START,
+    RACE_END,
 
     FERRARI_ENGINE_START,
     FERRARI_ENGINE_RUN,
@@ -102,6 +103,8 @@ enum class Sfx : int {
 
     CHECKPOINT_ALARM,
     CHECKPOINT_VOICE,
+
+    SCORE_BONUS,
 
     WAVE,
     WIND,

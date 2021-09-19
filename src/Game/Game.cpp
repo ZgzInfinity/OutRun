@@ -25,6 +25,9 @@ Game::Game(Input& input){
     gameStatus = State::ANIMATION;
     automaticMode = false;
     firstLoad = true;
+    spectatorsCongrats = false;
+    showmanCongrats = false;
+    countHudBonus = 0;
     time = 0;
     score = 0;
     minutes = 0.f;
@@ -92,7 +95,6 @@ void Game::updateRound(Input& input){
         player->drawEndDriftRound(input);
 
     HudRound::drawHudRound(input);
-    input.gameWindow.display();
 
     if (gameStatus == State::PLAY_ROUND){
         elapsed4 = gameClockLap.getElapsedTime().asSeconds();
@@ -136,10 +138,58 @@ void Game::updateRound(Input& input){
             gameClockTime.restart();
         }
     }
+    else if (gameStatus == State::END_ROUND){
+        elapsedBonusTime = bonusClock.getElapsedTime().asSeconds();
 
-    //Player only scores if in road
-	if (player->getStateWheelLeft() != StateWheel::SAND && player->getStateWheelRight() != StateWheel::SAND && player->getSpeed() > 5.f)
-		score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (145.f))) / 10.f) * 10;
+        if (elapsedBonusTime - bonusTime >= bonus_delay.asSeconds()) {
+
+            if (decsTimeBonus > 0) {
+                decsTimeBonus--;
+                secondsBonus = decsTimeBonus / 10;
+                decs_secondBonus = decsTimeBonus % 10;
+            }
+        }
+        bonusClock.restart();
+
+        if (secondsBonus == 0 && decs_secondBonus == 0 && Audio::isPlaying(Sfx::SCORE_BONUS))
+            Audio::stop(Sfx::SCORE_BONUS);
+
+        HudBonus::setHudBonus(secondsBonus, decs_secondBonus);
+        HudBonus::setTextHudBonusIndicator();
+
+        if (secondsBonus == 0 && decs_secondBonus == 0){
+            if (countHudBonus < 100){
+                HudBonus::drawHudBonus(input);
+                countHudBonus++;
+            }
+        }
+        else
+            HudBonus::drawHudBonus(input);
+
+        if (player->getSpeed() <= 0.f){
+            if (!showmanCongrats){
+                Audio::play(Sfx::SHOWMAN_CONGRATULATIONS, false);
+                showmanCongrats = true;
+            }
+            if (!spectatorsCongrats){
+                Audio::play(Sfx::SPECTATORS_CONGRATULATIONS, false);
+                spectatorsCongrats = true;
+            }
+        }
+    }
+
+    if (gameStatus == State::END_ROUND && score <= totalScore){
+        if (score < totalScore){
+            score += int(1.5f * SCORE_BONIFICATION / 45.5f);
+            if (score >= totalScore)
+                score = totalScore;
+        }
+    }
+    else {
+        if (player->getStateWheelLeft() != StateWheel::SAND && player->getStateWheelRight() != StateWheel::SAND && player->getSpeed() > 5.f)
+            score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (145.f))) / 10.f) * 10;
+    }
+    input.gameWindow.display();
 }
 
 State Game::startRound(Input& input){
@@ -292,25 +342,80 @@ State Game::playRound(Input& input){
 }
 
 State Game::endRound(Input& input){
+
     timeToPlay = currentMap->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
-    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale, PLAYER_TEXTURES,
+    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 100.f, scale, PLAYER_TEXTURES,
                            "Ferrari", automaticMode);
+
+    escape = false;
+    bool arrivalCar = false;
 
     tick_timer = clock();
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     HudRound::configureHudRound(input);
 
+    HudBonus::loadHudBonus(input);
+
     if (Audio::isPlaying(input.currentSoundtrack))
             Audio::stop(input.currentSoundtrack);
 
-    if (!Audio::isPlaying(Sfx::SHOWMAN_CONGRATULATIONS))
-        Audio::play(Sfx::SHOWMAN_CONGRATULATIONS, false);
+    if (!Audio::isPlaying(Sfx::RACE_END))
+        Audio::play(Sfx::RACE_END, false);
 
-    while (1){
+    if (!Audio::isPlaying(Sfx::SCORE_BONUS))
+        Audio::play(Sfx::SCORE_BONUS, true);
+
+    decsTimeBonus = timeToPlay * 10;
+    secondsBonus = decsTimeBonus / 10;
+    decs_secondBonus = decsTimeBonus % 10;
+
+    bonusClock.restart().asSeconds();
+    bonusTime = bonusClock.getElapsedTime().asSeconds();
+    totalScore = score + (timeToPlay * SCORE_BONIFICATION);
+
+    while (!escape && (!arrivalCar || score < totalScore)){
         updateRound(input);
+        if (player->getSpeed() <= 0.f)
+            arrivalCar = true;
     }
+
+    if (escape)
+        return State::EXIT;
+    else {
+        int i = 0;
+        while (!escape && i <= 100){
+            handleEvent(input, time);
+            input.gameWindow.clear();
+            currentMap->renderMap(input, cars, *player, gameStatus);
+            player->drawEndDriftRound(input);
+            HudRound::drawHudRound(input);
+            input.gameWindow.display();
+            i++;
+        }
+
+        if (escape)
+            return State::EXIT;
+        else {
+            sf::RectangleShape blackShape;
+            blackShape.setPosition(0, 0);
+            blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y));
+
+            i = 0;
+            while (!escape && i <= 255){
+                handleEvent(input, time);
+                blackShape.setFillColor(sf::Color(0, 0, 0, i));
+                input.gameWindow.draw(blackShape);
+                input.gameWindow.display();
+                i += 5;
+            }
+        }
+    }
+    countHudBonus = 0;
+    spectatorsCongrats = false;
+    showmanCongrats = false;
+    return State::RANKING;
 }
 
 

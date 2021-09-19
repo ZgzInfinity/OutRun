@@ -190,7 +190,7 @@ void MenuGears::draw(Input& input){
             offsetY -= 35.f;
         }
 
-        // Show the press start title in the menu
+        input.gameWindow.clear();
         input.gameWindow.draw(mainMenu);
         input.gameWindow.draw(nameGames[j]);
         input.gameWindow.draw(shape);

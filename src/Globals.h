@@ -56,10 +56,10 @@ const int SEGMENT_LENGTH = 150;
 const int SCREEN_Y_OFFSET = 130;
 const int PLAYER_TEXTURES = 172;
 const int TRAFFIC_TEXTURES = 4;
-const int SCORE_BONIFICATION = 100;
+const int SCORE_BONIFICATION = 1000000;
+
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;
-
 const float FOV = 120.f;
 const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * M_PI / 180.0f));
 const float CAMERA_HEIGHT = 800.f;
