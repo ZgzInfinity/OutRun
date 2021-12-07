@@ -69,13 +69,9 @@ void MenuLoading::loadMenu(Input& input){
                                  input.gameWindow.getSize().y / 2.f - 203.0f * input.screenScaleX);
     }
 
-    if (input.currentIndexResolution <= (int)Resolution::SCREEN_1){
+    if (input.currentIndexResolution <= (int)Resolution::SCREEN_1 || input.currentIndexResolution == (int)Resolution::__COUNT){
         totalPoints = 25;
         offsetText = 235;
-    }
-    else if (input.currentIndexResolution == (int)Resolution::__COUNT) {
-        totalPoints = 45;
-        offsetText = 215;
     }
     else {
         totalPoints = 35;
@@ -297,6 +293,6 @@ State MenuLoading::returnMenu(Input& input){
         return State::EXIT;
     }
     else {
-        return State::END_ROUND;
+        return State::PREPARE_ROUND;
     }
 }

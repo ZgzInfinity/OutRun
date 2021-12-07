@@ -91,10 +91,6 @@
 
         Map* currentMap;
 
-        Map* startMap;
-
-        Map* goalMap;
-
         vector<TrafficCar*> cars;
 
         PlayerCar* player;
@@ -112,6 +108,8 @@
         bool start;
 
         bool endingAnimation;
+
+        bool startingRound;
 
         float elapsed1, elapsed2, elapsed3, elapsed4, bonusTime, elapsedBonusTime;
 
@@ -133,7 +131,7 @@
 
         State gameOverRound(Input& input);
 
-        State loadMaps(Input& input);
+        State loadBiomes(Input& input);
 
         void run(Input& input);
  };

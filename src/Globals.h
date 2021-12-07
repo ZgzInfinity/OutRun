@@ -35,15 +35,16 @@ using namespace std;
 
 const int FPS = 60;
 const int TIME_CREDIT_SCREEN = 300;
+
 const float M_PI = 3.14159265358979323846264338327950288;
+const float SEGMENTL = 150.f;
+const float RUMBLE_LENGTH = 3.f;
+
 
 const pair<const int ,const int> SCREEN_0 = make_pair(921, 691);
 const pair<const int ,const int> SCREEN_1 = make_pair(1024, 768);
 const pair<const int ,const int> SCREEN_2 = make_pair(1280, 720);
 const pair<const int ,const int> SCREEN_3 = make_pair(1366, 768);
-const pair<const int ,const int> SCREEN_4 = make_pair(1920, 1080);
-const pair<const int ,const int> SCREEN_5 = make_pair(2560, 1440);
-const pair<const int ,const int> SCREEN_6 = make_pair(3840, 2160);
 
 const sf::Color BUTTON_IDLE_COLOR = sf::Color(93, 244, 75);
 const sf::Color BUTTON_HOVER_COLOR = sf::Color(233, 240, 100);
@@ -57,6 +58,7 @@ const int SCREEN_Y_OFFSET = 130;
 const int PLAYER_TEXTURES = 172;
 const int TRAFFIC_TEXTURES = 4;
 const int SCORE_BONIFICATION = 1000000;
+const int BACKGROUND_MOVING_OFFSET = 91;
 
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;

@@ -28,6 +28,7 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 #include "../Line/Line.h"
+#include "../Biome/Biome.h"
 #include "../../Globals.h"
 #include "../../Car/PlayerCar/PlayerCar.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
@@ -38,51 +39,32 @@ class Map {
 
     private:
 
-        vector<Line*> lines;
+        Biome* startBiome;
+        Biome* currentBiome;
+        Biome* goalBiome;
+
         int position, iniPosition;
 
-        sf::Color sky, sand1, sand2, road1,
-                    road2, rumble1, rumble2, lane1, lane2,
-                    sand, road, rumble, lane;
-
-        int trackLength;
+        int trackLength, sameColors;
         float pWheelL, pWheelR;
 
-        float drawDistance, offsetXBackground1;
-        float segmentL, rumbleL;
+        float drawDistance, offsetXBackground1, offsetXBackground2;
         int mapLanes, mapDistance;
-        int time, terrain;
         short lineW;
+        bool swapping;
+        float backgroundSwapOffset;
+        bool ending;
 
-        int dist3, dist4, dist5, dist6, dist7, dist8, distM;
-        bool startMap, goalMap;
+    public:
 
-        sf::Texture backGround;
-        sf::RectangleShape backgroundShape;
+        bool notDrawn;
 
-        sf::Texture backGround2;
+        sf::Color sand, road, rumble, lane;
+        sf::Color bg, bg2;
+        sf::Color sky, sand1, sand2, road1, road2, rumble1, rumble2, lane1, lane2;
+        sf::Color sandAux, sand2Aux, roadAux, road2Aux, rumbleAux, rumble2Aux, laneAux, lane2Aux;
 
-        vector<sf::Texture> objects;
-
-        vector<float> scaleCoeffs;
-
-        vector<int> widthCollisionCoeffs;
-
-        vector<fPoint> pivotLeftPoints;
-
-        vector<fPoint> pivotRightPoints;
-
-        vector<fPoint> pivotLeftColPoints;
-
-        vector<fPoint> pivotRightColPoints;
-
-        void addSegment(float curve, float y, bool mirror, float dist);
-
-        float easeIn(float a, float b, float percent);
-
-        float easeInOut(float a, float b, float percent);
-
-        float distance(float a, float b);
+        sf::Texture backGround1, backGround2;
 
         void drawBackground(Input& input, int x, int y, sf::RectangleShape background, float speed, fPoint scale, fPoint pivot);
 
@@ -92,31 +74,17 @@ class Map {
 
         ~Map();
 
-        void setStartMap(const Map& m);
+        void setCurrentBiome(Biome& b);
 
-        void setGoalMap(const Map& m);
+        void setGoalBiome(Biome& b);
 
-        void addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
+        Biome* getCurrentBiome() const;
 
-        void setBackground();
-
-        void setColors(const std::vector<sf::Color>& colorsOfMap);
-
-        void setTime(const int _time);
-
-        void setTerrain(const int _terrain);
-
-        int getTime() const;
-
-        int getTerrain() const;
+        float distance(float a, float b);
 
         bool getStartMap() const;
 
         bool getgoalMap() const;
-
-        Line* getLine(const int& index);
-
-        int computeRoadTracks(const int numTracks);
 
         void setMapDistanceAndTrackLength();
 
@@ -132,11 +100,14 @@ class Map {
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus);
 
-        void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos);
+        void interpolateBiomes(Input& input);
 
-        void setSpriteScreenY(const int index, const float _offsetY);
+        sf::Color interpolateColors(const sf::Color& c1, const sf::Color& c2);
 
-        void updateSprite();
+        bool sameColor(const sf::Color& c1, const sf::Color& c2);
+
+        void setMapColors();
+
 };
 
 #endif // MAP_H

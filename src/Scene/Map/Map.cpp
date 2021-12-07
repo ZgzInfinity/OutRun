@@ -24,8 +24,6 @@ Map::Map()
 {
     //Map parameters
 	drawDistance = 200;
-	segmentL = 150;
-	rumbleL = 3.f;
 	mapLanes = 3;
 	lineW = 20;
 	mapDistance = 0;
@@ -33,99 +31,40 @@ Map::Map()
 	pWheelR = 210;
     offsetXBackground1 = 1000.f;
 
+    swapping = false;
+	backgroundSwapOffset = 0.f;
+	ending = false;
+	sameColors = 0;
+	notDrawn = false;
+
 	//Initial position
 	iniPosition = position = 300 * (int)SEGMENT_LENGTH;
 
-	//Set distances for Map lanes
-	dist3 = 0;
-	dist4 = dist3 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
-	dist5 = dist4 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
-	dist6 = dist5 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
-	dist7 = dist6 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
-	dist8 = dist7 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
-	distM = dist8 + ((int)ROAD_WIDTH * 16 / 27) * 7 + ((int)ROAD_WIDTH / 18) * 7;
-
-	startMap = goalMap = false;
+    startBiome = nullptr;
+    currentBiome = nullptr;
+    goalBiome = nullptr;
 }
 
 Map::~Map()
 {}
 
-void Map::setBackground(){
-    backGround.loadFromFile("Resources/Maps/MapLevels/Map1/bg.png");
-    backGround.setRepeated(true);
-    backgroundShape.setPosition(0, 0);
-    backgroundShape.setSize(sf::Vector2f(4030, 243));
-}
-
-void Map::setColors(const std::vector<sf::Color>& colorsOfMap){
-    sky = colorsOfMap[0];
-    sand1 = colorsOfMap[1];
-    sand2 = colorsOfMap[2];
-    road1 = colorsOfMap[3];
-    road2 = colorsOfMap[4];
-    rumble1 = colorsOfMap[5];
-    rumble2 = colorsOfMap[6];
-    lane1 = colorsOfMap[7];
-    lane2 = colorsOfMap[8];
-}
-
-void Map::setTime(const int _time){
-    time = _time;
-}
-
-void Map::setTerrain(const int _terrain){
-    terrain = _terrain;
-}
-
-int Map::getTime() const {
-    return time;
-}
-
-int Map::getTerrain() const {
-    return terrain;
-}
-
 bool Map::getStartMap() const {
-    return startMap;
+    return currentBiome->startBiome;
 }
 
 bool Map::getgoalMap() const {
-    return goalMap;
-}
-
-
-Line* Map::getLine(const int& index){
-    return lines[index];
-}
-
-
-int Map::computeRoadTracks(const int numTracks){
-    switch (numTracks){
-        case 2:
-            return distM;
-        case 3:
-            return dist3;
-        case 4:
-            return dist4;
-        case 5:
-            return dist5;
-        case 6:
-            return dist6;
-        case 7:
-            return dist7;
-        case 8:
-            return dist8;
-    }
+    return currentBiome->goalBiome;
 }
 
 void Map::setMapDistanceAndTrackLength(){
 
-    addMap(10, 400, 50, -2, 0, true, dist3);
-	addMap(100, 100, 100, 0, 0, true, distM);
+    currentBiome->addBiome(10, 400, 50, -2, 0, true, currentBiome->dist3);
+	currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM);
+	currentBiome->addBiome(10, 10, 10, 0, 0, false, currentBiome->dist3);
 
-    mapDistance = lines[0]->distance;
-	trackLength = (int)(lines.size() * segmentL);
+    mapDistance = (int)currentBiome->lines[0]->distance;
+	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
+	currentBiome->lastLine = currentBiome->lines.size() - drawDistance;
 }
 
 
@@ -165,11 +104,12 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 
 
 void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score){
+    Line* l;
     for (int i = 0; i < cars.size(); i++){
 		TrafficCar* c = cars[i];
 		c->setPosZ(c->getPosZ() + c->getSpeed());
-		Line* l = lines[(int)((c->getPosZ()) / segmentL) % lines.size()];
-		Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
+		l = currentBiome->lines[(int)((c->getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
+		Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
 		switch (c->getActive()) {
             case false:
                 if (l->index < playerLine->index + drawDistance && l->index > playerLine->index)
@@ -264,13 +204,62 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	while (position < 0)
 		position += trackLength;
 
-	Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
+	Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
 	p.elevationControl(playerLine->p1.yWorld, playerLine->p2.yWorld);
+    float playerPerc = (float)(((position + p.getPosZ()) % (int)SEGMENTL) / SEGMENTL);
+	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
+
+	// FALTA EL ONROAD
+    if (!currentBiome->end && playerLine->index > currentBiome->lastLine){
+        if (p.getPlayerMap() == playerR::LEFTROAD)
+            currentBiome = currentBiome->getLeft();
+        else
+            currentBiome = currentBiome->getRight();
+
+        if (currentBiome->end)
+            ending = true;
+
+        for (unsigned int i = 0; i < cars.size(); ++i)
+		{
+		    int posZ = cars[i]->getPosZ();
+		    posZ -= position;
+			cars[i]->setPosZ(posZ);
+			//Cars on the other road will be moved away
+			if (cars[i]->getActive() && ((p.getPlayerMap() == playerR::LEFTROAD && cars[i]->getSide()) || (p.getPlayerMap() == playerR::RIGHTROAD && !cars[i]->getSide())))
+			{
+                int posZ = cars[i]->getPosZ();
+                posZ += (rand() % (680) + 220) * SEGMENT_LENGTH;
+				cars[i]->setPosZ(posZ);
+				cars[i]->setActive(false);
+				cars[i]->setSide(rand() % 2);
+				cars[i]->setSpeed(0.f);
+			}
+		}
+
+        position = iniPosition = 0;
+		trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
+		p.setPosY(0);
+
+		notDrawn = true;
+    }
 
 	//Activate end sequence
-	if (goalMap && p.getEndAnimation() && playerLine->index >= 700)
+	if (currentBiome->getGoalBiome() && p.getEndAnimation() && playerLine->index >= 700)
         p.setEndAnimation(false);
 
+    //Check for biome colors change
+	if (!currentBiome->biomeSwap && !currentBiome->end && !swapping && playerLine->index > currentBiome->swapLine)
+	{
+		swapping = true;
+		Biome* biome = currentBiome->left;
+		if (p.getPlayerMap() == playerR::RIGHTROAD)
+			biome = currentBiome->right;
+
+		backGround2 = biome->backGround;
+		bg2 = biome->skyBiome;
+		sandAux = biome->sandBiome1; sand2Aux = biome->sandBiome2; roadAux = biome->roadBiome1; road2Aux = biome->roadBiome2;
+		rumbleAux = biome->rumbleBiome1; rumble2Aux = biome->rumbleBiome2; laneAux = biome->laneBiome1; lane2Aux = biome->laneBiome2;
+	}
 
     if (p.getCrashing()){
         if (p.getSpeed() > 0.f){
@@ -333,7 +322,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 	if (!hasCrashed){
         for (auto& car : cars)
         {
-            Line* lc = lines[(int)(car->getPosZ() / SEGMENT_LENGTH) % lines.size()];
+            Line* lc = currentBiome->lines[(int)(car->getPosZ() / SEGMENT_LENGTH) % currentBiome->lines.size()];
             p.checkCollisionTrafficCar(input, playerLine, lc, car, hasCrashed);
 
             if (hasCrashed)
@@ -341,7 +330,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
         }
 	}
 
-	float playerPerc = (float)(((position + p.getPosZ()) % (int)segmentL) / segmentL);
+    playerPerc = (float)(((position + p.getPosZ()) % (int)SEGMENTL) / SEGMENTL);
 	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
 
 	if (abs(playerLine->p1.xCamera) <= abs(playerLine->p11.xCamera)){
@@ -393,339 +382,227 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 // Update: draw background
 void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus){
 
-	Line* playerLine = lines[(int)((position + p.getPosZ()) / segmentL) % lines.size()];
-	Line* baseLine = lines[(int)(position / segmentL) % lines.size()];
-	float percent = (float)((position % (int)segmentL) / segmentL);
-	float difX = -(baseLine->curve * percent);
-	float sumX = 0;
-	Line* l;
+        input.gameWindow.clear();
 
-    playerLine->projection(input, playerLine->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
-                           (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
+        if (swapping)
+            interpolateBiomes(input);
 
-	float maxY = playerLine->p1.yScreen;
+        Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
+        Line* baseLine = currentBiome->lines[(int)(position / SEGMENTL) % currentBiome->lines.size()];
+        float percent = (float)((position % (int)SEGMENTL) / SEGMENTL);
+        float difX = -(baseLine->curve * percent);
+        float sumX = 0;
+        Line* l;
 
-    int x1 = 0, y1 = input.gameWindow.getSize().y;
-    int width = input.gameWindow.getSize().x;
-    int height = input.gameWindow.getSize().y;
-    drawQuad(input, x1, y1, width, height, sf::Color(0, 148, 255, 255));
+        playerLine->projection(input, playerLine->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
+                               (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-	for (int n = 0; n < drawDistance; n++) {
-		l = lines[(baseLine->index + n) % lines.size()];
-		l->clip = maxY;
+        float maxY = playerLine->p1.yScreen;
 
-		l->light ? sand = sand1 : sand = sand2;
-		l->light ? road = road1 : road = road2;
-		l->light ? rumble = rumble1 : rumble = rumble2;
-		l->light ? lane = lane1 : lane = lane2;
+        int x1 = 0, y1 = input.gameWindow.getSize().y;
+        int width = input.gameWindow.getSize().x;
+        int height = input.gameWindow.getSize().y;
+        drawQuad(input, x1, y1, width, height, bg);
 
-		l->projection(input, l->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
-                (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
+        sf::Color sandColor, roadColor, rumbleColor, laneColor;
 
-		l->projection(input, l->p2, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX),
-                (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
+        for (int n = 0; n < drawDistance; n++) {
+            l = currentBiome->lines[(baseLine->index + n) % currentBiome->lines.size()];
+            l->clip = maxY;
 
-		if (l->mirror)
-		{
-			l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) + sumX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
+            l->light ? sandColor = sand : sandColor = sand2;
+            l->light ? roadColor = road : roadColor = road2;
+            l->light ? rumbleColor = rumble : rumbleColor = rumble2;
+            l->light ? laneColor = lane : laneColor = lane2;
 
-			l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) + sumX + difX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
-		}
-		else
-		{
-			l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) - sumX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
+            l->projection(input, l->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
+                    (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-			l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX - mapDistance),
-                 (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
-		}
+            l->projection(input, l->p2, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX),
+                    (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-		sumX += difX;
-		difX += l->curve;
+            if (l->mirror)
+            {
+                l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) + sumX - mapDistance),
+                     (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-		if ((l->p1.zCamera <= CAMERA_DISTANCE) || (l->p2.yScreen >= maxY))
-			continue;
+                l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) + sumX + difX - mapDistance),
+                     (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
+            }
+            else
+            {
+                l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) - sumX - mapDistance),
+                     (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-		short x1 = (short)l->p1.xScreen;
-		short x2 = (short)l->p2.xScreen;
-		short y1 = (short)l->p1.yScreen;
-		short y2 = (short)l->p2.yScreen;
-		short w1 = (short)l->p1.wScreen;
-		short w2 = (short)l->p2.wScreen;
+                l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX - mapDistance),
+                     (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
+            }
 
-		short x11 = (short)l->p11.xScreen;
-		short x21 = (short)l->p21.xScreen;
-		short y11 = (short)l->p11.yScreen;
-		short y21 = (short)l->p21.yScreen;
-		short w11 = (short)l->p11.wScreen;
-		short w21 = (short)l->p21.wScreen;
+            sumX += difX;
+            difX += l->curve;
 
-		drawPoly4(input, 0, y1, (int)input.gameWindow.getSize().x, y1, (int)input.gameWindow.getSize().x, y2, 0, y2, sand);
-		drawPoly4(input, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, road);
-		drawPoly4(input, x11 - w11, y11, x11 + w11, y11, x21 + w21, y21, x21 - w21, y21, road);
+            if ((l->p1.zCamera <= CAMERA_DISTANCE) || (l->p2.yScreen >= maxY))
+                continue;
 
-		drawPoly4(input, x1 - w1 - (int)(w1 / 7), y1, x1 + w1 + (int)(w1 / 7), y1,
-            x2 + w2 + (int)(w2 / 7), y2, x2 - w2 - (int)(w2 / 7), y2, rumble);
+            short x1 = (short)l->p1.xScreen;
+            short x2 = (short)l->p2.xScreen;
+            short y1 = (short)l->p1.yScreen;
+            short y2 = (short)l->p2.yScreen;
+            short w1 = (short)l->p1.wScreen;
+            short w2 = (short)l->p2.wScreen;
 
-		drawPoly4(input, x11 - w11 - (int)(w11 / 7), y11, x11 + w11 + (int)(w11 / 7), y11,
-            x21 + w21 + (int)(w21 / 7), y21, x21 - w21 - (int)(w21 / 7), y21, rumble);
+            short x11 = (short)l->p11.xScreen;
+            short x21 = (short)l->p21.xScreen;
+            short y11 = (short)l->p11.yScreen;
+            short y21 = (short)l->p21.yScreen;
+            short w11 = (short)l->p11.wScreen;
+            short w21 = (short)l->p21.wScreen;
 
-		//Draw lines in road lanes (order matters for joining them together)
-		drawPoly4(input, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, lane);
-		drawPoly4(input, x11 - w11, y11, x11 + w11, y11, x21 + w21, y21, x21 - w21, y21, lane);
+            drawPoly4(input, 0, y1, (int)input.gameWindow.getSize().x, y1, (int)input.gameWindow.getSize().x, y2, 0, y2, sandColor);
+            drawPoly4(input, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, roadColor);
+            drawPoly4(input, x11 - w11, y11, x11 + w11, y11, x21 + w21, y21, x21 - w21, y21, roadColor);
 
-		drawPoly4(input, x1 - w1 + (w1 / 18), y1, x1 + w1 - (w1 / 18), y1, x2 + w2 - (w2 / 18), y2,
-            x2 - w2 + (w2 / 18), y2, road);
+            drawPoly4(input, x1 - w1 - (int)(w1 / 7), y1, x1 + w1 + (int)(w1 / 7), y1,
+                x2 + w2 + (int)(w2 / 7), y2, x2 - w2 - (int)(w2 / 7), y2, rumbleColor);
 
-		drawPoly4(input, x11 - w11 + (w11 / 18), y11, x11 + w11 - (w11 / 18), y11,
-            x21 + w21 - (w21 / 18), y21, x21 - w21 + (w21 / 18), y21, road);
+            drawPoly4(input, x11 - w11 - (int)(w11 / 7), y11, x11 + w11 + (int)(w11 / 7), y11,
+                x21 + w21 + (int)(w21 / 7), y21, x21 - w21 - (int)(w21 / 7), y21, rumbleColor);
 
-		drawPoly4(input, x1 - w1 + (w1 / 18) + (w1 * 16 / 27), y1, x1 + w1 - (w1 / 18) - (w1 * 16 / 27), y1,
-            x2 + w2 - (w2 / 18) - (w2 * 16 / 27), y2, x2 - w2 + (w2 / 18) + (w2 * 16 / 27), y2, lane);
+            //Draw lines in road lanes (order matters for joining them together)
+            drawPoly4(input, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, laneColor);
+            drawPoly4(input, x11 - w11, y11, x11 + w11, y11, x21 + w21, y21, x21 - w21, y21, laneColor);
 
-		drawPoly4(input, x11 - w11 + (w11 / 18) + (w11 * 16 / 27), y11, x11 + w11 - (w11 / 18) - (w11 * 16 / 27), y11,
-            x21 + w21 - (w21 / 18) - (w21 * 16 / 27), y21, x21 - w21 + (w21 / 18) + (w21 * 16 / 27), y21, lane);
+            drawPoly4(input, x1 - w1 + (w1 / 18), y1, x1 + w1 - (w1 / 18), y1, x2 + w2 - (w2 / 18), y2,
+                x2 - w2 + (w2 / 18), y2, roadColor);
 
-		drawPoly4(input, x1 - w1 + (w1 / 18) * 2 + (w1 * 16 / 27), y1, x1 + w1 - (w1 / 18)*2 - (w1 * 16 / 27), y1,
-            x2 + w2 - (w2 / 18)*2 - (w2 * 16 / 27), y2, x2 - w2 + (w2 / 18) * 2 + (w2 * 16 / 27), y2, road);
+            drawPoly4(input, x11 - w11 + (w11 / 18), y11, x11 + w11 - (w11 / 18), y11,
+                x21 + w21 - (w21 / 18), y21, x21 - w21 + (w21 / 18), y21, roadColor);
 
-		drawPoly4(input, x11 - w11 + (w11 / 18) * 2 + (w11 * 16 / 27), y11, x11 + w11 - (w11 / 18) * 2 - (w11 * 16 / 27), y11,
-            x21 + w21 - (w21 / 18) * 2 - (w21 * 16 / 27), y21, x21 - w21 + (w21 / 18) * 2 + (w21 * 16 / 27), y21, road);
+            drawPoly4(input, x1 - w1 + (w1 / 18) + (w1 * 16 / 27), y1, x1 + w1 - (w1 / 18) - (w1 * 16 / 27), y1,
+                x2 + w2 - (w2 / 18) - (w2 * 16 / 27), y2, x2 - w2 + (w2 / 18) + (w2 * 16 / 27), y2, laneColor);
 
-		maxY = l->p2.yScreen;
-	}
+            drawPoly4(input, x11 - w11 + (w11 / 18) + (w11 * 16 / 27), y11, x11 + w11 - (w11 / 18) - (w11 * 16 / 27), y11,
+                x21 + w21 - (w21 / 18) - (w21 * 16 / 27), y21, x21 - w21 + (w21 / 18) + (w21 * 16 / 27), y21, laneColor);
 
-	sf::RectangleShape backgroundShapeSliced;
-    float posBackX = backgroundShape.getPosition().x;
-    float posBackY = backgroundShape.getPosition().y;
-    float heightBack = backgroundShape.getSize().y;
-    float widthBack = backgroundShape.getSize().x;
+            drawPoly4(input, x1 - w1 + (w1 / 18) * 2 + (w1 * 16 / 27), y1, x1 + w1 - (w1 / 18)*2 - (w1 * 16 / 27), y1,
+                x2 + w2 - (w2 / 18)*2 - (w2 * 16 / 27), y2, x2 - w2 + (w2 / 18) * 2 + (w2 * 16 / 27), y2, roadColor);
 
+            drawPoly4(input, x11 - w11 + (w11 / 18) * 2 + (w11 * 16 / 27), y11, x11 + w11 - (w11 / 18) * 2 - (w11 * 16 / 27), y11,
+                x21 + w21 - (w21 / 18) * 2 - (w21 * 16 / 27), y21, x21 - w21 + (w21 / 18) * 2 + (w21 * 16 / 27), y21, roadColor);
 
-    if (!playerLine->mirror)
-        offsetXBackground1 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 2.f;
+            maxY = l->p2.yScreen;
+        }
 
-    backgroundShapeSliced.setSize(sf::Vector2f(input.gameWindow.getSize().x,
+        sf::RectangleShape backgroundShapeSliced, backgroundShapeNewBiome;
+        float posBackX = currentBiome->backgroundShape.getPosition().x;
+        float posBackY = currentBiome->backgroundShape.getPosition().y;
+        float heightBack = currentBiome->backgroundShape.getSize().y;
+        float widthBack = currentBiome->backgroundShape.getSize().x;
+
+        if (!swapping){
+
+            if (!playerLine->mirror)
+                offsetXBackground1 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 1.5f;
+
+            backgroundShapeSliced.setSize(sf::Vector2f(input.gameWindow.getSize().x,
                                                MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
 
-    backgroundShapeSliced.setPosition(posBackX + (int)offsetXBackground1,
-                                MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))));
+            backgroundShapeSliced.setPosition(posBackX + (int)offsetXBackground1,
+                                        MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))));
 
-    backgroundShapeSliced.setTexture(&backGround, true);
-    backgroundShapeSliced.setTextureRect(sf::IntRect(posBackX + (int)offsetXBackground1,
-                                                     MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))),
-                                                     input.gameWindow.getSize().x, MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
 
-    drawBackground(input, 0, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+            backgroundShapeSliced.setTexture(&backGround1, true);
+            backgroundShapeSliced.setTextureRect(sf::IntRect(posBackX + (int)offsetXBackground1,
+                                                             MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))),
+                                                             input.gameWindow.getSize().x, MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
 
-    if ((startMap || goalMap) && (gameStatus == State::PLAY_ROUND || gameStatus == State::END_ROUND) && !Logger::getEndFlaggerAnimation())
-        Logger::updateSprite(*this, Sprite_Animated::FLAGGER);
+            drawBackground(input, 0, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+        }
+        else {
 
-    //Draw sprites and cars
-	for (int n = (int)(drawDistance - 1); n >= 0; --n)
-	{
-		l = lines[(baseLine->index + n) % lines.size()];
+            // First background of the map
+            backgroundShapeSliced.setSize(sf::Vector2f(input.gameWindow.getSize().x,
+                                               MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
 
-		if (l->index < playerLine->index)
-			continue;
+            backgroundShapeSliced.setPosition(posBackX + (int)offsetXBackground1,
+                                        MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))));
 
-        if (startMap || goalMap){
-            if (l->hasSpriteFarLeft)
-                l->renderSpriteInfo(input, l->spriteFarLeft);
-            if (l->hasSpriteFarRight)
-                l->renderSpriteInfo(input, l->spriteFarRight);
+            backgroundShapeSliced.setTexture(&backGround1, true);
+            backgroundShapeSliced.setTextureRect(sf::IntRect(posBackX + (int)offsetXBackground1,
+                                                             MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))),
+                                                             input.gameWindow.getSize().x, MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
+
+            drawBackground(input, 0 - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+
+            // Second background of the map
+            backgroundShapeNewBiome.setSize(sf::Vector2f(input.gameWindow.getSize().x,
+                                               MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
+
+            backgroundShapeNewBiome.setPosition(posBackX + (int)offsetXBackground1,
+                                        MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))));
+
+            backgroundShapeNewBiome.setTexture(&backGround2, true);
+
+            backgroundShapeNewBiome.setTextureRect(sf::IntRect(posBackX + BACKGROUND_MOVING_OFFSET,
+                                                             MAX(posBackY, posBackY + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))),
+                                                             input.gameWindow.getSize().x, MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
+
+            drawBackground(input, input.gameWindow.getSize().x - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeNewBiome, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
         }
 
 
-        if (l->hasSpriteNearLeft)
-            l->renderSpriteInfo(input, l->spriteNearLeft);
-        if (l->hasSpriteNearRight)
-            l->renderSpriteInfo(input, l->spriteNearRight);
+        if ((currentBiome->getStartBiome() || currentBiome->getGoalBiome()) && (gameStatus == State::PLAY_ROUND || gameStatus == State::END_ROUND) && !Logger::getEndFlaggerAnimation())
+            Logger::updateSprite(*currentBiome, Sprite_Animated::FLAGGER);
+
+        //Draw sprites and cars
+        for (int n = (int)(drawDistance - 1); n >= 0; --n)
+        {
+            l = currentBiome->lines[(baseLine->index + n) % currentBiome->lines.size()];
+
+            if (l->index < playerLine->index)
+                continue;
+
+            if (currentBiome->getStartBiome() || currentBiome->getGoalBiome()){
+                if (l->hasSpriteFarLeft)
+                    l->renderSpriteInfo(input, l->spriteFarLeft);
+                if (l->hasSpriteFarRight)
+                    l->renderSpriteInfo(input, l->spriteFarRight);
+            }
 
 
-		Line* l2;
-		for (unsigned int n = 0; n < cars.size(); ++n)
-		{
-			l2 = lines[(int)(cars[n]->getPosZ() / segmentL) % lines.size()];
-			if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
-			{
-                l2->renderCars(input, cars[n]);
-			}
-		}
-	}
-}
+            if (l->hasSpriteNearLeft){
+                l->renderSpriteInfo(input, l->spriteNearLeft);
+            }
+
+            if (l->hasSpriteNearRight)
+                l->renderSpriteInfo(input, l->spriteNearRight);
 
 
-void Map::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos){
-	if (line < (int)lines.size()){
-        switch (spritePos){
-        case Sprite_Position::FAR_LEFT:
-            lines[line]->spriteFarLeft = p;
-            lines[line]->hasSpriteFarLeft = true;
-            break;
-        case Sprite_Position::NEAR_LEFT:
-            lines[line]->spriteFarRight = p;
-            lines[line]->hasSpriteFarRight = true;
-            break;
-        case Sprite_Position::FAR_RIGHT:
-            lines[line]->spriteNearLeft = p;
-            lines[line]->hasSpriteNearLeft = true;
-            break;
-        case Sprite_Position::NEAR_RIGHT:
-            lines[line]->spriteNearRight = p;
-            lines[line]->hasSpriteNearRight = true;
+            Line* l2;
+            for (unsigned int n = 0; n < cars.size(); ++n)
+            {
+                l2 = currentBiome->lines[(int)(cars[n]->getPosZ() / SEGMENTL) % currentBiome->lines.size()];
+                if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
+                {
+                    l2->renderCars(input, cars[n]);
+                }
+            }
         }
-	}
 }
 
-void Map::setSpriteScreenY(const int index, const float _offsetY) {
-    lines[index]->spriteFarLeft->setOffsetY(_offsetY);
+void Map::setCurrentBiome(Biome& b){
+    currentBiome = &b;
+    backGround1 = currentBiome->backGround;
 }
 
-void Map::addSegment(float curve, float y, bool mirror, float dist)
-{
-	int n = (int)lines.size();
-	Line* l = new Line();
-
-	l->index = n;
-	l->p1.zWorld = (float)(n * segmentL);
-	l->p11.zWorld = l->p1.zWorld;
-	l->p1.yWorld = (lines.size() == 0 ? 0 : lines[lines.size() - 1]->p2.yWorld);
-	l->p11.yWorld = l->p1.yWorld;
-	l->p2.zWorld = (float)((n + 1) * segmentL);
-	l->p21.zWorld = l->p2.zWorld;
-	l->p2.yWorld = y;
-	l->p21.yWorld = l->p2.yWorld;
-	l->light = (int)((n / rumbleL)) % 2;
-	l->curve = curve;
-	l->mirror = mirror;
-	l->distance = dist;
-	lines.push_back(l);
-}
-
-void Map::setStartMap(const Map& m){
-    sky = m.sky;
-    sand1 = m.sand1;
-    sand2 = m.sand2;
-    road1 = m.road1;
-    road2 = m.road2;
-    rumble1 = m.rumble1;
-    rumble2 = m.rumble2;
-    lane1 = m.lane1;
-    lane2 = m.lane2;
-    backGround = m.backGround;
-    backgroundShape = m.backgroundShape;
-    time = m.getTime();
-
-    addMap(400, 400, 400, 0, 0, false, dist8);
-    mapDistance = lines[0]->distance;
-	trackLength = (int)(lines.size() * segmentL);
-
-	vector<string> objectNames;
-    objectNames.reserve(45);
-    for (int i = 1; i <= 45; i++){
-        objectNames.push_back(std::to_string(i));
-    }
-
-    string path = "Resources/Maps/MapStartGoal/";
-    Logger::loadObjects(path, objectNames);
-    Logger::loadStartMapSprites(*this);
-    startMap = true;
+void Map::setGoalBiome(Biome& b){
+    goalBiome = &b;
 }
 
 
-void Map::setGoalMap(const Map& m){
-    sky = m.sky;
-    sand1 = m.sand1;
-    sand2 = m.sand2;
-    road1 = m.road1;
-    road2 = m.road2;
-    rumble1 = m.rumble1;
-    rumble2 = m.rumble2;
-    lane1 = m.lane1;
-    lane2 = m.lane2;
-    backGround = m.backGround;
-    backgroundShape = m.backgroundShape;
-    time = m.getTime();
-
-    addMap(400, 400, 400, 0, 0, false, dist3);
-    mapDistance = lines[0]->distance;
-	trackLength = (int)(lines.size() * segmentL);
-
-	vector<string> objectNames;
-    objectNames.reserve(45);
-    for (int i = 1; i <= 45; i++){
-        objectNames.push_back(std::to_string(i));
-    }
-
-    string path = "Resources/Maps/MapStartGoal/";
-    Logger::loadObjects(path, objectNames);
-    Logger::loadGoalMapSprites(*this);
-    goalMap = true;
+Biome* Map::getCurrentBiome() const {
+    return currentBiome;
 }
-
-
-void Map::addMap(int enter, int hold, int leave, float curve, float y, bool mirror, int distance)
-{
-	float firstY, dist, distPerc;
-	float total = (float)(enter + hold + leave);
-	if (mirror)
-	{
-		firstY = (lines.size() == 0 ? 0 : lines[lines.size() - 1]->p2.yWorld);
-		dist = lines[lines.size() - 1]->distance;
-		distPerc = (float)((distM - dist)) / total;
-	}
-	else
-	{
-		if (lines.size() == 0)
-		{
-			firstY = 0;
-			dist = (float)distance;
-			distPerc = 0;
-		}
-		else
-		{
-			firstY = lines[lines.size() - 1]->p2.yWorld;
-			dist = lines[lines.size() - 1]->distance;
-			distPerc = (float)((distance - dist)) / total;
-		}
-	}
-
-	float endY = firstY + y * segmentL;
-	int n;
-
-	for (n = 0; n < enter; ++n)
-	{
-		dist += (int)distPerc;
-		addSegment(easeIn(0, curve, (float)n / enter), easeInOut(firstY, endY, (float)n / total), mirror, dist);
-	}
-
-	for (n = 0; n < hold; ++n)
-	{
-		dist += (int)distPerc;
-        addSegment(curve, easeInOut(firstY, endY, (float)(enter + n) / total), mirror, dist);
-	}
-
-	for (n = 0; n < leave; ++n)
-	{
-		dist += (int)distPerc;
-		addSegment(easeInOut(curve, 0, (float)n / leave), easeInOut(firstY, endY, (float)(enter + hold + n) / total), mirror, dist);
-	}
-
-}
-
-float Map::easeIn(float a, float b, float percent)
-{
-	return (a + (b - a) * pow(percent, 2));
-}
-
-float Map::easeInOut(float a, float b, float percent)
-{
-	return (a + (b - a) * ((-cos(percent * (float)M_PI) / 2.f) + 0.5f));
-}
-
 
 float Map::distance(float a, float b)
 {
@@ -749,4 +626,63 @@ void Map::drawBackground(Input& input, int x, int y, sf::RectangleShape backgrou
 
     input.gameWindow.draw(background);
 }
+
+void Map::interpolateBiomes(Input& input)
+{
+	if (backgroundSwapOffset < input.gameWindow.getSize().x)
+	{
+		backgroundSwapOffset += 5.f;
+		if (backgroundSwapOffset > input.gameWindow.getSize().x)
+			backgroundSwapOffset = input.gameWindow.getSize().x;
+	}
+
+	bg = interpolateColors(bg, bg2);
+	sand = interpolateColors(sand, sandAux);
+	sand2 = interpolateColors(sand2, sand2Aux);
+	road = interpolateColors(road, roadAux);
+	road2 = interpolateColors(road2, road2Aux);
+	rumble = interpolateColors(rumble, rumbleAux);
+	rumble2 = interpolateColors(rumble2, rumble2Aux);
+	lane = interpolateColors(lane, laneAux);
+	lane2 = interpolateColors(lane2, lane2Aux);
+
+	if (backgroundSwapOffset >= input.gameWindow.getSize().x && sameColor(bg, bg2) && sameColor(sand, sandAux) && sameColor(sand2, sand2Aux) && sameColor(road, roadAux) && sameColor(road2, road2Aux) &&
+		sameColor(rumble, rumbleAux) && sameColor(rumble2, rumble2Aux) && sameColor(lane, laneAux) && sameColor(lane2, lane2Aux))
+	{
+		backGround1 = backGround2;
+		backgroundSwapOffset = 0.f;
+		swapping = false;
+		currentBiome->biomeSwap = true;
+		offsetXBackground1 = BACKGROUND_MOVING_OFFSET;
+	}
+}
+
+sf::Color Map::interpolateColors(const sf::Color& c1, const sf::Color& c2){
+	sf::Color c = c1;
+	if (c1.r > c2.r) --c.r;
+	else if (c1.r < c2.r) ++c.r;
+	if (c1.g > c2.g) --c.g;
+	else if (c1.g < c2.g) ++c.g;
+	if (c1.b > c2.b) --c.b;
+	else if (c1.b < c2.b) ++c.b;
+
+	return c;
+}
+
+bool Map::sameColor(const sf::Color& c1, const sf::Color& c2){
+	return (c1.r == c2.r && c1.g == c2.g && c1.b == c2.b);
+}
+
+void Map::setMapColors(){
+    bg = currentBiome->skyBiome;
+    sand = currentBiome->sandBiome1;
+    sand2 = currentBiome->sandBiome2;
+    road = currentBiome->roadBiome1;
+    road2 = currentBiome->roadBiome2;
+    rumble = currentBiome->rumbleBiome1;
+    rumble2 = currentBiome->rumbleBiome2;
+    lane = currentBiome->laneBiome1;
+    lane2 = currentBiome->laneBiome2;
+}
+
 

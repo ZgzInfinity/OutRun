@@ -29,7 +29,6 @@ Game::Game(Input& input){
     showmanCongrats = false;
     countHudBonus = 0;
     time = 0;
-    score = 0;
     minutes = 0.f;
     secs = 0.f;
     cents_second = 0.f;
@@ -40,8 +39,6 @@ Game::Game(Input& input){
     Audio::loadAll(input);
     level = 0;
     currentMap = nullptr;
-    startMap = nullptr;
-    goalMap = nullptr;
     player = nullptr;
     pauseMode = false;
     escape = false;
@@ -50,6 +47,7 @@ Game::Game(Input& input){
     start = false;
     firstGame = false;
     endingAnimation = false;
+    startingRound = true;
 }
 
 void Game::handleEvent(Input& input, const float& time){
@@ -77,6 +75,11 @@ void Game::handleEvent(Input& input, const float& time){
 
 void Game::updateRound(Input& input){
 
+    if (startingRound){
+        tick_timer = clock();
+        startingRound = false;
+    }
+
     time = (float)((clock() - tick_timer) / (double)CLOCKS_PER_SEC);
     tick_timer = clock();
     handleEvent(input, time);
@@ -85,14 +88,14 @@ void Game::updateRound(Input& input){
     HudRound::setAllHudRoundIndicators(input);
 
     currentMap->updateMap(input, cars, *player, time, score);
-
-    input.gameWindow.clear();
     currentMap->renderMap(input, cars, *player, gameStatus);
 
-    if (player->getEndAnimation())
-        player->drawPlayRound(input, false, false);
-    else
+    if (!player->getEndAnimation()){
+        player->drawPlayRound(input, false);
+    }
+    else {
         player->drawEndDriftRound(input);
+    }
 
     HudRound::drawHudRound(input);
 
@@ -189,17 +192,22 @@ void Game::updateRound(Input& input){
         if (player->getStateWheelLeft() != StateWheel::SAND && player->getStateWheelRight() != StateWheel::SAND && player->getSpeed() > 5.f)
             score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (145.f))) / 10.f) * 10;
     }
-    input.gameWindow.display();
+
+    if (!currentMap->notDrawn)
+        input.gameWindow.display();
+    else
+        currentMap->notDrawn = false;
 }
 
 State Game::startRound(Input& input){
 
-    timeToPlay = currentMap->getTime();
+    score = 0;
+    startingRound = true;
+    timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale, PLAYER_TEXTURES,
                            "Ferrari", automaticMode);
 
-    tick_timer = clock();
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     HudRound::configureHudRound(input);
@@ -289,12 +297,12 @@ State Game::startRound(Input& input){
             else if (j == 0)
                 Audio::play(Sfx::RACE_SEMAPHORE_START, false);
 
-            Logger::updateSprite(*currentMap, Sprite_Animated::SEMAPHORE);
+            Logger::updateSprite(*currentMap->getCurrentBiome(), Sprite_Animated::SEMAPHORE);
             semaphoreClock.restart();
             j--;
 
             if (j == 1 || j < 0)
-                Logger::updateSprite(*currentMap, Sprite_Animated::FLAGGER);
+                Logger::updateSprite(*currentMap->getCurrentBiome(), Sprite_Animated::FLAGGER);
         }
 
         currentMap->renderMap(input, cars, *player, gameStatus);
@@ -306,7 +314,9 @@ State Game::startRound(Input& input){
     if (escape)
         return State::EXIT;
     else {
+        player->setEndAnimation(false);
         Audio::play(input.currentSoundtrack, true);
+
         return State::PLAY_ROUND;
     }
 }
@@ -343,18 +353,8 @@ State Game::playRound(Input& input){
 
 State Game::endRound(Input& input){
 
-    timeToPlay = currentMap->getTime();
-    float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
-    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 100.f, scale, PLAYER_TEXTURES,
-                           "Ferrari", automaticMode);
-
     escape = false;
     bool arrivalCar = false;
-
-    tick_timer = clock();
-    HudRound::loadHudRound();
-    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
-    HudRound::configureHudRound(input);
 
     HudBonus::loadHudBonus(input);
 
@@ -421,10 +421,6 @@ State Game::endRound(Input& input){
 
 State Game::gameOverRound(Input& input){
 
-    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
-    HudRound::setAllHudRoundIndicators(input);
-    Audio::play(Soundtrack::GAME_OVER, true);
-
     if (player->getOutiseRoad())
         player->setOutsideRoad(false);
 
@@ -457,51 +453,64 @@ State Game::gameOverRound(Input& input){
 }
 
 
-State Game::loadMaps(Input& input){
+State Game::loadBiomes(Input& input){
+
     Logger::setWidthScreen(input.gameWindow.getSize().x);
     Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map1/map.txt"));
 
     if (!Logger::getFailDetected()){
 
         currentMap = new Map();
+        Biome* currentBiome = new Biome();
 
-        Logger::setFailDetected(Logger::checkTimeAndTerrain(*currentMap));
+        Logger::setFailDetected(Logger::checkTimeAndTerrain(*currentBiome));
 
         if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkColors(*currentMap));
+            Logger::setFailDetected(Logger::checkColors(*currentBiome));
         else
             return State::EXIT;
 
         if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkMapRelief(*currentMap));
+            Logger::setFailDetected(Logger::checkBiomeRelief(*currentBiome));
         else
             return State::EXIT;
 
         vector<string> objectNames;
+        objectNames.reserve(45);
+        for (int i = 1; i <= 45; i++){
+            objectNames.push_back(std::to_string(i));
+        }
+
+        string path = "Resources/Maps/MapStartGoal/";
+        currentBiome->loadObjects(path, objectNames);
+
+        path = "Resources/Maps/MapLevels/Map1/";
+        objectNames.clear();
         objectNames.reserve(26);
         for (int i = 1; i <= 26; i++){
             objectNames.push_back(std::to_string(i));
         }
 
-        string path = "Resources/Maps/MapLevels/Map1/";
-        Logger::loadObjects(path, objectNames);
+        currentBiome->loadObjects(path, objectNames);
+
+        currentBiome->setBackground("Resources/Maps/MapLevels/Map1/bg.png");
+        currentBiome->setStartBiome();
 
         if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkLevelMapSprites(*currentMap));
+            Logger::setFailDetected(Logger::checkLevelBiomeSprites(*currentBiome));
         else
             return State::EXIT;
 
+        currentMap->setCurrentBiome(*currentBiome);
         currentMap->setMapDistanceAndTrackLength();
-        currentMap->setBackground();
+        currentMap->setMapColors();
 
-        startMap = new Map();
-        startMap->setStartMap(*currentMap);
-        // currentMap = startMap;
+        Biome* goalBiome = new Biome();
+        goalBiome->setGoalBiome();
+        currentMap->getCurrentBiome()->left = goalBiome;
+        currentMap->getCurrentBiome()->right = goalBiome;
 
-        goalMap = new Map();
-        goalMap->setGoalMap(*currentMap);
-        currentMap = goalMap;
-
+        Logger::close();
         return State::LOADING;
     }
     else
@@ -552,7 +561,7 @@ void Game::run(Input& input){
                     bool startMap = currentMap->getStartMap();
 
                     if (firstGame && (startMap || currentMap->getgoalMap()))
-                        Logger::setSpriteScreenY(*currentMap, startMap);
+                        Logger::setSpriteScreenY(*currentMap->getCurrentBiome(), startMap);
                 }
 
                 if (player != nullptr){
@@ -591,7 +600,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::LOAD_MAPS: {
-                gameStatus = this->loadMaps(input);
+                gameStatus = this->loadBiomes(input);
                 break;
             }
             case State::LOADING: {

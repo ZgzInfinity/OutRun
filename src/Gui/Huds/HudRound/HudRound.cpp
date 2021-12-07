@@ -302,7 +302,7 @@ void HudRound::configureHudRound(Input& input){
 
 
 void HudRound::setHudRound(const int _time, const long long int _score, const float _minutes, const float _secs,
-                 const float _cents_second, const int _level, const int _gear, const float _speed, const float _maxSpeed)
+                 const float _cents_second, const int _level, const int _gear, float _speed, const float _maxSpeed)
 {
     instance.time = _time;
     instance.score = _score;

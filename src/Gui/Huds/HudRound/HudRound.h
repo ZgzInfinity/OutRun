@@ -127,7 +127,7 @@ class HudRound {
 
         static void setHudRound(const int _time, const long long int _score, const float _minutes,
                            const float _secs, const float _cents_second, const int _level,
-                           const int _gear, const float _speed, const float _maxSpeed);
+                           const int _gear, float _speed, const float _maxSpeed);
 
         static void setAllHudRoundIndicators(Input& input);
 

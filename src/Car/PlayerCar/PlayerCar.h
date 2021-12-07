@@ -63,7 +63,7 @@ class PlayerCar : public Vehicle {
         };
 
         float maxHighSpeed, maxLowSpeed, lowAccel, brakeAccel, highAccel;
-        float thresholdX, varThresholdX, forceX;
+        float thresholdX, varThresholdX;
         float collisionDir, speedGear;
 
         Direction direction;

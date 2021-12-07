@@ -22,13 +22,13 @@
 
 #include <regex>
 #include <fstream>
-#include "../Scene/Map/Map.h"
+#include "../Scene/Biome/Biome.h"
 #include "../Random/Random.h"
 
 #ifndef LOGGER_H
 #define LOGGER_H
 
-class Map;
+class Biome;
 
 class Logger {
 
@@ -85,29 +85,15 @@ class Logger {
 
         std::ofstream outputFlux;
 
-        vector<sf::Texture> objects;
-
-        vector<float> scaleCoeffs;
-
-        vector<int> widthCollisionCoeffs;
-
-        vector<fPoint> pivotLeftPoints;
-
-        vector<fPoint> pivotRightPoints;
-
-        vector<fPoint> pivotLeftColPoints;
-
-        vector<fPoint> pivotRightColPoints;
-
     public:
 
         Logger();
 
+        void static setLoggerStatus();
+
         void static setWidthScreen(const int _widthScreen);
 
-        void static setSpriteScreenY(Map& m, const bool startMap);
-
-        void static loadObjects(const string &path, const vector<string> &objectNames);
+        void static setSpriteScreenY(Biome& m, const bool startMap);
 
         void static setFailDetected(const bool _failDetected);
 
@@ -115,35 +101,36 @@ class Logger {
 
         bool static checkMapFile(const std::string& pathMapFile);
 
-        bool static checkTimeAndTerrain(Map& m);
+        bool static checkTimeAndTerrain(Biome& m);
 
-        bool static checkColors(Map& m);
+        bool static checkColors(Biome& m);
 
         bool static readColor(sf::Color& colorRead);
 
-        bool static checkReliefStraight(Map& m);
+        bool static checkReliefStraight(Biome& m);
 
-        bool static checkReliefCurve(Map& m);
+        bool static checkReliefCurve(Biome& m);
 
-        bool static checkReliefHillStraight(Map& m);
+        bool static checkReliefHillStraight(Biome& m);
 
-        bool static checkReliefHillCurve(Map& m);
+        bool static checkReliefHillCurve(Biome& m);
 
-        void static loadStartMapSprites(Map& m);
+        void static loadStartBiomeSprites(Biome& m);
 
-        void static loadGoalMapSprites(Map& m);
+        void static loadGoalBiomeSprites(Biome& m);
 
-        bool static checkLevelMapSprite(Map& m, const int startPos, const int endPos, const int incrementor, const int frequency,
+        bool static checkLevelBiomeSprite(Biome& m, const int startPos, const int endPos, const int incrementor, const int frequency,
                                         bool& indexSpecified, bool& spritesProcessed, const bool left);
 
-        bool static checkLevelMapSprites(Map& m);
+        bool static checkLevelBiomeSprites(Biome& m);
 
-        bool static checkMapRelief(Map& m);
+        bool static checkBiomeRelief(Biome& m);
 
-        void static updateSprite(Map& m, const Sprite_Animated spriteAnimated);
+        void static updateSprite(Biome& m, const Sprite_Animated spriteAnimated);
 
         bool static getEndFlaggerAnimation();
 
+        void static close();
 };
 
 #endif // LOGGER_H

@@ -30,9 +30,6 @@ Input::Input(){
     resolutions[(int)Resolution::SCREEN_1] = SCREEN_1;
     resolutions[(int)Resolution::SCREEN_2] = SCREEN_2;
     resolutions[(int)Resolution::SCREEN_3] = SCREEN_3;
-    resolutions[(int)Resolution::SCREEN_4] = SCREEN_4;
-    resolutions[(int)Resolution::SCREEN_5] = SCREEN_5;
-    resolutions[(int)Resolution::SCREEN_6] = SCREEN_6;
 
     // Check if the Input file exists
     exitsSettings = existSettingsFile("Resources/Settings/Settings.info");

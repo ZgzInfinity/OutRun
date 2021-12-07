@@ -427,12 +427,12 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
             if (input.currentIndexResolution < (int)Resolution::__COUNT) {
                 input.gameWindow.create(sf::VideoMode(static_cast<unsigned int>(input.resolutions[input.currentIndexResolution].first),
                                                      static_cast<unsigned int>(input.resolutions[input.currentIndexResolution].second)),
-                              "Out Run",
-                              sf::Style::Titlebar | sf::Style::Close);
+
+                              "Out Run", sf::Style::Default);
             }
             else {
-                // Create a new screen with the new resolution
-                input.gameWindow.create(sf::VideoMode::getFullscreenModes()[0], "Out Run", sf::Style::Fullscreen);
+
+                input.gameWindow.create(sf::VideoMode(SCREEN_1.first, SCREEN_1.second), "Out Run", sf::Style::Fullscreen);
                 input.currentIndexResolution = (int)Resolution::__COUNT;
             }
 

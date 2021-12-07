@@ -39,11 +39,11 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 {
 	playerW = 77;
 	highAccel = 10.f;
-	thresholdX = 1.f;
-	varThresholdX = 0.06f;
+	varThresholdX = 0.03f;
 	maxLowSpeed = maxHighSpeed = 100.f;
 	lowAccel = maxHighSpeed / 6.5f;
 	brakeAccel = maxHighSpeed / 3.0f;
+	maxHighSpeed = 75.f;
 	direction = Direction::FRONT;
 	collisionDir = 0.f;
 	out = 0;
@@ -74,7 +74,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
     decreaseGear = false;
     trafficCrash = false;
     drawCar = true;
-    endAnimation = true;
+    endAnimation = false;
 }
 
 void PlayerCar::setNumAngers(){
@@ -397,8 +397,8 @@ void PlayerCar::elevationControl(const int& yWorld1, const int& yWorld2){
 
 void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance){
 	float centrifugal = (speed > 26) ? 0.5f : 0.f;
-	if (speed >= 70.f)
-		centrifugal = (speed - 50.f) / 70.f;
+	if (speed >= 100.f)
+		centrifugal = (speed - 50.f) / 90.f;
 	switch (playerMap){
         case playerR::RIGHTROAD:
             if (mapDistance != playerLine->distance)

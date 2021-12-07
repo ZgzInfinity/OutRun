@@ -45,9 +45,6 @@ enum class Resolution : int {
     SCREEN_1,
     SCREEN_2,
     SCREEN_3,
-    SCREEN_4,
-    SCREEN_5,
-    SCREEN_6,
     __COUNT
 };
 
@@ -154,16 +151,16 @@ struct Input {
     inline void setGameWindow(const int width, const int heigth){
 
         if (currentIndexResolution == (int)Resolution::__COUNT){
-            gameWindow.create(sf::VideoMode::getFullscreenModes()[0], "Out Run", sf::Style::Fullscreen);
+            gameWindow.create(sf::VideoMode(SCREEN_1.first, SCREEN_1.second), "Out Run", sf::Style::Fullscreen);
         }
         else {
             // Create the screen with not full screen resolution
-            gameWindow.create(sf::VideoMode(width, heigth),
-                                        "Out Run", sf::Style::Titlebar | sf::Style::Close);
+            gameWindow.create(sf::VideoMode(width, heigth), "Out Run", sf::Style::Default);
         }
 
         gameWindow.setFramerateLimit(FPS);
         gameWindow.setKeyRepeatEnabled(false);
+        gameWindow.setVerticalSyncEnabled(true);
 
         gameWindow.setView(sf::View(sf::Vector2f(gameWindow.getSize().x / 2.0f, gameWindow.getSize().y / 2.0f),
         sf::Vector2f(gameWindow.getSize().x, gameWindow.getSize().y)));
