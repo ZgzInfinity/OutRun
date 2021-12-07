@@ -1377,11 +1377,10 @@ void Logger::loadStartBiomeSprites(Biome& m){
 void Logger::loadGoalBiomeSprites(Biome& m){
 
     float offsetPublic = 1.31f;
-    int j = 0;
+    int j = 250;
 
-    /*
-    for (int i = 330; i <= 790; i++){
-        if (i >= 400){
+    for (int i = 250; i <= 590; i++){
+        if (i >= 270){
             if (i % 52 == 0){
                 SpriteInfo* cameramanLeft = new SpriteInfo(&m.objects[24], m.pivotLeftPoints[24], m.pivotRightPoints[24],
                                            m.scaleCoeffs[24], m.widthCollisionCoeffs[24], m.pivotLeftColPoints[24],
@@ -1480,12 +1479,11 @@ void Logger::loadGoalBiomeSprites(Biome& m){
         m.addSpriteInfo(j, publicLeft, Sprite_Position::FAR_LEFT);
         m.addSpriteInfo(j, publicRight, Sprite_Position::FAR_RIGHT);
 
-        if (j < 790)
+        if (j < 590)
             j += 3;
     }
-    */
 
-    for (int i = 794; i <= 807; i++){
+    for (int i = 594; i <= 607; i++){
         SpriteInfo* publicLeft = new SpriteInfo(&m.objects[33], m.pivotLeftPoints[33], m.pivotRightPoints[33],
                                            m.scaleCoeffs[33], m.widthCollisionCoeffs[33], m.pivotLeftColPoints[33],
                                            m.pivotRightColPoints[33], -offsetPublic, 0.f, false);
@@ -1506,11 +1504,8 @@ void Logger::loadGoalBiomeSprites(Biome& m){
     instance.status = Flagger_Status::UPPING_FLAG;
     instance.endFlaggerAnimation = false;
 
-    SpriteInfo* flagger = new SpriteInfo(&m.objects[instance.flagger_code_image], m.pivotLeftPoints[instance.flagger_code_image],
-                                         m.pivotRightPoints[instance.flagger_code_image], m.scaleCoeffs[instance.flagger_code_image],
-                                         m.widthCollisionCoeffs[instance.flagger_code_image],
-                                         m.pivotLeftColPoints[instance.flagger_code_image],
-                                         m.pivotRightColPoints[instance.flagger_code_image], -0.32f, 0.f, false);
+    SpriteInfo* flagger = new SpriteInfo(&m.objects[0], m.pivotLeftPoints[0], m.pivotRightPoints[0], m.scaleCoeffs[0],
+                                         m.widthCollisionCoeffs[0], m.pivotLeftColPoints[0], m.pivotRightColPoints[0], -0.32f, 0.f, false);
 
     SpriteInfo* logRight = new SpriteInfo(&m.objects[44], m.pivotLeftPoints[44], m.pivotRightPoints[44],
                                            m.scaleCoeffs[44], m.widthCollisionCoeffs[44], m.pivotLeftColPoints[44],
@@ -1524,15 +1519,15 @@ void Logger::loadGoalBiomeSprites(Biome& m){
                                            m.scaleCoeffs[43], m.widthCollisionCoeffs[43], m.pivotLeftColPoints[43],
                                            m.pivotRightColPoints[43], -1.35f, -1.6f, false);
 
-    m.addSpriteInfo(704, flagger, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(504, flagger, Sprite_Position::NEAR_LEFT);
 
-    m.addSpriteInfo(705, logLeft, Sprite_Position::NEAR_LEFT);
-    m.addSpriteInfo(705, logRight, Sprite_Position::NEAR_RIGHT);
-    m.addSpriteInfo(706, endFlag, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(505, logLeft, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(505, logRight, Sprite_Position::NEAR_RIGHT);
+    m.addSpriteInfo(506, endFlag, Sprite_Position::NEAR_LEFT);
 
-    m.addSpriteInfo(808, logLeft, Sprite_Position::NEAR_LEFT);
-    m.addSpriteInfo(808, logRight, Sprite_Position::NEAR_RIGHT);
-    m.addSpriteInfo(809, endFlag, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(608, logLeft, Sprite_Position::NEAR_LEFT);
+    m.addSpriteInfo(608, logRight, Sprite_Position::NEAR_RIGHT);
+    m.addSpriteInfo(609, endFlag, Sprite_Position::NEAR_LEFT);
 
 }
 
@@ -1630,7 +1625,7 @@ void Logger::updateSprite(Biome& m, const Sprite_Animated spriteAnimated){
             if (startMap)
                 m.addSpriteInfo(306, newSprite, Sprite_Position::NEAR_LEFT);
             else
-                m.addSpriteInfo(704, newSprite, Sprite_Position::NEAR_LEFT);
+                m.addSpriteInfo(504, newSprite, Sprite_Position::NEAR_LEFT);
         }
         else {
             if (instance.semaphore_code_image <= instance.MAX_SEMAPHORE_CODE_IMAGE){

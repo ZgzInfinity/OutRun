@@ -54,9 +54,6 @@ class Map {
         bool swapping;
         float backgroundSwapOffset;
         bool ending;
-
-    public:
-
         bool notDrawn;
 
         sf::Color sand, road, rumble, lane;
@@ -107,6 +104,12 @@ class Map {
         bool sameColor(const sf::Color& c1, const sf::Color& c2);
 
         void setMapColors();
+
+        bool getEnding() const;
+
+        void setNotDrawn(const bool _notDrawn);
+
+        bool getNotDrawn() const;
 
 };
 

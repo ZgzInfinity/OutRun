@@ -244,7 +244,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
     }
 
 	//Activate end sequence
-	if (currentBiome->getGoalBiome() && p.getEndAnimation() && playerLine->index >= 700)
+	if (currentBiome->getGoalBiome() && p.getEndAnimation() && playerLine->index >= 500)
         p.setEndAnimation(false);
 
     //Check for biome colors change
@@ -685,4 +685,15 @@ void Map::setMapColors(){
     lane2 = currentBiome->laneBiome2;
 }
 
+bool Map::getEnding() const {
+    return ending;
+}
+
+void Map::setNotDrawn(const bool _notDrawn){
+    notDrawn = _notDrawn;
+}
+
+bool Map::getNotDrawn() const {
+    return notDrawn;
+}
 

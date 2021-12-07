@@ -67,7 +67,7 @@ void Game::handleEvent(Input& input, const float& time){
             }
         }
     }
-    if (gameStatus != State::PREPARE_ROUND && !escape && !pauseMode && !outOfTime && !arrival && !player->getCrashing())
+    if (gameStatus != State::PREPARE_ROUND && !escape && !pauseMode && !outOfTime && !player->getCrashing())
         player->accelerationControl(input, gameStatus, time);
 }
 
@@ -90,12 +90,13 @@ void Game::updateRound(Input& input){
     currentMap->updateMap(input, cars, *player, time, score);
     currentMap->renderMap(input, cars, *player, gameStatus);
 
-    if (!player->getEndAnimation()){
+    if (gameStatus == State::PLAY_ROUND)
+        arrival = currentMap->getEnding();
+
+    if (gameStatus == State::PLAY_ROUND)
         player->drawPlayRound(input, false);
-    }
-    else {
+    else
         player->drawEndDriftRound(input);
-    }
 
     HudRound::drawHudRound(input);
 
@@ -193,10 +194,10 @@ void Game::updateRound(Input& input){
             score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (145.f))) / 10.f) * 10;
     }
 
-    if (!currentMap->notDrawn)
+    if (!currentMap->getNotDrawn())
         input.gameWindow.display();
     else
-        currentMap->notDrawn = false;
+        currentMap->setNotDrawn(false);
 }
 
 State Game::startRound(Input& input){
@@ -343,7 +344,9 @@ State Game::playRound(Input& input){
     while (!escape && !pauseMode && !outOfTime && !arrival)
         updateRound(input);
 
-    if (escape)
+    if (arrival)
+        return State::END_ROUND;
+    else if (escape)
         return State::EXIT;
     else if (pauseMode)
         return State::PAUSE;
@@ -355,6 +358,9 @@ State Game::endRound(Input& input){
 
     escape = false;
     bool arrivalCar = false;
+
+    player->setEndAnimation(true);
+    Logger::setLoggerStatus();
 
     HudBonus::loadHudBonus(input);
 

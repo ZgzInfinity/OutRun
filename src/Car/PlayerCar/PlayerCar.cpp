@@ -1048,40 +1048,56 @@ void PlayerCar::drawEndDriftRound(Input &input){
                 Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
         }
         else {
-            if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
-                Audio::play(Sfx::FERRARI_ENGINE_BRAKE, true);
+            if (endAnimation){
 
-            if (speed >= 100.f){
-                if (current_code_image < 60 || current_code_image > 62)
-                    current_code_image = 60;
-                else
+                if (current_code_image < 0 || current_code_image > 2)
+                    current_code_image = 0;
+                else {
                     if (counter_code_image >= maxCounterToChange){
                         current_code_image++;
                         counter_code_image = 0;
-                        skidIndex = 148 + current_code_image % 4;
                     }
                     else
                         counter_code_image++;
+                }
             }
-            else if (speed >= 60.f && speed < 100.f){
-                if (current_code_image < 64 || current_code_image > 71)
-                    current_code_image = 64;
-                else
-                    if (counter_code_image >= maxCounterToChange){
-                        if (current_code_image <= 70){
+            else {
+
+                if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
+                    Audio::play(Sfx::FERRARI_ENGINE_BRAKE, true);
+
+                if (speed >= 100.f){
+                    if (current_code_image < 60 || current_code_image > 62)
+                        current_code_image = 60;
+                    else
+                        if (counter_code_image >= maxCounterToChange){
                             current_code_image++;
+                            counter_code_image = 0;
                             skidIndex = 148 + current_code_image % 4;
                         }
-                        else {
-                            if (skidIndex > 150)
-                                skidIndex = 148;
-                            else
-                                skidIndex++;
-                        }
-                        counter_code_image = 0;
-                    }
+                        else
+                            counter_code_image++;
+                }
+                else if (speed >= 60.f && speed < 100.f){
+                    if (current_code_image < 64 || current_code_image > 71)
+                        current_code_image = 64;
                     else
-                        counter_code_image++;
+                        if (counter_code_image >= maxCounterToChange){
+                            if (current_code_image <= 70){
+                                current_code_image++;
+                                skidIndex = 148 + current_code_image % 4;
+                            }
+                            else {
+                                if (skidIndex > 150)
+                                    skidIndex = 148;
+                                else
+                                    skidIndex++;
+                            }
+                            counter_code_image = 0;
+                        }
+                        else
+                            counter_code_image++;
+                }
             }
 
             const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
@@ -1092,15 +1108,17 @@ void PlayerCar::drawEndDriftRound(Input &input){
             sprite.setPosition(minScreenX, (((float) input.gameWindow.getSize().y) * input.camD - sprite.getGlobalBounds().height / 4.f));
             input.gameWindow.draw(sprite);
 
-            int code = (skidIndex == -1) ? 148 + current_code_image % 4 : skidIndex;
-            sprite.setTexture(textures[code], true);
-            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
-                               j - sprite.getGlobalBounds().height);
-            input.gameWindow.draw(sprite);
+            if (!endAnimation){
+                int code = (skidIndex == -1) ? 148 + current_code_image % 4 : skidIndex;
+                sprite.setTexture(textures[code], true);
+                sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+                sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
+                                   j - sprite.getGlobalBounds().height);
+                input.gameWindow.draw(sprite);
 
-            sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height);
-            input.gameWindow.draw(sprite);
+                sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height);
+                input.gameWindow.draw(sprite);
+            }
         }
     }
 }

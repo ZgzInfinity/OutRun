@@ -233,7 +233,7 @@ void Biome::setGoalBiome(){
     laneBiome2 = sf::Color(247, 247, 247);
 
     time = 80;
-    addBiome(400, 400, 400, 0, 0, false, dist3);
+    addBiome(250, 250, 250, 0, 0, false, dist3);
 
 	vector<string> objectNames;
     objectNames.reserve(45);
