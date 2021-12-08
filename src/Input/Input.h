@@ -155,7 +155,7 @@ struct Input {
         }
         else {
             // Create the screen with not full screen resolution
-            gameWindow.create(sf::VideoMode(width, heigth), "Out Run", sf::Style::Default);
+            gameWindow.create(sf::VideoMode(width, heigth), "Out Run", sf::Style::Titlebar | sf::Style::Close);
         }
 
         gameWindow.setFramerateLimit(FPS);
@@ -191,17 +191,27 @@ struct Input {
 
     // Check for key press/release/hold events
     inline bool pressed(const Key action, const sf::Event &event) {
-        return event.type == sf::Event::KeyPressed &&
-               event.key.code == get(action);
+        return isKeypressedEvent(event) && event.key.code == get(action);
     }
+
+    inline bool isKeypressedEvent(const sf::Event &event) {
+        return event.type == sf::Event::KeyPressed;
+    }
+
+    inline bool pressedKeyIsValidLetter(const sf::Event &event) {
+        return event.key.code >= 0 && event.key.code <= 25;
+    }
+
     inline bool released(const Key action, const sf::Event &event) {
         return event.type == sf::Event::KeyReleased &&
                event.key.code == get(action);
     }
+
     inline bool held(const Key action) {
         return sf::Keyboard::isKeyPressed(get(action)) &&
                 gameWindow.hasFocus();
     }
+
     inline bool closed(const sf::Event &event) {
         return event.type == sf::Event::Closed;
     }

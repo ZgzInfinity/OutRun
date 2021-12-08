@@ -29,14 +29,14 @@ MenuLoading::MenuLoading(const bool& _automaticMode) : Menu()
 
 void MenuLoading::loadMenu(Input& input){
 
-    iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+    iconBackground.loadFromFile("Resources/Menus/OptionsMenu/icon.png");
     background = sf::IntRect(0, 0, input.gameWindow.getSize().x, input.gameWindow.getSize().y);
 
     sprite = sf::Sprite(iconBackground, background);
     sprite.setScale(float(input.gameWindow.getSize().x) / SCREEN_0.first,
                     float(input.gameWindow.getSize().y) / SCREEN_0.second);
 
-    textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
+    textureShape.loadFromFile("Resources/Menus/OptionsMenu/outrun.png");
     textureShape.setRepeated(true);
 
     fontMenu.loadFromFile("Resources/Fonts/DisposableDroid.ttf");

@@ -38,6 +38,7 @@
 #include "../Menus/MenuLoading/MenuLoading.h"
 #include "../Menus/MenuControls/MenuControls.h"
 #include "../Menus/MenuPause/MenuPause.h"
+#include "../Menus/MenuRanking/MenuRanking.h"
 #include "../Car/TrafficCar/TrafficCar.h"
 #include "../Gui/Huds/HudRound/HudRound.h"
 #include "../Gui/Huds/HudBonus/HudBonus.h"

@@ -179,7 +179,7 @@ void MenuCredits::draw(Input& input){
 
     int numAnimation = 1;
 
-    while (!startPressed && !escapePressed && !backPressed && numAnimation <= 5) {
+    while (!startPressed && !escapePressed && !backPressed && numAnimation <= 6) {
 
         // Wait until the time pass displaying the info
         int i = 0;
@@ -262,6 +262,19 @@ void MenuCredits::draw(Input& input){
 
                     for (int j = 0; j < (int)Sprite_Enterprise::__COUNT; j++){
                         right.setString(Credit::getSpriteEnterpriseCredit(j));
+                        right.setPosition(input.gameWindow.getSize().x / 2.f - right.getLocalBounds().width / 2.f,
+                                          input.gameWindow.getSize().y / 2.f - 70.f + (120.f * j) * input.screenScaleY);
+                        input.gameWindow.draw(right);
+                    }
+                    break;
+                case 6:
+                    titleText.setString("ACKNOWLEDGMENTS");
+                    titleText.setPosition(((input.gameWindow.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
+                                            input.gameWindow.getSize().y / 2.f - 240.0f * input.screenScaleY);
+                    input.gameWindow.draw(titleText);
+
+                    for (int j = 0; j < (int)Acknowledgments::__COUNT; j++){
+                        right.setString(Credit::getAcknowledgments(j));
                         right.setPosition(input.gameWindow.getSize().x / 2.f - right.getLocalBounds().width / 2.f,
                                           input.gameWindow.getSize().y / 2.f - 70.f + (120.f * j) * input.screenScaleY);
                         input.gameWindow.draw(right);

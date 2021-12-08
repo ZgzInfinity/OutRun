@@ -33,14 +33,14 @@ MenuOptions::setPauseMode(const bool& pause){
 
 void MenuOptions::loadMenu(Input& input){
     menuButtons.clear();
-    iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+    iconBackground.loadFromFile("Resources/Menus/OptionsMenu/icon.png");
     background = sf::IntRect(0, 0, input.gameWindow.getSize().x, input.gameWindow.getSize().y);
 
     sprite = sf::Sprite(iconBackground, background);
     sprite.setScale(float(input.gameWindow.getSize().x) / SCREEN_0.first,
                     float(input.gameWindow.getSize().y) / SCREEN_0.second);
 
-    textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
+    textureShape.loadFromFile("Resources/Menus/OptionsMenu/outrun.png");
     textureShape.setRepeated(true);
 
     shape.setPosition((input.gameWindow.getSize().x / 2.f) - 350.0f * input.screenScaleX,
@@ -428,7 +428,7 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
                 input.gameWindow.create(sf::VideoMode(static_cast<unsigned int>(input.resolutions[input.currentIndexResolution].first),
                                                      static_cast<unsigned int>(input.resolutions[input.currentIndexResolution].second)),
 
-                              "Out Run", sf::Style::Default);
+                              "Out Run", sf::Style::Titlebar | sf::Style::Close);
             }
             else {
 

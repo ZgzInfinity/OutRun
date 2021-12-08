@@ -94,6 +94,11 @@ enum class Sprite_Enterprise : int {
     __COUNT
 };
 
+enum class Acknowledgments : int {
+    OUTRUN_ARCADE,
+    OUTRUN_SEGA,
+    __COUNT
+};
 
 class Credit {
 
@@ -108,6 +113,7 @@ class Credit {
         std::array<std::string, (int)Soundtrack_Enterprise::__COUNT> soundtrackEnterrpisesCredits;
         std::array<std::string, (int)Sfx_Enterprise::__COUNT> soundEffectsEnterprisesCredits;
         std::array<std::string, (int)Sprite_Enterprise::__COUNT> spritesEnterprisesCredits;
+        std::array<std::string, (int)Acknowledgments::__COUNT> acknowledgments;
 
         static void load(const Game_Detail gC, const std::string &name);
         static void load(const Game_Acknowlegment gA, const std::string &name);
@@ -116,6 +122,7 @@ class Credit {
         static void load(const Soundtrack_Enterprise sdE, const std::string &name);
         static void load(const Sfx_Enterprise sfxE, const std::string &name);
         static void load(const Sprite_Enterprise spE, const std::string &name);
+        static void load(const Acknowledgments ack, const std::string &name);
 
 
     public:
@@ -137,6 +144,8 @@ class Credit {
         static std::string getSfxEnterpriseCredit(const int i);
 
         static std::string getSpriteEnterpriseCredit(const int i);
+
+        static std::string getAcknowledgments(const int i);
 
 };
 

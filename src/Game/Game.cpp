@@ -87,7 +87,9 @@ void Game::updateRound(Input& input){
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     HudRound::setAllHudRoundIndicators(input);
 
-    currentMap->updateMap(input, cars, *player, time, score);
+    if (gameStatus != State::GAME_OVER)
+        currentMap->updateMap(input, cars, *player, time, score);
+
     currentMap->renderMap(input, cars, *player, gameStatus);
 
     if (gameStatus == State::PLAY_ROUND)
@@ -207,7 +209,7 @@ State Game::startRound(Input& input){
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale, PLAYER_TEXTURES,
-                           "Ferrari", automaticMode);
+                           "Ferraris/Ferrari1", automaticMode);
 
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
@@ -416,11 +418,15 @@ State Game::endRound(Input& input){
                 input.gameWindow.display();
                 i += 5;
             }
+
+            if (escape)
+                return State::EXIT;
         }
     }
     countHudBonus = 0;
     spectatorsCongrats = false;
     showmanCongrats = false;
+    firstLoad = true;
     return State::RANKING;
 }
 
@@ -640,6 +646,10 @@ void Game::run(Input& input){
                 break;
             }
             case State::RANKING: {
+                MenuRanking mR = MenuRanking(score, (int)minutesTrip, (int)secsTrip, (int)cents_secondTrip);
+                mR.loadMenu(input);
+                mR.draw(input);
+                gameStatus = mR.returnMenu(input);
                 break;
             }
         }
@@ -649,5 +659,3 @@ void Game::run(Input& input){
     delete currentMap;
     delete player;
 }
-
-

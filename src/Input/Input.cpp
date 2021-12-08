@@ -32,7 +32,7 @@ Input::Input(){
     resolutions[(int)Resolution::SCREEN_3] = SCREEN_3;
 
     // Check if the Input file exists
-    exitsSettings = existSettingsFile("Resources/Settings/Settings.info");
+    exitsSettings = existSettingsFile("Resources/Settings/Settings.txt");
 
     // Check if exits a default Input for the game
     if (!exitsSettings){
@@ -112,7 +112,7 @@ bool Input::existSettingsFile(const char path[]){
 inline void Input::loadGameInput(){
 
      // Load the Input of the game
-    ifstream fin("Resources/Settings/Settings.info");
+    ifstream fin("Resources/Settings/Settings.txt");
 
 
     string s;
@@ -207,7 +207,7 @@ inline void Input::loadGameInput(){
 void Input::writeDefaultInput(){
 
     //  New file which stores the new Input of the game
-    ofstream f("Resources/Settings/Settings.info");
+    ofstream f("Resources/Settings/Settings.txt");
 
     // Check if the file has been opened correctly
     if (f.is_open()){
@@ -782,7 +782,7 @@ sf::Keyboard::Key Input::getKeyCode(const std::string code) {
 void Input::writeNewInput (){
 
     //  New file which stores the new Input of the game
-    ofstream f("Resources/Settings/Settings.info");
+    ofstream f("Resources/Settings/Settings.txt");
 
     // Check if the file has been opened correctly
     if (f.is_open()){

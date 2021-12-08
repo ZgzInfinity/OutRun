@@ -133,9 +133,8 @@ void MenuStart::loadMenu(Input& input){
 void MenuStart::handleEvent(Input& input){
     sf::Event event;
     input.gameWindow.pollEvent(event);
-    if (input.closed(event)){
+    if (input.closed(event))
         escapePressed = true;
-    }
     else {
         if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
             startPressed = true;

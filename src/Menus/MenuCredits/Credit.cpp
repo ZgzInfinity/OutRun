@@ -68,6 +68,9 @@ void Credit::loadAll(){
 
     instance.load(Sprite_Enterprise::SPRITE_FIRST, "ALL SPRITES USED IN THIS GAME HAVE BEEN");
     instance.load(Sprite_Enterprise::SPRITE_SECOND, "DOWNLOADED AND MODIFIED FROM SPRITERESOURCE");
+
+    instance.load(Acknowledgments::OUTRUN_ARCADE, "OUT RUN ARCADE - DESIGNED BY YU SUZUKI IN 1986");
+    instance.load(Acknowledgments::OUTRUN_SEGA, "OUT RUN SEGA MEGADRIVE VERSION - RELEASED IN 1991");
 }
 
 void Credit::load(const Game_Detail gD, const std::string &name){
@@ -98,6 +101,10 @@ void Credit::load(const Sprite_Enterprise spE, const std::string &name){
     instance.spritesEnterprisesCredits[(int)spE] = name;
 }
 
+void Credit::load(const Acknowledgments ack, const std::string &name){
+    instance.acknowledgments[(int)ack] = name;
+}
+
 std::string Credit::getGameDetail(const int i){
     return instance.gameDetails[i];
 }
@@ -126,3 +133,6 @@ std::string Credit::getSpriteEnterpriseCredit(const int i){
     return instance.spritesEnterprisesCredits[i];
 }
 
+std::string Credit::getAcknowledgments(const int i){
+    return instance.acknowledgments[i];
+}
