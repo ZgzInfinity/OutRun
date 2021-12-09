@@ -28,14 +28,14 @@ MenuControls::MenuControls() : Menu()
 
 void MenuControls::loadMenu(Input& input){
 
-    iconBackground.loadFromFile("Resources/Menus/MenuOptions/icon.png");
+    iconBackground.loadFromFile("Resources/Menus/OptionsMenu/icon.png");
     background = sf::IntRect(0, 0, input.gameWindow.getSize().x, input.gameWindow.getSize().y);
 
     sprite = sf::Sprite(iconBackground, background);
     sprite.setScale(float(input.gameWindow.getSize().x) / SCREEN_0.first,
                     float(input.gameWindow.getSize().y) / SCREEN_0.second);
 
-    textureShape.loadFromFile("Resources/Menus/MenuOptions/outrun.png");
+    textureShape.loadFromFile("Resources/Menus/OptionsMenu/outrun.png");
     textureShape.setRepeated(true);
 
     shape.setPosition((input.gameWindow.getSize().x / 2.f) - 350.0f * input.screenScaleX,
@@ -197,8 +197,12 @@ void MenuControls::handleEvent(Input& input){
                     changeButtonSelected(false);
                 }
                 else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+                    if (!controlSelected)
+                        Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+                    else
+                        Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+
                     controlSelected = !controlSelected;
-                    Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
                     menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_SELECTED);
                     menuButtons[optionSelected + 6].setButtonState(ButtonState::BUTTON_SELECTED);
                 }

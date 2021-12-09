@@ -193,7 +193,7 @@ void Game::updateRound(Input& input){
     }
     else {
         if (player->getStateWheelLeft() != StateWheel::SAND && player->getStateWheelRight() != StateWheel::SAND && player->getSpeed() > 5.f)
-            score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (145.f))) / 10.f) * 10;
+            score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (141.f))) / 3.7f) * 2.3f;
     }
 
     if (!currentMap->getNotDrawn())

@@ -210,8 +210,12 @@ void MenuOptions::handleEvent(Input& input){
             input.modifiedinputig = true;
         }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+            if (!controlSelected)
+                Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            else
+                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+
             controlSelected = !controlSelected;
-            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
             if (controlSelected){
                 menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_SELECTED);
                 menuButtons[optionSelected + 5].setButtonState(ButtonState::BUTTON_SELECTED);
