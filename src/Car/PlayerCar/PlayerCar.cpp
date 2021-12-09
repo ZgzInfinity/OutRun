@@ -34,8 +34,8 @@ PlayerCar::PlayerCar() : Vehicle(){}
 
 
 PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale,
-                     const int numTextures, const std::string& name, const bool _automaticMode)
-                     : Vehicle(_posX, _posY, _posZ, _speed, _scale, numTextures, name)
+                     const std::string& name, const bool _automaticMode, const bool _isTrafficCar)
+                     : Vehicle(_posX, _posY, _posZ, _speed, _scale, name, _isTrafficCar)
 {
 	playerW = 77;
 	highAccel = 10.f;
@@ -519,7 +519,7 @@ bool PlayerCar::hasCrashed(float x1, int w1, float x2, float w2, float scale){
 
 
 void PlayerCar::drawStartStaticRound(Input& input) {
-    if (textures.size() == PLAYER_TEXTURES) {
+    if (textures.size() == PLAYER_TOTAL_TEXTURES) {
         float x = input.gameWindow.getSize().x / 2;
         sprite.setTexture(textures[121], true);
         sprite.setScale(scale * input.screenScaleX, scale * input.screenScaleY);
@@ -533,7 +533,7 @@ void PlayerCar::drawStartDriftRound(Input &input, float x, int& code){
     if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
         Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, false);
 
-    if (textures.size() == PLAYER_TEXTURES){
+    if (textures.size() == PLAYER_TOTAL_TEXTURES){
         if (counter_code_image >= maxCounterToChange){
             current_code_image++;
             counter_code_image = 0;
@@ -683,7 +683,7 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
                     current_code_image++;
                 }
 
-                if (textures.size() == PLAYER_TEXTURES){
+                if (textures.size() == PLAYER_TOTAL_TEXTURES){
                     if (action == Action::ACCELERATE || action == Action::BOOT){
                         if (elevation == Elevation::FLAT) {
                             if (direction == Direction::FRONT) {
@@ -1004,11 +1004,8 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
 
 void PlayerCar::drawEndDriftRound(Input &input){
 
-    if (Audio::isPlaying(Sfx::FERRARI_ENGINE_RUN))
-        Audio::stop(Sfx::FERRARI_ENGINE_RUN);
-
-    if (textures.size() == PLAYER_TEXTURES){
-        if (speed < 60.f){
+    if (textures.size() == PLAYER_TOTAL_TEXTURES){
+        if (speed < 60.f && !endAnimation){
 
             if (Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
                 Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);

@@ -22,11 +22,14 @@
  * Module Vehicle interface file
  */
 
+#pragma once
+
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "../../Globals.h"
 
 
 enum class Direction : int {
@@ -65,6 +68,7 @@ class Vehicle {
         int counter_code_image;
         int maxCounterToChange;
         float speed;
+        bool isTrafficCar;
 
         std::vector<sf::Texture> textures;
 
@@ -72,7 +76,8 @@ class Vehicle {
 
         Vehicle();
 
-        Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale, const int _numTextures, const std::string& name);
+        Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed,
+                const float _scale, const std::string& name, const bool _isTrafficCar);
 
         void setSpeed(const float& sp);
 

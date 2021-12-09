@@ -43,7 +43,8 @@ class MenuRanking : public Menu {
                  timeCounter, scorePlayer, namePlayer, minutesPlayer, secondsPlayer,
                  centsPlayer, index, start;
 
-        int time;
+        int time, offsetStartText, offsetRankingTitle, offsetTimeCounter, offsetScoreIndicator,
+            offsetPlayerIndicator, offsetRecordIndicator, offsetIndexIndicator;
 
         float elapsed1, elapsed2, elapsed3, elapsed4;
 

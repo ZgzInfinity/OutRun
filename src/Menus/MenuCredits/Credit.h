@@ -47,20 +47,20 @@ enum class Game_Acknowlegment : int {
 
 enum class Soundtrack_Credit : int {
     SUPER_HANG_ON,
-    CRUIS_USA,
-    CRUIS_WORLD,
     OUT_RUN,
     WORLD_CUP_ITALIA,
+    MARIO_KART_GBA,
+    MARIO_KART_TOUR,
     __COUNT
 };
 
 
 enum class Soundtrack_Enterprise : int {
     SUPER_HANG_ON,
-    CRUIS_USA,
-    CRUIS_WORLD,
     OUT_RUN,
     WORLD_CUP_ITALIA,
+    MARIO_KART_GBA,
+    MARIO_KART_TOUR,
     __COUNT
 };
 

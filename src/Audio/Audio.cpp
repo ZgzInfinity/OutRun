@@ -50,7 +50,10 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::RACE_SEMAPHORE_PREPARE, "Resources/SoundEffects/Race_Semaphore_Prepare.ogg");
     instance.load(Sfx::RACE_SEMAPHORE_START, "Resources/SoundEffects/Race_Semaphore_Start.ogg");
     instance.load(Sfx::RACE_START, "Resources/SoundEffects/Race_Start.ogg");
-    instance.load(Sfx::RACE_END, "Resources/SoundEffects/Race_End.ogg");
+    instance.load(Sfx::RACE_END_FIRST, "Resources/SoundEffects/Race_End_First.ogg");
+    instance.load(Sfx::RACE_END_SECOND, "Resources/SoundEffects/Race_End_Second.ogg");
+    instance.load(Sfx::RACE_END_THIRD, "Resources/SoundEffects/Race_End_Third.ogg");
+
 
 
     instance.load(Sfx::FERRARI_ENGINE_START, "Resources/SoundEffects/Ferrari_Engine_Start.ogg");
@@ -97,6 +100,7 @@ void Audio::loadAll(Input& input){
 
     instance.load(Sfx::SCORE_BONUS, "Resources/SoundEffects/Score_Bonus.ogg");
 
+    instance.load(Sfx::HALL_FAME, "Resources/SoundEffects/Hall_Fame.ogg");
     instance.load(Sfx::WAVE, "Resources/SoundEffects/Wave.ogg");
     instance.load(Sfx::WIND, "Resources/SoundEffects/Wind.ogg");
     instance.load(Sfx::GAME_OVER, "Resources/SoundEffects/Game_Over.ogg");

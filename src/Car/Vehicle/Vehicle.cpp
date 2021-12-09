@@ -23,23 +23,42 @@
 
 Vehicle::Vehicle(){}
 
-Vehicle::Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale, const int numTextures, const std::string& name){
+Vehicle::Vehicle(const int _posX, const int _posY, const int _posZ, const float _speed,
+                 const float _scale, const std::string& name, const bool _isTrafficCar)
+{
     posX = _posX;
 	posY = _posY;
 	posZ = _posZ;
 	speed = _speed;
 	scale = _scale;
+	isTrafficCar = _isTrafficCar;
     current_code_image = 1;
 	maxCounterToChange = 2;
 	counter_code_image = 0;
 
-    textures.reserve(static_cast<unsigned int>(numTextures));
-    for (int i = 1; i <= numTextures; i++) {
-        sf::Texture t;
-        t.loadFromFile("Resources/Vehicles/" + name + "/c" + std::to_string(i) + ".png");
-        t.setRepeated(false);
-        textures.push_back(t);
-    }
+	if (!isTrafficCar){
+        for (int i = 1; i <= PLAYER_CAR_TEXTURES; i++) {
+            sf::Texture t;
+            t.loadFromFile("Resources/Vehicles/PlayerCar/" + name + "/c" + std::to_string(i) + ".png");
+            t.setRepeated(false);
+            textures.push_back(t);
+        }
+
+        for (int i = 1; i <= PLAYER_WHEELS_TEXTURES; i++) {
+            sf::Texture t;
+            t.loadFromFile("Resources/Vehicles/PlayerCar/Wheels/c" + std::to_string(i) + ".png");
+            t.setRepeated(false);
+            textures.push_back(t);
+        }
+	}
+	else {
+        for (int i = 1; i <= TRAFFIC_TEXTURES; i++) {
+            sf::Texture t;
+            t.loadFromFile("Resources/Vehicles/" + name + "/c" + std::to_string(i) + ".png");
+            t.setRepeated(false);
+            textures.push_back(t);
+        }
+	}
 }
 
 void Vehicle::setSpeed(const float& sp){

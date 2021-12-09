@@ -93,7 +93,7 @@ class Map {
 
         void updateCarPlayerWheels(PlayerCar& p);
 
-        void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score);
+        void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score);
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus);
 

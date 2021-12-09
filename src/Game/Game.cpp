@@ -88,7 +88,7 @@ void Game::updateRound(Input& input){
     HudRound::setAllHudRoundIndicators(input);
 
     if (gameStatus != State::GAME_OVER)
-        currentMap->updateMap(input, cars, *player, time, score);
+        currentMap->updateMap(input, cars, *player, gameStatus, time, score);
 
     currentMap->renderMap(input, cars, *player, gameStatus);
 
@@ -208,19 +208,19 @@ State Game::startRound(Input& input){
     startingRound = true;
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
-    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale, PLAYER_TEXTURES,
-                           "Ferraris/Ferrari1", automaticMode);
+    player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale,
+                           "Ferraris/Ferrari1", automaticMode, false);
 
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     HudRound::configureHudRound(input);
 
-    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car1", 1, 0.5f, false, true, 1);
-    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car2", 2, 0.f, false, true, 1);
-    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car3", 3, 0.5f, false, true, 1);
-    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car4", 4, -0.5f, false, true, 1);
-    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car5", 5, 0.5f, false, true, 1);
-    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, TRAFFIC_TEXTURES, "TrafficCars/Car6", 6, 0.f, false, true, 1);
+    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, 1, true);
+    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, 1, true);
+    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, 1, true);
+    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, 1, true);
+    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, 1, true);
+    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, 1, true);
 
     cars.push_back(car1);
     cars.push_back(car2);
@@ -369,8 +369,16 @@ State Game::endRound(Input& input){
     if (Audio::isPlaying(input.currentSoundtrack))
             Audio::stop(input.currentSoundtrack);
 
-    if (!Audio::isPlaying(Sfx::RACE_END))
-        Audio::play(Sfx::RACE_END, false);
+    for (int i = (int)Sfx::FERRARI_ENGINE_START; i <= (int)Sfx::FERRARI_CRASH; i++)
+        Audio::stop(static_cast<Sfx>(i));
+
+    if (!Audio::isPlaying(Sfx::RACE_END_FIRST) &&
+        !Audio::isPlaying(Sfx::RACE_END_SECOND) &&
+        !Audio::isPlaying(Sfx::RACE_END_THIRD))
+    {
+        int code = random_int((int)Sfx::RACE_END_FIRST, (int)Sfx::RACE_END_THIRD);
+        Audio::play(static_cast<Sfx>(code), false);
+    }
 
     if (!Audio::isPlaying(Sfx::SCORE_BONUS))
         Audio::play(Sfx::SCORE_BONUS, true);
@@ -646,6 +654,10 @@ void Game::run(Input& input){
                 break;
             }
             case State::RANKING: {
+                score = 1000;
+                minutesTrip = 2;
+                secsTrip = 35;
+                cents_secondTrip = 44;
                 MenuRanking mR = MenuRanking(score, (int)minutesTrip, (int)secsTrip, (int)cents_secondTrip);
                 mR.loadMenu(input);
                 mR.draw(input);

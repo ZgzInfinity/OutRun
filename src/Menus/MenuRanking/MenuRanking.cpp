@@ -30,11 +30,39 @@ MenuRanking::MenuRanking(const int long long _score, const int _minutes,
 
     time = TIME_RANKING_MENU;
     blink = false;
+
     lettersIntroduced = 0;
+    offsetStartText = 0;
+    offsetRankingTitle = 0;
+    offsetTimeCounter = 0;
+    offsetScoreIndicator = 0;
+    offsetPlayerIndicator = 0;
+    offsetRecordIndicator = 0;
+    offsetIndexIndicator = 5.5f;
+
     name = "_";
 }
 
 void MenuRanking::loadMenu(Input& input){
+
+    if (input.currentIndexResolution == (int)Resolution::SCREEN_1 ||
+        input.currentIndexResolution == (int)Resolution::__COUNT)
+        offsetStartText = 60;
+    else if (input.currentIndexResolution == (int)Resolution::SCREEN_2)
+        offsetStartText = 70;
+    else if (input.currentIndexResolution == (int)Resolution::SCREEN_3)
+        offsetStartText = 100;
+
+    if (input.currentIndexResolution >= (int)Resolution::SCREEN_2 &&
+        input.currentIndexResolution < (int)Resolution::__COUNT)
+    {
+        offsetRankingTitle = 50;
+        offsetTimeCounter = 50;
+        offsetScoreIndicator = 40;
+        offsetPlayerIndicator = 40;
+        offsetRecordIndicator = 40;
+        offsetIndexIndicator = 8.f;
+    }
 
     scoreRankingPlayer = getGlobalScores(input);
     record = isNewRecord(scoreRankingPlayer, score);
@@ -49,7 +77,7 @@ void MenuRanking::loadMenu(Input& input){
 
 
     rankingTitle.setFont(fontMenu);
-    rankingTitle.setPosition(input.gameWindow.getSize().x / 4.f, input.gameWindow.getSize().y / 17.f);
+    rankingTitle.setPosition(input.gameWindow.getSize().x / 4.f, input.gameWindow.getSize().y / 17.f - offsetRankingTitle);
     rankingTitle.setString("BEST OUTRUNNERS");
     rankingTitle.setCharacterSize(static_cast<unsigned int>(int(65.0f * input.screenScaleX)));
     rankingTitle.setFillColor(sf::Color::Yellow);
@@ -57,7 +85,7 @@ void MenuRanking::loadMenu(Input& input){
     rankingTitle.setOutlineThickness(3.0f * input.screenScaleX);
 
     scoreIndicator.setFont(fontMenu);
-    scoreIndicator.setPosition(input.gameWindow.getSize().x / 8.f, input.gameWindow.getSize().y / 6.0f);
+    scoreIndicator.setPosition(input.gameWindow.getSize().x / 8.f, input.gameWindow.getSize().y / 6.0f - offsetScoreIndicator);
     scoreIndicator.setString("SCORE");
     scoreIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * input.screenScaleX)));
     scoreIndicator.setFillColor(sf::Color(146, 194, 186));
@@ -65,7 +93,7 @@ void MenuRanking::loadMenu(Input& input){
     scoreIndicator.setOutlineThickness(3.0f * input.screenScaleX);
 
     playerIndicator.setFont(fontMenu);
-    playerIndicator.setPosition(input.gameWindow.getSize().x / 2.2f, input.gameWindow.getSize().y / 6.0f);
+    playerIndicator.setPosition(input.gameWindow.getSize().x / 2.2f, input.gameWindow.getSize().y / 6.0f - offsetPlayerIndicator);
     playerIndicator.setString("NAME");
     playerIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * input.screenScaleX)));
     playerIndicator.setFillColor(sf::Color(146, 194, 186));
@@ -73,7 +101,7 @@ void MenuRanking::loadMenu(Input& input){
     playerIndicator.setOutlineThickness(3.0f * input.screenScaleX);
 
     recordIndicator.setFont(fontMenu);
-    recordIndicator.setPosition((input.gameWindow.getSize().x / 2.f) * 1.5f, input.gameWindow.getSize().y / 6.0f);
+    recordIndicator.setPosition((input.gameWindow.getSize().x / 2.f) * 1.5f, input.gameWindow.getSize().y / 6.0f - offsetRecordIndicator);
     recordIndicator.setString("RECORD");
     recordIndicator.setCharacterSize(static_cast<unsigned int>(int(50.0f * input.screenScaleX)));
     recordIndicator.setFillColor(sf::Color(146, 194, 186));
@@ -84,7 +112,7 @@ void MenuRanking::loadMenu(Input& input){
     timeCounter.setCharacterSize(static_cast<unsigned int>(int(62.0f * input.screenScaleX)));
     timeCounter.setString(to_string(time));
     timeCounter.setPosition((input.gameWindow.getSize().x / 2.f) * 1.7f - timeCounter.getLocalBounds().width,
-                            input.gameWindow.getSize().y / 15.7f);
+                            input.gameWindow.getSize().y / 15.7f - offsetTimeCounter);
     timeCounter.setFillColor(sf::Color::Red);
     timeCounter.setOutlineColor(sf::Color(12, 12, 12));
     timeCounter.setOutlineThickness(3.0f * input.screenScaleX);
@@ -125,7 +153,7 @@ void MenuRanking::loadMenu(Input& input){
     index.setOutlineColor(sf::Color::Black);
     index.setOutlineThickness(3.0f * input.screenScaleX);
 
-    start.setCharacterSize(static_cast<unsigned int>(int(45.0f * input.screenScaleX)));
+    start.setCharacterSize(static_cast<unsigned int>(int(40.0f * input.screenScaleX)));
     start.setFont(fontMenu);
     start.setFillColor(sf::Color::Green);
     start.setOutlineColor(sf::Color::Black);
@@ -178,6 +206,9 @@ void MenuRanking::draw(Input& input){
 
     Audio::play(Soundtrack::LAST_WAVE, true);
 
+    if (record != 1)
+        Audio::play(Sfx::HALL_FAME, false);
+
     while (time > 0 && !escapePressed && !startPressed){
 
         handleEvent(input);
@@ -192,7 +223,7 @@ void MenuRanking::draw(Input& input){
             rankingTime.restart();
             timeCounter.setString(to_string(time));
             timeCounter.setPosition((input.gameWindow.getSize().x / 2.f) * 1.7f - timeCounter.getLocalBounds().width,
-                                    input.gameWindow.getSize().y / 15.7f);
+                                    input.gameWindow.getSize().y / 15.7f - offsetRankingTitle);
         }
 
         input.gameWindow.clear();
@@ -207,26 +238,27 @@ void MenuRanking::draw(Input& input){
         if (record == -1) {
 
             start.setString("PRESS START!");
-            start.setPosition(input.gameWindow.getSize().x / 2.5f, (input.gameWindow.getSize().y / 4.5f) + 400.0f);
+            start.setPosition(input.gameWindow.getSize().x / 2.f - start.getLocalBounds().width /2.f,
+                              (input.gameWindow.getSize().y / 4.5f) + 400.0f + offsetStartText);
 
             // There is not a new record
             for (int i = 1; i <= 7; i++) {
 
                 index.setString(to_string(i) + ".");
                 index.setPosition((input.gameWindow.getSize().x / 13.f) - index.getLocalBounds().width,
-                                  (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * float(i));
+                                  (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * float(i));
 
                 scorePlayer.setString(to_string(scoreRankingPlayer[i - 1].score));
                 scorePlayer.setPosition((input.gameWindow.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
-                                        (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * float(i));
+                                        (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * float(i));
 
                 namePlayer.setString(scoreRankingPlayer[i - 1].name);
                 namePlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
-                                       (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * float(i));
+                                       (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * float(i));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i - 1].minutes) + "'");
                 minutesPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
-                                          (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * float(i));
+                                          (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * float(i));
 
                 if (scoreRankingPlayer[i - 1].secs >= 10)
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i - 1].secs) + "''");
@@ -234,7 +266,7 @@ void MenuRanking::draw(Input& input){
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i - 1].secs) + "''");
 
                 secondsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
-                                          (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * float(i));
+                                          (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * float(i));
 
 
                 if (scoreRankingPlayer[i - 1].cents_second >= 10)
@@ -243,7 +275,7 @@ void MenuRanking::draw(Input& input){
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i - 1].cents_second));
 
                 centsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
-                                        (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * float(i));
+                                        (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * float(i));
 
                 input.gameWindow.draw(index);
                 input.gameWindow.draw(scorePlayer);
@@ -257,30 +289,32 @@ void MenuRanking::draw(Input& input){
 
             if (lettersIntroduced != 3) {
                 start.setString("ENTER YOUR NAME!");
-                start.setPosition(input.gameWindow.getSize().x / 3.0f, (input.gameWindow.getSize().y / 4.5f) + 400.0f);
+                start.setPosition(input.gameWindow.getSize().x / 2.f - start.getLocalBounds().width /2.f,
+                              (input.gameWindow.getSize().y / 4.5f) + 400.0f + offsetStartText);
             }
             else {
                 start.setString("PRESS START!");
-                start.setPosition(input.gameWindow.getSize().x / 2.5f, (input.gameWindow.getSize().y / 4.5f) + 400.0f);
+                start.setPosition(input.gameWindow.getSize().x / 2.f - start.getLocalBounds().width /2.f,
+                              (input.gameWindow.getSize().y / 4.5f) + 400.0f + offsetStartText);
             }
 
             for (int i = 0; i <= record - 1; i++) {
 
                 index.setString(to_string(i) + ".");
                 index.setPosition((input.gameWindow.getSize().x / 13.f) - index.getLocalBounds().width,
-                                  (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) i);
+                                  (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 1));
 
                 scorePlayer.setString(to_string(scoreRankingPlayer[i].score));
                 scorePlayer.setPosition((input.gameWindow.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
-                                        (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 1));
+                                        (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 1));
 
                 namePlayer.setString(scoreRankingPlayer[i].name);
                 namePlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
-                                       (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 1));
+                                       (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 1));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i].minutes) + "'");
                 minutesPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
-                                          (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 1));
+                                          (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 1));
 
                 if (scoreRankingPlayer[i].secs >= 10)
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i].secs) + "''");
@@ -288,7 +322,7 @@ void MenuRanking::draw(Input& input){
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i].secs) + "''");
 
                 secondsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
-                                          (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 1));
+                                          (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 1));
 
 
                 if (scoreRankingPlayer[i].cents_second >= 10)
@@ -297,8 +331,9 @@ void MenuRanking::draw(Input& input){
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i].cents_second));
 
                 centsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
-                                        (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 1));
+                                        (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 1));
 
+                input.gameWindow.draw(index);
                 input.gameWindow.draw(scorePlayer);
                 input.gameWindow.draw(namePlayer);
                 input.gameWindow.draw(minutesPlayer);
@@ -308,18 +343,22 @@ void MenuRanking::draw(Input& input){
 
             int offset = (record == 0) ? 1 : record + 1;
 
+            index.setString(to_string(record) + ".");
+            index.setPosition((input.gameWindow.getSize().x / 13.f) - index.getLocalBounds().width,
+                              (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float)offset);
+
             // Show the actual player
             scorePlayer.setString(to_string(score));
             scorePlayer.setPosition((input.gameWindow.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
-                                    (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) offset);
+                                    (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) offset);
 
             namePlayer.setString(name);
             namePlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
-                                   (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) offset);
+                                   (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) offset);
 
             minutesPlayer.setString(to_string(minutes) + "'");
             minutesPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
-                                      (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) offset);
+                                      (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) offset);
 
             if (secs >= 10)
                 secondsPlayer.setString(to_string(secs) + "''");
@@ -327,7 +366,7 @@ void MenuRanking::draw(Input& input){
                 secondsPlayer.setString("0" + to_string(secs) + "''");
 
             secondsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
-                                      (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) offset);
+                                      (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) offset);
 
 
             if (cents_second >= 10)
@@ -336,8 +375,9 @@ void MenuRanking::draw(Input& input){
                 centsPlayer.setString("0" + to_string(cents_second));
 
             centsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
-                                    (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) offset);
+                                    (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) offset);
 
+            input.gameWindow.draw(index);
             input.gameWindow.draw(scorePlayer);
             input.gameWindow.draw(namePlayer);
             input.gameWindow.draw(minutesPlayer);
@@ -347,17 +387,22 @@ void MenuRanking::draw(Input& input){
             // Show the rest of out runners
 
             for (int i = record; i < 6 && i < (int)scoreRankingPlayer.size(); i++) {
+
+                index.setString(to_string(i) + ".");
+                index.setPosition((input.gameWindow.getSize().x / 13.f) - index.getLocalBounds().width,
+                              (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 2));
+
                 scorePlayer.setString(to_string(scoreRankingPlayer[i].score));
                 scorePlayer.setPosition((input.gameWindow.getSize().x / 3.9f) - scorePlayer.getLocalBounds().width,
-                                        (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 2));
+                                        (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 2));
 
                 namePlayer.setString(scoreRankingPlayer[i].name);
                 namePlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.13f - namePlayer.getLocalBounds().width,
-                                       (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 2));
+                                       (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 2));
 
                 minutesPlayer.setString(to_string(scoreRankingPlayer[i].minutes) + "'");
                 minutesPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.57f - minutesPlayer.getLocalBounds().width,
-                                          (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 2));
+                                          (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 2));
 
                 if (scoreRankingPlayer[i].secs >= 10)
                     secondsPlayer.setString(to_string(scoreRankingPlayer[i].secs) + "''");
@@ -365,7 +410,7 @@ void MenuRanking::draw(Input& input){
                     secondsPlayer.setString("0" + to_string(scoreRankingPlayer[i].secs) + "''");
 
                 secondsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.7f - secondsPlayer.getLocalBounds().width,
-                                          (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 2));
+                                          (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 2));
 
 
                 if (scoreRankingPlayer[i].cents_second >= 10)
@@ -374,8 +419,9 @@ void MenuRanking::draw(Input& input){
                     centsPlayer.setString("0" + to_string(scoreRankingPlayer[i].cents_second));
 
                 centsPlayer.setPosition((input.gameWindow.getSize().x / 2.f) * 1.8f - centsPlayer.getLocalBounds().width,
-                                        (input.gameWindow.getSize().y / 4.5f) + 50.0f * input.screenScaleX * (float) (i + 2));
+                                        (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 2));
 
+                input.gameWindow.draw(index);
                 input.gameWindow.draw(scorePlayer);
                 input.gameWindow.draw(namePlayer);
                 input.gameWindow.draw(minutesPlayer);
@@ -408,17 +454,19 @@ void MenuRanking::draw(Input& input){
     if (time <= 0)
         Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
 
-    input.gameWindow.draw(timeCounter);
-    sf::RectangleShape blackShape;
-    blackShape.setPosition(0, 0);
-    blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x,
-                                    input.gameWindow.getSize().y));
+    if (!escapePressed){
+        input.gameWindow.draw(timeCounter);
+        sf::RectangleShape blackShape;
+        blackShape.setPosition(0, 0);
+        blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x,
+                                        input.gameWindow.getSize().y));
 
-    for (int i = 0; i <= 70; i++){
-        blackShape.setFillColor(sf::Color(0, 0, 0, i));
-        input.gameWindow.draw(blackShape);
-        input.gameWindow.display();
-        sf::sleep(sf::milliseconds(20));
+        for (int i = 0; i <= 70; i++){
+            blackShape.setFillColor(sf::Color(0, 0, 0, i));
+            input.gameWindow.draw(blackShape);
+            input.gameWindow.display();
+            sf::sleep(sf::milliseconds(20));
+        }
     }
 }
 

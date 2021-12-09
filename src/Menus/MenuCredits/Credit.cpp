@@ -39,16 +39,16 @@ void Credit::loadAll(){
     instance.load(Game_Acknowlegment::RIGHTS_THIRD, "VIDEOGAMES IN WHICH OUT RUN HAS BEEN INSPIRED");
 
     instance.load(Soundtrack_Credit::SUPER_HANG_ON, "SUPER HANG ON - 1989 - SEGA MEGADRIVE");
-    instance.load(Soundtrack_Credit::CRUIS_USA, "CRUIS'N USA - 1994 - N64");
-    instance.load(Soundtrack_Credit::CRUIS_WORLD, "CRUIS'N WORLD - 1996 - N64");
     instance.load(Soundtrack_Credit::OUT_RUN, "OUT RUN - 1986 - ARCADE VERSION");
     instance.load(Soundtrack_Credit::WORLD_CUP_ITALIA, "WORLD CUP ITALI 90 - 1989 - SEGA MEGADRIVE");
+    instance.load(Soundtrack_Credit::MARIO_KART_GBA, "MARIO KART SUPER CIRCUIT - 2001 - GAME BOY ADVANCED");
+    instance.load(Soundtrack_Credit::MARIO_KART_TOUR, "MARIO KART TOUR - 2019 - ANDROID AND IOS");
 
     instance.load(Soundtrack_Enterprise::SUPER_HANG_ON, "SEGA AM2 AND SEGA");
-    instance.load(Soundtrack_Enterprise::CRUIS_USA, "MIDWAY GAMES AND WNS INDUSTRIES");
-    instance.load(Soundtrack_Enterprise::CRUIS_WORLD, "MIDWAY GAMES AND EUROCOM");
     instance.load(Soundtrack_Enterprise::OUT_RUN, "SEGA AM2, SEGA, M2, NEC CORPORATION, ACCLAIM STUDIOS LONDON AND SEGA MOBILE");
     instance.load(Soundtrack_Enterprise::WORLD_CUP_ITALIA, "MASTERTRONIC AND SEGA");
+    instance.load(Soundtrack_Enterprise::MARIO_KART_GBA, "INTELLIGENT SYSTEMS");
+    instance.load(Soundtrack_Enterprise::MARIO_KART_TOUR, "DeNA, NINTENDO EAD AND NINTENDO EPD");
 
     instance.load(Sfx_Credit::SUPER_HANG_ON, "SUPER HANG ON - 1989 - SEGA MEGADRIVE");
     instance.load(Sfx_Credit::CRUIS_USA, "CRUIS'N USA - 1994 - N64");

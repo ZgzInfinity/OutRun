@@ -187,7 +187,7 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 	}
 }
 
-void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const float time, int long long& score){
+void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score){
 
     updateCars(cars, p, score);
 	iniPosition = position;
@@ -261,72 +261,74 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, const 
 		rumbleAux = biome->rumbleBiome1; rumble2Aux = biome->rumbleBiome2; laneAux = biome->laneBiome1; lane2Aux = biome->laneBiome2;
 	}
 
-    if (p.getCrashing()){
-        if (p.getSpeed() > 0.f){
-            if (p.getSpeed() >= 20.f)
-                p.setSpeed(p.getSpeed() - (p.getLowAccel() * time * 0.7f));
-            else
-                p.setSpeed(p.getSpeed() - (p.getLowAccel() * time * 0.9f));
-
-            if (p.getCollisionDir() >= 0.f){
-                if (p.getSpeed() <= 75.f)
-                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getHighMaxSpeed() * 2 * time));
+	if (gameStatus == State::PLAY_ROUND){
+        if (p.getCrashing()){
+            if (p.getSpeed() > 0.f){
+                if (p.getSpeed() >= 20.f)
+                    p.setSpeed(p.getSpeed() - (p.getLowAccel() * time * 0.7f));
                 else
-                    p.setPosX(p.getPosX() - (p.getSpeed() / p.getHighMaxSpeed() * 3 * time));
-            }
-            else {
-                if (p.getSpeed() <= 75.f)
-                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getHighMaxSpeed() * 2 * time));
-                else
-                    p.setPosX(p.getPosX() + (p.getSpeed() / p.getHighMaxSpeed() * 3 * time));
-            }
-        }
-        else {
-            p.setSpeed(0.f);
-            p.setLowAccel(p.getLowMaxSpeed() / 6.5f);
-            p.setCollisionDir();
-            if (p.getNumAngers() == 3){
-                p.setAngryWoman();
-                p.setTrafficCrash();
-                p.setDrawCar(false);
+                    p.setSpeed(p.getSpeed() - (p.getLowAccel() * time * 0.9f));
 
-                float dif = 0.f;
-                if (p.getPlayerMap() == playerR::RIGHTROAD)
-                    dif = ((float)mapDistance / (float)ROAD_WIDTH);
-                if (p.getPosX() < -0.05f + dif)
-                    p.setPosX(p.getPosX() + 0.012f);
-                else if (p.getPosX() > 0.05f + dif)
-                    p.setPosX(p.getPosX() - 0.012f);
+                if (p.getCollisionDir() >= 0.f){
+                    if (p.getSpeed() <= 75.f)
+                        p.setPosX(p.getPosX() - (p.getSpeed() / p.getHighMaxSpeed() * 2 * time));
+                    else
+                        p.setPosX(p.getPosX() - (p.getSpeed() / p.getHighMaxSpeed() * 3 * time));
+                }
                 else {
-                    p.setCrashing(false);
-                    p.setNumAngers();
-                    p.setDrawCar(true);
+                    if (p.getSpeed() <= 75.f)
+                        p.setPosX(p.getPosX() + (p.getSpeed() / p.getHighMaxSpeed() * 2 * time));
+                    else
+                        p.setPosX(p.getPosX() + (p.getSpeed() / p.getHighMaxSpeed() * 3 * time));
                 }
             }
-            p.setStateWheelLeft(StateWheel::NORMAL);
-            p.setStateWheelRight(StateWheel::NORMAL);
+            else {
+                p.setSpeed(0.f);
+                p.setLowAccel(p.getLowMaxSpeed() / 6.5f);
+                p.setCollisionDir();
+                if (p.getNumAngers() == 3){
+                    p.setAngryWoman();
+                    p.setTrafficCrash();
+                    p.setDrawCar(false);
+
+                    float dif = 0.f;
+                    if (p.getPlayerMap() == playerR::RIGHTROAD)
+                        dif = ((float)mapDistance / (float)ROAD_WIDTH);
+                    if (p.getPosX() < -0.05f + dif)
+                        p.setPosX(p.getPosX() + 0.012f);
+                    else if (p.getPosX() > 0.05f + dif)
+                        p.setPosX(p.getPosX() - 0.012f);
+                    else {
+                        p.setCrashing(false);
+                        p.setNumAngers();
+                        p.setDrawCar(true);
+                    }
+                }
+                p.setStateWheelLeft(StateWheel::NORMAL);
+                p.setStateWheelRight(StateWheel::NORMAL);
+            }
         }
-    }
 
-	bool hasCrashed = false;
+        bool hasCrashed = false;
 
-	if (playerLine->hasSpriteFarLeft)
-        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarLeft);
-	if (!hasCrashed && playerLine->hasSpriteNearLeft)
-        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteNearLeft);
-    if (!hasCrashed && playerLine->hasSpriteFarRight)
-        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarRight);
-    if (!hasCrashed && playerLine->hasSpriteNearRight)
-        p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteNearRight);
+        if (playerLine->hasSpriteFarLeft)
+            p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarLeft);
+        if (!hasCrashed && playerLine->hasSpriteNearLeft)
+            p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteNearLeft);
+        if (!hasCrashed && playerLine->hasSpriteFarRight)
+            p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarRight);
+        if (!hasCrashed && playerLine->hasSpriteNearRight)
+            p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteNearRight);
 
-	if (!hasCrashed){
-        for (auto& car : cars)
-        {
-            Line* lc = currentBiome->lines[(int)(car->getPosZ() / SEGMENT_LENGTH) % currentBiome->lines.size()];
-            p.checkCollisionTrafficCar(input, playerLine, lc, car, hasCrashed);
+        if (!hasCrashed){
+            for (auto& car : cars)
+            {
+                Line* lc = currentBiome->lines[(int)(car->getPosZ() / SEGMENT_LENGTH) % currentBiome->lines.size()];
+                p.checkCollisionTrafficCar(input, playerLine, lc, car, hasCrashed);
 
-            if (hasCrashed)
-                break;
+                if (hasCrashed)
+                    break;
+            }
         }
 	}
 

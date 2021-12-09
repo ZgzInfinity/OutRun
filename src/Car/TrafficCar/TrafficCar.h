@@ -48,8 +48,8 @@ class TrafficCar : public Vehicle {
 
         TrafficCar();
 
-        TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const int numTextures, const std::string& name,
-                   const int& _id, const float& _offset, const bool& _active, const bool& _side, const int& _lane);
+        TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const std::string& name,
+                   const int& _id, const float& _offset, const bool& _active, const bool& _side, const int& _lane, const bool _isTrafficCar);
 
         void setActive(const bool& _active);
 
