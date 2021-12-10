@@ -39,6 +39,7 @@
 #include "../Menus/MenuControls/MenuControls.h"
 #include "../Menus/MenuPause/MenuPause.h"
 #include "../Menus/MenuRanking/MenuRanking.h"
+#include "../Menus/MenuCarSelection/MenuCarSelection.h"
 #include "../Car/TrafficCar/TrafficCar.h"
 #include "../Gui/Huds/HudRound/HudRound.h"
 #include "../Gui/Huds/HudBonus/HudBonus.h"
@@ -112,9 +113,13 @@
 
         bool startingRound;
 
+        bool carSelectionRefused;
+
         float elapsed1, elapsed2, elapsed3, elapsed4, bonusTime, elapsedBonusTime;
 
         std::pair<int, int> mapId;
+
+        int playerCarSelected;
 
     public:
 

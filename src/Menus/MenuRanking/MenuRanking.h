@@ -37,6 +37,8 @@ class MenuRanking : public Menu {
 
         sf::Clock rankingTime, blinkStart;
 
+        sf::RectangleShape blackShape;
+
         const sf::Time ranking_delay = sf::seconds(1.f);
 
         sf::Text rankingTitle, scoreIndicator, playerIndicator, recordIndicator,

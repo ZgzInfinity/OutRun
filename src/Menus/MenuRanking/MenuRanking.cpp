@@ -162,38 +162,38 @@ void MenuRanking::loadMenu(Input& input){
 
 void MenuRanking::handleEvent(Input& input){
     sf::Event event;
-    input.gameWindow.pollEvent(event);
-
-    if (input.closed(event))
-        escapePressed = true;
-    else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-        if (record == -1 || (record != -1 && lettersIntroduced == 3)){
-            Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
-            startPressed = true;
-        }
-    }
-    else if (input.isKeypressedEvent(event)){
-        if (input.pressedKeyIsValidLetter(event)){
-            lettersIntroduced++;
-            string keyLetter = input.getKeyCodeName(event.key.code);
-            if (name == "_") {
-                name = keyLetter;
-                Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+    while(input.gameWindow.pollEvent(event)){
+        if (input.closed(event))
+            escapePressed = true;
+        else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+            if (record == -1 || (record != -1 && lettersIntroduced == 3)){
+                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+                startPressed = true;
             }
-            else {
-                if (lettersIntroduced == 3) {
-                    name = name.substr(0, name.size() - 1);
-                    name += keyLetter;
-                    Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
-                }
-                else {
-                    name += keyLetter + "_";
+        }
+        else if (input.isKeypressedEvent(event)){
+            if (input.pressedKeyIsValidLetter(event)){
+                lettersIntroduced++;
+                string keyLetter = input.getKeyCodeName(event.key.code);
+                if (name == "_") {
+                    name = keyLetter;
                     Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
                 }
+                else {
+                    if (lettersIntroduced == 3) {
+                        name = name.substr(0, name.size() - 1);
+                        name += keyLetter;
+                        Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+                    }
+                    else {
+                        name += keyLetter + "_";
+                        Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+                    }
+                }
             }
+            else
+                Audio::play(Sfx::MENU_SELECTION_WRONG, false);
         }
-        else
-            Audio::play(Sfx::MENU_SELECTION_WRONG, false);
     }
 }
 
@@ -456,7 +456,6 @@ void MenuRanking::draw(Input& input){
 
     if (!escapePressed){
         input.gameWindow.draw(timeCounter);
-        sf::RectangleShape blackShape;
         blackShape.setPosition(0, 0);
         blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x,
                                         input.gameWindow.getSize().y));

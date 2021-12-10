@@ -38,6 +38,7 @@ Game::Game(Input& input){
     mapId = make_pair(0, 0);
     Audio::loadAll(input);
     level = 0;
+    playerCarSelected = 0;
     currentMap = nullptr;
     player = nullptr;
     pauseMode = false;
@@ -48,6 +49,7 @@ Game::Game(Input& input){
     firstGame = false;
     endingAnimation = false;
     startingRound = true;
+    carSelectionRefused = false;
 }
 
 void Game::handleEvent(Input& input, const float& time){
@@ -209,7 +211,7 @@ State Game::startRound(Input& input){
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale,
-                           "Ferraris/Ferrari1", automaticMode, false);
+                           "Ferraris/Ferrari" + to_string(playerCarSelected + 1), automaticMode, false);
 
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
@@ -605,11 +607,20 @@ void Game::run(Input& input){
                 break;
             }
             case State::GEARS: {
-                MenuGears mGe = MenuGears();
+                MenuGears mGe = MenuGears(playerCarSelected);
                 mGe.loadMenu(input);
                 mGe.draw(input);
                 automaticMode = mGe.getAutomaticMode();
                 gameStatus = mGe.returnMenu(input);
+                playerCarSelected = -1;
+                break;
+            }
+            case State::VEHICLE: {
+                MenuCarSelection mCs = MenuCarSelection();
+                mCs.loadMenu(input);
+                mCs.draw(input);
+                playerCarSelected = mCs.hasPlayerCarSelected();
+                gameStatus = mCs.returnMenu(input);
                 break;
             }
             case State::MUSIC: {

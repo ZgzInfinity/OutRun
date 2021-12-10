@@ -62,6 +62,8 @@ const int TRAFFIC_TEXTURES = 4;
 const int SCORE_BONIFICATION = 1000000;
 const int BACKGROUND_MOVING_OFFSET = 91;
 const int TIME_RANKING_MENU = 28;
+const int TOTAL_PLAYER_CARS = 14;
+const int TOTAL_COLOR_TEXTURES = 8;
 
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;

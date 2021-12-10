@@ -40,6 +40,7 @@ enum class Soundtrack : int {
     SPLASH_WAVE,
     LAST_WAVE,
     GAME_OVER,
+    VEHICLE_SELECTION,
     LOADING,
     CREDITS,
     __COUNT
@@ -84,6 +85,7 @@ enum class Sfx : int {
     BLOND_WOMAN_TEN_SECONDS,
     BLOND_WOMAN_DIE,
     BLONDE_WOMAN_HURRY_UP,
+    BLONDE_WOMAN_CHOOSE_CAR,
 
     SPECTATORS_FIRST_SHOUT,
     SPECTATORS_SECOND_SHOUT,

@@ -20,7 +20,7 @@
 
 #include "MenuGears.h"
 
-MenuGears::MenuGears() : Menu(){
+MenuGears::MenuGears(const int _playerCarSelected) : Menu(){
     offsetY = 700.f;
     offsetTitleText = -1.0f;
     offsetTimeLapTexts = 4.0f;
@@ -30,6 +30,7 @@ MenuGears::MenuGears() : Menu(){
     automaticMode = true;
     pressedKey = false;
     escapePressed = false;
+    playerCarSelected = _playerCarSelected;
 }
 
 void MenuGears::loadMenu(Input& input){
@@ -148,11 +149,26 @@ void MenuGears::handleEvent(Input& input){
 void MenuGears::draw(Input& input){
 
     int j = 0, k = 0;
-    Audio::play(Sfx::MENU_PANEL_DISPLAY, false);
 
     if (!Audio::isPlaying(Sfx::WIND)){
         Audio::play(Sfx::WIND, true);
     }
+
+    if (playerCarSelected == -1){
+        for (int i = 255; i >= 0; i -= 5){
+            handleEvent(input);
+
+            input.gameWindow.clear();
+            input.gameWindow.draw(mainMenu);
+            input.gameWindow.draw(nameGames[j]);
+
+            blackShape.setFillColor(sf::Color(0, 0, 0, i));
+            input.gameWindow.draw(blackShape);
+            input.gameWindow.display();
+        }
+    }
+
+    Audio::play(Sfx::MENU_PANEL_DISPLAY, false);
 
     // Until start key is pressed
     while(!mainTextArrived && !lapTextsArrived)
@@ -340,7 +356,7 @@ State MenuGears::returnMenu(Input& input){
         return State::GAME;
     }
     else {
-        return State::MUSIC;
+        return State::VEHICLE;
     }
 }
 

@@ -34,6 +34,7 @@ void Audio::loadAll(Input& input){
     instance.load(Soundtrack::SPLASH_WAVE, "Resources/Soundtracks/Splash_Wave.ogg");
     instance.load(Soundtrack::LAST_WAVE, "Resources/Soundtracks/Last_Wave.ogg");
     instance.load(Soundtrack::GAME_OVER, "Resources/Soundtracks/Game_Over.ogg");
+    instance.load(Soundtrack::VEHICLE_SELECTION, "Resources/Soundtracks/Vehicle_Selection.ogg");
     instance.load(Soundtrack::LOADING, "Resources/Soundtracks/Loading.ogg");
     instance.load(Soundtrack::CREDITS, "Resources/Soundtracks/Credits.ogg");
 
@@ -75,6 +76,7 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::BLOND_WOMAN_TEN_SECONDS, "Resources/SoundEffects/Blond_Woman_Ten_Seconds.ogg");
     instance.load(Sfx::BLOND_WOMAN_DIE, "Resources/SoundEffects/Blond_Woman_Die.ogg");
     instance.load(Sfx::BLONDE_WOMAN_HURRY_UP, "Resources/SoundEffects/Blond_Woman_Hurry_Up.ogg");
+    instance.load(Sfx::BLONDE_WOMAN_CHOOSE_CAR, "Resources/SoundEffects/Blond_Woman_Choose_Car.ogg");
 
     instance.load(Sfx::SPECTATORS_FIRST_SHOUT, "Resources/SoundEffects/Spectators_First_Shout.ogg");
     instance.load(Sfx::SPECTATORS_SECOND_SHOUT, "Resources/SoundEffects/Spectators_Second_Shout.ogg");

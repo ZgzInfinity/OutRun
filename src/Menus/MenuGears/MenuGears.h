@@ -30,8 +30,6 @@ class MenuGears : public Menu {
 
     private:
 
-        sf::Sprite bufferSprite;
-
         sf::Font fontMenu;
         sf::Texture backgroundMenu, gameIcon;
         sf::Sprite mainMenu, nameGame;
@@ -53,10 +51,11 @@ class MenuGears : public Menu {
         bool carSpriteArrived;
         bool automaticMode;
         bool pressedKey;
+        int playerCarSelected;
 
     public:
 
-        MenuGears();
+        MenuGears(const int _playerCarSelected);
 
         void loadMenu(Input& input) override;
 
