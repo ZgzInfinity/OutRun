@@ -70,7 +70,7 @@ void MenuCarSelection::loadMenu(Input& input){
     titleText.setPosition((input.gameWindow.getSize().x / 2.f) - titleText.getLocalBounds().width / 2.f,
                           input.gameWindow.getSize().y / 2.f - 230.0f * input.screenScaleY);
 
-    carDescription.setString("PRESS UP OR DOWN KEYS TO CHANGE THE CAR");
+    carDescription.setString("PRESS LEFT OR RIGHT CURSOR KEYS TO CHANGE THE CAR");
     carDescription.setCharacterSize(static_cast<unsigned int>(int(25.0f * input.screenScaleX)));
     carDescription.setFont(fontMenu);
     carDescription.setStyle(sf::Text::Bold | sf::Text::Underlined);
@@ -93,7 +93,7 @@ void MenuCarSelection::loadMenu(Input& input){
 
     vehicleShape.setTexture(&garageTexture, true);
     vehicleShape.setSize(sf::Vector2f(310.0f * input.screenScaleX, factorResolution * input.screenScaleX));
-    vehicleShape.setOutlineColor(sf::Color::Black);
+    vehicleShape.setOutlineColor(sf::Color(237, 160, 26));
     vehicleShape.setOutlineThickness(5.0f * input.screenScaleX);
     vehicleShape.setPosition((input.gameWindow.getSize().x / 2.f) - vehicleShape.getLocalBounds().width / 2.f + 5.f,
                              input.gameWindow.getSize().y / 2.f - 80.0f * input.screenScaleY);

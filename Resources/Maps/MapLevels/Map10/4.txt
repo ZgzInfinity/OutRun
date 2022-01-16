@@ -1,0 +1,2 @@
+COLLISION: 0
+SCALE: 2.1

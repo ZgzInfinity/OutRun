@@ -167,6 +167,8 @@ class Audio {
 
         static void pause(const Soundtrack sd);
 
+        static void pause(const int index);
+
         static void stopSfx();
 
         static void stopMusic();

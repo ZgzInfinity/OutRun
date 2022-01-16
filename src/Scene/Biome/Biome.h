@@ -44,16 +44,19 @@ struct Biome{
 
     int time, terrain;
 
-    sf::Texture backGround;
-    sf::RectangleShape backgroundShape;
+    sf::Texture backGroundFront, backGroundBack;
+    sf::RectangleShape backgroundShapeFront, backgroundShapeBack;
 
-	bool biomeSwap;
+	bool biomeSwap, road;
 
     bool startBiome, goalBiome;
 
-	sf::Color skyBiome, sandBiome1, sandBiome2, roadBiome1, roadBiome2, rumbleBiome1, rumbleBiome2, laneBiome1, laneBiome2;
+	sf::Color skyBiome, sandBiome1, sandBiome2, roadBiome1, roadBiome2,
+                rumbleBiome1, rumbleBiome2, laneBiome1, laneBiome2, rumbleLane1, rumbleLane2;
 
     vector<sf::Texture> objects;
+
+    vector<bool> collisions;
 
     vector<float> scaleCoeffs;
 
@@ -73,6 +76,8 @@ struct Biome{
 
     void setTerrain(const int _terrain);
 
+    void setRoad(const bool _road);
+
     int getTime() const;
 
     int getTerrain() const;
@@ -80,6 +85,8 @@ struct Biome{
     bool getStartBiome() const;
 
     bool getGoalBiome() const;
+
+    bool getRoad() const;
 
     void setColors(const std::vector<sf::Color>& colorsOBiome);
 
@@ -95,7 +102,9 @@ struct Biome{
 
     void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos);
 
-    void setBackground(const string path);
+    void setBackgroundFront(const string path);
+
+    void setBackgroundBack(const string path);
 
     void setStartBiome();
 

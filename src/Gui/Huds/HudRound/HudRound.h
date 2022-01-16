@@ -115,7 +115,7 @@ class HudRound {
 
         static void setTextHudRoundIndicator(const Hud_Text_Indicator& hudInd, const std::string message, const sf::Vector2f& pos);
 
-        static void setTextHudRoundIndicator(const Hud_Text_Indicator& hudInd, const std::string message);
+        static void setTextHudRoundIndicator(Input& input, const Hud_Text_Indicator& hudInd, const std::string message);
 
     public:
 

@@ -34,12 +34,12 @@ PlayerCar::PlayerCar() : Vehicle(){}
 
 
 PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale,
-                     const std::string& name, const bool _automaticMode, const bool _isTrafficCar)
+                     const std::string& name, const bool _automaticMode, const bool _isTrafficCar, const bool _roadDefined)
                      : Vehicle(_posX, _posY, _posZ, _speed, _scale, name, _isTrafficCar)
 {
 	playerW = 77;
 	highAccel = 10.f;
-	varThresholdX = 0.03f;
+	varThresholdX = 0.06f;
 	maxLowSpeed = maxHighSpeed = 100.f;
 	lowAccel = maxHighSpeed / 6.5f;
 	brakeAccel = maxHighSpeed / 3.0f;
@@ -63,6 +63,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	elevation = Elevation::FLAT;
 
     automaticMode = _automaticMode;
+    roadDefined = _roadDefined;
     crashing = false;
     firstTurnLeft = true;
     firstTurnRight = true;
@@ -107,6 +108,10 @@ void PlayerCar::setPlayerMap(const playerR& playerRoad){
 
 void PlayerCar::setDrawCar(const bool _drawCar){
     drawCar = _drawCar;
+}
+
+void PlayerCar::setRoadDefined(const bool _roadDefined){
+    roadDefined = _roadDefined;
 }
 
 
@@ -196,7 +201,7 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
 
     switch(gameStatus){
         case State::PLAY_ROUND:
-            if (wheelL == StateWheel::SAND && wheelR == StateWheel::SAND)
+            if (wheelL == StateWheel::SAND && wheelR == StateWheel::SAND && outsideRoad)
                 maxHighSpeed = 75.f;
             else
             {
@@ -654,8 +659,10 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
             else if (!increaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_UP_GEAR))
                 Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
 
-            if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR))
+            if (decreaseGear && !Audio::isPlaying(Sfx::FERRARI_ENGINE_DOWN_GEAR)){
                 Audio::play(Sfx::FERRARI_ENGINE_DOWN_GEAR, false);
+                decreaseGear = false;
+            }
         }
         else {
             Audio::stop(Sfx::FERRARI_ENGINE_START);
@@ -961,6 +968,20 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
 
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
 
+        if (wheelL == StateWheel::SAND || (!roadDefined && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[152 + current_code_image % 4], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
+                                j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+        if (wheelR == StateWheel::SAND || (!roadDefined && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[152 + current_code_image % 4], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+
         if (wheelL == StateWheel::SMOKE){
             sprite.setTexture(textures[148 + current_code_image % 4], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
@@ -968,24 +989,10 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
                                j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
-        else if (wheelL == StateWheel::SAND){
-            sprite.setTexture(textures[152 + current_code_image % 4], true);
-            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
-                                j - sprite.getGlobalBounds().height + out);
-            input.gameWindow.draw(sprite);
-        }
-
         if (wheelR == StateWheel::SMOKE){
             sprite.setTexture(textures[148 + current_code_image % 4], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height + out);
-            input.gameWindow.draw(sprite);
-        }
-        else if (wheelR == StateWheel::SAND){
-            sprite.setTexture(textures[152 + current_code_image % 4], true);
-            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
-            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
     }

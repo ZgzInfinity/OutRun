@@ -27,8 +27,8 @@ Line::Line()
     p1.xWorld = p1.yWorld = p1.zWorld = p11.xWorld = p11.yWorld = p11.zWorld = 0;
 	p2.xWorld = p2.yWorld = p2.zWorld = p21.xWorld = p21.yWorld = p21.zWorld = 0;
 	curve = distance = clip = 0.f;
-	light = mirror = hasSpriteNearLeft =  hasSpriteNearRight = hasSpriteFarLeft = hasSpriteFarRight = false;
-	spriteFarLeft = spriteNearLeft = spriteFarRight = spriteNearRight = nullptr;
+	light = mirror = hasSpriteNearLeft =  hasSpriteNearRight = hasSpriteFarLeft = hasSpriteFarRight = hasSpriteCenter = false;
+	spriteFarLeft = spriteNearLeft = spriteFarRight = spriteNearRight = spriteCenter = nullptr;
 }
 
 Line::~Line()

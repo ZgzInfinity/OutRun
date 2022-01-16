@@ -83,9 +83,8 @@ void MenuPause::loadMenu(Input& input){
 void MenuPause::handleEvent(Input& input){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
-        if (input.closed(event)){
+        if (input.closed(event))
             escapePressed = true;
-        }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
             startPressed = true;
             Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
@@ -101,8 +100,10 @@ void MenuPause::handleEvent(Input& input){
 
 void MenuPause::draw(Input& input){
 
+    Audio::pause(input.currentSoundtrack);
+
     // Until the start keyword is not pressed
-    while (!startPressed && !escapePressed && !backPressed) {
+    while (!startPressed && !escapePressed) {
 
         handleEvent(input);
 
@@ -138,6 +139,7 @@ State MenuPause::returnMenu(Input& input){
     if (startPressed){
         switch(optionSelected){
             case 0:
+                Audio::play(input.currentSoundtrack, true);
                 return State::PLAY_ROUND;
                 break;
             case 1:
@@ -152,6 +154,8 @@ State MenuPause::returnMenu(Input& input){
                 return State::EXIT;
         }
     }
+    else if (escapePressed)
+        return State::EXIT;
 }
 
 

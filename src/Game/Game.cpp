@@ -211,7 +211,8 @@ State Game::startRound(Input& input){
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale,
-                           "Ferraris/Ferrari" + to_string(playerCarSelected + 1), automaticMode, false);
+                           "Ferraris/Ferrari" + to_string(playerCarSelected + 1), automaticMode, false,
+                           currentMap->getCurrentBiome()->getRoad());
 
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
@@ -231,6 +232,7 @@ State Game::startRound(Input& input){
     cars.push_back(car5);
     cars.push_back(car6);
 
+    /*
     int counterAnimation = 0;
     int code = 121;
     float i = input.gameWindow.getSize().x / 2.f;
@@ -315,6 +317,8 @@ State Game::startRound(Input& input){
         HudRound::drawHudRound(input);
         input.gameWindow.display();
     }
+
+    */
 
     if (escape)
         return State::EXIT;
@@ -478,14 +482,14 @@ State Game::gameOverRound(Input& input){
 State Game::loadBiomes(Input& input){
 
     Logger::setWidthScreen(input.gameWindow.getSize().x);
-    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map1/map.txt"));
+    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map13/map.txt"));
 
     if (!Logger::getFailDetected()){
 
         currentMap = new Map();
         Biome* currentBiome = new Biome();
 
-        Logger::setFailDetected(Logger::checkTimeAndTerrain(*currentBiome));
+        Logger::setFailDetected(Logger::checkTimeTerrainRoad(*currentBiome));
 
         if (!Logger::getFailDetected())
             Logger::setFailDetected(Logger::checkColors(*currentBiome));
@@ -498,25 +502,32 @@ State Game::loadBiomes(Input& input){
             return State::EXIT;
 
         vector<string> objectNames;
-        objectNames.reserve(45);
-        for (int i = 1; i <= 45; i++){
+        objectNames.reserve(6);
+        for (int i = 1; i <= 6; i++){
             objectNames.push_back(std::to_string(i));
         }
+
 
         string path = "Resources/Maps/MapStartGoal/";
-        currentBiome->loadObjects(path, objectNames);
 
-        path = "Resources/Maps/MapLevels/Map1/";
+        /*
+        currentBiome->loadObjects(path, objectNames);
+        */
+
+        path = "Resources/Maps/MapLevels/Map13/";
         objectNames.clear();
-        objectNames.reserve(26);
-        for (int i = 1; i <= 26; i++){
+        objectNames.reserve(53);
+        for (int i = 1; i <= 53; i++){
             objectNames.push_back(std::to_string(i));
         }
 
+
         currentBiome->loadObjects(path, objectNames);
 
-        currentBiome->setBackground("Resources/Maps/MapLevels/Map1/bg.png");
-        currentBiome->setStartBiome();
+        currentBiome->setBackgroundFront("Resources/Maps/MapLevels/Map13/front.png");
+        currentBiome->setBackgroundBack("Resources/Maps/MapLevels/Map13/back.png");
+
+        // currentBiome->setStartBiome();
 
         if (!Logger::getFailDetected())
             Logger::setFailDetected(Logger::checkLevelBiomeSprites(*currentBiome));
@@ -526,6 +537,7 @@ State Game::loadBiomes(Input& input){
         currentMap->setCurrentBiome(*currentBiome);
         currentMap->setMapDistanceAndTrackLength();
         currentMap->setMapColors();
+        Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
 
         Biome* goalBiome = new Biome();
         goalBiome->setGoalBiome();
@@ -559,6 +571,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::GAME: {
+                playerCarSelected = 0;
                 MenuGame mG = MenuGame();
                 mG.loadMenu(input);
                 mG.draw(input);
@@ -580,10 +593,7 @@ void Game::run(Input& input){
                 gameStatus = mO.returnMenu(input);
 
                 if (currentMap != nullptr){
-                    bool startMap = currentMap->getStartMap();
-
-                    if (firstGame && (startMap || currentMap->getgoalMap()))
-                        Logger::setSpriteScreenY(*currentMap->getCurrentBiome(), startMap);
+                    Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
                 }
 
                 if (player != nullptr){
@@ -653,7 +663,12 @@ void Game::run(Input& input){
                 gameStatus = this->endRound(input);
                 break;
             }
-            case State::PAUSE: {
+            case State::PAUSE:{
+                HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level,
+                                      player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+
+                HudRound::setAllHudRoundIndicators(input);
+
                 MenuPause mP = MenuPause(*currentMap, *player, cars);
                 mP.loadMenu(input);
                 mP.draw(input);
@@ -665,10 +680,6 @@ void Game::run(Input& input){
                 break;
             }
             case State::RANKING: {
-                score = 1000;
-                minutesTrip = 2;
-                secsTrip = 35;
-                cents_secondTrip = 44;
                 MenuRanking mR = MenuRanking(score, (int)minutesTrip, (int)secsTrip, (int)cents_secondTrip);
                 mR.loadMenu(input);
                 mR.draw(input);

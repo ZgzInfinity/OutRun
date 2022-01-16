@@ -160,7 +160,9 @@ void Audio::play(const Sfx Sfx, bool loop) {
 
 
 void Audio::play(const int index, bool loop) {
-    stop(index);
+    if (instance.themes[index]->getStatus() != sf::SoundSource::Paused)
+        stop(index);
+
     instance.themes[index]->play();
     instance.themes[index]->setLoop(loop);
     instance.themes[index]->setVolume(instance.musicVolumePct);
@@ -194,6 +196,12 @@ void Audio::pause(const Soundtrack sd) {
 void Audio::pause(const Sfx Sfx) {
     if (instance.effects[(int)Sfx]->getStatus() == sf::SoundSource::Status::Playing){
         instance.effects[(int)Sfx]->pause();
+    }
+}
+
+void Audio::pause(const int index) {
+    if (instance.themes[index]->getStatus() == sf::SoundSource::Status::Playing){
+        instance.themes[index]->pause();
     }
 }
 

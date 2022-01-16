@@ -31,7 +31,8 @@ enum class Sprite_Position : int {
     FAR_LEFT,
     NEAR_LEFT,
     FAR_RIGHT,
-    NEAR_RIGHT
+    NEAR_RIGHT,
+    CENTER
 };
 
 enum class Sprite_Animated : int {
@@ -55,8 +56,8 @@ class SpriteInfo {
         SpriteInfo();
 
         SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
-                   const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const float _offsetX,
-                   const float _offsetY, const bool _side);
+                   const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const bool _collider,
+                   const float _offsetX, const float _offsetY, const bool _side);
 
         sf::Texture* getTextureSprite() const;
 

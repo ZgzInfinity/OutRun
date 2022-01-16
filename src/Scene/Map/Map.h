@@ -56,12 +56,12 @@ class Map {
         bool ending;
         bool notDrawn;
 
-        sf::Color sand, road, rumble, lane;
+        sf::Color sand, road, rumble, lane, rumbleLane;
         sf::Color bg, bg2;
-        sf::Color sky, sand1, sand2, road1, road2, rumble1, rumble2, lane1, lane2;
-        sf::Color sandAux, sand2Aux, roadAux, road2Aux, rumbleAux, rumble2Aux, laneAux, lane2Aux;
+        sf::Color sky, sand2, road2, rumble2, lane2, rumbleLane2;
+        sf::Color sandAux, sand2Aux, roadAux, road2Aux, rumbleAux, rumble2Aux, laneAux, lane2Aux, rumbleLaneAux, rumbleLane2Aux;
 
-        sf::Texture backGround1, backGround2;
+        sf::Texture backGroundFront, backGroundBack, backGround2Front, backGround2Back;
 
         void drawBackground(Input& input, int x, int y, sf::RectangleShape background, float speed, fPoint scale, fPoint pivot);
 

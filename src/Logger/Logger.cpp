@@ -47,12 +47,17 @@ void Logger::setWidthScreen(const int _widthScreen){
     instance.widthScreen = _widthScreen;
 }
 
-void Logger::setSpriteScreenY(Biome& m, const bool startMap){
+void Logger::setSpriteScreenY(Biome& m){
     if (m.startBiome)
         m.setSpriteScreenY(310, float(instance.widthScreen * -1.6f / SCREEN_0.first));
-    else {
+    else if (m.goalBiome){
         m.setSpriteScreenY(706, float(instance.widthScreen * -1.6f / SCREEN_0.first));
         m.setSpriteScreenY(806, float(instance.widthScreen * -1.6f / SCREEN_0.first));
+    }
+    else {
+        for (int i = 0; i < instance.floatingSprites.size(); i++){
+            m.setSpriteScreenY(instance.floatingSprites.at(i), float(instance.widthScreen * -1.45f / SCREEN_0.first));
+        }
     }
 }
 
@@ -81,7 +86,7 @@ bool Logger::checkMapFile(const std::string& pathMapFile){
 }
 
 
-bool Logger::checkTimeAndTerrain(Biome& m){
+bool Logger::checkTimeTerrainRoad(Biome& m){
     std::string informationRead;
     instance.inputFlux >> informationRead;
 
@@ -185,6 +190,48 @@ bool Logger::checkTimeAndTerrain(Biome& m){
                                 return !instance.failDetected;
                             }
                         }
+
+                        instance.row++;
+                        instance.column = 1;
+
+                        instance.inputFlux >> informationRead;
+
+                        if (instance.inputFlux.eof()){
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". IDENTIFIER ROAD TERRAIN: NOT FOUND." << std::endl;
+
+                            return !instance.failDetected;
+                        }
+                        else {
+                            if (informationRead != "ROAD:"){
+                                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                    instance.column << ". EXPECTED IDENTIFIER TOKEN ROAD: BUT FOUND " << informationRead << "." << std::endl;
+
+                                return !instance.failDetected;
+                            }
+                            else {
+                                instance.column += 2;
+                                instance.inputFlux >> informationRead;
+                                if (instance.inputFlux.eof()){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". ROAD VALUE NOT FOUND." << std::endl;
+
+                                    return !instance.failDetected;
+                                }
+                                else {
+                                    if (std::regex_match(informationRead, instance.natural_number_regex)){
+                                        bool road = (informationRead == "1") ? true : false;
+                                        if (informationRead != "0" && informationRead != "1"){
+                                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                                instance.column << ". ROAD VALUE " << informationRead << " MUST BE 0 OR 1" << std::endl;
+                                        }
+                                        else {
+                                            m.setRoad(road);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -223,13 +270,13 @@ bool Logger::checkColors(Biome& m){
             instance.row++;
             instance.column = 1;
 
-            for (int i = 1; i <= 9; i++){
+            for (int i = 1; i <= 11; i++){
                 if (i == 1)
                     colorToBeRead = "COLOR_BACKGROUND:";
                 else if (i == 2)
-                    colorToBeRead = "COLOR_SAND_1:";
+                    colorToBeRead = "COLOR_OUTSIDE_ROAD_1:";
                 else if (i == 3)
-                    colorToBeRead = "COLOR_SAND_2:";
+                    colorToBeRead = "COLOR_OUTSIDE_ROAD_2:";
                 else if (i == 4)
                     colorToBeRead = "COLOR_ROAD_1:";
                 else if (i == 5)
@@ -240,8 +287,12 @@ bool Logger::checkColors(Biome& m){
                     colorToBeRead = "COLOR_RUMBLE_2:";
                 else if (i == 8)
                     colorToBeRead = "COLOR_LANE_1:";
-                else
+                else if (i == 9)
                     colorToBeRead = "COLOR_LANE_2:";
+                 else if (i == 10)
+                    colorToBeRead = "COLOR_RUMBLE_LANE_1:";
+                else
+                    colorToBeRead = "COLOR_RUMBLE_LANE_2:";
 
                 instance.inputFlux >> informationRead;
                 if (instance.inputFlux.eof()){
@@ -849,7 +900,7 @@ bool Logger::checkReliefHillCurve(Biome& m){
 }
 
 bool Logger::checkLevelBiomeSprite(Biome& m, const int startPos, const int endPos, const int incrementor, const int frequency,
-                         bool& indexSpecified, bool& spritesProcessed, const bool left){
+                         bool& indexSpecified, bool& spritesProcessed, const int pos){
 
     std::string informationRead;
     int idProp;
@@ -939,15 +990,24 @@ bool Logger::checkLevelBiomeSprite(Biome& m, const int startPos, const int endPo
     SpriteInfo* newSprite = new SpriteInfo(&m.objects[idProp - 1], m.pivotLeftPoints[idProp - 1],
                                            m.pivotRightPoints[idProp - 1], m.scaleCoeffs[idProp - 1],
                                            m.widthCollisionCoeffs[idProp - 1], m.pivotLeftColPoints[idProp - 1],
-                                           m.pivotRightColPoints[idProp - 1], offsetX, offsetY, side);
+                                           m.pivotRightColPoints[idProp - 1], m.collisions[idProp - 1], offsetX, offsetY, side);
 
-    Sprite_Position spritePos = (left) ? Sprite_Position::NEAR_LEFT : Sprite_Position::NEAR_RIGHT;
-    if (endPos == -1)
+    Sprite_Position spritePos = (pos == 0) ? Sprite_Position::FAR_LEFT : (pos == 1) ? Sprite_Position::NEAR_LEFT :
+                                (pos == 2) ? Sprite_Position::CENTER : (pos == 3) ? Sprite_Position::FAR_RIGHT : Sprite_Position::NEAR_RIGHT;
+
+    if (endPos == -1){
         m.addSpriteInfo(startPos, newSprite, spritePos);
+        if (offsetY != 0.f)
+            instance.floatingSprites.push_back(startPos);
+    }
     else {
         for (int i = startPos; i < endPos; i += incrementor){
-            if (i % frequency == 0)
+            if (i % frequency == 0){
                 m.addSpriteInfo(i, newSprite, spritePos);
+
+                if (offsetY != 0.f)
+                    instance.floatingSprites.push_back(i);
+            }
         }
     }
     instance.row++;
@@ -962,8 +1022,12 @@ bool Logger::checkLevelBiomeSprite(Biome& m, const int startPos, const int endPo
 bool Logger::checkLevelBiomeSprites(Biome& m){
 
     std::string informationRead;
+
     bool spritesProcessed = false;
-    bool indexSpecified = false, spriteLeft = false, spriteRight = false, newInterval = false;
+    bool indexSpecified = false, spriteFarLeft = false, spriteFarRight = false,
+         spriteNearLeft = false, spriteNearRight = false, newInterval = false,
+         spriteCenter = false;
+
     int startPos = 0, endPos = -1, incrementor = 0, frequency = 0;
 
     instance.inputFlux >> informationRead;
@@ -973,13 +1037,16 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
         if (informationRead == "GROUP_LINES:"){
             if (indexSpecified){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". INTERVAL OF LINES PROCESSED, SRITE_LEFT: OR SPRITE_RIGHT: TOKEN WAS EXPECTED." << std::endl;
+                    instance.column << ". INTERVAL OF LINES PROCESSED, SRITE_NEAR_LEFT: OR SPRITE_NEAR_RIGHT: TOKEN WAS EXPECTED." << std::endl;
 
                 return !instance.failDetected;
             }
             else {
-                spriteLeft = false;
-                spriteRight = false;
+                spriteFarLeft = false;
+                spriteFarRight = false;
+                spriteNearLeft = false;
+                spriteNearRight = false;
+                spriteCenter = false;
                 newInterval = false;
                 instance.column += 2;
                 int parametersToRead = 4;
@@ -1073,13 +1140,17 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
         else if (informationRead == "LINE:"){
             if (indexSpecified){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". INTERVAL OF LINES PROCESSED, SRITE_LEFT OR SPRITE_RIGHT TOKEN WAS EXPECTED." << std::endl;
+                    instance.column << ". INTERVAL OF LINES PROCESSED, SRITE_NEAR_LEFT OR SPRITE_NEAR_RIGHT TOKEN WAS EXPECTED." << std::endl;
 
                 return !instance.failDetected;
             }
             else {
-                spriteLeft = false;
-                spriteRight = false;
+                endPos = -1;
+                spriteFarLeft = false;
+                spriteFarRight = false;
+                spriteNearLeft = false;
+                spriteNearRight = false;
+                spriteCenter = false;
                 newInterval = false;
                 instance.column += 2;
                 instance.inputFlux >> informationRead;
@@ -1106,25 +1177,43 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
                 indexSpecified = true;
             }
         }
-        else if (informationRead == "SPRITE_LEFT:"){
-            if (spriteLeft){
+        else if (informationRead == "SPRITE_FAR_LEFT:"){
+            if (spriteFarLeft){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". SPRITE_LEFT ALREADY SPECIFIED." << std::endl;
+                    instance.column << ". SPRITE_FAR_LEFT ALREADY SPECIFIED." << std::endl;
 
                 return !instance.failDetected;
             }
-            else if (spriteRight){
+            else if (spriteNearLeft){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". SPRITE_LEFT MUST BE DEFINED BEFORE SPRITE_RIGHT." << std::endl;
+                    instance.column << ". SPRITE_FAR_LEFT MUST BE DEFINED BEFORE SPRITE_NEAR_LEFT." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteCenter){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_FAR_LEFT MUST BE DEFINED BEFORE SPRITE_CENTER." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteFarRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_FAR_LEFT MUST BE DEFINED BEFORE SPRITE_FAR_RIGHT." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteNearRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_FAR_LEFT MUST BE DEFINED BEFORE SPRITE_NEAR_RIGHT." << std::endl;
 
                 return !instance.failDetected;
             }
             else {
                 instance.failDetected = Logger::checkLevelBiomeSprite(m, startPos, endPos, incrementor, frequency,
-                                                                    indexSpecified, spritesProcessed, true);
+                                                                    indexSpecified, spritesProcessed, 0);
 
                 if (!instance.failDetected)
-                    spriteLeft = true;
+                    spriteFarLeft = true;
 
                 instance.inputFlux >> informationRead;
 
@@ -1134,19 +1223,121 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
                 newInterval = true;
             }
         }
-        else if (informationRead == "SPRITE_RIGHT:"){
-            if (spriteRight){
+        else if (informationRead == "SPRITE_NEAR_LEFT:"){
+            if (spriteNearLeft){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                    instance.column << ". SPRITE_RIGHTA ALREADY SPECIFIED." << std::endl;
+                    instance.column << ". SPRITE_NEAR_LEFT ALREADY SPECIFIED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteCenter){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_NEAR_LEFT MUST BE DEFINED BEFORE SPRITE_CENTER." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteFarRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_NEAR_LEFT MUST BE DEFINED BEFORE SPRITE_FAR_RIGHT." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteNearRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_NEAR_LEFT MUST BE DEFINED BEFORE SPRITE_NEAR_RIGHT." << std::endl;
 
                 return !instance.failDetected;
             }
             else {
                 instance.failDetected = Logger::checkLevelBiomeSprite(m, startPos, endPos, incrementor, frequency,
-                                                                    indexSpecified, spritesProcessed, false);
+                                                                    indexSpecified, spritesProcessed, 1);
 
                 if (!instance.failDetected)
-                    spriteRight = true;
+                    spriteNearLeft = true;
+
+                instance.inputFlux >> informationRead;
+
+                if (informationRead == "GROUP_LINES:" || informationRead == "LINE:"){
+                    indexSpecified = false;
+                }
+                newInterval = true;
+            }
+        }
+        else if (informationRead == "SPRITE_CENTER:"){
+            if (spriteCenter){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                        instance.column << ". SPRITE_CENTER ALREADY SPECIFIED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteFarRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_CENTER MUST BE DEFINED BEFORE SPRITE_FAR_RIGHT." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteNearRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_CENTER MUST BE DEFINED BEFORE SPRITE_NEAR_RIGHT." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                instance.failDetected = Logger::checkLevelBiomeSprite(m, startPos, endPos, incrementor, frequency,
+                                                                    indexSpecified, spritesProcessed, 2);
+
+                if (!instance.failDetected)
+                    spriteCenter = true;
+
+                instance.inputFlux >> informationRead;
+
+                if (informationRead == "GROUP_LINES:" || informationRead == "LINE:"){
+                    indexSpecified = false;
+                }
+                newInterval = true;
+            }
+        }
+        else if (informationRead == "SPRITE_FAR_RIGHT:"){
+            if (spriteFarRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_FAR_RIGHT ALREADY SPECIFIED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else if (spriteNearRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_FAR_RIGHT MUST BE DEFINED BEFORE SPRITE_NEAR_RIGHT." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                instance.failDetected = Logger::checkLevelBiomeSprite(m, startPos, endPos, incrementor, frequency,
+                                                                    indexSpecified, spritesProcessed, 3);
+
+                if (!instance.failDetected)
+                    spriteFarRight = true;
+
+                instance.inputFlux >> informationRead;
+
+                if (informationRead == "GROUP_LINES:" || informationRead == "LINE:"){
+                    indexSpecified = false;
+                }
+                newInterval = true;
+            }
+        }
+        else if (informationRead == "SPRITE_NEAR_RIGHT:"){
+            if (spriteNearRight){
+                instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                    instance.column << ". SPRITE_NEAR_RIGHT ALREADY SPECIFIED." << std::endl;
+
+                return !instance.failDetected;
+            }
+            else {
+                instance.failDetected = Logger::checkLevelBiomeSprite(m, startPos, endPos, incrementor, frequency,
+                                                                    indexSpecified, spritesProcessed, 4);
+
+                if (!instance.failDetected)
+                    spriteNearRight = true;
 
                 indexSpecified = false;
                 newInterval = false;
@@ -1154,7 +1345,7 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
         }
         else {
             instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                instance.column << ". EXPECTED IDENTIFIER TOKEN LINE:, GROUP_LINES:, SPRITE_LEFT: OR SPRITE_RIGHT: BUT FOUND "
+                instance.column << ". EXPECTED IDENTIFIER TOKEN LINE:, GROUP_LINES:, SPRITE_NEAR_LEFT: OR SPRITE_NEAR_RIGHT: BUT FOUND "
                                 << informationRead << std::endl;
 
             return !instance.failDetected;
@@ -1262,90 +1453,91 @@ void Logger::loadStartBiomeSprites(Biome& m){
     // First row
     SpriteInfo* cameraman = new SpriteInfo(&m.objects[24], m.pivotLeftPoints[24], m.pivotRightPoints[24],
                                            m.scaleCoeffs[24], m.widthCollisionCoeffs[24], m.pivotLeftColPoints[24],
-                                           m.pivotRightColPoints[24], -0.6f, 0.f, false);
+                                           m.pivotRightColPoints[24], m.collisions[24], -0.6f, 0.f, false);
 
     SpriteInfo* musicman = new SpriteInfo(&m.objects[32], m.pivotLeftPoints[32], m.pivotRightPoints[32],
                                            m.scaleCoeffs[32], m.widthCollisionCoeffs[32], m.pivotLeftColPoints[32],
-                                           m.pivotRightColPoints[32], -0.32f, 0.f, false);
+                                           m.pivotRightColPoints[32],  m.collisions[32], -0.32f, 0.f, false);
 
     SpriteInfo* man1 = new SpriteInfo(&m.objects[15], m.pivotLeftPoints[15], m.pivotRightPoints[15],
                                            m.scaleCoeffs[15], m.widthCollisionCoeffs[15], m.pivotLeftColPoints[15],
-                                           m.pivotRightColPoints[15], 0.65f, 0.f, false);
+                                           m.pivotRightColPoints[15], m.collisions[15], 0.65f, 0.f, false);
 
     SpriteInfo* woman1 = new SpriteInfo(&m.objects[27], m.pivotLeftPoints[27], m.pivotRightPoints[27],
                                            m.scaleCoeffs[27], m.widthCollisionCoeffs[27], m.pivotLeftColPoints[27],
-                                           m.pivotRightColPoints[27], 0.32f, 0.f, false);
+                                           m.pivotRightColPoints[27], m.collisions[27], 0.32f, 0.f, false);
 
     // Second row
     SpriteInfo* woman2 = new SpriteInfo(&m.objects[30], m.pivotLeftPoints[30], m.pivotRightPoints[30],
                                            m.scaleCoeffs[30], m.widthCollisionCoeffs[30], m.pivotLeftColPoints[30],
-                                           m.pivotRightColPoints[30], -0.58f, 0.f, false);
+                                           m.pivotRightColPoints[30], m.collisions[30], -0.58f, 0.f, false);
 
     SpriteInfo* flagger = new SpriteInfo(&m.objects[0], m.pivotLeftPoints[0], m.pivotRightPoints[0], m.scaleCoeffs[0], m.widthCollisionCoeffs[0],
-                                         m.pivotLeftColPoints[0], m.pivotRightColPoints[0], -0.32f, 0.f, false);
+                                         m.pivotLeftColPoints[0], m.pivotRightColPoints[0], m.collisions[30], -0.32f, 0.f, false);
 
     SpriteInfo* man2 = new SpriteInfo(&m.objects[17], m.pivotLeftPoints[17], m.pivotRightPoints[17],
                                            m.scaleCoeffs[17], m.widthCollisionCoeffs[17], m.pivotLeftColPoints[17],
-                                           m.pivotRightColPoints[17], 0.28f, 0.f, false);
+                                           m.pivotRightColPoints[17], m.collisions[17], 0.28f, 0.f, false);
 
     SpriteInfo* man3 = new SpriteInfo(&m.objects[21], m.pivotLeftPoints[21], m.pivotRightPoints[21],
                                            m.scaleCoeffs[21], m.widthCollisionCoeffs[21], m.pivotLeftColPoints[21],
-                                           m.pivotRightColPoints[21], 0.68f, 0.f, false);
+                                           m.pivotRightColPoints[21], m.collisions[21], 0.68f, 0.f, false);
 
     // Third row
     SpriteInfo* man4 = new SpriteInfo(&m.objects[19], m.pivotLeftPoints[19], m.pivotRightPoints[19],
                                            m.scaleCoeffs[19], m.widthCollisionCoeffs[19], m.pivotLeftColPoints[19],
-                                           m.pivotRightColPoints[19], -0.75f, 0.f, false);
+                                           m.pivotRightColPoints[19], m.collisions[19], -0.75f, 0.f, false);
 
 
     SpriteInfo* man5 = new SpriteInfo(&m.objects[23], m.pivotLeftPoints[23], m.pivotRightPoints[23],
                                            m.scaleCoeffs[23], m.widthCollisionCoeffs[23], m.pivotLeftColPoints[23],
-                                           m.pivotRightColPoints[23], -0.58f, 0.f, false);
+                                           m.pivotRightColPoints[23], m.collisions[23], -0.58f, 0.f, false);
 
-    SpriteInfo* woman3 = new SpriteInfo(&m.objects[29], m.pivotLeftPoints[21], m.pivotRightPoints[21],
-                                           m.scaleCoeffs[21], m.widthCollisionCoeffs[21], m.pivotLeftColPoints[21],
-                                           m.pivotRightColPoints[21], 0.74f, 0.f, false);
+    SpriteInfo* woman3 = new SpriteInfo(&m.objects[29], m.pivotLeftPoints[29], m.pivotRightPoints[29],
+                                           m.scaleCoeffs[29], m.widthCollisionCoeffs[29], m.pivotLeftColPoints[29],
+                                           m.pivotRightColPoints[29], m.collisions[29], 0.74f, 0.f, false);
 
     SpriteInfo* woman4 = new SpriteInfo(&m.objects[26], m.pivotLeftPoints[26], m.pivotRightPoints[26],
                                            m.scaleCoeffs[26], m.widthCollisionCoeffs[26], m.pivotLeftColPoints[26],
-                                           m.pivotRightColPoints[26], 0.60f, 0.f, false);
+                                           m.pivotRightColPoints[26], m.collisions[26], 0.60f, 0.f, false);
 
     SpriteInfo* cameramanRight = new SpriteInfo(&m.objects[24], m.pivotLeftPoints[24], m.pivotRightPoints[24],
                                            m.scaleCoeffs[24], m.widthCollisionCoeffs[24], m.pivotLeftColPoints[24],
-                                           m.pivotRightColPoints[24], 0.28f, 0.f, false);
+                                           m.pivotRightColPoints[24], m.collisions[24], 0.28f, 0.f, false);
 
     SpriteInfo* man6 = new SpriteInfo(&m.objects[20], m.pivotLeftPoints[20], m.pivotRightPoints[20],
                                            m.scaleCoeffs[20], m.widthCollisionCoeffs[20], m.pivotLeftColPoints[20],
-                                           m.pivotRightColPoints[20], -0.31f, 0.f, false);
+                                           m.pivotRightColPoints[20], m.collisions[20], -0.31f, 0.f, false);
 
     SpriteInfo* palm1 = new SpriteInfo(&m.objects[35], m.pivotLeftPoints[35], m.pivotRightPoints[35],
                                            m.scaleCoeffs[35], m.widthCollisionCoeffs[35], m.pivotLeftColPoints[35],
-                                           m.pivotRightColPoints[35], -0.8f, 0.f, false);
+                                           m.pivotRightColPoints[35], m.collisions[35], -0.8f, 0.f, false);
 
     SpriteInfo* palm2 = new SpriteInfo(&m.objects[36], m.pivotLeftPoints[36], m.pivotRightPoints[36],
                                            m.scaleCoeffs[36], m.widthCollisionCoeffs[36], m.pivotLeftColPoints[36],
-                                           m.pivotRightColPoints[36], 0.8f, 0.f, false);
+                                           m.pivotRightColPoints[36], m.collisions[36], 0.8f, 0.f, false);
 
     // Fifth row
     SpriteInfo* startFlag = new SpriteInfo(&m.objects[37], m.pivotLeftPoints[37], m.pivotRightPoints[37],
                                            m.scaleCoeffs[37], m.widthCollisionCoeffs[37], m.pivotLeftColPoints[37],
-                                           m.pivotRightColPoints[37], -1.33f, float(instance.widthScreen * -1.6f / SCREEN_0.first), false);
+                                           m.pivotRightColPoints[37], m.collisions[37], -1.33f,
+                                           float(instance.widthScreen * -1.6f / SCREEN_0.first), false);
 
     SpriteInfo* trafficLightLeftPanel = new SpriteInfo(&m.objects[38], m.pivotLeftPoints[38], m.pivotRightPoints[38],
                                                        m.scaleCoeffs[38], m.widthCollisionCoeffs[38], m.pivotLeftColPoints[38],
-                                                       m.pivotRightColPoints[38], -0.8f, 0.f, false);
+                                                       m.pivotRightColPoints[38], m.collisions[38], -0.8f, 0.f, false);
 
     SpriteInfo* trafficLightRightPanel = new SpriteInfo(&m.objects[42], m.pivotLeftPoints[42], m.pivotRightPoints[42],
                                            m.scaleCoeffs[42], m.widthCollisionCoeffs[42], m.pivotLeftColPoints[42],
-                                           m.pivotRightColPoints[42], 0.8f, 0.f, false);
+                                           m.pivotRightColPoints[42], m.collisions[42], 0.8f, 0.f, false);
 
     SpriteInfo* palm1Start = new SpriteInfo(&m.objects[35], m.pivotLeftPoints[35], m.pivotRightPoints[35],
                                            m.scaleCoeffs[35], m.widthCollisionCoeffs[35], m.pivotLeftColPoints[35],
-                                           m.pivotRightColPoints[35], -0.6f, 0.f, false);
+                                           m.pivotRightColPoints[35], m.collisions[35], -0.6f, 0.f, false);
 
     SpriteInfo* palm2Start = new SpriteInfo(&m.objects[36], m.pivotLeftPoints[36], m.pivotRightPoints[36],
                                            m.scaleCoeffs[36], m.widthCollisionCoeffs[36], m.pivotLeftColPoints[36],
-                                           m.pivotRightColPoints[36], 0.6f, 0.f, false);
+                                           m.pivotRightColPoints[36], m.collisions[36], 0.6f, 0.f, false);
 
     m.addSpriteInfo(305, cameraman, Sprite_Position::FAR_LEFT);
     m.addSpriteInfo(305, musicman, Sprite_Position::NEAR_LEFT);
@@ -1384,11 +1576,11 @@ void Logger::loadGoalBiomeSprites(Biome& m){
             if (i % 52 == 0){
                 SpriteInfo* cameramanLeft = new SpriteInfo(&m.objects[24], m.pivotLeftPoints[24], m.pivotRightPoints[24],
                                            m.scaleCoeffs[24], m.widthCollisionCoeffs[24], m.pivotLeftColPoints[24],
-                                           m.pivotRightColPoints[24], -0.5f, 0.f, false);
+                                           m.pivotRightColPoints[24], m.collisions[24], -0.5f, 0.f, false);
 
                 SpriteInfo* cameramanRight = new SpriteInfo(&m.objects[25], m.pivotLeftPoints[25], m.pivotRightPoints[25],
                                                    m.scaleCoeffs[25], m.widthCollisionCoeffs[25], m.pivotLeftColPoints[25],
-                                                   m.pivotRightColPoints[25], 0.5f, 0.f, false);
+                                                   m.pivotRightColPoints[25], m.collisions[25], 0.5f, 0.f, false);
 
                 m.addSpriteInfo(i, cameramanLeft, Sprite_Position::NEAR_LEFT);
                 m.addSpriteInfo(i, cameramanRight, Sprite_Position::NEAR_RIGHT);
@@ -1396,18 +1588,18 @@ void Logger::loadGoalBiomeSprites(Biome& m){
             else if (i % 60 == 0){
                 SpriteInfo* man = new SpriteInfo(&m.objects[14], m.pivotLeftPoints[14], m.pivotRightPoints[14],
                                                    m.scaleCoeffs[14], m.widthCollisionCoeffs[14], m.pivotLeftColPoints[14],
-                                                   m.pivotRightColPoints[14], random_float(-0.61f, -0.77f), 0.f, false);
+                                                   m.pivotRightColPoints[14], m.collisions[14], random_float(-0.61f, -0.77f), 0.f, false);
 
                 m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
             }
             else if (i % 55 == 0){
                 SpriteInfo* woman = new SpriteInfo(&m.objects[30], m.pivotLeftPoints[30], m.pivotRightPoints[30],
                                                    m.scaleCoeffs[30], m.widthCollisionCoeffs[30], m.pivotLeftColPoints[30],
-                                                   m.pivotRightColPoints[30], random_float(-0.35f, -0.84f), 0.f, false);
+                                                   m.pivotRightColPoints[30], m.collisions[30], random_float(-0.35f, -0.84f), 0.f, false);
 
                 SpriteInfo* man = new SpriteInfo(&m.objects[17], m.pivotLeftPoints[17], m.pivotRightPoints[17],
                                                    m.scaleCoeffs[17], m.widthCollisionCoeffs[17], m.pivotLeftColPoints[17],
-                                                   m.pivotRightColPoints[17], random_float(0.35f, 0.84f), 0.f, false);
+                                                   m.pivotRightColPoints[17], m.collisions[17], random_float(0.35f, 0.84f), 0.f, false);
 
                 m.addSpriteInfo(i, woman, Sprite_Position::NEAR_LEFT);
                 m.addSpriteInfo(i, man, Sprite_Position::NEAR_RIGHT);
@@ -1415,53 +1607,53 @@ void Logger::loadGoalBiomeSprites(Biome& m){
             else if (i % 63 == 0){
                 SpriteInfo* woman = new SpriteInfo(&m.objects[29], m.pivotLeftPoints[29], m.pivotRightPoints[29],
                                                    m.scaleCoeffs[29], m.widthCollisionCoeffs[29], m.pivotLeftColPoints[29],
-                                                   m.pivotRightColPoints[29], random_float(0.4f, 0.8f), 0.f, false);
+                                                   m.pivotRightColPoints[29], m.collisions[29], random_float(0.4f, 0.8f), 0.f, false);
 
                 m.addSpriteInfo(i, woman, Sprite_Position::NEAR_RIGHT);
             }
             else if (i % 65 == 0){
                 SpriteInfo* woman = new SpriteInfo(&m.objects[26], m.pivotLeftPoints[26], m.pivotRightPoints[26],
                                                    m.scaleCoeffs[26], m.widthCollisionCoeffs[26], m.pivotLeftColPoints[26],
-                                                   m.pivotRightColPoints[26], random_float(-0.4f, -0.7f), 0.f, false);
+                                                   m.pivotRightColPoints[26], m.collisions[26], random_float(-0.4f, -0.7f), 0.f, false);
 
                 m.addSpriteInfo(i, woman, Sprite_Position::NEAR_LEFT);
             }
             else if (i % 74 == 0){
                 SpriteInfo* woman = new SpriteInfo(&m.objects[27], m.pivotLeftPoints[27], m.pivotRightPoints[27],
                                                    m.scaleCoeffs[27], m.widthCollisionCoeffs[27], m.pivotLeftColPoints[27],
-                                                   m.pivotRightColPoints[27], random_float(0.41f, 0.77f), 0.f, false);
+                                                   m.pivotRightColPoints[27], m.collisions[27], random_float(0.41f, 0.77f), 0.f, false);
 
                 m.addSpriteInfo(i, woman, Sprite_Position::NEAR_RIGHT);
             }
             else if (i % 95 == 0){
                 SpriteInfo* man = new SpriteInfo(&m.objects[18], m.pivotLeftPoints[18], m.pivotRightPoints[18],
                                                    m.scaleCoeffs[18], m.widthCollisionCoeffs[18], m.pivotLeftColPoints[18],
-                                                   m.pivotRightColPoints[18], random_float(0.39f, 0.85f), 0.f, false);
+                                                   m.pivotRightColPoints[18], m.collisions[18], random_float(0.39f, 0.85f), 0.f, false);
 
                 m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
             }
             else if (i % 70 == 0){
                 SpriteInfo* man = new SpriteInfo(&m.objects[23], m.pivotLeftPoints[23], m.pivotRightPoints[23],
                                                    m.scaleCoeffs[23], m.widthCollisionCoeffs[23], m.pivotLeftColPoints[23],
-                                                   m.pivotRightColPoints[23], random_float(-0.61f, -0.77f), 0.f, false);
+                                                   m.pivotRightColPoints[23], m.collisions[23], random_float(-0.61f, -0.77f), 0.f, false);
 
                 m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
             }
             else if (i % 80 == 0){
                 SpriteInfo* man = new SpriteInfo(&m.objects[19], m.pivotLeftPoints[19], m.pivotRightPoints[19],
                                                    m.scaleCoeffs[19], m.widthCollisionCoeffs[19], m.pivotLeftColPoints[19],
-                                                   m.pivotRightColPoints[19], -0.66, 0.f, false);
+                                                   m.pivotRightColPoints[19], m.collisions[19], -0.66, 0.f, false);
 
                 m.addSpriteInfo(i, man, Sprite_Position::NEAR_LEFT);
             }
             else if (i % 90 == 0){
                 SpriteInfo* man1 = new SpriteInfo(&m.objects[20], m.pivotLeftPoints[20], m.pivotRightPoints[20],
                                                    m.scaleCoeffs[20], m.widthCollisionCoeffs[20], m.pivotLeftColPoints[20],
-                                                   m.pivotRightColPoints[20], random_float(-0.57f, -0.65f), 0.f, false);
+                                                   m.pivotRightColPoints[20], m.collisions[20], random_float(-0.57f, -0.65f), 0.f, false);
 
                 SpriteInfo* man2 = new SpriteInfo(&m.objects[21], m.pivotLeftPoints[21], m.pivotRightPoints[21],
                                                    m.scaleCoeffs[21], m.widthCollisionCoeffs[21], m.pivotLeftColPoints[21],
-                                                   m.pivotRightColPoints[21], random_float(0.63f, 0.78f), 0.f, false);
+                                                   m.pivotRightColPoints[21], m.collisions[21], random_float(0.63f, 0.78f), 0.f, false);
 
                 m.addSpriteInfo(i, man1, Sprite_Position::NEAR_LEFT);
                 m.addSpriteInfo(i, man2, Sprite_Position::NEAR_RIGHT);
@@ -1470,11 +1662,11 @@ void Logger::loadGoalBiomeSprites(Biome& m){
 
         SpriteInfo* publicLeft = new SpriteInfo(&m.objects[33], m.pivotLeftPoints[33], m.pivotRightPoints[33],
                                            m.scaleCoeffs[33], m.widthCollisionCoeffs[33], m.pivotLeftColPoints[33],
-                                           m.pivotRightColPoints[33], -offsetPublic, 0.f, false);
+                                           m.pivotRightColPoints[33], m.collisions[33], -offsetPublic, 0.f, false);
 
         SpriteInfo* publicRight = new SpriteInfo(&m.objects[34], m.pivotLeftPoints[34], m.pivotRightPoints[34],
                                            m.scaleCoeffs[34], m.widthCollisionCoeffs[34], m.pivotLeftColPoints[34],
-                                           m.pivotRightColPoints[34], offsetPublic, 0.f, false);
+                                           m.pivotRightColPoints[34], m.collisions[34], offsetPublic, 0.f, false);
 
         m.addSpriteInfo(j, publicLeft, Sprite_Position::FAR_LEFT);
         m.addSpriteInfo(j, publicRight, Sprite_Position::FAR_RIGHT);
@@ -1486,11 +1678,11 @@ void Logger::loadGoalBiomeSprites(Biome& m){
     for (int i = 594; i <= 607; i++){
         SpriteInfo* publicLeft = new SpriteInfo(&m.objects[33], m.pivotLeftPoints[33], m.pivotRightPoints[33],
                                            m.scaleCoeffs[33], m.widthCollisionCoeffs[33], m.pivotLeftColPoints[33],
-                                           m.pivotRightColPoints[33], -offsetPublic, 0.f, false);
+                                           m.pivotRightColPoints[33], m.collisions[33], -offsetPublic, 0.f, false);
 
         SpriteInfo* publicRight = new SpriteInfo(&m.objects[34], m.pivotLeftPoints[34], m.pivotRightPoints[34],
                                            m.scaleCoeffs[34], m.widthCollisionCoeffs[34], m.pivotLeftColPoints[34],
-                                           m.pivotRightColPoints[34], offsetPublic, 0.f, false);
+                                           m.pivotRightColPoints[34], m.collisions[34], offsetPublic, 0.f, false);
 
         m.addSpriteInfo(i, publicLeft, Sprite_Position::FAR_LEFT);
         m.addSpriteInfo(i, publicRight, Sprite_Position::FAR_RIGHT);
@@ -1505,19 +1697,20 @@ void Logger::loadGoalBiomeSprites(Biome& m){
     instance.endFlaggerAnimation = false;
 
     SpriteInfo* flagger = new SpriteInfo(&m.objects[0], m.pivotLeftPoints[0], m.pivotRightPoints[0], m.scaleCoeffs[0],
-                                         m.widthCollisionCoeffs[0], m.pivotLeftColPoints[0], m.pivotRightColPoints[0], -0.32f, 0.f, false);
+                                         m.widthCollisionCoeffs[0], m.pivotLeftColPoints[0], m.pivotRightColPoints[0],
+                                         m.collisions[0], -0.32f, 0.f, false);
 
     SpriteInfo* logRight = new SpriteInfo(&m.objects[44], m.pivotLeftPoints[44], m.pivotRightPoints[44],
                                            m.scaleCoeffs[44], m.widthCollisionCoeffs[44], m.pivotLeftColPoints[44],
-                                           m.pivotRightColPoints[44], 1.2f, 0.f, false);
+                                           m.pivotRightColPoints[44], m.collisions[44], 1.2f, 0.f, false);
 
     SpriteInfo* logLeft = new SpriteInfo(&m.objects[44], m.pivotLeftPoints[44], m.pivotRightPoints[44],
                                            m.scaleCoeffs[44], m.widthCollisionCoeffs[44], m.pivotLeftColPoints[44],
-                                           m.pivotRightColPoints[44], -1.2f, 0.f, false);
+                                           m.pivotRightColPoints[44], m.collisions[44], -1.2f, 0.f, false);
 
     SpriteInfo* endFlag = new SpriteInfo(&m.objects[43], m.pivotLeftPoints[43], m.pivotRightPoints[43],
                                            m.scaleCoeffs[43], m.widthCollisionCoeffs[43], m.pivotLeftColPoints[43],
-                                           m.pivotRightColPoints[43], -1.35f, -1.6f, false);
+                                           m.pivotRightColPoints[43], m.collisions[43], -1.35f, -1.6f, false);
 
     m.addSpriteInfo(504, flagger, Sprite_Position::NEAR_LEFT);
 
@@ -1620,7 +1813,8 @@ void Logger::updateSprite(Biome& m, const Sprite_Animated spriteAnimated){
                                                    m.scaleCoeffs[instance.flagger_code_image],
                                                    m.widthCollisionCoeffs[instance.flagger_code_image],
                                                    m.pivotLeftColPoints[instance.flagger_code_image],
-                                                   m.pivotRightColPoints[instance.flagger_code_image], -0.32f, 0.f, false);
+                                                   m.pivotRightColPoints[instance.flagger_code_image],
+                                                   m.collisions[instance.flagger_code_image], -0.32f, 0.f, false);
 
             if (startMap)
                 m.addSpriteInfo(306, newSprite, Sprite_Position::NEAR_LEFT);
@@ -1635,7 +1829,8 @@ void Logger::updateSprite(Biome& m, const Sprite_Animated spriteAnimated){
                                                        m.scaleCoeffs[instance.semaphore_code_image],
                                                        m.widthCollisionCoeffs[instance.semaphore_code_image],
                                                        m.pivotLeftColPoints[instance.semaphore_code_image],
-                                                       m.pivotRightColPoints[instance.semaphore_code_image], -0.8f, 0.f, false);
+                                                       m.pivotRightColPoints[instance.semaphore_code_image],
+                                                       m.collisions[instance.flagger_code_image], -0.8f, 0.f, false);
 
                 m.addSpriteInfo(311, newSprite, Sprite_Position::NEAR_LEFT);
                 instance.semaphore_code_image++;

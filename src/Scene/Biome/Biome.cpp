@@ -49,6 +49,10 @@ void Biome::setTerrain(const int _terrain){
     terrain = _terrain;
 }
 
+void Biome::setRoad(const bool _road){
+    road = _road;
+}
+
 int Biome::getTime() const {
     return time;
 }
@@ -66,6 +70,10 @@ bool Biome::getGoalBiome() const {
     return goalBiome;
 };
 
+bool Biome::getRoad() const {
+    return road;
+}
+
 
 void Biome::setColors(const std::vector<sf::Color>& colorsOfMap){
     skyBiome = colorsOfMap[0];
@@ -77,6 +85,8 @@ void Biome::setColors(const std::vector<sf::Color>& colorsOfMap){
     rumbleBiome2 = colorsOfMap[6];
     laneBiome1 = colorsOfMap[7];
     laneBiome2 = colorsOfMap[8];
+    rumbleLane1 = colorsOfMap[9];
+    rumbleLane2 = colorsOfMap[10];
 }
 
 int Biome::computeRoadTracks(const int numTracks){
@@ -202,18 +212,27 @@ void Biome::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spriteP
             case Sprite_Position::NEAR_RIGHT:
                 lines[line]->spriteNearRight = p;
                 lines[line]->hasSpriteNearRight = true;
+                break;
+            case Sprite_Position::CENTER:
+                lines[line]->spriteCenter = p;
+                lines[line]->hasSpriteCenter = true;
         }
 	}
 }
 
-
-void Biome::setBackground(const string path){
-    backGround.loadFromFile(path);
-    backGround.setRepeated(true);
-    backgroundShape.setPosition(0, 0);
-    backgroundShape.setSize(sf::Vector2f(4030, 243));
+void Biome::setBackgroundFront(const string path){
+    backGroundFront.loadFromFile(path);
+    backGroundFront.setRepeated(true);
+    backgroundShapeFront.setPosition(0, 0);
+    backgroundShapeFront.setSize(sf::Vector2f(4030, 253));
 }
 
+void Biome::setBackgroundBack(const string path){
+    backGroundBack.loadFromFile(path);
+    backGroundBack.setRepeated(true);
+    backgroundShapeBack.setPosition(0, 0);
+    backgroundShapeBack.setSize(sf::Vector2f(4030, 253));
+}
 
 void Biome::setStartBiome(){
     Logger::loadStartBiomeSprites(*this);
@@ -231,6 +250,8 @@ void Biome::setGoalBiome(){
     rumbleBiome2 = sf::Color(148, 148, 148);
     laneBiome1 = sf::Color(156, 156, 156);
     laneBiome2 = sf::Color(247, 247, 247);
+    rumbleLane1 = sf::Color(156, 156, 156);
+    rumbleLane2 = sf::Color(247, 247, 247);
 
     time = 80;
     addBiome(250, 250, 250, 0, 0, false, dist3);
@@ -249,11 +270,25 @@ void Biome::setGoalBiome(){
     goalBiome = true;
     end = true;
 
-    setBackground("Resources/Maps/MapStartGoal/bg2.png");
+    setBackgroundFront("Resources/Maps/MapStartGoal/front.png");
+    setBackgroundBack("Resources/Maps/MapStartGoal/back.png");
 }
 
 void Biome::setSpriteScreenY(const int index, const float _offsetY) {
-    lines[index]->spriteFarLeft->setOffsetY(_offsetY);
+    if (startBiome || goalBiome)
+        lines[index]->spriteFarLeft->setOffsetY(_offsetY);
+    else {
+        if (lines[index]->hasSpriteFarLeft && lines[index]->spriteFarLeft->getOffsetY() != 0.f)
+            lines[index]->spriteFarLeft->setOffsetY(_offsetY);
+        if (lines[index]->hasSpriteNearLeft && lines[index]->spriteNearLeft->getOffsetY() != 0.f)
+            lines[index]->spriteNearLeft->setOffsetY(_offsetY);
+        if (lines[index]->hasSpriteFarRight && lines[index]->spriteFarRight->getOffsetY() != 0.f)
+            lines[index]->spriteFarRight->setOffsetY(_offsetY);
+        if (lines[index]->hasSpriteNearRight && lines[index]->spriteNearRight->getOffsetY() != 0.f)
+            lines[index]->spriteNearRight->setOffsetY(_offsetY);
+        if (lines[index]->hasSpriteCenter && lines[index]->spriteCenter->getOffsetY() != 0.f)
+            lines[index]->spriteCenter->setOffsetY(_offsetY);
+    }
 }
 
 void Biome::loadObjects(const string &path, const vector<string> &objectNames){
@@ -267,6 +302,8 @@ void Biome::loadObjects(const string &path, const vector<string> &objectNames){
 
         ifstream fin(path + objName + ".txt");
 
+        string detectCollision;
+        bool collision = true;
         float scale = 1.f;
         float widthCollision = t.getSize().x;
         fPoint pivotLeft = {1.f, 1.f};
@@ -280,7 +317,11 @@ void Biome::loadObjects(const string &path, const vector<string> &objectNames){
             while (!fin.eof()) {
                 string s;
                 fin >> s;
-                if (s == "SCALE:" && !fin.eof()){
+                if (s == "COLLISION:" && !fin.eof()){
+                    fin >> detectCollision;
+                    collision = (detectCollision == "1") ? true : false;
+                }
+                else if (s == "SCALE:" && !fin.eof()){
                     fin >> scale;
                 }
                 else if (s == "WIDTH_COLLISION:" && !fin.eof()){
@@ -309,6 +350,7 @@ void Biome::loadObjects(const string &path, const vector<string> &objectNames){
             fin.close();
         }
 
+        collisions.push_back(collision);
         scaleCoeffs.push_back(scale);
         widthCollisionCoeffs.push_back(widthCollision);
         pivotLeftPoints.push_back(pivotLeft);

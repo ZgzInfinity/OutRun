@@ -71,7 +71,7 @@ class PlayerCar : public Vehicle {
         Elevation elevation;
 
         bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding, trafficCrash, drawCar,
-             crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode, endAnimation;
+             crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode, endAnimation, roadDefined;
 
         Collision modeCollision;
 
@@ -90,7 +90,7 @@ public:
     PlayerCar();
 
     PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale,
-              const std::string& name, const bool _automaticMode, const bool _isTrafficCar);
+              const std::string& name, const bool _automaticMode, const bool _isTrafficCar, const bool _roadDefined);
 
     void setNumAngers();
 
@@ -107,6 +107,8 @@ public:
     void setPlayerMap(const playerR& playerRoad);
 
     void setDrawCar(const bool _drawCar);
+
+    void setRoadDefined(const bool _roadDefined);
 
     playerR getPlayerMap() const;
 

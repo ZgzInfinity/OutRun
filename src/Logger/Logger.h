@@ -85,6 +85,8 @@ class Logger {
 
         std::ofstream outputFlux;
 
+        std::vector<int> floatingSprites;
+
     public:
 
         Logger();
@@ -93,7 +95,7 @@ class Logger {
 
         void static setWidthScreen(const int _widthScreen);
 
-        void static setSpriteScreenY(Biome& m, const bool startMap);
+        void static setSpriteScreenY(Biome& m);
 
         void static setFailDetected(const bool _failDetected);
 
@@ -101,7 +103,7 @@ class Logger {
 
         bool static checkMapFile(const std::string& pathMapFile);
 
-        bool static checkTimeAndTerrain(Biome& m);
+        bool static checkTimeTerrainRoad(Biome& m);
 
         bool static checkColors(Biome& m);
 
@@ -120,7 +122,7 @@ class Logger {
         void static loadGoalBiomeSprites(Biome& m);
 
         bool static checkLevelBiomeSprite(Biome& m, const int startPos, const int endPos, const int incrementor, const int frequency,
-                                        bool& indexSpecified, bool& spritesProcessed, const bool left);
+                                        bool& indexSpecified, bool& spritesProcessed, const int pos);
 
         bool static checkLevelBiomeSprites(Biome& m);
 
