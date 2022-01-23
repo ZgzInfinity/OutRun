@@ -101,17 +101,22 @@ void MenuCredits::handleEvent(Input& input){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
         if (input.closed(event)){
-            escapePressed = true;
+            if (!escapePressed)
+                escapePressed = true;
         }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-            startPressed = true;
-            Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
-            Audio::stop(Soundtrack::CREDITS);
+            if (!startPressed){
+                startPressed = true;
+                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+                Audio::stop(Soundtrack::CREDITS);
+            }
         }
         else if (input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
-            backPressed = true;
-            Audio::play(Sfx::MENU_SELECTION_BACK, false);
-            Audio::stop(Soundtrack::CREDITS);
+            if (!backPressed){
+                backPressed = true;
+                Audio::play(Sfx::MENU_SELECTION_BACK, false);
+                Audio::stop(Soundtrack::CREDITS);
+            }
         }
     }
 }

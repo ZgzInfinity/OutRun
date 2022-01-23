@@ -116,7 +116,7 @@ void MenuStart::loadMenu(Input& input){
     textElements[5].setPosition(input.gameWindow.getSize().x * 0.7f,
                                 input.gameWindow.getSize().y / 2.f + 230.0f * input.screenScaleY);
 
-    textElements[6].setString("2021");
+    textElements[6].setString("2022");
     textElements[6].setCharacterSize(static_cast<unsigned int>(int(30.0f * input.screenScaleX)));
     textElements[6].setFont(fontMenu);
     textElements[6].setFillColor(sf::Color::Green);
@@ -133,19 +133,25 @@ void MenuStart::loadMenu(Input& input){
 void MenuStart::handleEvent(Input& input){
     sf::Event event;
     input.gameWindow.pollEvent(event);
-    if (input.closed(event))
-        escapePressed = true;
+    if (input.closed(event)){
+        if (!escapePressed)
+            escapePressed = true;
+    }
     else {
         if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-            startPressed = true;
-            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
-            optionSelected = 0;
+            if (!startPressed){
+                startPressed = true;
+                Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+                optionSelected = 0;
+            }
         }
         else if (input.pressed(Key::MENU_CREDITS, event) && input.held(Key::MENU_CREDITS)){
-            startPressed = true;
-            optionSelected = 1;
-            Audio::stop(Sfx::WIND);
-            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            if (!startPressed){
+                startPressed = true;
+                optionSelected = 1;
+                Audio::stop(Sfx::WIND);
+                Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            }
         }
     }
 }

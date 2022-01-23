@@ -52,7 +52,7 @@ void MenuCarSelection::loadMenu(Input& input){
         }
     }
 
-    shape.setSize(sf::Vector2f(710.0f * input.screenScaleX, 490.0f * input.screenScaleY));
+    shape.setSize(sf::Vector2f(710.0f * input.screenScaleX, 500.0f * input.screenScaleY));
     shape.setOutlineColor(sf::Color::Yellow);
     shape.setOutlineThickness(5.0f * input.screenScaleX);
     shape.setFillColor(sf::Color(0, 0, 0, 200));
@@ -125,7 +125,8 @@ void MenuCarSelection::handleEvent(Input& input){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
         if (input.closed(event)){
-            escapePressed = true;
+            if (!escapePressed)
+                escapePressed = true;
         }
         else {
             if (input.pressed(Key::MENU_LEFT, event) && input.held(Key::MENU_LEFT)){
@@ -143,12 +144,16 @@ void MenuCarSelection::handleEvent(Input& input){
                 }
             }
             else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-                startPressed = true;
-                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+                if (!startPressed){
+                    startPressed = true;
+                    Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+                }
             }
             else if (input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
-                backPressed = true;
-                Audio::play(Sfx::MENU_SELECTION_BACK, false);
+                if (!backPressed){
+                    backPressed = true;
+                    Audio::play(Sfx::MENU_SELECTION_BACK, false);
+                }
             }
         }
     }

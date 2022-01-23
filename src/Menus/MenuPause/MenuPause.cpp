@@ -84,10 +84,13 @@ void MenuPause::handleEvent(Input& input){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
         if (input.closed(event))
-            escapePressed = true;
+            if (!escapePressed)
+                escapePressed = true;
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-            startPressed = true;
-            Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+            if (!startPressed){
+                startPressed = true;
+                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+            }
         }
         else if (input.pressed(Key::MENU_UP, event) && input.held(Key::MENU_UP)){
             changeButtonSelected(true);

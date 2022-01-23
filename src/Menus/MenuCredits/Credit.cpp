@@ -30,7 +30,7 @@ void Credit::loadAll(){
     instance.load(Game_Detail::GAME_NAME, "OUT RUN");
     instance.load(Game_Detail::DESIGNED_BY, "DESGINED BY");
     instance.load(Game_Detail::AUTHOR, "ZGZINFINITY");
-    instance.load(Game_Detail::YEAR, "2021");
+    instance.load(Game_Detail::YEAR, "2022");
     instance.load(Game_Detail::COMPANY, "ZGZ INFINITGAMES ENTERTAINMENT. INC");
     instance.load(Game_Detail::LICENSE, "UNDER LICENSE GPL-3.0");
 

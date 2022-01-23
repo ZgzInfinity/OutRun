@@ -41,6 +41,8 @@ class MenuLogo : public Menu {
 
         sf::Text logoZgz, logoInfinityGames, logoZgzCompleted;
 
+        float offsetY, offsetY2;
+
     public:
 
         MenuLogo();

@@ -482,7 +482,7 @@ State Game::gameOverRound(Input& input){
 State Game::loadBiomes(Input& input){
 
     Logger::setWidthScreen(input.gameWindow.getSize().x);
-    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map13/map.txt"));
+    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map15/map.txt"));
 
     if (!Logger::getFailDetected()){
 
@@ -514,7 +514,7 @@ State Game::loadBiomes(Input& input){
         currentBiome->loadObjects(path, objectNames);
         */
 
-        path = "Resources/Maps/MapLevels/Map13/";
+        path = "Resources/Maps/MapLevels/Map15/";
         objectNames.clear();
         objectNames.reserve(53);
         for (int i = 1; i <= 53; i++){
@@ -524,8 +524,8 @@ State Game::loadBiomes(Input& input){
 
         currentBiome->loadObjects(path, objectNames);
 
-        currentBiome->setBackgroundFront("Resources/Maps/MapLevels/Map13/front.png");
-        currentBiome->setBackgroundBack("Resources/Maps/MapLevels/Map13/back.png");
+        currentBiome->setBackgroundFront("Resources/Maps/MapLevels/Map15/front.png");
+        currentBiome->setBackgroundBack("Resources/Maps/MapLevels/Map15/back.png");
 
         // currentBiome->setStartBiome();
 

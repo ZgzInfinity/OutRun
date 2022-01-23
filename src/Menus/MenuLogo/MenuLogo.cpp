@@ -31,30 +31,49 @@ void MenuLogo::loadMenu(Input& input){
     logoGame.loadFromFile("Resources/Intro/Icon.png");
     iconGame.setTexture(logoGame, true);
 
-    if (input.currentIndexResolution != 0){
-        iconGame.setScale(float(input.gameWindow.getSize().x) / SCREEN_0.first,
-                          float(input.gameWindow.getSize().y) / SCREEN_0.second * 1.33f);
+    if (input.currentIndexResolution == (int)Resolution::SCREEN_0){
+        iconGame.setScale(1.6f, 1.6f);
+        offsetY = 2.0f;
+        offsetY2 = 1.853f;
+    }
+    else if (input.currentIndexResolution == (int)Resolution::SCREEN_1 ||
+             input.currentIndexResolution == (int)Resolution::__COUNT)
+    {
+        iconGame.setScale(1.74f, 1.74f);
+        offsetY = 2.0f;
+        offsetY2 = 1.803f;
+    }
+    else if (input.currentIndexResolution == (int)Resolution::SCREEN_2){
+        iconGame.setScale(2.27f, 2.27f);
+        offsetY = 1.98f;
+        offsetY2 = 1.873f;
+    }
+    else if (input.currentIndexResolution == (int)Resolution::SCREEN_3){
+        iconGame.setScale(2.39f, 2.39f);
+        offsetY = 1.98f;
+        offsetY2 = 1.863f;
     }
 
-    iconGame.setPosition((input.gameWindow.getSize().x - iconGame.getGlobalBounds().width) / 7.4f,
-                         (input.gameWindow.getSize().y - iconGame.getGlobalBounds().height) / 2.0f);
 
-    fontMenu.loadFromFile("Resources/Fonts/Bord.otf");
+    iconGame.setPosition((input.gameWindow.getSize().x - iconGame.getGlobalBounds().width) / 4.5f,
+                         (input.gameWindow.getSize().y - iconGame.getGlobalBounds().height) / offsetY);
+
+    fontMenu.loadFromFile("Resources/Fonts/DisposableDroid.ttf");
 
     logoZgz.setFont(fontMenu);
     logoZgz.setFillColor(sf::Color::White);
-    logoZgz.setCharacterSize(static_cast<unsigned int>(int(120.0f * input.screenScaleX)));
+    logoZgz.setCharacterSize(static_cast<unsigned int>(int(140.0f * input.screenScaleX)));
 
     logoInfinityGames.setFont(fontMenu);
     logoInfinityGames.setFillColor(sf::Color::White);
-    logoInfinityGames.setCharacterSize(static_cast<unsigned int>(int(65.0f * input.screenScaleX)));
+    logoInfinityGames.setCharacterSize(static_cast<unsigned int>(int(80.0f * input.screenScaleX)));
 
-    logoZgzCompleted.setString("zgz");
-    logoZgzCompleted.setCharacterSize(static_cast<unsigned int>(int(65.0f * input.screenScaleX)));
+    logoZgzCompleted.setString("ZGZ");
+    logoZgzCompleted.setCharacterSize(static_cast<unsigned int>(int(80.0f * input.screenScaleX)));
     logoZgzCompleted.setFont(fontMenu);
     logoZgzCompleted.setFillColor(sf::Color::White);
     logoZgzCompleted.setPosition((input.gameWindow.getSize().x - logoZgzCompleted.getGlobalBounds().width) / 2.7f,
-                                 input.gameWindow.getSize().y / 2.f - logoZgzCompleted.getGlobalBounds().height * 1.453f);
+                                 input.gameWindow.getSize().y / 2.f - logoZgzCompleted.getGlobalBounds().height * offsetY2);
 
 }
 
@@ -62,12 +81,15 @@ void MenuLogo::handleEvent(Input& input){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
         if (input.closed(event)){
-            escapePressed = true;
+            if (!escapePressed)
+                escapePressed = true;
         }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-            startPressed = true;
-            Audio::stop(Sfx::MENU_LOGO_DISPLAY);
-            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            if (!startPressed){
+                startPressed = true;
+                Audio::stop(Sfx::MENU_LOGO_DISPLAY);
+                Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            }
         }
     }
 }
@@ -82,57 +104,57 @@ void MenuLogo::draw(Input& input){
         handleEvent(input);
 
         if (i >= 160){
-            logoZgz.setString("zgz");
+            logoZgz.setString("ZGZ");
         }
         else if (i >= 155){
-            logoZgz.setString("zg");
+            logoZgz.setString("ZG");
         }
         else if (i >= 150){
-            logoZgz.setString("z");
+            logoZgz.setString("Z");
         }
 
-        logoZgz.setPosition((input.gameWindow.getSize().x - logoZgzCompleted.getGlobalBounds().width) / 2.7f,
-                            input.gameWindow.getSize().y / 2.f - logoZgz.getGlobalBounds().height * 1.453f);
+        logoZgz.setPosition((input.gameWindow.getSize().x - logoZgzCompleted.getGlobalBounds().width) / 2.3f,
+                            input.gameWindow.getSize().y / 2.f - logoZgz.getGlobalBounds().height * offsetY2);
 
         if (i >= 192){
-            logoInfinityGames.setString("infinitgames");
+            logoInfinityGames.setString("INFINITGAMES");
         }
         else if (i >= 190){
-            logoInfinityGames.setString("infinitgame");
+            logoInfinityGames.setString("INFINITGAME");
         }
         else if (i >= 188){
-            logoInfinityGames.setString("infinitgam");
+            logoInfinityGames.setString("INFINITGAM");
         }
         else if (i >= 186){
-            logoInfinityGames.setString("infinitga");
+            logoInfinityGames.setString("INFINITGA");
         }
         else if (i >= 184){
-            logoInfinityGames.setString("infinitg");
+            logoInfinityGames.setString("INFINITG");
         }
         else if (i >= 182){
-            logoInfinityGames.setString("infinit");
+            logoInfinityGames.setString("INFINIT");
         }
         else if (i >= 180){
-            logoInfinityGames.setString("infini");
+            logoInfinityGames.setString("INFINI");
         }
         else if (i >= 178){
-            logoInfinityGames.setString("infin");
+            logoInfinityGames.setString("INFIN");
         }
         else if (i >= 176){
-            logoInfinityGames.setString("infi");
+            logoInfinityGames.setString("INFI");
         }
         else if (i >= 174){
-            logoInfinityGames.setString("inf");
+            logoInfinityGames.setString("INF");
         }
         else if (i >= 172){
-            logoInfinityGames.setString("in");
+            logoInfinityGames.setString("IN");
         }
         else if (i >= 170){
-            logoInfinityGames.setString("i");
+            logoInfinityGames.setString("I");
         }
 
-        logoInfinityGames.setPosition((input.gameWindow.getSize().x - logoZgzCompleted.getGlobalBounds().width) / 2.7f,
-                                      input.gameWindow.getSize().y / 2.f + logoInfinityGames.getGlobalBounds().height * 0.21f);
+        logoInfinityGames.setPosition((input.gameWindow.getSize().x - logoZgzCompleted.getGlobalBounds().width) / 2.3f,
+                                      input.gameWindow.getSize().y / 2.09f + logoInfinityGames.getGlobalBounds().height * 0.21f);
 
         input.gameWindow.clear();
 

@@ -151,7 +151,8 @@ void MenuControls::handleEvent(Input& input){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
         if (input.closed(event)){
-            escapePressed = true;
+            if (!escapePressed)
+                escapePressed = true;
         }
         else if (event.type == sf::Event::KeyPressed && event.key.code != sf::Keyboard::Unknown)
         {

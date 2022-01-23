@@ -58,7 +58,7 @@ void MenuSound::loadMenu(Input& input){
     optionsText.setOutlineColor(sf::Color(12, 12, 12));
     optionsText.setOutlineThickness(3.0f * input.screenScaleX);
     optionsText.setPosition((input.gameWindow.getSize().x / 2.f) - optionsText.getLocalBounds().width / 2.f,
-                             input.gameWindow.getSize().y / 2.f - 260.0f * input.screenScaleX);
+                             input.gameWindow.getSize().y / 2.f - 230.0f * input.screenScaleX);
 
     info.setString("PRESS ENTER TO SELECT A CONTROL AND PRESS A KEY TO CHANGE THE CONTROL");
     info.setFont(fontMenu);
@@ -68,31 +68,31 @@ void MenuSound::loadMenu(Input& input){
     info.setOutlineThickness(3.0f * input.screenScaleX);
     info.setStyle(sf::Text::Bold);
     info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
-                     input.gameWindow.getSize().y / 2.f - 185.0f * input.screenScaleX);
+                     input.gameWindow.getSize().y / 2.f - 125.0f * input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f - 270.0f * input.screenScaleX,
-                             input.gameWindow.getSize().y / 2.f - 70.0f * input.screenScaleX,
+                             input.gameWindow.getSize().y / 2.f - 40.0f * input.screenScaleX,
                              200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
                              "MUSIC VOLUME", BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
                              ButtonState::BUTTON_HOVER, input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f - 270.0f * input.screenScaleX,
-                             input.gameWindow.getSize().y / 2.f, 200.0f * input.screenScaleX,
-                             30.0f * input.screenScaleX, fontMenu, "EFFECTS VOLUME", BUTTON_IDLE_COLOR,
-                             BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR, ButtonState::BUTTON_IDLE,
-                             input.screenScaleX);
+                             input.gameWindow.getSize().y / 2.f + 30.0f * input.screenScaleX,
+                             200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
+                             "EFFECTS VOLUME", BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
+                             ButtonState::BUTTON_IDLE, input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f + 80.0f * input.screenScaleX,
-                             input.gameWindow.getSize().y / 2.f - 70.0f * input.screenScaleX,
+                             input.gameWindow.getSize().y / 2.f - 40.0f * input.screenScaleX,
                              200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
                              volMusic, BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
                              ButtonState::BUTTON_HOVER, input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f + 80.0f * input.screenScaleX,
-                             input.gameWindow.getSize().y / 2.f, 200.0f * input.screenScaleX,
-                             30.0f * input.screenScaleX, fontMenu, volSfx, BUTTON_IDLE_COLOR,
-                             BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR, ButtonState::BUTTON_IDLE,
-                             input.screenScaleX);
+                             input.gameWindow.getSize().y / 2.f + 30.0f * input.screenScaleX,
+                             200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
+                             volSfx, BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
+                             ButtonState::BUTTON_IDLE,input.screenScaleX);
 }
 
 
