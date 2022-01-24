@@ -37,6 +37,7 @@ void Logger::setLoggerStatus(){
     instance.numIterations = 0;
     instance.totalTimes = 0;
     instance.status = Flagger_Status::UPPING_FLAG;
+    instance.linesOfBiome = 0;
 }
 
 void Logger::setFailDetected(const bool _failDetected){
@@ -522,12 +523,12 @@ bool Logger::checkReliefStraight(Biome& m){
         }
     }
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold, leave, 0, 0, mirror, numTracks);
+    m.addBiome(enter, hold, leave, 0, 0, mirror, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
 
-bool Logger::checkReliefCurve(Biome& m){
+bool Logger::checkReliefCurve(Biome& m, const bool leftDirection){
 
     std::string informationRead;
     int parametersRead = 0, totalParametersToRead = 7;
@@ -567,8 +568,22 @@ bool Logger::checkReliefCurve(Biome& m){
         else {
             instance.column += 2;
             if (parametersRead == 4){
-                if (std::regex_match(informationRead, instance.float_number_regex))
+                if (std::regex_match(informationRead, instance.float_number_regex)){
                     direction = std::stof(informationRead);
+
+                    if (leftDirection && direction >= 0.0f){
+                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                            instance.column << ". LEFT CURVE DIRECTION " << direction << " MUST BE LOWER THAN ZERO. " << std::endl;
+
+                        return !instance.failDetected;
+                    }
+                    else if (!leftDirection && direction <= 0.0f){
+                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                            instance.column << ". RIGHT CURVE DIRECTION " << direction << " MUST BE HIGHER THAN ZERO. " << std::endl;
+
+                        return !instance.failDetected;
+                    }
+                }
                 else {
                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
                         instance.column << ". DIRECTION CURVE PARAMETER " << informationRead << " MUST BE FLOAT." << std::endl;
@@ -655,7 +670,7 @@ bool Logger::checkReliefCurve(Biome& m){
         }
     }
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold * factor_length, leave, direction, 0, mirror, numTracks);
+    m.addBiome(enter, hold * factor_length, leave, direction, 0, mirror, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
@@ -769,11 +784,11 @@ bool Logger::checkReliefHillStraight(Biome& m){
         }
     }
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold * factor_length, leave, 0, slope, false, numTracks);
+    m.addBiome(enter, hold * factor_length, leave, 0, slope, false, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
-bool Logger::checkReliefHillCurve(Biome& m){
+bool Logger::checkReliefHillCurve(Biome& m, const bool leftDirection){
 
     int parametersRead = 0, totalParametersToRead = 7;
 
@@ -823,8 +838,22 @@ bool Logger::checkReliefHillCurve(Biome& m){
                 }
             }
             else if (parametersRead == 5){
-                if (std::regex_match(informationRead, instance.float_number_regex))
+                if (std::regex_match(informationRead, instance.float_number_regex)){
                     direction = std::stof(informationRead);
+
+                    if (leftDirection && direction >= 0.0f){
+                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                            instance.column << ". LEFT HILL DIRECTION " << direction << " MUST BE LOWER THAN ZERO. " << std::endl;
+
+                        return !instance.failDetected;
+                    }
+                    else if (!leftDirection && direction <= 0.0f){
+                        instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                            instance.column << ". RIGHT HILL DIRECTION " << direction << " MUST BE HIGHER THAN ZERO. " << std::endl;
+
+                        return !instance.failDetected;
+                    }
+                }
                 else {
                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
                         instance.column << ". DIRECTION CURVE PARAMETER " << informationRead << " MUST BE FLOAT." << std::endl;
@@ -895,7 +924,7 @@ bool Logger::checkReliefHillCurve(Biome& m){
         }
     }
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold, enter, direction, slope, mirror, numTracks);
+    m.addBiome(enter, hold, enter, direction, slope, mirror, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
@@ -1032,8 +1061,8 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
 
     instance.inputFlux >> informationRead;
 
+    while (!instance.failDetected && informationRead != "END_FILE"){
 
-    while (!instance.inputFlux.eof()){
         if (informationRead == "GROUP_LINES:"){
             if (indexSpecified){
                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
@@ -1076,9 +1105,25 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
                         if (std::regex_match(informationRead, instance.natural_number_regex)){
                             if (i == 0){
                                 startPos = std::stoi(informationRead);
+
+                                if (startPos > instance.linesOfBiome){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". START INTERVAL VALUE " << startPos << " IS HIGHER THAN "
+                                                        << "MAP SIZE " << instance.linesOfBiome << std::endl;
+
+                                    return !instance.failDetected;
+                                }
                             }
                             else if (i == 1){
                                 endPos = std::stoi(informationRead);
+
+                                if (endPos > instance.linesOfBiome){
+                                    instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                        instance.column << ". END INTERVAL VALUE " << endPos << " IS HIGHER THAN "
+                                                        << "MAP SIZE " << instance.linesOfBiome << std::endl;
+
+                                    return !instance.failDetected;
+                                }
 
                                 if (endPos <= startPos){
                                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
@@ -1163,6 +1208,15 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
                 else {
                     if (std::regex_match(informationRead, instance.natural_number_regex)){
                         startPos = std::stoi(informationRead);
+
+                        if (startPos > instance.linesOfBiome){
+                            instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
+                                instance.column << ". START INTERVAL VALUE " << startPos << " IS HIGHER THAN "
+                                                << "MAP SIZE " << instance.linesOfBiome << std::endl;
+
+                            return !instance.failDetected;
+                        }
+
                         instance.row++;
                         instance.column = 1;
                     }
@@ -1415,13 +1469,14 @@ bool Logger::checkBiomeRelief(Biome& m){
                             instance.failDetected = checkReliefStraight(m);
                         }
                         else if (informationRead == "CURVE_LEFT:" || informationRead == "CURVE_RIGHT:"){
-                            instance.failDetected = checkReliefCurve(m);
+                            bool leftDirection = (informationRead == "CURVE_LEFT:") ? true : false;
+                            instance.failDetected = checkReliefCurve(m, leftDirection);
                         }
-                        else if (informationRead == "HILL_STRAIGHT:"){
+                        else if (informationRead == "HILL_STRAIGHT:")
                             instance.failDetected = checkReliefHillStraight(m);
-                        }
                         else {
-                            instance.failDetected = checkReliefHillCurve(m);
+                            bool leftDirection = (informationRead == "HILL_LEFT:") ? true : false;
+                            instance.failDetected = checkReliefHillCurve(m, leftDirection);
                         }
                         if (!reliefProccessed)
                             reliefProccessed = true;

@@ -108,7 +108,7 @@ int Biome::computeRoadTracks(const int numTracks){
     }
 }
 
-void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, int distance){
+void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, int distance, int& linesOfBiome){
 
 	float firstY, dist, distPerc;
 	float total = (float)(enter + hold + leave);
@@ -140,13 +140,13 @@ void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool 
 	for (n = 0; n < enter; ++n)
 	{
 		dist += (int)distPerc;
-		addSegment(easeIn(0, curve, (float)n / enter), easeInOut(firstY, endY, (float)n / total), mirror, dist);
+		addSegment(easeIn(0, curve, (float)n / enter), easeInOut(firstY, endY, (float)n / total), mirror, dist, linesOfBiome);
 	}
 
 	for (n = 0; n < hold; ++n)
 	{
 		dist += (int)distPerc;
-        addSegment(curve, easeInOut(firstY, endY, (float)(enter + n) / total), mirror, dist);
+        addSegment(curve, easeInOut(firstY, endY, (float)(enter + n) / total), mirror, dist, linesOfBiome);
 
         if (n == (int)(hold / 2))
 			if (mirror && swapLine == 0)
@@ -156,7 +156,7 @@ void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool 
 	for (n = 0; n < leave; ++n)
 	{
 		dist += (int)distPerc;
-		addSegment(easeInOut(curve, 0, (float)n / leave), easeInOut(firstY, endY, (float)(enter + hold + n) / total), mirror, dist);
+		addSegment(easeInOut(curve, 0, (float)n / leave), easeInOut(firstY, endY, (float)(enter + hold + n) / total), mirror, dist, linesOfBiome);
 	}
 
 	if (mirror && lastLine == 0)
@@ -174,7 +174,7 @@ float Biome::easeInOut(float a, float b, float percent){
 }
 
 
-void Biome::addSegment(float curve, float y, bool mirror, float dist){
+void Biome::addSegment(float curve, float y, bool mirror, float dist, int& linesOfBiome){
 	int n = (int)lines.size();
 	Line* l = new Line();
 
@@ -192,6 +192,9 @@ void Biome::addSegment(float curve, float y, bool mirror, float dist){
 	l->mirror = mirror;
 	l->distance = dist;
 	lines.push_back(l);
+
+	if (linesOfBiome != NOT_COUNT_LINES)
+        linesOfBiome++;
 }
 
 void Biome::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos){
@@ -254,7 +257,8 @@ void Biome::setGoalBiome(){
     rumbleLane2 = sf::Color(247, 247, 247);
 
     time = 80;
-    addBiome(250, 250, 250, 0, 0, false, dist3);
+    int not_count_lines = NOT_COUNT_LINES;
+    addBiome(250, 250, 250, 0, 0, false, dist3, not_count_lines);
 
 	vector<string> objectNames;
     objectNames.reserve(45);

@@ -71,7 +71,7 @@ class Logger {
 
         int semaphore_code_image, flagger_code_image;
 
-        int attemps, waitingFlagger, numIterations, totalTimes;
+        int attemps, waitingFlagger, numIterations, totalTimes, linesOfBiome;
 
         float widthScreen;
 
@@ -111,11 +111,11 @@ class Logger {
 
         bool static checkReliefStraight(Biome& m);
 
-        bool static checkReliefCurve(Biome& m);
+        bool static checkReliefCurve(Biome& m, const bool leftDirection);
 
         bool static checkReliefHillStraight(Biome& m);
 
-        bool static checkReliefHillCurve(Biome& m);
+        bool static checkReliefHillCurve(Biome& m, const bool leftDirection);
 
         void static loadStartBiomeSprites(Biome& m);
 

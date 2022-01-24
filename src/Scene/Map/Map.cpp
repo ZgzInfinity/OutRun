@@ -58,10 +58,10 @@ bool Map::getgoalMap() const {
 }
 
 void Map::setMapDistanceAndTrackLength(){
-
-    currentBiome->addBiome(10, 400, 50, -2, 0, true, currentBiome->dist3);
-	currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM);
-	currentBiome->addBiome(10, 10, 10, 0, 0, false, currentBiome->dist3);
+    int not_count_lines = NOT_COUNT_LINES;
+    currentBiome->addBiome(10, 400, 50, -2, 0, true, currentBiome->dist3, not_count_lines);
+	currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
+	currentBiome->addBiome(10, 10, 10, 0, 0, false, currentBiome->dist3, not_count_lines);
 
     mapDistance = (int)currentBiome->lines[0]->distance;
 	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);

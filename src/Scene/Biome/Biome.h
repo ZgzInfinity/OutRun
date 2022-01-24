@@ -96,9 +96,9 @@ struct Biome{
 
     float easeInOut(float a, float b, float percent);
 
-    void addSegment(float curve, float y, bool mirror, float dist);
+    void addSegment(float curve, float y, bool mirror, float dist, int& linesOfBiome);
 
-    void addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, int distance);
+    void addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, int distance, int& linesOfBiome);
 
     void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos);
 
