@@ -201,12 +201,12 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
 
     switch(gameStatus){
         case State::PLAY_ROUND:
-            if (wheelL == StateWheel::SAND && wheelR == StateWheel::SAND && outsideRoad)
+            if ((wheelL == StateWheel::SAND || wheelR == StateWheel::SAND) && outsideRoad)
                 maxHighSpeed = 75.f;
             else
             {
                 if (gear == 1)
-                    maxHighSpeed = (int)SEGMENT_LENGTH;
+                    maxHighSpeed = 170.f;
                 else
                     maxHighSpeed = 100.f;
             }
@@ -231,7 +231,7 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
                 wheelL = wheelR = StateWheel::SMOKE;
                 action = (speed == 0.f) ? Action::NONE : Action::BRAKE;
             }
-            else if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed <= maxHighSpeed){
+            else if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed <= maxHighSpeed && !outsideRoad){
                 if (speed <= maxHighSpeed){
                     speed += lowAccel * time;
                     if (speed > maxHighSpeed){
@@ -316,17 +316,17 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
             {
                 direction = Direction::TURNLEFT;
                 if (thresholdX > -varThresholdX)
-                    thresholdX -= 0.15f;
+                    thresholdX -= 0.2f;
                 else if (thresholdX < -varThresholdX)
-                    thresholdX += 0.15f;
+                    thresholdX += 0.2f;
             }
             else if (input.pressed(Key::TURN_RIGHT, event) || input.held(Key::TURN_RIGHT))
             {
                 direction = Direction::TURNRIGHT;
                 if (thresholdX < varThresholdX)
-                    thresholdX += 0.15f;
+                    thresholdX += 0.2f;
                 else if (thresholdX > varThresholdX)
-                    thresholdX -= 0.15f;
+                    thresholdX -= 0.2f;
             }
             else {
                 direction = Direction::FRONT;
@@ -388,15 +388,12 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
 
 
 void PlayerCar::elevationControl(const int& yWorld1, const int& yWorld2){
-    if (yWorld1 == yWorld2){
+    if (yWorld1 == yWorld2)
         elevation = Elevation::FLAT;
-    }
-    else if (yWorld1 < yWorld2){
+    else if (yWorld1 < yWorld2)
         elevation = Elevation::UP;
-    }
-    else {
+    else
         elevation = Elevation::DOWN;
-    }
 }
 
 
@@ -606,9 +603,10 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
                 else if (!skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
                     Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
 
-                if (outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
+                if (speed > 0.f && outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
                     Audio::play(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, true);
-                else if (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
+
+                if (speed <= 0.f && outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
                     Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
             }
             else {

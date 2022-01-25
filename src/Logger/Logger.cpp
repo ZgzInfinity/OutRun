@@ -1106,9 +1106,9 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
                             if (i == 0){
                                 startPos = std::stoi(informationRead);
 
-                                if (startPos > instance.linesOfBiome){
+                                if (startPos >= instance.linesOfBiome){
                                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                                        instance.column << ". START INTERVAL VALUE " << startPos << " IS HIGHER THAN "
+                                        instance.column << ". START INTERVAL VALUE " << startPos << " IS HIGHER OR EQUAL THAN "
                                                         << "MAP SIZE " << instance.linesOfBiome << std::endl;
 
                                     return !instance.failDetected;
@@ -1117,7 +1117,7 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
                             else if (i == 1){
                                 endPos = std::stoi(informationRead);
 
-                                if (endPos > instance.linesOfBiome){
+                                if (endPos >= instance.linesOfBiome){
                                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
                                         instance.column << ". END INTERVAL VALUE " << endPos << " IS HIGHER THAN "
                                                         << "MAP SIZE " << instance.linesOfBiome << std::endl;
@@ -1127,7 +1127,7 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
 
                                 if (endPos <= startPos){
                                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                                        instance.column << ". END INTERVAL VALUE " << endPos << " MUST BE GREATER THAN "
+                                        instance.column << ". END INTERVAL VALUE " << endPos << " MUST BE GREATER OR EQUAL THAN "
                                                         << "START INTERVAL VALUE " << startPos << std::endl;
 
                                     return !instance.failDetected;
@@ -1209,9 +1209,9 @@ bool Logger::checkLevelBiomeSprites(Biome& m){
                     if (std::regex_match(informationRead, instance.natural_number_regex)){
                         startPos = std::stoi(informationRead);
 
-                        if (startPos > instance.linesOfBiome){
+                        if (startPos >= instance.linesOfBiome){
                             instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                                instance.column << ". START INTERVAL VALUE " << startPos << " IS HIGHER THAN "
+                                instance.column << ". START INTERVAL VALUE " << startPos << " IS HIGHER OR EQUAL THAN "
                                                 << "MAP SIZE " << instance.linesOfBiome << std::endl;
 
                             return !instance.failDetected;

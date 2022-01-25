@@ -70,7 +70,7 @@ void MenuOptions::loadMenu(Input& input){
     info.setOutlineThickness(3.0f * input.screenScaleX);
     info.setStyle(sf::Text::Bold);
     info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
-                     input.gameWindow.getSize().y / 2.f - 185.0f * input.screenScaleX);
+                     input.gameWindow.getSize().y / 2.f - 175.0f * input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f - 270.0f * input.screenScaleX,
                              input.gameWindow.getSize().y / 2.f - 130.0f * input.screenScaleX,

@@ -39,7 +39,7 @@ Map::Map()
 	notDrawn = false;
 
 	//Initial position
-	iniPosition = position = 0;
+	iniPosition = position = 300 * (int)SEGMENT_LENGTH;
 
     startBiome = nullptr;
     currentBiome = nullptr;
@@ -311,6 +311,25 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                 p.setStateWheelRight(StateWheel::NORMAL);
             }
         }
+        else if (p.getSpeed() <= 0.f && p.getOutiseRoad()){
+            p.setDrawCar(false);
+            float dif = 0.f;
+            if (p.getPlayerMap() == playerR::RIGHTROAD)
+                dif = ((float)mapDistance / (float)ROAD_WIDTH);
+            if (p.getPosX() < -0.05f + dif)
+                p.setPosX(p.getPosX() + 0.012f);
+            else if (p.getPosX() > 0.05f + dif)
+                p.setPosX(p.getPosX() - 0.012f);
+            else {
+                p.setCrashing(false);
+                p.setNumAngers();
+                p.setDrawCar(true);
+                p.setOutsideRoad(false);
+
+                if (!Audio::isPlaying(Sfx::BLONDE_WOMAN_HURRY_UP))
+                    Audio::play(Sfx::BLONDE_WOMAN_HURRY_UP, false);
+            }
+        }
 
         bool hasCrashed = false;
 
@@ -387,7 +406,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
 
 // Update: draw background
-void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus){
+void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode){
 
         input.gameWindow.clear();
 
@@ -517,9 +536,9 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
         if (!swapping){
 
-            if (!playerLine->mirror){
-                offsetXBackground1 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 1.5f;
-                offsetXBackground2 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 2.0f;
+            if (!pauseMode && !playerLine->mirror){
+                offsetXBackground1 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 2.0f;
+                offsetXBackground2 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 2.5f;
             }
 
             backgroundShapeSliced.setSize(sf::Vector2f(input.gameWindow.getSize().x,

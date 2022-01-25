@@ -4,7 +4,7 @@ TIME: 120
 
 TERRAIN: 1
 
-ROAD: 0
+ROAD: 1
 
 COLORS
 

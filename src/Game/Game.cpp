@@ -28,6 +28,7 @@ Game::Game(Input& input){
     spectatorsCongrats = false;
     showmanCongrats = false;
     countHudBonus = 0;
+    score = 0;
     time = 0;
     minutes = 0.f;
     secs = 0.f;
@@ -59,11 +60,11 @@ void Game::handleEvent(Input& input, const float& time){
             escape = true;
         }
         else if (gameStatus == State::PLAY_ROUND){
-            if (!outOfTime && !arrival && input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
+            if (!pauseMode && !outOfTime && !arrival && input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
                 pauseMode = true;
                 Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
             }
-            else if (outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+            else if (!start && outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
                 start = true;
                 Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
             }
@@ -92,7 +93,7 @@ void Game::updateRound(Input& input){
     if (gameStatus != State::GAME_OVER)
         currentMap->updateMap(input, cars, *player, gameStatus, time, score);
 
-    currentMap->renderMap(input, cars, *player, gameStatus);
+    currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
 
     if (gameStatus == State::PLAY_ROUND)
         arrival = currentMap->getEnding();
@@ -216,6 +217,7 @@ State Game::startRound(Input& input){
 
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    HudRound::setAllHudRoundIndicators(input);
     HudRound::configureHudRound(input);
 
     TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, 1, true);
@@ -232,7 +234,6 @@ State Game::startRound(Input& input){
     cars.push_back(car5);
     cars.push_back(car6);
 
-    /*
     int counterAnimation = 0;
     int code = 121;
     float i = input.gameWindow.getSize().x / 2.f;
@@ -249,7 +250,7 @@ State Game::startRound(Input& input){
         blackShape.setFillColor(sf::Color(0, 0, 0, j));
 
         input.gameWindow.clear();
-        currentMap->renderMap(input, cars, *player, gameStatus);
+        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
         player->drawStartStaticRound(input);
         HudRound::drawHudRound(input);
         input.gameWindow.draw(blackShape);
@@ -261,7 +262,7 @@ State Game::startRound(Input& input){
         handleEvent(input, time);
 
         input.gameWindow.clear();
-        currentMap->renderMap(input, cars, *player, gameStatus);
+        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
         player->drawStartDriftRound(input, float(i), code);
         HudRound::drawHudRound(input);
         input.gameWindow.display();
@@ -282,7 +283,7 @@ State Game::startRound(Input& input){
     float timeElapsed = 0.f;
 
     input.gameWindow.clear();
-    currentMap->renderMap(input, cars, *player, gameStatus);
+    currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
     player->drawPlayRound(input, true);
     HudRound::drawHudRound(input);
     input.gameWindow.display();
@@ -312,13 +313,11 @@ State Game::startRound(Input& input){
                 Logger::updateSprite(*currentMap->getCurrentBiome(), Sprite_Animated::FLAGGER);
         }
 
-        currentMap->renderMap(input, cars, *player, gameStatus);
+        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
         player->drawPlayRound(input, true);
         HudRound::drawHudRound(input);
         input.gameWindow.display();
     }
-
-    */
 
     if (escape)
         return State::EXIT;
@@ -358,8 +357,9 @@ State Game::playRound(Input& input){
         return State::EXIT;
     else if (pauseMode)
         return State::PAUSE;
-    else if (outOfTime)
+    else if (outOfTime){
         return State::GAME_OVER;
+    }
 }
 
 State Game::endRound(Input& input){
@@ -410,7 +410,7 @@ State Game::endRound(Input& input){
         while (!escape && i <= 100){
             handleEvent(input, time);
             input.gameWindow.clear();
-            currentMap->renderMap(input, cars, *player, gameStatus);
+            currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
             player->drawEndDriftRound(input);
             HudRound::drawHudRound(input);
             input.gameWindow.display();
@@ -450,9 +450,17 @@ State Game::gameOverRound(Input& input){
     if (player->getOutiseRoad())
         player->setOutsideRoad(false);
 
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level,
+                          player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+
+    HudRound::setAllHudRoundIndicators(input);
+
+    Audio::stop(input.currentSoundtrack);
+    Audio::play(Soundtrack::GAME_OVER, true);
+
     while (!escape && !start){
         handleEvent(input, time);
-        currentMap->renderMap(input, cars, *player, gameStatus);
+        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
         player->drawPlayRound(input, true, false);
         HudRound::drawHudRound(input);
         input.gameWindow.display();
@@ -482,7 +490,7 @@ State Game::gameOverRound(Input& input){
 State Game::loadBiomes(Input& input){
 
     Logger::setWidthScreen(input.gameWindow.getSize().x);
-    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map15/map.txt"));
+    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map1/map.txt"));
 
     if (!Logger::getFailDetected()){
 
@@ -502,19 +510,18 @@ State Game::loadBiomes(Input& input){
             return State::EXIT;
 
         vector<string> objectNames;
-        objectNames.reserve(6);
-        for (int i = 1; i <= 6; i++){
+        objectNames.reserve(45);
+        for (int i = 1; i <= 45; i++){
             objectNames.push_back(std::to_string(i));
         }
 
 
         string path = "Resources/Maps/MapStartGoal/";
 
-        /*
-        currentBiome->loadObjects(path, objectNames);
-        */
 
-        path = "Resources/Maps/MapLevels/Map15/";
+        currentBiome->loadObjects(path, objectNames);
+
+        path = "Resources/Maps/MapLevels/Map1/";
         objectNames.clear();
         objectNames.reserve(53);
         for (int i = 1; i <= 53; i++){
@@ -524,28 +531,32 @@ State Game::loadBiomes(Input& input){
 
         currentBiome->loadObjects(path, objectNames);
 
-        currentBiome->setBackgroundFront("Resources/Maps/MapLevels/Map15/front.png");
-        currentBiome->setBackgroundBack("Resources/Maps/MapLevels/Map15/back.png");
+        currentBiome->setBackgroundFront("Resources/Maps/MapLevels/Map1/front.png");
+        currentBiome->setBackgroundBack("Resources/Maps/MapLevels/Map1/back.png");
 
-        // currentBiome->setStartBiome();
+        currentBiome->setStartBiome();
 
         if (!Logger::getFailDetected())
             Logger::setFailDetected(Logger::checkLevelBiomeSprites(*currentBiome));
         else
             return State::EXIT;
 
-        currentMap->setCurrentBiome(*currentBiome);
-        currentMap->setMapDistanceAndTrackLength();
-        currentMap->setMapColors();
-        Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
+        if (!Logger::getFailDetected()){
+            currentMap->setCurrentBiome(*currentBiome);
+            currentMap->setMapDistanceAndTrackLength();
+            currentMap->setMapColors();
+            Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
 
-        Biome* goalBiome = new Biome();
-        goalBiome->setGoalBiome();
-        currentMap->getCurrentBiome()->left = goalBiome;
-        currentMap->getCurrentBiome()->right = goalBiome;
+            Biome* goalBiome = new Biome();
+            goalBiome->setGoalBiome();
+            currentMap->getCurrentBiome()->left = goalBiome;
+            currentMap->getCurrentBiome()->right = goalBiome;
 
-        Logger::close();
-        return State::LOADING;
+            Logger::close();
+            return State::LOADING;
+        }
+        else
+            return State::EXIT;
     }
     else
         return State::EXIT;

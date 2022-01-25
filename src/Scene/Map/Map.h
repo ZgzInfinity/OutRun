@@ -95,7 +95,7 @@ class Map {
 
         void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score);
 
-        void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus);
+        void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode);
 
         void interpolateBiomes(Input& input);
 

@@ -83,21 +83,20 @@ void MenuPause::loadMenu(Input& input){
 void MenuPause::handleEvent(Input& input){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
-        if (input.closed(event))
+        if (input.closed(event)){
             if (!escapePressed)
                 escapePressed = true;
+        }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
             if (!startPressed){
                 startPressed = true;
                 Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
             }
         }
-        else if (input.pressed(Key::MENU_UP, event) && input.held(Key::MENU_UP)){
+        else if (input.pressed(Key::MENU_UP, event) && input.held(Key::MENU_UP))
             changeButtonSelected(true);
-        }
-        else if (input.pressed(Key::MENU_DOWN, event) && input.held(Key::MENU_DOWN)){
+        else if (input.pressed(Key::MENU_DOWN, event) && input.held(Key::MENU_DOWN))
             changeButtonSelected(false);
-        }
     }
 }
 
@@ -111,7 +110,7 @@ void MenuPause::draw(Input& input){
         handleEvent(input);
 
         input.gameWindow.clear();
-        map.renderMap(input, cars, player, gameStatus);
+        map.renderMap(input, cars, player, gameStatus, true);
         player.drawPlayRound(input, true, false);
         HudRound::drawHudRound(input);
         input.gameWindow.draw(shape);

@@ -97,7 +97,7 @@ void HudRound::setTextHudRoundIndicator(Input& input, const Hud_Text_Indicator& 
         if (hudInd == Hud_Text_Indicator::SPEED_TEXT)
             posX = float(input.gameWindow.getSize().x) / 6.0f;
         else
-            posX = instance.hudSprites[(int)Hud_Texture_Indicator::SCORE_INDICATOR].getGlobalBounds().width * 6.f;
+            posX = instance.hudSprites[(int)Hud_Texture_Indicator::SCORE_INDICATOR].getGlobalBounds().width * 6.2f;
 
         instance.hudTexts[(int)hudInd].setString(message);
         instance.hudTexts[(int)hudInd].setPosition(posX - instance.hudTexts[(int)hudInd].getLocalBounds().width, posSpeedTextIndicator.y);

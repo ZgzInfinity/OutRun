@@ -41,7 +41,7 @@ void MenuLogo::loadMenu(Input& input){
     {
         iconGame.setScale(1.74f, 1.74f);
         offsetY = 2.0f;
-        offsetY2 = 1.803f;
+        offsetY2 = 1.857f;
     }
     else if (input.currentIndexResolution == (int)Resolution::SCREEN_2){
         iconGame.setScale(2.27f, 2.27f);
