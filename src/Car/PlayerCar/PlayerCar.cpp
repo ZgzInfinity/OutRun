@@ -603,22 +603,13 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
                 else if (!skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
                     Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
 
-                if (speed > 0.f && outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
+                if (outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
                     Audio::play(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, true);
-
-                if (speed <= 0.f && outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
+                else if (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
                     Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
             }
-            else {
-                Audio::stop(Sfx::FERRARI_ENGINE_START);
-                Audio::stop(Sfx::FERRARI_ENGINE_RUN);
-                Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
-                Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
-                Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
-                Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
-                Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
-                Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
-            }
+            else
+                shutDownSounds();
 
             if (crashing && speed > 0.f) {
                 if (!Audio::isPlaying(Sfx::FERRARI_ENGINE_DRIFT))
@@ -662,16 +653,8 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
                 decreaseGear = false;
             }
         }
-        else {
-            Audio::stop(Sfx::FERRARI_ENGINE_START);
-            Audio::stop(Sfx::FERRARI_ENGINE_RUN);
-            Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
-            Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
-            Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
-            Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
-            Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
-            Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
-        }
+        else
+            shutDownSounds();
 
         if (direction != Direction::TURNLEFT)
             firstTurnLeft = true;
@@ -1003,6 +986,7 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
             current_code_image = 41;
 
         wheelL = wheelR = StateWheel::NORMAL;
+        shutDownSounds();
     }
 }
 
@@ -1125,3 +1109,14 @@ void PlayerCar::drawEndDriftRound(Input &input){
     }
 }
 
+
+void PlayerCar::shutDownSounds(){
+    Audio::stop(Sfx::FERRARI_ENGINE_START);
+    Audio::stop(Sfx::FERRARI_ENGINE_RUN);
+    Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
+    Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
+    Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
+    Audio::stop(Sfx::FERRARI_ENGINE_DRIFT);
+    Audio::stop(Sfx::FERRARI_ENGINE_UP_GEAR);
+    Audio::stop(Sfx::FERRARI_ENGINE_DOWN_GEAR);
+}

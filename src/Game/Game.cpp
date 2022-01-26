@@ -510,11 +510,11 @@ State Game::loadBiomes(Input& input){
             return State::EXIT;
 
         vector<string> objectNames;
+
         objectNames.reserve(45);
         for (int i = 1; i <= 45; i++){
             objectNames.push_back(std::to_string(i));
         }
-
 
         string path = "Resources/Maps/MapStartGoal/";
 

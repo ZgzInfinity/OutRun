@@ -174,6 +174,7 @@ public:
     void drawEndDriftRound(Input &input);
 
 
+    void shutDownSounds();
 
 };
 

@@ -420,8 +420,6 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         float sumX = 0;
         Line* l;
 
-        cout << playerLine->index << endl;
-
         playerLine->projection(input, playerLine->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
                                (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
