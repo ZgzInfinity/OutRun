@@ -62,6 +62,8 @@ struct Biome{
 
     vector<int> widthCollisionCoeffs;
 
+    vector<int> showTerrainCoeffs;
+
     vector<fPoint> pivotLeftPoints;
 
     vector<fPoint> pivotRightPoints;

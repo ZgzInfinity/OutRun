@@ -39,6 +39,9 @@ enum class StateWheel : int {
     NORMAL,
     SMOKE,
     SAND,
+    GRASS,
+    SNOW,
+    MUD,
     __COUNT
 };
 
@@ -77,7 +80,7 @@ class PlayerCar : public Vehicle {
 
         int numAngers, out, counterOut;
 
-        int playerW, gear, skidIndex;
+        int playerW, gear, skidIndex, showTerrain, current_terrain_image, current_smoke_image;
 
         StateWheel wheelL, wheelR;
 
@@ -91,6 +94,8 @@ public:
 
     PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale,
               const std::string& name, const bool _automaticMode, const bool _isTrafficCar, const bool _roadDefined);
+
+    void setShowTerrain();
 
     void setNumAngers();
 
@@ -168,7 +173,7 @@ public:
     void drawStartDriftRound(Input &input, float x, int& code);
 
 
-    void drawPlayRound(Input& input, const bool& pauseMode, const bool& motorEngineSound = true);
+    void drawPlayRound(Input& input, const bool& pauseMode, const int terrain, const bool& motorEngineSound = true);
 
 
     void drawEndDriftRound(Input &input);

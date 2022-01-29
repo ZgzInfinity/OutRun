@@ -39,17 +39,15 @@ class Map {
 
     private:
 
-        Biome* startBiome;
         Biome* currentBiome;
-        Biome* goalBiome;
 
-        int position, iniPosition;
+        int position, iniPosition, numBiomesVisited;
 
         int trackLength, sameColors;
         float pWheelL, pWheelR;
 
         float drawDistance, offsetXBackground1, offsetXBackground2;
-        int mapLanes, mapDistance;
+        int mapLanes, mapDistance, terrain;
         short lineW;
         bool swapping;
         float backgroundSwapOffset;
@@ -73,8 +71,6 @@ class Map {
 
         void setCurrentBiome(Biome& b);
 
-        void setGoalBiome(Biome& b);
-
         Biome* getCurrentBiome() const;
 
         float distance(float a, float b);
@@ -97,7 +93,7 @@ class Map {
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode);
 
-        void interpolateBiomes(Input& input);
+        void interpolateBiomes(Input& input, const PlayerCar& p);
 
         sf::Color interpolateColors(const sf::Color& c1, const sf::Color& c2);
 
@@ -110,6 +106,11 @@ class Map {
         void setNotDrawn(const bool _notDrawn);
 
         bool getNotDrawn() const;
+
+        void setTerrain(const int _terrain);
+
+        int getTerrain() const;
+
 
 };
 

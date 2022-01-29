@@ -23,6 +23,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <thread>
+#include <mutex>
 #include "../Input/Input.h"
 #include "../Audio/Audio.h"
 #include "../Menus/Menu/Menu.h"
@@ -117,13 +119,21 @@
 
         float elapsed1, elapsed2, elapsed3, elapsed4, bonusTime, elapsedBonusTime;
 
-        std::pair<int, int> mapId;
+        std::vector<std::vector<Biome>> biomes;
+
+        Biome* goalBiome;
 
         int playerCarSelected;
 
+        thread timeCounter;
+
     public:
 
+        Game();
+
         Game(Input& input);
+
+        void updateTime();
 
         void handleEvent(Input& input, const float& time);
 

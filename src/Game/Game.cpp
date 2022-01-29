@@ -18,8 +18,62 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 #include "Game.h"
+
+mutex mtx;
+
+void Game::updateTime(){
+
+    sf::Clock gameClockLap;
+
+    sf::Time shot_delayLap = sf::seconds(0.01);
+
+    gameClockLap.restart();
+    elapsed3 = gameClockLap.getElapsedTime().asSeconds();
+
+    bool arrived = false , endOfGame = false, pause = false, escaped = false;
+
+    while(!arrived && !endOfGame && !pause && !escaped){
+
+        if (!pause){
+
+            elapsed4 = gameClockLap.getElapsedTime().asSeconds();
+
+            if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()){
+                cents_second += elapsed4;
+                if (cents_second >= 1.f) {
+                    cents_second -= 1.f;
+                    secs++;
+                    timeToPlay--;
+                    if (secs == 60.f) {
+                        secs = 0;
+                        minutes++;
+                    }
+                }
+                cents_secondTrip += elapsed4;
+                if (cents_secondTrip >= 1.f) {
+                    cents_secondTrip -= 1.f;
+                    secsTrip++;
+                    if (secsTrip == 60.f) {
+                        secsTrip = 0;
+                        minutesTrip++;
+                    }
+                }
+                gameClockLap.restart();
+                mtx.unlock();
+            }
+
+            mtx.lock();
+            arrived = arrival;
+            endOfGame = outOfTime;
+            pause = pauseMode;
+            escaped = escape;
+            mtx.unlock();
+        }
+    }
+}
+
+Game::Game(){}
 
 Game::Game(Input& input){
     gameStatus = State::ANIMATION;
@@ -36,12 +90,11 @@ Game::Game(Input& input){
     minutesTrip = 0.f;
     secsTrip = 0.f;
     cents_secondTrip = 0.f;
-    mapId = make_pair(0, 0);
-    Audio::loadAll(input);
     level = 0;
     playerCarSelected = 0;
     currentMap = nullptr;
     player = nullptr;
+    goalBiome = nullptr;
     pauseMode = false;
     escape = false;
     outOfTime = false;
@@ -51,17 +104,23 @@ Game::Game(Input& input){
     endingAnimation = false;
     startingRound = true;
     carSelectionRefused = false;
+
+    Audio::loadAll(input);
 }
 
 void Game::handleEvent(Input& input, const float& time){
     sf::Event event;
     while (input.gameWindow.pollEvent(event)){
         if (input.closed(event)){
+            mtx.lock();
             escape = true;
+            mtx.unlock();
         }
         else if (gameStatus == State::PLAY_ROUND){
             if (!pauseMode && !outOfTime && !arrival && input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
+                mtx.lock();
                 pauseMode = true;
+                mtx.unlock();
                 Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
             }
             else if (!start && outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
@@ -87,7 +146,10 @@ void Game::updateRound(Input& input){
     tick_timer = clock();
     handleEvent(input, time);
 
-    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    mtx.lock();
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level,
+                            player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    mtx.unlock();
     HudRound::setAllHudRoundIndicators(input);
 
     if (gameStatus != State::GAME_OVER)
@@ -99,55 +161,13 @@ void Game::updateRound(Input& input){
         arrival = currentMap->getEnding();
 
     if (gameStatus == State::PLAY_ROUND)
-        player->drawPlayRound(input, false);
+        player->drawPlayRound(input, false, currentMap->getTerrain());
     else
         player->drawEndDriftRound(input);
 
     HudRound::drawHudRound(input);
 
-    if (gameStatus == State::PLAY_ROUND){
-        elapsed4 = gameClockLap.getElapsedTime().asSeconds();
-
-        if (elapsed4 - elapsed3 >= shot_delayLap.asSeconds()) {
-            cents_second += elapsed4;
-            if (cents_second >= 1.f) {
-                cents_second -= 1.f;
-                secs++;
-                if (secs == 60.f) {
-                    secs = 0;
-                    minutes++;
-                }
-            }
-            cents_secondTrip += elapsed4;
-            if (cents_secondTrip >= 1.f) {
-                cents_secondTrip -= 1.f;
-                secsTrip++;
-                if (secsTrip == 60.f) {
-                    secsTrip = 0;
-                    minutesTrip++;
-                }
-            }
-            gameClockLap.restart();
-        }
-
-        elapsed2 = gameClockTime.getElapsedTime().asSeconds();
-
-        if (elapsed2 - elapsed1 >= shot_delayTime.asSeconds()) {
-            timeToPlay--;
-            if (timeToPlay == 10)
-                Audio::play(Sfx::BLOND_WOMAN_TEN_SECONDS, false);
-            else if (timeToPlay < 10) {
-                if (timeToPlay == 5)
-                    Audio::play(Sfx::BLONDE_WOMAN_HURRY_UP, false);
-                else if (timeToPlay == 0)
-                    outOfTime = true;
-                Audio::play(Sfx::COUNTDOWN, false);
-            }
-
-            gameClockTime.restart();
-        }
-    }
-    else if (gameStatus == State::END_ROUND){
+    if (gameStatus == State::END_ROUND){
         elapsedBonusTime = bonusClock.getElapsedTime().asSeconds();
 
         if (elapsedBonusTime - bonusTime >= bonus_delay.asSeconds()) {
@@ -195,8 +215,14 @@ void Game::updateRound(Input& input){
         }
     }
     else {
-        if (player->getStateWheelLeft() != StateWheel::SAND && player->getStateWheelRight() != StateWheel::SAND && player->getSpeed() > 5.f)
+        if (player->getStateWheelLeft() != StateWheel::SAND && player->getStateWheelRight() != StateWheel::SAND &&
+            player->getStateWheelLeft() != StateWheel::GRASS && player->getStateWheelRight() != StateWheel::GRASS &&
+            player->getStateWheelLeft() != StateWheel::SNOW && player->getStateWheelRight() != StateWheel::SNOW &&
+            player->getStateWheelLeft() != StateWheel::MUD && player->getStateWheelRight() != StateWheel::MUD &&
+            player->getSpeed() > 5.f)
+        {
             score += (int)((10.f + 950.f * ((player->getSpeed() - 5.f) / (141.f))) / 3.7f) * 2.3f;
+        }
     }
 
     if (!currentMap->getNotDrawn())
@@ -208,6 +234,9 @@ void Game::updateRound(Input& input){
 State Game::startRound(Input& input){
 
     score = 0;
+    minutes = 0;
+    secs = 0;
+    cents_second = 0;
     startingRound = true;
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
@@ -284,7 +313,7 @@ State Game::startRound(Input& input){
 
     input.gameWindow.clear();
     currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
-    player->drawPlayRound(input, true);
+    player->drawPlayRound(input, true, currentMap->getTerrain());
     HudRound::drawHudRound(input);
     input.gameWindow.display();
 
@@ -314,7 +343,7 @@ State Game::startRound(Input& input){
         }
 
         currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
-        player->drawPlayRound(input, true);
+        player->drawPlayRound(input, true, currentMap->getTerrain());
         HudRound::drawHudRound(input);
         input.gameWindow.display();
     }
@@ -339,8 +368,11 @@ State Game::playRound(Input& input){
         pauseMode = false;
         outOfTime = false;
         arrival = false;
+        Audio::reanudateSfxPaused();
         tick_timer = clock();
     }
+
+    timeCounter = std::thread(updateTime, this);
 
     gameClockTime.restart().asSeconds();
     elapsed1 = gameClockTime.restart().asSeconds();
@@ -350,6 +382,11 @@ State Game::playRound(Input& input){
 
     while (!escape && !pauseMode && !outOfTime && !arrival)
         updateRound(input);
+
+    timeCounter.join();
+
+    if (pauseMode)
+        Audio::pauseSfxForReanudate();
 
     if (arrival)
         return State::END_ROUND;
@@ -490,73 +527,101 @@ State Game::gameOverRound(Input& input){
 State Game::loadBiomes(Input& input){
 
     Logger::setWidthScreen(input.gameWindow.getSize().x);
-    Logger::setFailDetected(Logger::checkMapFile("Resources/Maps/MapLevels/Map1/map.txt"));
+
+    const int nobjects[] = {26, 36, 39, 48, 53, 51, 38, 35, 33, 51, 27, 41, 40, 41, 49};
+    int nm = 0;
+    currentMap = new Map();
+    std::string path = "";
+    biomes.clear();
+
+    for (int i = 0; i < 5; i++) {
+        vector<Biome> bm;
+
+        for (int j = 0; j <= i; j++){
+
+            path = "Resources/Maps/MapLevels/Map" + std::to_string(nm + 1);
+
+            Logger::setFailDetected(Logger::checkMapFile(path + "/map.txt"));
+            path += "/";
+
+            if (!Logger::getFailDetected()){
+
+                Biome* currentBiome = new Biome();
+                Logger::setFailDetected(Logger::checkTimeTerrainRoad(*currentBiome));
+
+                if (!Logger::getFailDetected())
+                    Logger::setFailDetected(Logger::checkColors(*currentBiome));
+                else
+                    return State::EXIT;
+
+                if (!Logger::getFailDetected())
+                    Logger::setFailDetected(Logger::checkBiomeRelief(*currentBiome));
+                else
+                    return State::EXIT;
+
+                currentBiome->setBackgroundFront(path + "/front.png");
+                currentBiome->setBackgroundBack(path + "/back.png");
+
+                vector<std::string> objectNames;
+                if (nm == 0){
+                    objectNames.reserve(45);
+                    for (int i = 1; i <= 45; i++)
+                        objectNames.push_back(std::to_string(i));
+
+                    path = "Resources/Maps/MapStartGoal/";
+                    currentBiome->loadObjects(path, objectNames);
+                    objectNames.clear();
+                    path = "Resources/Maps/MapLevels/Map" + std::to_string(nm + 1) + "/";
+                }
+
+                objectNames.reserve((unsigned long) nobjects[nm]);
+                for (int no = 1; no <= nobjects[nm]; no++)
+                    objectNames.push_back(to_string(no));
+
+                currentBiome->loadObjects(path, objectNames);
+
+                if (nm == 0)
+                    currentBiome->setStartBiome();
+
+                if (!Logger::getFailDetected())
+                    Logger::setFailDetected(Logger::checkLevelBiomeSprites(*currentBiome));
+                else
+                    return State::EXIT;
+
+                bm.push_back(*currentBiome);
+                Logger::close();
+                nm++;
+            }
+            else
+                return State::EXIT;
+        }
+        biomes.emplace_back(bm);
+    }
 
     if (!Logger::getFailDetected()){
+        currentMap->setCurrentBiome(biomes[0][0]);
+        currentMap->setTerrain(currentMap->getCurrentBiome()->getTerrain());
+        currentMap->setMapDistanceAndTrackLength();
+        currentMap->setMapColors();
+        Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
 
-        currentMap = new Map();
-        Biome* currentBiome = new Biome();
+        goalBiome = new Biome();
+        goalBiome->setGoalBiome();
 
-        Logger::setFailDetected(Logger::checkTimeTerrainRoad(*currentBiome));
-
-        if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkColors(*currentBiome));
-        else
-            return State::EXIT;
-
-        if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkBiomeRelief(*currentBiome));
-        else
-            return State::EXIT;
-
-        vector<string> objectNames;
-
-        objectNames.reserve(45);
-        for (int i = 1; i <= 45; i++){
-            objectNames.push_back(std::to_string(i));
+        for (int i = 0; i <= 3; i++){
+            for (int j = 0; j <= i; j++){
+                biomes[i][j].left = &biomes[i + 1][j];
+                biomes[i][j].right = &biomes[i + 1][j + 1];
+            }
         }
 
-        string path = "Resources/Maps/MapStartGoal/";
-
-
-        currentBiome->loadObjects(path, objectNames);
-
-        path = "Resources/Maps/MapLevels/Map1/";
-        objectNames.clear();
-        objectNames.reserve(53);
-        for (int i = 1; i <= 53; i++){
-            objectNames.push_back(std::to_string(i));
+        for (int i = 0; i <= 4; i++){
+            biomes[4][i].left = goalBiome;
+            biomes[4][i].right = goalBiome;
         }
 
-
-        currentBiome->loadObjects(path, objectNames);
-
-        currentBiome->setBackgroundFront("Resources/Maps/MapLevels/Map1/front.png");
-        currentBiome->setBackgroundBack("Resources/Maps/MapLevels/Map1/back.png");
-
-        currentBiome->setStartBiome();
-
-        if (!Logger::getFailDetected())
-            Logger::setFailDetected(Logger::checkLevelBiomeSprites(*currentBiome));
-        else
-            return State::EXIT;
-
-        if (!Logger::getFailDetected()){
-            currentMap->setCurrentBiome(*currentBiome);
-            currentMap->setMapDistanceAndTrackLength();
-            currentMap->setMapColors();
-            Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
-
-            Biome* goalBiome = new Biome();
-            goalBiome->setGoalBiome();
-            currentMap->getCurrentBiome()->left = goalBiome;
-            currentMap->getCurrentBiome()->right = goalBiome;
-
-            Logger::close();
-            return State::LOADING;
-        }
-        else
-            return State::EXIT;
+        Logger::close();
+        return State::LOADING;
     }
     else
         return State::EXIT;
@@ -680,7 +745,7 @@ void Game::run(Input& input){
 
                 HudRound::setAllHudRoundIndicators(input);
 
-                MenuPause mP = MenuPause(*currentMap, *player, cars);
+                MenuPause mP = MenuPause(*currentMap, *player, cars, currentMap->getTerrain());
                 mP.loadMenu(input);
                 mP.draw(input);
                 gameStatus = mP.returnMenu(input);

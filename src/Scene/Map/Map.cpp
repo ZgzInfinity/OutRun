@@ -36,14 +36,12 @@ Map::Map()
 	backgroundSwapOffset = 0.f;
 	ending = false;
 	sameColors = 0;
+	numBiomesVisited = 0;
 	notDrawn = false;
 
 	//Initial position
 	iniPosition = position = 300 * (int)SEGMENT_LENGTH;
-
-    startBiome = nullptr;
     currentBiome = nullptr;
-    goalBiome = nullptr;
 }
 
 Map::~Map()
@@ -59,10 +57,10 @@ bool Map::getgoalMap() const {
 
 void Map::setMapDistanceAndTrackLength(){
     int not_count_lines = NOT_COUNT_LINES;
-    currentBiome->addBiome(10, 400, 50, -2, 0, true, currentBiome->dist3, not_count_lines);
+    int gradient = random_int(-1, 1);
+    currentBiome->addBiome(10, 400, 50, -2, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
 	currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
 	currentBiome->addBiome(10, 10, 10, 0, 0, false, currentBiome->dist3, not_count_lines);
-
     mapDistance = (int)currentBiome->lines[0]->distance;
 	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 	currentBiome->lastLine = currentBiome->lines.size() - drawDistance;
@@ -150,7 +148,19 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 
 	if (p.getSpeed() > 0.f) {
 		if (pWheelR < -1831 || pWheelR > mapDistance + 1831){
-            p.setStateWheelRight(StateWheel::SAND);
+            switch (terrain){
+                case 1:
+                    p.setStateWheelRight(StateWheel::SAND);
+                    break;
+                case 2:
+                    p.setStateWheelRight(StateWheel::GRASS);
+                    break;
+                case 3:
+                    p.setStateWheelRight(StateWheel::SNOW);
+                    break;
+                case 4:
+                    p.setStateWheelRight(StateWheel::MUD);
+            }
             p.setOutsideRoad(true);
 		}
 		else {
@@ -158,7 +168,19 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 		}
 
 		if (pWheelL < -1831 || pWheelL > mapDistance + 1831){
-			p.setStateWheelLeft(StateWheel::SAND);
+			switch (terrain){
+                case 1:
+                    p.setStateWheelLeft(StateWheel::SAND);
+                    break;
+                case 2:
+                    p.setStateWheelLeft(StateWheel::GRASS);
+                    break;
+                case 3:
+                    p.setStateWheelLeft(StateWheel::SNOW);
+                    break;
+                case 4:
+                    p.setStateWheelLeft(StateWheel::MUD);
+            }
             p.setOutsideRoad(true);
 		}
         else {
@@ -169,7 +191,19 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 		if (!p.getOutiseRoad() && mapDistance > 3662)
 		{
 			if (pWheelR > 1831 && pWheelR < 1831 + (mapDistance - 3662)){
-                p.setStateWheelRight(StateWheel::SAND);
+                switch (terrain){
+                    case 1:
+                        p.setStateWheelRight(StateWheel::SAND);
+                        break;
+                    case 2:
+                        p.setStateWheelRight(StateWheel::GRASS);
+                        break;
+                    case 3:
+                        p.setStateWheelRight(StateWheel::SNOW);
+                        break;
+                    case 4:
+                        p.setStateWheelRight(StateWheel::MUD);
+                }
                 p.setOutsideRoad(true);
 			}
             else {
@@ -177,7 +211,19 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
             }
 
 			if (pWheelL > 1831 && pWheelL < 1831 + (mapDistance - 3662)){
-                p.setStateWheelLeft(StateWheel::SAND);
+                switch (terrain){
+                    case 1:
+                        p.setStateWheelLeft(StateWheel::SAND);
+                        break;
+                    case 2:
+                        p.setStateWheelLeft(StateWheel::GRASS);
+                        break;
+                    case 3:
+                        p.setStateWheelLeft(StateWheel::SNOW);
+                        break;
+                    case 4:
+                        p.setStateWheelLeft(StateWheel::MUD);
+                }
                 p.setOutsideRoad(true);
 			}
             else {
@@ -212,10 +258,23 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
 	// FALTA EL ONROAD
     if (!currentBiome->end && playerLine->index > currentBiome->lastLine){
-        if (p.getPlayerMap() == playerR::LEFTROAD)
+
+        if (p.getPlayerMap() == playerR::LEFTROAD){
+            currentBiome->left->end = true;
             currentBiome = currentBiome->getLeft();
-        else
+        }
+        else if (p.getPlayerMap() == playerR::RIGHTROAD){
+            currentBiome->right->end = true;
             currentBiome = currentBiome->getRight();
+        }
+
+        numBiomesVisited++;
+        if (numBiomesVisited != 5)
+            currentBiome->end = false;
+
+        setMapDistanceAndTrackLength();
+        setMapColors();
+        swapping = false;
 
         if (currentBiome->end)
             ending = true;
@@ -242,6 +301,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 		p.setPosY(0);
 
 		notDrawn = true;
+		playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
     }
 
 	//Activate end sequence
@@ -251,17 +311,17 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     //Check for biome colors change
 	if (!currentBiome->biomeSwap && !currentBiome->end && !swapping && playerLine->index > currentBiome->swapLine)
 	{
-		swapping = true;
-		Biome* biome = currentBiome->left;
-		if (p.getPlayerMap() == playerR::RIGHTROAD)
-			biome = currentBiome->right;
+        swapping = true;
+        Biome* biome = currentBiome->left;
+        if (p.getPlayerMap() == playerR::RIGHTROAD)
+            biome = currentBiome->right;
 
-		backGround2Front = biome->backGroundFront;
+        backGround2Front = biome->backGroundFront;
         backGround2Back = biome->backGroundBack;
-		bg2 = biome->skyBiome;
-		sandAux = biome->sandBiome1; sand2Aux = biome->sandBiome2; roadAux = biome->roadBiome1; road2Aux = biome->roadBiome2;
-		rumbleAux = biome->rumbleBiome1; rumble2Aux = biome->rumbleBiome2; laneAux = biome->laneBiome1; lane2Aux = biome->laneBiome2;
-		rumbleLaneAux = biome->rumbleLane1; rumbleLane2Aux = biome->rumbleLane2;
+        bg2 = biome->skyBiome;
+        sandAux = biome->sandBiome1; sand2Aux = biome->sandBiome2; roadAux = biome->roadBiome1; road2Aux = biome->roadBiome2;
+        rumbleAux = biome->rumbleBiome1; rumble2Aux = biome->rumbleBiome2; laneAux = biome->laneBiome1; lane2Aux = biome->laneBiome2;
+        rumbleLaneAux = biome->rumbleLane1; rumbleLane2Aux = biome->rumbleLane2;
 	}
 
 	if (gameStatus == State::PLAY_ROUND){
@@ -332,6 +392,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         }
 
         bool hasCrashed = false;
+        p.setShowTerrain();
 
         if (playerLine->hasSpriteFarLeft)
             p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarLeft);
@@ -370,27 +431,30 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     p.controlCentrifugalForce(playerLine, time, mapDistance);
 	mapDistance = (int)playerLine->distance;
 
-	//Check road limits for player
-	if (p.getPosX() < -1.5f)
-		p.setPosX(-1.48f);
-	else if (p.getPosX() > 1.5f + ((float)mapDistance / (float)ROAD_WIDTH))
-		p.setPosX(1.48f + ((float)mapDistance / (float)ROAD_WIDTH));
+    //Check road limits for player
+    if (p.getPosX() < -1.5f)
+        p.setPosX(-1.48f);
+    else if (p.getPosX() > 1.5f + ((float)mapDistance / (float)ROAD_WIDTH))
+        p.setPosX(1.48f + ((float)mapDistance / (float)ROAD_WIDTH));
 
-	if (playerLine->mirror)
-	{
-		if ((float)mapDistance / (float)ROAD_WIDTH > 3.5f && p.getPosX() > 1.75f && p.getPosX() < (float)mapDistance / (float)ROAD_WIDTH - 1.75f)
-		{
-			if (p.getPlayerMap() == playerR::LEFTROAD)
-				p.setPosX(1.73f);
-			else
-				p.setPosX((float)mapDistance / (float)ROAD_WIDTH - 1.73f);
-		}
-	}
+    if (playerLine->mirror)
+    {
+        if ((float)mapDistance / (float)ROAD_WIDTH > 3.5f && p.getPosX() > 1.75f && p.getPosX() < (float)mapDistance / (float)ROAD_WIDTH - 1.75f)
+        {
+            if (p.getPlayerMap() == playerR::LEFTROAD)
+                p.setPosX(1.73f);
+            else
+                p.setPosX((float)mapDistance / (float)ROAD_WIDTH - 1.73f);
+        }
+    }
 
 	updateCarPlayerWheels(p);
 
 	//Make smoke if sliding to the side when in a huge curve
-	if (p.getStateWheelLeft() != StateWheel::SAND && p.getStateWheelRight() != StateWheel::SAND && p.getSpeed() > 70.f)
+	if (p.getStateWheelLeft() != StateWheel::SAND && p.getStateWheelRight() != StateWheel::SAND &&
+        p.getStateWheelLeft() != StateWheel::GRASS && p.getStateWheelRight() != StateWheel::GRASS &&
+        p.getStateWheelLeft() != StateWheel::SNOW && p.getStateWheelRight() != StateWheel::SNOW &&
+        p.getStateWheelLeft() != StateWheel::MUD && p.getStateWheelRight() != StateWheel::MUD && p.getSpeed() > 70.f)
 	{
 		if (abs(p.getThresholdX()) >= (p.getSpeed() * time * 0.8f) && abs(playerLine->curve) >= 2.5f)
 		{
@@ -411,7 +475,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         input.gameWindow.clear();
 
         if (swapping)
-            interpolateBiomes(input);
+            interpolateBiomes(input, p);
 
         Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
         Line* baseLine = currentBiome->lines[(int)(position / SEGMENTL) % currentBiome->lines.size()];
@@ -675,11 +739,6 @@ void Map::setCurrentBiome(Biome& b){
     backGroundBack = currentBiome->backGroundBack;
 }
 
-void Map::setGoalBiome(Biome& b){
-    goalBiome = &b;
-}
-
-
 Biome* Map::getCurrentBiome() const {
     return currentBiome;
 }
@@ -707,7 +766,7 @@ void Map::drawBackground(Input& input, int x, int y, sf::RectangleShape backgrou
     input.gameWindow.draw(background);
 }
 
-void Map::interpolateBiomes(Input& input)
+void Map::interpolateBiomes(Input& input, const PlayerCar& p)
 {
 	if (backgroundSwapOffset < input.gameWindow.getSize().x)
 	{
@@ -739,6 +798,11 @@ void Map::interpolateBiomes(Input& input)
 		currentBiome->biomeSwap = true;
 		offsetXBackground1 = BACKGROUND_MOVING_OFFSET;
         offsetXBackground2 = BACKGROUND_MOVING_OFFSET;
+
+        if (p.getPlayerMap() == playerR::LEFTROAD)
+            setTerrain(currentBiome->getLeft()->getTerrain());
+        else
+            setTerrain(currentBiome->getRight()->getTerrain());
 	}
 }
 
@@ -782,5 +846,13 @@ void Map::setNotDrawn(const bool _notDrawn){
 
 bool Map::getNotDrawn() const {
     return notDrawn;
+}
+
+void Map::setTerrain(const int _terrain){
+    terrain = _terrain;
+}
+
+int Map::getTerrain() const {
+    return terrain;
 }
 

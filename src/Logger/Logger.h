@@ -32,7 +32,7 @@ class Biome;
 
 class Logger {
 
-    private:
+    public:
 
         enum class Flagger_Status : int {
             UPPING_FLAG,
@@ -75,7 +75,7 @@ class Logger {
 
         float widthScreen;
 
-        bool failDetected;
+        bool failDetected, firstTimeInvoked;
 
         bool endFlaggerAnimation;
 

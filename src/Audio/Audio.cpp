@@ -151,11 +151,14 @@ void Audio::play(const Soundtrack sd, bool loop) {
     instance.themes[(int)sd]->setVolume(instance.musicVolumePct);
 }
 
-void Audio::play(const Sfx Sfx, bool loop) {
-    stop(Sfx);
-    instance.effects[(int)Sfx]->play();
-    instance.effects[(int)Sfx]->setLoop(loop);
-    instance.effects[(int)Sfx]->setVolume(instance.sfxVolumePct);
+void Audio::play(const Sfx sfx, bool loop) {
+    if (instance.effects[(int)sfx]->getStatus() != sf::SoundSource::Paused)
+        stop(sfx);
+
+
+    instance.effects[(int)sfx]->play();
+    instance.effects[(int)sfx]->setLoop(loop);
+    instance.effects[(int)sfx]->setVolume(instance.sfxVolumePct);
 }
 
 
@@ -202,6 +205,23 @@ void Audio::pause(const Sfx Sfx) {
 void Audio::pause(const int index) {
     if (instance.themes[index]->getStatus() == sf::SoundSource::Status::Playing){
         instance.themes[index]->pause();
+    }
+}
+
+void Audio::pauseSfxForReanudate(){
+    for (int sfxInt = (int)Sfx::RACE_SEMAPHORE_PREPARE; sfxInt < (int)Sfx::__COUNT; sfxInt++){
+        Sfx sfx = static_cast<Sfx>(sfxInt);
+        if (isPlaying(sfx))
+            pause(sfx);
+    }
+}
+
+void Audio::reanudateSfxPaused(){
+    for (int i = 0; i < (int)Sfx::__COUNT; i++){
+        if (instance.effects[i]->getStatus() == sf::SoundSource::Status::Paused){
+            Sfx sfx = static_cast<Sfx>(i);
+            play(sfx, false);
+        }
     }
 }
 

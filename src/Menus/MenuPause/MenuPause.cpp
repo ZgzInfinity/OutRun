@@ -20,12 +20,13 @@
 
 #include "MenuPause.h"
 
-MenuPause::MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*> trafficCars) : Menu()
+MenuPause::MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*> trafficCars, const int _terrain) : Menu()
 {
     optionSelected = 0;
     map = m;
     player = p;
     cars = trafficCars;
+    terrain = _terrain;
 }
 
 
@@ -111,7 +112,7 @@ void MenuPause::draw(Input& input){
 
         input.gameWindow.clear();
         map.renderMap(input, cars, player, gameStatus, true);
-        player.drawPlayRound(input, true, false);
+        player.drawPlayRound(input, true, terrain, false);
         HudRound::drawHudRound(input);
         input.gameWindow.draw(shape);
         input.gameWindow.draw(pauseShape);

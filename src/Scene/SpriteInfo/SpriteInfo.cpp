@@ -23,8 +23,8 @@
 SpriteInfo::SpriteInfo(){}
 
 SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
-               const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const bool _collider, const float _offsetX,
-               const float _offsetY, const bool _side)
+               const int _wCol, const int _showTerrain, const fPoint _pivotColL, const fPoint _pivotColR,
+               const bool _collider, const float _offsetX, const float _offsetY, const bool _side)
 {
     textureSprite = _textureSprite;
     pivotLeft = _pivotL;
@@ -32,6 +32,7 @@ SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const 
     scale = _scale;
     collider = _collider;
     widthCol = _wCol;
+    showTerrain = _showTerrain;
     offsetX = _offsetX;
     offsetY = _offsetY;
     side = _side;
@@ -81,6 +82,10 @@ void SpriteInfo::setOffsetX(const float _offsetX){
 
 float SpriteInfo::getOffsetY() const {
     return offsetY;
+}
+
+int SpriteInfo::getShowTerrain() const {
+    return showTerrain;
 }
 
 fPoint SpriteInfo::getPivotColLeft() const {

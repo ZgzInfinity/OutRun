@@ -49,11 +49,14 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	out = 0;
     skidIndex = -1;
 	gear = 0;
+	showTerrain = 0;
 	current_code_image = 1;
 	maxCounterToChange = 2;
 	counter_code_image = 0;
 	numAngers = 0;
 	counterOut = 0;
+	current_terrain_image = 0;
+	current_smoke_image = 0;
 	thresholdX = 0.f;
 	speedGear = 0.f;
     playerMap = playerR::LEFTROAD;
@@ -76,6 +79,10 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
     trafficCrash = false;
     drawCar = true;
     endAnimation = false;
+}
+
+void PlayerCar::setShowTerrain(){
+    showTerrain = 0;
 }
 
 void PlayerCar::setNumAngers(){
@@ -201,8 +208,13 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
 
     switch(gameStatus){
         case State::PLAY_ROUND:
-            if ((wheelL == StateWheel::SAND || wheelR == StateWheel::SAND) && outsideRoad)
+            if ((wheelL == StateWheel::SAND || wheelR == StateWheel::SAND ||
+                 wheelL == StateWheel::GRASS || wheelR == StateWheel::GRASS ||
+                 wheelL == StateWheel::SNOW || wheelR == StateWheel::SNOW ||
+                 wheelL == StateWheel::MUD || wheelR == StateWheel::MUD) && outsideRoad)
+            {
                 maxHighSpeed = 75.f;
+            }
             else
             {
                 if (gear == 1)
@@ -244,13 +256,21 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
                 action = (speed > 15.f) ? Action::ACCELERATE : Action::BOOT;
                 motorEngineSound = true;
 
-                if (speed < 50.f && wheelL != StateWheel::SAND && wheelR != StateWheel::SAND){
+                if (speed < 50.f && wheelL != StateWheel::SAND && wheelR != StateWheel::SAND &&
+                    wheelL != StateWheel::GRASS && wheelR != StateWheel::GRASS &&
+                    wheelL != StateWheel::SNOW && wheelR != StateWheel::SNOW &&
+                    wheelL != StateWheel::MUD && wheelR != StateWheel::MUD)
+                {
                     wheelR = StateWheel::SMOKE;
                 }
                 else {
                     wheelR = StateWheel::NORMAL;
                 }
-                if (speed < 50.f && wheelR != StateWheel::SAND && wheelL != StateWheel::SAND){
+                if (speed < 50.f && wheelR != StateWheel::SAND && wheelL != StateWheel::SAND &&
+                    wheelR != StateWheel::GRASS && wheelL != StateWheel::GRASS &&
+                    wheelR != StateWheel::SNOW && wheelL != StateWheel::SNOW &&
+                    wheelR != StateWheel::MUD && wheelL != StateWheel::MUD)
+                {
                     wheelL = StateWheel::SMOKE;
                 }
                 else {
@@ -457,6 +477,8 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
                                                     (int)Sfx::SPECTATORS_EIGHTH_SHOUT)), false);
         }
     }
+    else if (!outsideRoad && showTerrain == 0 && sprite->getShowTerrain() == 1)
+        showTerrain = 1;
 }
 
 
@@ -572,7 +594,7 @@ void PlayerCar::drawStartDriftRound(Input &input, float x, int& code){
     }
 }
 
-void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& motorEngineSound) {
+void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int terrain, const bool& motorEngineSound) {
 
     if (drawCar){
         if (motorEngineSound) {
@@ -666,10 +688,17 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
             if (counter_code_image >= maxCounterToChange) {
                 counter_code_image = 0;
 
-                // Increment the texture counter only if it moves
-                if ((!pauseMode) && (speed > 0.f || speed <= 0.f && numAngers < 3)){
-                    current_code_image++;
+                if (!pauseMode){
+                    if (outsideRoad || !roadDefined || showTerrain == 1)
+                        current_terrain_image = (current_terrain_image < 5) ? current_terrain_image + 1 : 0;
+
+                    if (wheelL == StateWheel::SMOKE || wheelR == StateWheel::SMOKE)
+                        current_smoke_image = (current_smoke_image < 3) ? current_smoke_image + 1 : 0;
                 }
+
+                // Increment the texture counter only if it moves
+                if (!pauseMode && (speed > 0.f || (speed <= 0.f && numAngers < 3)))
+                    current_code_image++;
 
                 if (textures.size() == PLAYER_TOTAL_TEXTURES){
                     if (action == Action::ACCELERATE || action == Action::BOOT){
@@ -915,18 +944,22 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
                 current_code_image = 41;
         }
 
-        if (outsideRoad && speed > 0.f){
-            if (counterOut == 5){
-                out = (out == -1) ? 0 : -1;
+        if (!pauseMode){
+            if (outsideRoad && speed > 0.f){
+                if (counterOut == 5){
+                    out = (out == -1) ? 0 : -1;
+                    counterOut = 0;
+                }
+                else
+                    counterOut++;
+            }
+            else {
+                out = 0;
                 counterOut = 0;
             }
-            else
-                counterOut++;
         }
-        else {
+        else
             out = 0;
-            counterOut = 0;
-        }
 
         sprite.setTexture(textures[current_code_image - 1], true);
         sprite.setScale(scale * input.screenScaleX, scale * input.screenScaleY);
@@ -949,29 +982,71 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const bool& m
 
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
 
-        if (wheelL == StateWheel::SAND || (!roadDefined && !crashing && speed > 0.f)){
-            sprite.setTexture(textures[152 + current_code_image % 4], true);
+        if (wheelL == StateWheel::SAND || ((!roadDefined || showTerrain == 1) && terrain == 1 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[152 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
                                 j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
-        if (wheelR == StateWheel::SAND || (!roadDefined && !crashing && speed > 0.f)){
-            sprite.setTexture(textures[152 + current_code_image % 4], true);
+        if (wheelR == StateWheel::SAND || ((!roadDefined || showTerrain == 1) && terrain == 1 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[152 + current_terrain_image], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+
+        if (wheelL == StateWheel::GRASS || ((!roadDefined || showTerrain == 1) && terrain == 2 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[158 + current_terrain_image], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
+                                j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+        if (wheelR == StateWheel::GRASS || ((!roadDefined || showTerrain == 1) && terrain == 2 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[158 + current_terrain_image], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+
+        if (wheelL == StateWheel::SNOW || ((!roadDefined || showTerrain == 1) && terrain == 3 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[164 + current_terrain_image], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
+                                j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+        if (wheelR == StateWheel::SNOW || ((!roadDefined || showTerrain == 1) && terrain == 3 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[164 + current_terrain_image], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+
+        if (wheelL == StateWheel::MUD || ((!roadDefined || showTerrain == 1) && terrain == 4 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[170 + current_terrain_image], true);
+            sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
+            sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
+                                j - sprite.getGlobalBounds().height + out);
+            input.gameWindow.draw(sprite);
+        }
+        if (wheelR == StateWheel::MUD || ((!roadDefined || showTerrain == 1) && terrain == 4 && !crashing && speed > 0.f)){
+            sprite.setTexture(textures[170 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
 
         if (wheelL == StateWheel::SMOKE){
-            sprite.setTexture(textures[148 + current_code_image % 4], true);
+            sprite.setTexture(textures[148 + current_smoke_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width * 1.2f),
                                j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
         if (wheelR == StateWheel::SMOKE){
-            sprite.setTexture(textures[148 + current_code_image % 4], true);
+            sprite.setTexture(textures[148 + current_smoke_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 1.9f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);

@@ -310,6 +310,7 @@ void Biome::loadObjects(const string &path, const vector<string> &objectNames){
         bool collision = true;
         float scale = 1.f;
         float widthCollision = t.getSize().x;
+        int showTerrain = 0;
         fPoint pivotLeft = {1.f, 1.f};
         fPoint pivotRight = {0.f, 1.f};
         fPoint pivotColLeft = {0.5f, 1.f};
@@ -347,6 +348,9 @@ void Biome::loadObjects(const string &path, const vector<string> &objectNames){
                     fin >> pointX >> pointY;
                     pivotColRight = {pointX, pointY};
                 }
+                else if (s == "SHOW_TERRAIN:" && !fin.eof()){
+                    fin >>  showTerrain;
+                }
                 else if (!s.empty()) {
                     cerr << "WARNING: '" << s << "' at file " << path + objName + ".info" << endl;
                 }
@@ -357,6 +361,7 @@ void Biome::loadObjects(const string &path, const vector<string> &objectNames){
         collisions.push_back(collision);
         scaleCoeffs.push_back(scale);
         widthCollisionCoeffs.push_back(widthCollision);
+        showTerrainCoeffs.push_back(showTerrain);
         pivotLeftPoints.push_back(pivotLeft);
         pivotRightPoints.push_back(pivotRight);
         pivotLeftColPoints.push_back(pivotColLeft);

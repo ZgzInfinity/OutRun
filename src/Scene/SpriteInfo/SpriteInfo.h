@@ -50,14 +50,15 @@ class SpriteInfo {
         bool collider, side;
         float widthCol, offsetX, offsetY;
         fPoint pivotColLeft, pivotColRight;
+        int showTerrain;
 
     public:
 
         SpriteInfo();
 
         SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
-                   const int _wCol, const fPoint _pivotColL, const fPoint _pivotColR, const bool _collider,
-                   const float _offsetX, const float _offsetY, const bool _side);
+                   const int _wCol, const int _showTerrain, const fPoint _pivotColL, const fPoint _pivotColR,
+                   const bool _collider, const float _offsetX, const float _offsetY, const bool _side);
 
         sf::Texture* getTextureSprite() const;
 
@@ -80,6 +81,8 @@ class SpriteInfo {
         void setOffsetY(const float _offsetY);
 
         float getOffsetY() const;
+
+        int getShowTerrain() const;
 
         fPoint getPivotColLeft() const;
 

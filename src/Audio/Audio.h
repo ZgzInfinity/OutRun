@@ -169,6 +169,10 @@ class Audio {
 
         static void pause(const int index);
 
+        static void pauseSfxForReanudate();
+
+        static void reanudateSfxPaused();
+
         static void stopSfx();
 
         static void stopMusic();

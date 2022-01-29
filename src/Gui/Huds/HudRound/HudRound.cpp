@@ -54,7 +54,6 @@ void HudRound::loadHudRound(){
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::SPEED_MOTOR_INDICATOR, "Resources/Huds/HudRound/Speed_Motor_Indicator.png");
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::STAGE_INDICATOR, "Resources/Huds/HudRound/Stage_Indicator.png");
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::GEAR_INDICATOR, "Resources/Huds/HudRound/Gear_Indicator.png");
-    loadHudRoundTextureIndicator(Hud_Texture_Indicator::EXTENDED_TIME_INDICATOR, "Resources/Huds/HudRound/Extended_play_Indicator.png");
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR, "Resources/Huds/HudRound/Tree_level_1_indicator.png");
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::TREE_LEVEL_2_INDICATOR, "Resources/Huds/HudRound/Tree_level_2_indicator.png");
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::TREE_LEVEL_3_INDICATOR, "Resources/Huds/HudRound/Tree_level_3_indicator.png");
@@ -310,7 +309,7 @@ void HudRound::setHudRound(const int _time, const long long int _score, const fl
     instance.cents_second = _cents_second;
     instance.level = _level;
     instance.gear = _gear;
-    instance.speed = _speed * 2.24f;
+    instance.speed = _speed * HUD_SPEED_FACTOR;
     instance.maxSpeed = _maxSpeed;
     instance.speedHud = _speed;
 }

@@ -50,9 +50,11 @@ class MenuPause : public Menu {
 
         State gameStatus;
 
+        int terrain;
+
     public:
 
-        MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*> trafficCars);
+        MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*> trafficCars, const int _terrain);
 
         void loadMenu(Input& input) override;
 

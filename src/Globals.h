@@ -55,9 +55,9 @@ const int SCORE_TRAFFIC_BONUS = 20000;
 const int ROAD_WIDTH = 1600;
 const int SEGMENT_LENGTH = 150;
 const int SCREEN_Y_OFFSET = 130;
-const int PLAYER_WHEELS_TEXTURES = 24;
+const int PLAYER_WHEELS_TEXTURES = 22;
 const int PLAYER_CAR_TEXTURES = 148;
-const int PLAYER_TOTAL_TEXTURES = 172;
+const int PLAYER_TOTAL_TEXTURES = 170;
 const int TRAFFIC_TEXTURES = 4;
 const int SCORE_BONIFICATION = 1000000;
 const int BACKGROUND_MOVING_OFFSET = 91;
@@ -65,12 +65,14 @@ const int TIME_RANKING_MENU = 28;
 const int TOTAL_PLAYER_CARS = 14;
 const int TOTAL_COLOR_TEXTURES = 8;
 const int NOT_COUNT_LINES = -1;
+const int GRADIENT_FACTOR = 80;
 
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;
 const float FOV = 120.f;
 const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * M_PI / 180.0f));
 const float CAMERA_HEIGHT = 800.f;
+const float HUD_SPEED_FACTOR = 1.945f;
 
 const std::string SCORE_FILE_EASY = "Resources/Score/scoresEasy.txt";
 const std::string SCORE_FILE_NORMAL = "Resources/Score/scoresNormal.txt";
@@ -78,8 +80,5 @@ const std::string SCORE_FILE_HARD = "Resources/Score/scoresHard.txt";
 
 #define MIN( a, b ) ( ((a) < (b)) ? (a) : (b) )
 #define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
-
-// Global variables to control the mutual exclusion
-extern mutex mainMutex;
 
 #endif // GLOBALS_H
