@@ -63,7 +63,7 @@ class TrafficCar : public Vehicle {
 
         bool getOffset() const;
 
-        void draw();
+        void draw(const bool pauseMode);
 };
 
 

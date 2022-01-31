@@ -74,12 +74,12 @@ bool TrafficCar::getOffset() const {
  * @param e is the current elevation of the terrain where is the camera
  * @param camX is the position of the camera in the axis x
  */
-void TrafficCar::draw() {
+void TrafficCar::draw(const bool pauseMode) {
 
     if (counter_code_image >= maxCounterToChange) {
         counter_code_image = 0;
 
-        if (speed > 0.f)
+        if (speed > 0.f && !pauseMode)
             current_code_image++;
 
         if (textures.size() == TRAFFIC_TEXTURES) {

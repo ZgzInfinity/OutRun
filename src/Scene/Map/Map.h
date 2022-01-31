@@ -40,6 +40,7 @@ class Map {
     private:
 
         Biome* currentBiome;
+        Biome* nextBiome;
 
         int position, iniPosition, numBiomesVisited;
 
@@ -53,6 +54,7 @@ class Map {
         float backgroundSwapOffset;
         bool ending;
         bool notDrawn;
+        bool newBiomeChosen;
 
         sf::Color sand, road, rumble, lane, rumbleLane;
         sf::Color bg, bg2;

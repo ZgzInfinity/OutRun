@@ -57,7 +57,7 @@ struct Line {
 
     void renderSpriteInfo(Input& input, SpriteInfo* sprite);
 
-	void renderCars(Input& input, TrafficCar* car);
+	void renderCars(Input& input, TrafficCar* car, const bool pauseMode);
 
 	void drawObject(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);
 

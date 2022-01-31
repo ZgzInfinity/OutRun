@@ -627,7 +627,7 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
 
                 if (outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
                     Audio::play(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, true);
-                else if (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
+                else if (crashing || (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)))
                     Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);
             }
             else

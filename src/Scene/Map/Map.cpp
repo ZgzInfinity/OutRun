@@ -38,10 +38,12 @@ Map::Map()
 	sameColors = 0;
 	numBiomesVisited = 0;
 	notDrawn = false;
+	newBiomeChosen = false;
 
 	//Initial position
 	iniPosition = position = 300 * (int)SEGMENT_LENGTH;
     currentBiome = nullptr;
+    nextBiome = nullptr;
 }
 
 Map::~Map()
@@ -58,9 +60,11 @@ bool Map::getgoalMap() const {
 void Map::setMapDistanceAndTrackLength(){
     int not_count_lines = NOT_COUNT_LINES;
     int gradient = random_int(-1, 1);
-    currentBiome->addBiome(10, 400, 50, -2, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
-	currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
-	currentBiome->addBiome(10, 10, 10, 0, 0, false, currentBiome->dist3, not_count_lines);
+    currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
+	currentBiome->addBiome(50, 50, 50, 0, 0, true, currentBiome->dist8, not_count_lines);
+	currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist5, not_count_lines);
+	currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->dist3, not_count_lines);
+	currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
     mapDistance = (int)currentBiome->lines[0]->distance;
 	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 	currentBiome->lastLine = currentBiome->lines.size() - drawDistance;
@@ -118,6 +122,7 @@ void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long
                 }
                 break;
             case true:
+
                 if (l->index > playerLine->index + drawDistance || l->index < playerLine->index)
                 {
                     if (l->index < playerLine->index)
@@ -257,19 +262,24 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     float playerPerc = (float)(((position + p.getPosZ()) % (int)SEGMENTL) / SEGMENTL);
 	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
 
-	// FALTA EL ONROAD
-    if (!currentBiome->end && playerLine->index > currentBiome->lastLine){
-
+	if (playerLine->index > currentBiome->swapLine && !newBiomeChosen){
         if (p.getPlayerMap() == playerR::LEFTROAD){
             currentBiome->left->end = true;
-            currentBiome = currentBiome->getLeft();
+            nextBiome = currentBiome->getLeft();
             treeMapPos += level;
         }
         else if (p.getPlayerMap() == playerR::RIGHTROAD){
             currentBiome->right->end = true;
-            currentBiome = currentBiome->getRight();
+            nextBiome = currentBiome->getRight();
             treeMapPos += (level + 1);
         }
+        newBiomeChosen = true;
+	}
+
+	// FALTA EL ONROAD
+    if (!currentBiome->end && playerLine->index > currentBiome->lastLine){
+
+        currentBiome = nextBiome;
 
         numBiomesVisited++;
         if (numBiomesVisited != 5)
@@ -280,25 +290,15 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         swapping = false;
         checkPointDisplayed = false;
         checkPoint = false;
+        newBiomeChosen = false;
 
         if (currentBiome->end)
             ending = true;
 
-        for (unsigned int i = 0; i < cars.size(); ++i)
-		{
+        for (unsigned int i = 0; i < cars.size(); ++i){
 		    int posZ = cars[i]->getPosZ();
 		    posZ -= position;
 			cars[i]->setPosZ(posZ);
-			//Cars on the other road will be moved away
-			if (cars[i]->getActive() && ((p.getPlayerMap() == playerR::LEFTROAD && cars[i]->getSide()) || (p.getPlayerMap() == playerR::RIGHTROAD && !cars[i]->getSide())))
-			{
-                int posZ = cars[i]->getPosZ();
-                posZ += (rand() % (680) + 220) * SEGMENT_LENGTH;
-				cars[i]->setPosZ(posZ);
-				cars[i]->setActive(false);
-				cars[i]->setSide(rand() % 2);
-				cars[i]->setSpeed(0.f);
-			}
 		}
 
         position = iniPosition = 0;
@@ -735,7 +735,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                 l2 = currentBiome->lines[(int)(cars[n]->getPosZ() / SEGMENTL) % currentBiome->lines.size()];
                 if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
                 {
-                    l2->renderCars(input, cars[n]);
+                    l2->renderCars(input, cars[n], pauseMode);
                 }
             }
         }
