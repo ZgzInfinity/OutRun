@@ -206,14 +206,14 @@ bool Logger::checkTimeTerrainRoad(Biome& m){
 
                         if (instance.inputFlux.eof()){
                             instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                                instance.column << ". IDENTIFIER ROAD TERRAIN: NOT FOUND." << std::endl;
+                                instance.column << ". IDENTIFIER ROAD_TERRAIN: NOT FOUND." << std::endl;
 
                             return !instance.failDetected;
                         }
                         else {
-                            if (informationRead != "ROAD:"){
+                            if (informationRead != "ROAD_TERRAIN:"){
                                 instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                                    instance.column << ". EXPECTED IDENTIFIER TOKEN ROAD: BUT FOUND " << informationRead << "." << std::endl;
+                                    instance.column << ". EXPECTED IDENTIFIER TOKEN ROAD_TERRAIN: BUT FOUND " << informationRead << "." << std::endl;
 
                                 return !instance.failDetected;
                             }
@@ -222,20 +222,19 @@ bool Logger::checkTimeTerrainRoad(Biome& m){
                                 instance.inputFlux >> informationRead;
                                 if (instance.inputFlux.eof()){
                                     instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                                        instance.column << ". ROAD VALUE NOT FOUND." << std::endl;
+                                        instance.column << ". ROAD_TERRAIN VALUE NOT FOUND." << std::endl;
 
                                     return !instance.failDetected;
                                 }
                                 else {
                                     if (std::regex_match(informationRead, instance.natural_number_regex)){
-                                        bool road = (informationRead == "1") ? true : false;
-                                        if (informationRead != "0" && informationRead != "1"){
+                                        int roadTerrain = stoi(informationRead);
+                                        if (roadTerrain < 0 || roadTerrain > 4){
                                             instance.outputFlux << "SYNTAX ERROR IN LINE " << instance.row << " AND COL " <<
-                                                instance.column << ". ROAD VALUE " << informationRead << " MUST BE 0 OR 1" << std::endl;
+                                                instance.column << ". ROAD VALUE " << roadTerrain << " MUST BETWEEN 0 AND 4" << std::endl;
                                         }
-                                        else {
-                                            m.setRoad(road);
-                                        }
+                                        else
+                                            m.setRoadTerrain(roadTerrain);
                                     }
                                 }
                             }

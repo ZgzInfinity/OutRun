@@ -304,7 +304,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         position = iniPosition = 0;
 		trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 		p.setPosY(0);
-		p.setRoadDefined(currentBiome->getRoad());
+		p.setRoadTerrain(currentBiome->getRoadTerrain());
 
 		notDrawn = true;
 		playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];

@@ -50,8 +50,8 @@ void Biome::setTerrain(const int _terrain){
     terrain = _terrain;
 }
 
-void Biome::setRoad(const bool _road){
-    road = _road;
+void Biome::setRoadTerrain(const int _roadTerrain){
+    roadTerrain = _roadTerrain;
 }
 
 int Biome::getTime() const {
@@ -71,8 +71,8 @@ bool Biome::getGoalBiome() const {
     return goalBiome;
 };
 
-bool Biome::getRoad() const {
-    return road;
+int Biome::getRoadTerrain() const {
+    return roadTerrain;
 }
 
 

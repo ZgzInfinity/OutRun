@@ -42,12 +42,12 @@ struct Biome{
 
 	int swapLine, lastLine, lineCheckPoint;
 
-    int time, terrain;
+    int time, terrain, roadTerrain;
 
     sf::Texture backGroundFront, backGroundBack;
     sf::RectangleShape backgroundShapeFront, backgroundShapeBack;
 
-	bool biomeSwap, road;
+	bool biomeSwap;
 
     bool startBiome, goalBiome;
 
@@ -78,7 +78,7 @@ struct Biome{
 
     void setTerrain(const int _terrain);
 
-    void setRoad(const bool _road);
+    void setRoadTerrain(const int _roadTerrain);
 
     int getTime() const;
 
@@ -88,7 +88,7 @@ struct Biome{
 
     bool getGoalBiome() const;
 
-    bool getRoad() const;
+    int getRoadTerrain() const;
 
     void setColors(const std::vector<sf::Color>& colorsOBiome);
 

@@ -34,7 +34,7 @@ PlayerCar::PlayerCar() : Vehicle(){}
 
 
 PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const float _speed, const float _scale,
-                     const std::string& name, const bool _automaticMode, const bool _isTrafficCar, const bool _roadDefined)
+                     const std::string& name, const bool _automaticMode, const bool _isTrafficCar, const int _roadTerrain)
                      : Vehicle(_posX, _posY, _posZ, _speed, _scale, name, _isTrafficCar)
 {
 	playerW = 77;
@@ -65,8 +65,8 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	wheelR = StateWheel::SMOKE;
 	elevation = Elevation::FLAT;
 
+	roadTerrain = _roadTerrain;
     automaticMode = _automaticMode;
-    roadDefined = _roadDefined;
     crashing = false;
     firstTurnLeft = true;
     firstTurnRight = true;
@@ -117,8 +117,8 @@ void PlayerCar::setDrawCar(const bool _drawCar){
     drawCar = _drawCar;
 }
 
-void PlayerCar::setRoadDefined(const bool _roadDefined){
-    roadDefined = _roadDefined;
+void PlayerCar::setRoadTerrain(const int _roadTerrain){
+    roadTerrain = _roadTerrain;
 }
 
 
@@ -689,7 +689,7 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
                 counter_code_image = 0;
 
                 if (!pauseMode){
-                    if (outsideRoad || !roadDefined || showTerrain == 1)
+                    if (outsideRoad || roadTerrain != 0 || showTerrain == 1)
                         current_terrain_image = (current_terrain_image < 5) ? current_terrain_image + 1 : 0;
 
                     if (wheelL == StateWheel::SMOKE || wheelR == StateWheel::SMOKE)
@@ -982,56 +982,56 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
 
         const float j = sprite.getPosition().y + sprite.getGlobalBounds().height;
 
-        if (wheelL == StateWheel::SAND || ((!roadDefined || showTerrain == 1) && terrain == 1 && !crashing && speed > 0.f)){
+        if ((wheelL == StateWheel::SAND || roadTerrain == 1 || (showTerrain == 1 && roadTerrain == 1))  && !crashing && speed > 0.f){
             sprite.setTexture(textures[152 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
                                 j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
-        if (wheelR == StateWheel::SAND || ((!roadDefined || showTerrain == 1) && terrain == 1 && !crashing && speed > 0.f)){
+        if ((wheelR == StateWheel::SAND || roadTerrain == 1 || (showTerrain == 1 && roadTerrain == 1))  && !crashing && speed > 0.f){
             sprite.setTexture(textures[152 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
 
-        if (wheelL == StateWheel::GRASS || ((!roadDefined || showTerrain == 1) && terrain == 2 && !crashing && speed > 0.f)){
+        if ((wheelL == StateWheel::GRASS || roadTerrain == 2 || (showTerrain == 1 && roadTerrain == 2)) && !crashing && speed > 0.f){
             sprite.setTexture(textures[158 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
                                 j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
-        if (wheelR == StateWheel::GRASS || ((!roadDefined || showTerrain == 1) && terrain == 2 && !crashing && speed > 0.f)){
+        if ((wheelR == StateWheel::GRASS || roadTerrain == 2 || (showTerrain == 1 && roadTerrain == 2)) && !crashing && speed > 0.f){
             sprite.setTexture(textures[158 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
 
-        if (wheelL == StateWheel::SNOW || ((!roadDefined || showTerrain == 1) && terrain == 3 && !crashing && speed > 0.f)){
+        if ((wheelL == StateWheel::SNOW || roadTerrain == 3 || (showTerrain == 1 && roadTerrain == 3))  && !crashing && speed > 0.f){
             sprite.setTexture(textures[164 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
                                 j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
-        if (wheelR == StateWheel::SNOW || ((!roadDefined || showTerrain == 1) && terrain == 3 && !crashing && speed > 0.f)){
+        if ((wheelR == StateWheel::SNOW || roadTerrain == 3 || (showTerrain == 1 && roadTerrain == 3))  && !crashing && speed > 0.f){
             sprite.setTexture(textures[164 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
 
-        if (wheelL == StateWheel::MUD || ((!roadDefined || showTerrain == 1) && terrain == 4 && !crashing && speed > 0.f)){
+        if ((wheelL == StateWheel::MUD || roadTerrain == 4 || (showTerrain == 1 && roadTerrain == 4))  && !crashing && speed > 0.f){
             sprite.setTexture(textures[170 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f - (sprite.getGlobalBounds().width),
                                 j - sprite.getGlobalBounds().height + out);
             input.gameWindow.draw(sprite);
         }
-        if (wheelR == StateWheel::MUD || ((!roadDefined || showTerrain == 1) && terrain == 4 && !crashing && speed > 0.f)){
+        if ((wheelR == StateWheel::MUD || roadTerrain == 4 || (showTerrain == 1 && roadTerrain == 4))  && !crashing && speed > 0.f){
             sprite.setTexture(textures[170 + current_terrain_image], true);
             sprite.setScale(2.5f * input.screenScaleX, 2.5f * input.screenScaleX);
             sprite.setPosition(((float) input.gameWindow.getSize().x) / 2.0f, j - sprite.getGlobalBounds().height + out);

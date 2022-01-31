@@ -295,7 +295,7 @@ State Game::startRound(Input& input){
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale,
                            "Ferraris/Ferrari" + to_string(playerCarSelected + 1), automaticMode, false,
-                           currentMap->getCurrentBiome()->getRoad());
+                           currentMap->getCurrentBiome()->getRoadTerrain());
 
     HudRound::loadHudRound();
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
