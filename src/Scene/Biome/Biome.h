@@ -40,7 +40,7 @@ struct Biome{
 
     int dist3, dist4, dist5, dist6, dist7, dist8, distM;
 
-	int swapLine, lastLine;
+	int swapLine, lastLine, lineCheckPoint;
 
     int time, terrain;
 
@@ -102,7 +102,7 @@ struct Biome{
 
     void addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, int distance, int& linesOfBiome);
 
-    void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos);
+    void addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos, const bool isCheckPoint);
 
     void setBackgroundFront(const string path);
 

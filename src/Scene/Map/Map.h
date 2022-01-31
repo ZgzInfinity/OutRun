@@ -89,7 +89,8 @@ class Map {
 
         void updateCarPlayerWheels(PlayerCar& p);
 
-        void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score);
+        void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
+                       bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level);
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode);
 

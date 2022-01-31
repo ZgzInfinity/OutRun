@@ -234,7 +234,8 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 	}
 }
 
-void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score){
+void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
+                    bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level){
 
     updateCars(cars, p, score);
 	iniPosition = position;
@@ -262,10 +263,12 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         if (p.getPlayerMap() == playerR::LEFTROAD){
             currentBiome->left->end = true;
             currentBiome = currentBiome->getLeft();
+            treeMapPos += level;
         }
         else if (p.getPlayerMap() == playerR::RIGHTROAD){
             currentBiome->right->end = true;
             currentBiome = currentBiome->getRight();
+            treeMapPos += (level + 1);
         }
 
         numBiomesVisited++;
@@ -275,6 +278,8 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         setMapDistanceAndTrackLength();
         setMapColors();
         swapping = false;
+        checkPointDisplayed = false;
+        checkPoint = false;
 
         if (currentBiome->end)
             ending = true;
@@ -299,6 +304,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         position = iniPosition = 0;
 		trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 		p.setPosY(0);
+		p.setRoadDefined(currentBiome->getRoad());
 
 		notDrawn = true;
 		playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
@@ -421,12 +427,10 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     playerPerc = (float)(((position + p.getPosZ()) % (int)SEGMENTL) / SEGMENTL);
 	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
 
-	if (abs(playerLine->p1.xCamera) <= abs(playerLine->p11.xCamera)){
+	if (abs(playerLine->p1.xCamera) <= abs(playerLine->p11.xCamera))
      	p.setPlayerMap(playerR::LEFTROAD);
-    }
-    else {
+    else
         p.setPlayerMap(playerR::RIGHTROAD);
-    }
 
     p.controlCentrifugalForce(playerLine, time, mapDistance);
 	mapDistance = (int)playerLine->distance;
@@ -466,6 +470,10 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
             p.setSkidding(false);
 		}
 	}
+
+	if (!currentBiome->getStartBiome() && !currentBiome->getGoalBiome() &&
+        !checkPointDisplayed && playerLine->index > currentBiome->lineCheckPoint)
+        checkPoint = true;
 }
 
 

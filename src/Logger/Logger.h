@@ -122,7 +122,7 @@ class Logger {
         void static loadGoalBiomeSprites(Biome& m);
 
         bool static checkLevelBiomeSprite(Biome& m, const int startPos, const int endPos, const int incrementor, const int frequency,
-                                        bool& indexSpecified, bool& spritesProcessed, const int pos);
+                                        bool& indexSpecified, bool& spritesProcessed, const int pos, const bool isCheckPoint);
 
         bool static checkLevelBiomeSprites(Biome& m);
 

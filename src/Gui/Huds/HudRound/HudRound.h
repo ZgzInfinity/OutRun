@@ -93,6 +93,8 @@ class HudRound {
 
         int gear;
 
+        int treeMapPos;
+
         float speed, speedHud;
 
         float maxSpeed;
@@ -126,8 +128,8 @@ class HudRound {
         static void configureHudRound(Input& input);
 
         static void setHudRound(const int _time, const long long int _score, const float _minutes,
-                           const float _secs, const float _cents_second, const int _level,
-                           const int _gear, float _speed, const float _maxSpeed);
+                           const float _secs, const float _cents_second, const int _level, const int _treeMapPos,
+                            const bool checkPoint, const int _gear, float _speed, const float _maxSpeed);
 
         static void setAllHudRoundIndicators(Input& input);
 

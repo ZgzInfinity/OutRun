@@ -454,6 +454,8 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
             input.camD = (input.currentIndexResolution <= 1) ? 0.84 : 0.83;
         }
     }
-    if (pauseMode)
+    if (pauseMode){
         HudRound::configureHudRound(input);
+        HudCheckPoint::configureHudCheckPoint(input);
+    }
 }

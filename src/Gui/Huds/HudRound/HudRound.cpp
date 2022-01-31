@@ -33,8 +33,9 @@ HudRound::HudRound(){
     cents_secondTrip = 0.f;
     speed = 0.f;
     maxSpeed = 0.f;
-    level = 0;
+    level = 1;
     speedHud = 0.0f;
+    treeMapPos = LEVEL_FACTOR;
 }
 
 void HudRound::loadHudRoundTextureIndicator(const Hud_Texture_Indicator hudInd , const std::string& name){
@@ -129,6 +130,8 @@ void HudRound::setAllHudRoundIndicators(Input& input){
     }
     else
         instance.speedHud = 0.0f;
+
+    instance.hudSprites[instance.treeMapPos].setTexture(instance.hudTextures[instance.treeMapPos], true);
 }
 
 
@@ -232,16 +235,21 @@ void HudRound::configureHudRound(Input& input){
     sf::Vector2f posSpeedIndicator(posX, posY);
     setPositionHudRoundIndicator(Hud_Texture_Indicator::SPEED_INDICATOR, posSpeedIndicator);
 
-    setScaleHudRoundIndicator(Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR,
-                              sf::Vector2f(4.f * input.screenScaleX, 4.f * input.screenScaleX));
 
-    float width = instance.hudSprites[(int)Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR].getGlobalBounds().width;
-    float height = instance.hudSprites[(int)Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR].getGlobalBounds().height;
-    initial = float(input.gameWindow.getSize().x) - separation - width;
-    posX = initial;
-    posY = down - height - 1.f;
-    sf::Vector2f posTreeMapLevelIndicator(posX, posY);
-    setPositionHudRoundIndicator(Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR, posTreeMapLevelIndicator);
+    for (int i = (int)Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR; i <= (int)Hud_Texture_Indicator::TREE_LEVEL_15_INDICATOR; i++){
+
+        setScaleHudRoundIndicator(static_cast<Hud_Texture_Indicator>(i),
+                                  sf::Vector2f(4.f * input.screenScaleX, 4.f * input.screenScaleX));
+
+        float width = instance.hudSprites[i].getGlobalBounds().width;
+        float height = instance.hudSprites[i].getGlobalBounds().height;
+        initial = float(input.gameWindow.getSize().x) - separation - width;
+        posX = initial;
+        posY = down - height - 1.f;
+        sf::Vector2f posTreeMapLevelIndicator(posX, posY);
+        setPositionHudRoundIndicator(static_cast<Hud_Texture_Indicator>(i), posTreeMapLevelIndicator);
+    }
+
 
 
     setScaleHudRoundIndicator(Hud_Texture_Indicator::STAGE_INDICATOR,
@@ -259,7 +267,7 @@ void HudRound::configureHudRound(Input& input){
     instance.hudTexts[(int)Hud_Text_Indicator::LEVEL_TEXT].setOutlineColor(sf::Color::Black);
     instance.hudTexts[(int)Hud_Text_Indicator::LEVEL_TEXT].setOutlineThickness(3.0f * input.screenScaleX);
     posX = float(input.gameWindow.getSize().x) * 0.85f;
-    posY =  down - 1.09f * float(instance.hudTexts[(int)Hud_Text_Indicator::LEVEL_TEXT].getCharacterSize());
+    posY =  down - 1.06f * float(instance.hudTexts[(int)Hud_Text_Indicator::LEVEL_TEXT].getCharacterSize());
     sf::Vector2f posLevelTextIndicator(posX, posY);
     setTextHudRoundIndicator(Hud_Text_Indicator::LEVEL_TEXT, std::to_string(instance.level), posLevelTextIndicator);
 
@@ -300,7 +308,8 @@ void HudRound::configureHudRound(Input& input){
 
 
 void HudRound::setHudRound(const int _time, const long long int _score, const float _minutes, const float _secs,
-                 const float _cents_second, const int _level, const int _gear, float _speed, const float _maxSpeed)
+                 const float _cents_second, const int _level, const int _treeMapPos, const bool checkPoint,
+                 const int _gear, float _speed, const float _maxSpeed)
 {
     instance.time = _time;
     instance.score = _score;
@@ -312,6 +321,9 @@ void HudRound::setHudRound(const int _time, const long long int _score, const fl
     instance.speed = _speed * HUD_SPEED_FACTOR;
     instance.maxSpeed = _maxSpeed;
     instance.speedHud = _speed;
+
+    if (checkPoint)
+        instance.treeMapPos = _treeMapPos;
 }
 
 
@@ -325,7 +337,7 @@ void HudRound::drawHudRound(Input& input){
     if (instance.speedHud > 0.0f)
         input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::SPEED_MOTOR_INDICATOR]);
 
-    input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::TREE_LEVEL_1_INDICATOR]);
+    input.gameWindow.draw(instance.hudSprites[instance.treeMapPos]);
     input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::STAGE_INDICATOR]);
     input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::GEAR_INDICATOR]);
 

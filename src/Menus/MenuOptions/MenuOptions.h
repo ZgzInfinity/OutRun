@@ -28,6 +28,7 @@
 #include "../../Globals.h"
 #include "../../Gui/Button/Button.h"
 #include "../../Gui/Huds/HudRound/HudRound.h"
+#include "../../Gui/Huds/HudCheckPoint/HudCheckPoint.h"
 #include "../../Logger/Logger.h"
 
 class MenuOptions : public Menu {

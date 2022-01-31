@@ -28,8 +28,8 @@
 
 
  enum class Hud_Texture_CheckPoint_Indicator : int {
-    LAP_INDICATOR,
     EXTENDED_TIME_INDICATOR,
+    LAP_INDICATOR,
     __COUNT
 };
 
@@ -65,11 +65,11 @@ class HudCheckPoint {
 
         static void setScaleHudCheckPointIndicator(const Hud_Texture_CheckPoint_Indicator& hudInd, const sf::Vector2f& scale);
 
+        static void setTextHudCheckPointIndicator(const Hud_Text_CheckPoint_Indicator& hudInd, const std::string message);
+
+        static void setTextPositionHudCheckPointIndicator(const Hud_Text_CheckPoint_Indicator& hudInd, const sf::Vector2f& pos);
+
         static void setPositionHudCheckPointIndicator(const Hud_Texture_CheckPoint_Indicator& hudInd, const sf::Vector2f& pos);
-
-        static void setTextHudCheckPointIndicator(const Hud_Text_CheckPoint_Indicator& hudInd, const std::string message, const sf::Vector2f& pos);
-
-        static void setTextHudCheckPointIndicator(Input& input, const Hud_Text_CheckPoint_Indicator& hudInd, const std::string message);
 
     public:
 
@@ -80,8 +80,6 @@ class HudCheckPoint {
         static void configureHudCheckPoint(Input& input);
 
         static void setHudCheckPoint(const float _minutes, const float _secs, const float _cents_second);
-
-        static void setAllHudCheckPointIndicators(Input& input);
 
         static void drawHudCheckPoint(Input& input);
 };

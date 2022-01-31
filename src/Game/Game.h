@@ -45,6 +45,7 @@
 #include "../Car/TrafficCar/TrafficCar.h"
 #include "../Gui/Huds/HudRound/HudRound.h"
 #include "../Gui/Huds/HudBonus/HudBonus.h"
+#include "../Gui/Huds/HudCheckPoint/HudCheckPoint.h"
 #include "../Logger/Logger.h"
 
  class Game {
@@ -57,21 +58,25 @@
 
         const sf::Time bonus_delay = sf::seconds(0.01);
 
+        const sf::Time blink_delay = sf::seconds(0.5f);
+
         sf::Clock gameClockTime;
 
         sf::Clock gameClockLap;
 
         sf::Clock bonusClock;
 
+        sf::Clock blinkTime;
+
         State gameStatus;
 
         bool automaticMode;
 
-        bool firstLoad;
+        bool firstLoad, blinkCheckPoint;
 
-        bool spectatorsCongrats, showmanCongrats;
+        bool spectatorsCongrats, showmanCongrats, checkPoint, checkPointDisplayed;
 
-        float time;
+        float time, checkPointInitial, checkPointElapsed;
 
         clock_t tick_timer;
 
@@ -91,7 +96,7 @@
 
         float cents_secondTrip;
 
-        int level;
+        int level, timeCheck, treeMapPos;
 
         Map* currentMap;
 

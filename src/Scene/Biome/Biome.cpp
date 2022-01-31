@@ -29,6 +29,7 @@ Biome::Biome(){
 	goalBiome = false;
 	swapLine = 0;
 	lastLine = 0;
+	lineCheckPoint = 0;
 
 	// Set distances for Map lanes
 	dist3 = 0;
@@ -197,28 +198,47 @@ void Biome::addSegment(float curve, float y, bool mirror, float dist, int& lines
         linesOfBiome++;
 }
 
-void Biome::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos){
+void Biome::addSpriteInfo(int line, SpriteInfo* p, const Sprite_Position spritePos, const bool isCheckPoint){
 	if (line < (int)lines.size()){
         switch (spritePos){
             case Sprite_Position::FAR_LEFT:
                 lines[line]->spriteFarLeft = p;
                 lines[line]->hasSpriteFarLeft = true;
+
+                if (isCheckPoint)
+                    lineCheckPoint = line;
+
                 break;
             case Sprite_Position::FAR_RIGHT:
                 lines[line]->spriteFarRight = p;
                 lines[line]->hasSpriteFarRight = true;
+
+                if (isCheckPoint)
+                    lineCheckPoint = line;
+
                 break;
             case Sprite_Position::NEAR_LEFT:
                 lines[line]->spriteNearLeft = p;
                 lines[line]->hasSpriteNearLeft = true;
+
+                if (isCheckPoint)
+                    lineCheckPoint = line;
+
                 break;
             case Sprite_Position::NEAR_RIGHT:
                 lines[line]->spriteNearRight = p;
                 lines[line]->hasSpriteNearRight = true;
+
+                if (isCheckPoint)
+                    lineCheckPoint = line;
+
                 break;
             case Sprite_Position::CENTER:
                 lines[line]->spriteCenter = p;
                 lines[line]->hasSpriteCenter = true;
+
+                if (isCheckPoint)
+                    lineCheckPoint = line;
         }
 	}
 }

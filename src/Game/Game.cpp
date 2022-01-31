@@ -90,8 +90,10 @@ Game::Game(Input& input){
     minutesTrip = 0.f;
     secsTrip = 0.f;
     cents_secondTrip = 0.f;
-    level = 0;
+    level = 1;
+    timeCheck = 0;
     playerCarSelected = 0;
+    treeMapPos = LEVEL_FACTOR;
     currentMap = nullptr;
     player = nullptr;
     goalBiome = nullptr;
@@ -104,6 +106,8 @@ Game::Game(Input& input){
     endingAnimation = false;
     startingRound = true;
     carSelectionRefused = false;
+    checkPoint = false;
+    checkPointDisplayed = false;
 
     Audio::loadAll(input);
 }
@@ -147,13 +151,15 @@ void Game::updateRound(Input& input){
     handleEvent(input, time);
 
     mtx.lock();
-    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level,
+    int currentLevel = level;
+
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, currentLevel, treeMapPos, checkPoint,
                             player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
     mtx.unlock();
     HudRound::setAllHudRoundIndicators(input);
 
     if (gameStatus != State::GAME_OVER)
-        currentMap->updateMap(input, cars, *player, gameStatus, time, score);
+        currentMap->updateMap(input, cars, *player, gameStatus, time, score, checkPoint, checkPointDisplayed, treeMapPos, currentLevel);
 
     currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
 
@@ -166,6 +172,47 @@ void Game::updateRound(Input& input){
         player->drawEndDriftRound(input);
 
     HudRound::drawHudRound(input);
+
+    if (checkPoint && !checkPointDisplayed){
+        mtx.lock();
+        HudCheckPoint::setHudCheckPoint(minutes, secs, cents_second);
+        cents_second = 0;
+        secs = 0;
+        minutes = 0;
+
+        timeToPlay += int(currentMap->getCurrentBiome()->getTime());
+        timeCheck = timeToPlay;
+        level++;
+
+        HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
+                            player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+
+        HudRound::setAllHudRoundIndicators(input);
+        mtx.unlock();
+        checkPointDisplayed = true;
+        Audio::play(Sfx::CHECKPOINT_VOICE, false);
+    }
+
+    if (checkPoint) {
+        checkPointElapsed = blinkTime.getElapsedTime().asSeconds();
+        if (checkPointElapsed - checkPointInitial >= blink_delay.asSeconds()) {
+            blinkCheckPoint = !blinkCheckPoint;
+            blinkTime.restart();
+        }
+        if (blinkCheckPoint){
+            Audio::play(Sfx::CHECKPOINT_ALARM, false);
+            HudCheckPoint::drawHudCheckPoint(input);
+        }
+
+        mtx.lock();
+        int timeHideCheck = timeToPlay;
+        mtx.unlock();
+
+        if (timeCheck - timeHideCheck > 5)
+            checkPoint = false;
+    }
+    else
+         Audio::stop(Sfx::CHECKPOINT_ALARM);
 
     if (gameStatus == State::END_ROUND){
         elapsedBonusTime = bonusClock.getElapsedTime().asSeconds();
@@ -237,7 +284,13 @@ State Game::startRound(Input& input){
     minutes = 0;
     secs = 0;
     cents_second = 0;
+    level = 1;
+    treeMapPos = LEVEL_FACTOR;
     startingRound = true;
+    checkPoint = false;
+    checkPointDisplayed = false;
+    blinkCheckPoint = false;
+
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale,
@@ -245,9 +298,16 @@ State Game::startRound(Input& input){
                            currentMap->getCurrentBiome()->getRoad());
 
     HudRound::loadHudRound();
-    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
+                          player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+
     HudRound::setAllHudRoundIndicators(input);
     HudRound::configureHudRound(input);
+
+    HudCheckPoint::loadHudCheckPoint();
+    HudCheckPoint::setHudCheckPoint(minutes, secs, cents_second);
+    HudCheckPoint::configureHudCheckPoint(input);
+
 
     TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, 1, true);
     TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, 1, true);
@@ -380,6 +440,9 @@ State Game::playRound(Input& input){
     gameClockLap.restart();
     elapsed3 = gameClockLap.getElapsedTime().asSeconds();
 
+    blinkTime.restart();
+    checkPointInitial = blinkTime.getElapsedTime().asSeconds();
+
     while (!escape && !pauseMode && !outOfTime && !arrival)
         updateRound(input);
 
@@ -487,7 +550,7 @@ State Game::gameOverRound(Input& input){
     if (player->getOutiseRoad())
         player->setOutsideRoad(false);
 
-    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level,
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
                           player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
 
     HudRound::setAllHudRoundIndicators(input);
@@ -716,7 +779,7 @@ void Game::run(Input& input){
                 gameStatus =  mMr.returnMenu(input);
                 break;
             }
-            case State::LOAD_MAPS: {
+            case State::LOAD_BIOMES: {
                 gameStatus = this->loadBiomes(input);
                 break;
             }
@@ -740,7 +803,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::PAUSE:{
-                HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level,
+                HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
                                       player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
 
                 HudRound::setAllHudRoundIndicators(input);

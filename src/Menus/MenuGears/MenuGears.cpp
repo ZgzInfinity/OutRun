@@ -236,6 +236,7 @@ void MenuGears::draw(Input& input){
     }
 
     optionSelected = 0;
+    k = 0;
 
     // While the start key is not pressed
     while (!startPressed && !backPressed && !escapePressed){
@@ -277,6 +278,7 @@ void MenuGears::draw(Input& input){
 
     mainTextArrived = false;
     lapTextsArrived = false;
+    k = 0;
 
     // Until start key is pressed
     if (!escapePressed){
