@@ -71,14 +71,13 @@ class PlayerCar : public Vehicle {
 
         Direction direction;
         Action action;
-        Elevation elevation;
 
         bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding, trafficCrash, drawCar,
              crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode, endAnimation;
 
         Collision modeCollision;
 
-        int numAngers, out, counterOut, roadTerrain;
+        int numAngers, out, counterOut, roadTerrain, soundTrafficCounter;
 
         int playerW, gear, skidIndex, showTerrain, current_terrain_image, current_smoke_image;
 
@@ -155,14 +154,12 @@ public:
 
     void accelerationControl(Input& input, const State gameStatus, const float time);
 
-    void elevationControl(const int& yWorld1, const int& yWorld2);
-
     void controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance);
 
     void checkCollisionSpriteInfo(Input& input, const Line* playerLine, bool& crashed, const SpriteInfo* sprite);
 
     void checkCollisionTrafficCar(Input& input, const Line* playerLine, const Line* trafficCarLine,
-                                  const TrafficCar* c, bool& crashed);
+                                  TrafficCar* c, bool& crashed);
 
     bool hasCrashed(float x1, int w1, float x2, float w2, float scale);
 

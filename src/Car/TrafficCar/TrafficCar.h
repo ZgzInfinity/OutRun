@@ -41,15 +41,14 @@ class TrafficCar : public Vehicle {
 
         int id;
         float offset, percent;
-        bool active, side;
-        int lane;
+        bool active, side, playerClosed;
 
     public:
 
         TrafficCar();
 
         TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const std::string& name,
-                   const int& _id, const float& _offset, const bool& _active, const bool& _side, const int& _lane, const bool _isTrafficCar);
+                   const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar);
 
         void setActive(const bool& _active);
 
@@ -61,9 +60,15 @@ class TrafficCar : public Vehicle {
 
         void setOffset(const float& _offset);
 
-        bool getOffset() const;
+        float getOffset() const;
+
+        int getId() const;
 
         void draw(const bool pauseMode);
+
+        void setPlayerClosed(const bool _playerClosed);
+
+        bool getPlayerClosed() const;
 };
 
 

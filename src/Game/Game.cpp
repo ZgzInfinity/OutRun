@@ -285,11 +285,14 @@ State Game::startRound(Input& input){
     secs = 0;
     cents_second = 0;
     level = 1;
+    int numTrafficCars = 0;
     treeMapPos = LEVEL_FACTOR;
     startingRound = true;
     checkPoint = false;
     checkPointDisplayed = false;
     blinkCheckPoint = false;
+
+    cars.clear();
 
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
@@ -308,13 +311,25 @@ State Game::startRound(Input& input){
     HudCheckPoint::setHudCheckPoint(minutes, secs, cents_second);
     HudCheckPoint::configureHudCheckPoint(input);
 
+    switch (input.traffic){
+        case Level_Traffic::LOW:
+            numTrafficCars = TRAFFIC_CARS_EASY;
+            break;
+        case Level_Traffic::MEDIUM:
+            numTrafficCars = TRAFFIC_CARS_NORMAL;
+            break;
+        case Level_Traffic::HIGH:
+            numTrafficCars = TRAFFIC_CARS_HARD;
+    }
 
-    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, 1, true);
-    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, 1, true);
-    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, 1, true);
-    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, 1, true);
-    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, 1, true);
-    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, 1, true);
+    cars.reserve(numTrafficCars);
+
+    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, true);
+    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true);
+    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, true);
+    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, true);
+    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, true);
+    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, true);
 
     cars.push_back(car1);
     cars.push_back(car2);
@@ -322,6 +337,14 @@ State Game::startRound(Input& input){
     cars.push_back(car4);
     cars.push_back(car5);
     cars.push_back(car6);
+
+    for (int i = 7; i <= numTrafficCars; i++){
+        TrafficCar* c = new TrafficCar(0, 0, random_int(5, 7) * 100 * SEGMENT_LENGTH, random_int(10, 16) * 10.f,
+                                       "TrafficCars/Car" + std::to_string(i), i, random_int(-6, 6) * 0.15f, false,
+                                       random_int(0, 1), true);
+
+        cars.push_back(c);
+    }
 
     int counterAnimation = 0;
     int code = 121;

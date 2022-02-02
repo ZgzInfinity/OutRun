@@ -32,14 +32,13 @@ TrafficCar::TrafficCar() : Vehicle(){}
 
 
 TrafficCar::TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const std::string& name,
-                       const int& _id, const float& _offset, const bool& _active, const bool& _side, const int& _lane,
-                       const bool _isTrafficCar) : Vehicle( _posX, _posY, _posZ, _speed, scale, name, _isTrafficCar)
+                       const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar)
+                       : Vehicle( _posX, _posY, _posZ, _speed, scale, name, _isTrafficCar)
 {
     id = _id;
     offset = _offset;
     active = _active;
     side = _side;
-    lane = _lane;
 }
 
 
@@ -63,11 +62,13 @@ void TrafficCar::setOffset(const float& _offset){
     offset = _offset;
 }
 
-bool TrafficCar::getOffset() const {
+float TrafficCar::getOffset() const {
     return offset;
 }
 
-
+int TrafficCar::getId() const {
+    return id;
+}
 
 /**
  * Update the sprite of the enemy vehicle.
@@ -83,18 +84,61 @@ void TrafficCar::draw(const bool pauseMode) {
             current_code_image++;
 
         if (textures.size() == TRAFFIC_TEXTURES) {
-            if (direction == Direction::TURNLEFT) {
-                if (current_code_image < 1 || current_code_image > 2)
-                    current_code_image = 1;
+            if (elevation == Elevation::FLAT){
+                if (playerClosed){
+                    if (direction == Direction::TURNRIGHT) {
+                        if (current_code_image < 1 || current_code_image > 2)
+                            current_code_image = 1;
+                    }
+                    else if (direction == Direction::TURNLEFT) {
+                        if (current_code_image < 3 || current_code_image > 4)
+                            current_code_image = 3;
+                    }
+                }
+                else {
+                    if (direction == Direction::TURNRIGHT) {
+                        if (current_code_image < 13 || current_code_image > 14)
+                            current_code_image = 13;
+                    }
+                    else if (direction == Direction::TURNLEFT) {
+                        if (current_code_image < 15 || current_code_image > 16)
+                            current_code_image = 15;
+                    }
+                }
             }
-            else if (direction == Direction::TURNRIGHT) {
-                if (current_code_image < 3 || current_code_image > 4)
-                    current_code_image = 3;
+            else if (elevation == Elevation::UP){
+                if (direction == Direction::TURNRIGHT) {
+                    if (current_code_image < 5 || current_code_image > 6)
+                        current_code_image = 5;
+                }
+                else if (direction == Direction::TURNLEFT) {
+                    if (current_code_image < 7 || current_code_image > 8)
+                        current_code_image = 7;
+                }
+            }
+            else if (elevation == Elevation::DOWN){
+                if (direction == Direction::TURNRIGHT) {
+                    if (current_code_image < 9 || current_code_image > 10)
+                        current_code_image = 9;
+                }
+                else if (direction == Direction::TURNLEFT) {
+                    if (current_code_image < 11 || current_code_image > 12)
+                        current_code_image = 11;
+                }
             }
         }
     }
-    else {
+    else
         counter_code_image++;
-    }
 }
+
+
+void TrafficCar::setPlayerClosed(const bool _playerClosed){
+    playerClosed = _playerClosed;
+}
+
+bool TrafficCar::getPlayerClosed() const {
+    return playerClosed;
+}
+
 

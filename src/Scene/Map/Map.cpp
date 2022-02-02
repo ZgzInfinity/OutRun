@@ -108,17 +108,19 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 
 void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score){
     Line* l;
+    float posX;
     for (int i = 0; i < cars.size(); i++){
 		TrafficCar* c = cars[i];
 		c->setPosZ(c->getPosZ() + c->getSpeed());
 		l = currentBiome->lines[(int)((c->getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
+        c->elevationControl(l->p1.yWorld, l->p2.yWorld);
 		Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
 		switch (c->getActive()) {
             case false:
                 if (l->index < playerLine->index + drawDistance && l->index > playerLine->index)
                 {
                     c->setActive(true);
-                    c->setSpeed(120.f);
+                    c->setSpeed(random_int(10, 16) * 10.f);
                 }
                 break;
             case true:
@@ -128,17 +130,19 @@ void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long
                     if (l->index < playerLine->index)
                         score += SCORE_TRAFFIC_BONUS;
 
-                    c->setSide(rand() % 2);
+                    c->setSide(random_int(0, 1));
                     c->setActive(false);
                     c->setSpeed(0.f);
-                    float adv = (rand() % (680) + 220)*SEGMENT_LENGTH;
-                    c->setPosZ(c->getPosZ() + adv);
+                    c->setOffset(random_int(-6, 6) * 0.15f);
+                    c->setPosZ(c->getPosZ() + (random_int(5, 7) * 100 * SEGMENT_LENGTH));
                 }
                 break;
 		}
 
-		float posCar = (c->getSide() ? c->getOffset() * ROAD_WIDTH + mapDistance : c->getOffset() * ROAD_WIDTH);
-		if (posCar > p.getPosX() * ROAD_WIDTH)
+        posX = (c->getSide() ? c->getOffset() * ROAD_WIDTH + mapDistance : c->getOffset() * ROAD_WIDTH);
+		c->setPosX(posX);
+
+		if (c->getPosX() > p.getPosX() * ROAD_WIDTH)
 			c->setDirection(Direction::TURNLEFT);
 		else
 			c->setDirection(Direction::TURNRIGHT);
@@ -276,7 +280,6 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         newBiomeChosen = true;
 	}
 
-	// FALTA EL ONROAD
     if (!currentBiome->end && playerLine->index > currentBiome->lastLine){
 
         currentBiome = nextBiome;
@@ -310,11 +313,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 		playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
     }
 
-	//Activate end sequence
 	if (currentBiome->getGoalBiome() && p.getEndAnimation() && playerLine->index >= 500)
         p.setEndAnimation(false);
 
-    //Check for biome colors change
 	if (!currentBiome->biomeSwap && !currentBiome->end && !swapping && playerLine->index > currentBiome->swapLine)
 	{
         swapping = true;
@@ -482,7 +483,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
         input.gameWindow.clear();
 
-        if (swapping)
+        if (!pauseMode && swapping)
             interpolateBiomes(input, p);
 
         Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
@@ -643,7 +644,6 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
         }
         else {
-
             // First background of the map
             backgroundShapeSliced.setSize(sf::Vector2f(input.gameWindow.getSize().x,
                                                MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
@@ -656,7 +656,8 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                                                              MAX(posBackYBack, posBackYBack + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))),
                                                              input.gameWindow.getSize().x, MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
 
-            drawBackground(input, 0 - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+            drawBackground(input, 0 - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET),
+                           backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
 
 
             // First background of the map
@@ -671,7 +672,8 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                                                              MAX(posBackYFront, posBackYFront + (heightFront - (int)(maxY + SCREEN_Y_OFFSET))),
                                                              input.gameWindow.getSize().x, MIN(heightFront, (int)(maxY + SCREEN_Y_OFFSET))));
 
-            drawBackground(input, 0 - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+            drawBackground(input, 0 - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET),
+                           backgroundShapeSliced, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
 
 
             // Second background of the map
@@ -687,7 +689,8 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                                                              MAX(posBackYBack, posBackYBack + (heightBack - (int)(maxY + SCREEN_Y_OFFSET))),
                                                              input.gameWindow.getSize().x, MIN(heightBack, (int)(maxY + SCREEN_Y_OFFSET))));
 
-            drawBackground(input, input.gameWindow.getSize().x - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeNewBiome, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+            drawBackground(input, input.gameWindow.getSize().x - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET),
+                           backgroundShapeNewBiome, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
 
 
             // Second background of the map
@@ -703,7 +706,9 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                                                              MAX(posBackYFront, posBackYFront + (heightFront - (int)(maxY + SCREEN_Y_OFFSET))),
                                                              input.gameWindow.getSize().x, MIN(heightFront, (int)(maxY + SCREEN_Y_OFFSET))));
 
-            drawBackground(input, input.gameWindow.getSize().x - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET), backgroundShapeNewBiome, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+            drawBackground(input, input.gameWindow.getSize().x - (int)backgroundSwapOffset, (int)(maxY + SCREEN_Y_OFFSET),
+                           backgroundShapeNewBiome, 1.f, { 1.f, 1.f }, { 0.f, 1.f });
+
         }
 
 
@@ -776,42 +781,42 @@ void Map::drawBackground(Input& input, int x, int y, sf::RectangleShape backgrou
 
 void Map::interpolateBiomes(Input& input, const PlayerCar& p)
 {
-	if (backgroundSwapOffset < input.gameWindow.getSize().x)
-	{
-		backgroundSwapOffset += 5.f;
-		if (backgroundSwapOffset > input.gameWindow.getSize().x)
-			backgroundSwapOffset = input.gameWindow.getSize().x;
-	}
+    if (backgroundSwapOffset < input.gameWindow.getSize().x)
+    {
+        backgroundSwapOffset += 5.f;
+        if (backgroundSwapOffset > input.gameWindow.getSize().x)
+            backgroundSwapOffset = input.gameWindow.getSize().x;
+    }
 
-	bg = interpolateColors(bg, bg2);
-	sand = interpolateColors(sand, sandAux);
-	sand2 = interpolateColors(sand2, sand2Aux);
-	road = interpolateColors(road, roadAux);
-	road2 = interpolateColors(road2, road2Aux);
-	rumble = interpolateColors(rumble, rumbleAux);
-	rumble2 = interpolateColors(rumble2, rumble2Aux);
-	lane = interpolateColors(lane, laneAux);
-	lane2 = interpolateColors(lane2, lane2Aux);
-	rumbleLane = interpolateColors(rumbleLane, rumbleLaneAux);
+    bg = interpolateColors(bg, bg2);
+    sand = interpolateColors(sand, sandAux);
+    sand2 = interpolateColors(sand2, sand2Aux);
+    road = interpolateColors(road, roadAux);
+    road2 = interpolateColors(road2, road2Aux);
+    rumble = interpolateColors(rumble, rumbleAux);
+    rumble2 = interpolateColors(rumble2, rumble2Aux);
+    lane = interpolateColors(lane, laneAux);
+    lane2 = interpolateColors(lane2, lane2Aux);
+    rumbleLane = interpolateColors(rumbleLane, rumbleLaneAux);
     rumbleLane2 = interpolateColors(rumbleLane2, rumbleLane2Aux);
 
-	if (backgroundSwapOffset >= input.gameWindow.getSize().x && sameColor(bg, bg2) && sameColor(sand, sandAux) &&
+    if (backgroundSwapOffset >= input.gameWindow.getSize().x && sameColor(bg, bg2) && sameColor(sand, sandAux) &&
         sameColor(sand2, sand2Aux) && sameColor(road, roadAux) && sameColor(road2, road2Aux) && sameColor(rumble, rumbleAux) &&
         sameColor(rumble2, rumble2Aux) && sameColor(lane, laneAux) && sameColor(lane2, lane2Aux) && sameColor(rumbleLane2, rumbleLane2Aux))
-	{
+    {
         backGroundFront = backGround2Front;
-		backGroundBack = backGround2Back;
-		backgroundSwapOffset = 0.f;
-		swapping = false;
-		currentBiome->biomeSwap = true;
-		offsetXBackground1 = BACKGROUND_MOVING_OFFSET;
+        backGroundBack = backGround2Back;
+        backgroundSwapOffset = 0.f;
+        swapping = false;
+        currentBiome->biomeSwap = true;
+        offsetXBackground1 = BACKGROUND_MOVING_OFFSET;
         offsetXBackground2 = BACKGROUND_MOVING_OFFSET;
 
         if (p.getPlayerMap() == playerR::LEFTROAD)
             setTerrain(currentBiome->getLeft()->getTerrain());
         else
             setTerrain(currentBiome->getRight()->getTerrain());
-	}
+    }
 }
 
 sf::Color Map::interpolateColors(const sf::Color& c1, const sf::Color& c2){

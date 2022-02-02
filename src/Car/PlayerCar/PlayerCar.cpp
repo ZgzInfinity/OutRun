@@ -55,6 +55,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	counter_code_image = 0;
 	numAngers = 0;
 	counterOut = 0;
+	soundTrafficCounter = 0;
 	current_terrain_image = 0;
 	current_smoke_image = 0;
 	thresholdX = 0.f;
@@ -406,17 +407,6 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
         }
 }
 
-
-void PlayerCar::elevationControl(const int& yWorld1, const int& yWorld2){
-    if (yWorld1 == yWorld2)
-        elevation = Elevation::FLAT;
-    else if (yWorld1 < yWorld2)
-        elevation = Elevation::UP;
-    else
-        elevation = Elevation::DOWN;
-}
-
-
 void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& time, const int& mapDistance){
 	float centrifugal = (speed > 26) ? 0.5f : 0.f;
 	if (speed >= 100.f)
@@ -484,7 +474,7 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
 
 
 void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, const Line* trafficCarLine,
-                                          const TrafficCar* c, bool& crashed)
+                                         TrafficCar* c, bool& crashed)
 {
     if (trafficCarLine->index == playerLine->index)
     {
@@ -527,6 +517,41 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
                                                     (int)Sfx::SPECTATORS_EIGHTH_SHOUT)), false);
         }
     }
+    else if (abs((posX * ROAD_WIDTH) - c->getPosX()) <= MINIMUM_DISTANCE_X &&
+             abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y)
+    {
+        if (soundTrafficCounter == 0){
+
+            if (c->getId() % 6 == 0 || c->getId() == 32)
+                Audio::play(static_cast<Sfx>(random_int((int)Sfx::TRAFFIC_THIRD_CLAXON,
+                                                        (int)Sfx::TRAFFIC_FOURTH_CLAXON)), false);
+            else
+                Audio::play(static_cast<Sfx>(random_int((int)Sfx::TRAFFIC_FIRST_CLAXON,
+                                                        (int)Sfx::TRAFFIC_SECOND_CLAXON)), false);
+
+            if (c->getId() == 1 || c->getId() == 7 || c->getId() == 13 ||
+                c->getId() == 19 || c->getId() == 25 ||
+                (c->getId() < 30 && c->getId() % 3 == 0 && c->getId() % 6 != 0))
+            {
+                Audio::play(Sfx::TRAFFIC_THIRD_ENGINE, false);
+            }
+            else if (c->getId() % 6 != 0 && c->getId() != 32)
+                Audio::play(static_cast<Sfx>(random_int((int)Sfx::TRAFFIC_FIRST_ENGINE,
+                                                        (int)Sfx::TRAFFIC_SECOND_ENGINE)), false);
+
+            soundTrafficCounter++;
+        }
+        if (!c->getPlayerClosed())
+            c->setPlayerClosed(true);
+    }
+    else
+        c->setPlayerClosed(false);
+
+    if (soundTrafficCounter > 0 && soundTrafficCounter < MAX_TRAFFIC_COUNTER_WAIT)
+        soundTrafficCounter++;
+    else
+        soundTrafficCounter = 0;
+
 }
 
 
@@ -625,7 +650,7 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
                 else if (!skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
                     Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
 
-                if (outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
+                if (!crashing && outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
                     Audio::play(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE, true);
                 else if (crashing || (!outsideRoad && Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE)))
                     Audio::stop(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE);

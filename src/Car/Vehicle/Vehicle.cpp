@@ -105,3 +105,12 @@ int Vehicle::getPosZ() const {
 sf::Texture Vehicle::getTexture() const {
     return textures[current_code_image - 1];
 }
+
+void Vehicle::elevationControl(const int& yWorld1, const int& yWorld2){
+    if (yWorld1 == yWorld2)
+        elevation = Elevation::FLAT;
+    else if (yWorld1 < yWorld2)
+        elevation = Elevation::UP;
+    else
+        elevation = Elevation::DOWN;
+}

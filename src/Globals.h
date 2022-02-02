@@ -49,6 +49,7 @@ const pair<const int ,const int> SCREEN_3 = make_pair(1366, 768);
 const sf::Color BUTTON_IDLE_COLOR = sf::Color(93, 244, 75);
 const sf::Color BUTTON_HOVER_COLOR = sf::Color(233, 240, 100);
 const sf::Color BUTTON_SELECTED_COLOR = sf::Color(255, 255, 0);
+const sf::Color BUTTON_LOCKED_COLOR = sf::Color(248, 51, 45);
 
 // Configuration -----------
 const int SCORE_TRAFFIC_BONUS = 20000;
@@ -58,7 +59,7 @@ const int SCREEN_Y_OFFSET = 130;
 const int PLAYER_WHEELS_TEXTURES = 28;
 const int PLAYER_CAR_TEXTURES = 148;
 const int PLAYER_TOTAL_TEXTURES = 176;
-const int TRAFFIC_TEXTURES = 4;
+const int TRAFFIC_TEXTURES = 16;
 const int SCORE_BONIFICATION = 1000000;
 const int BACKGROUND_MOVING_OFFSET = 91;
 const int TIME_RANKING_MENU = 28;
@@ -67,6 +68,12 @@ const int TOTAL_COLOR_TEXTURES = 8;
 const int NOT_COUNT_LINES = -1;
 const int GRADIENT_FACTOR = 80;
 const int LEVEL_FACTOR = 5;
+const int MAX_TRAFFIC_COUNTER_WAIT = 5000;
+const int MINIMUM_DISTANCE_X = 2000;
+const int MINIMUM_DISTANCE_Y = 20;
+const int TRAFFIC_CARS_EASY = 9;
+const int TRAFFIC_CARS_NORMAL = 20;
+const int TRAFFIC_CARS_HARD = 32;
 
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;

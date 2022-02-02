@@ -64,6 +64,7 @@ class Vehicle {
         float posX, scale;
         int posY, posZ;
         Direction direction;
+        Elevation elevation;
         int current_code_image;
         int counter_code_image;
         int maxCounterToChange;
@@ -100,6 +101,9 @@ class Vehicle {
         int getPosZ() const;
 
         sf::Texture getTexture() const;
+
+        void elevationControl(const int& yWorld1, const int& yWorld2);
+
 };
 
 

@@ -72,17 +72,19 @@ void MenuOptions::loadMenu(Input& input){
     info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
                      input.gameWindow.getSize().y / 2.f - 175.0f * input.screenScaleX);
 
+    sf::Color buttonColor = (pauseMode) ? BUTTON_LOCKED_COLOR : BUTTON_IDLE_COLOR;
+
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f - 270.0f * input.screenScaleX,
                              input.gameWindow.getSize().y / 2.f - 130.0f * input.screenScaleX,
                              200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
-                             "DIFFICULTY", BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
+                             "DIFFICULTY", buttonColor, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
                              resized ? ButtonState::BUTTON_IDLE : ButtonState::BUTTON_HOVER,
                              input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f - 270.0f * input.screenScaleX,
                              input.gameWindow.getSize().y / 2.f - 60.0f * input.screenScaleX,
                              200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
-                             "TRAFFIC", BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
+                             "TRAFFIC", buttonColor, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
                              ButtonState::BUTTON_IDLE, input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f - 270.0f * input.screenScaleX,
@@ -141,14 +143,14 @@ void MenuOptions::loadMenu(Input& input){
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f + 80.0f * input.screenScaleX,
                              input.gameWindow.getSize().y / 2.f - 130.0f * input.screenScaleX,
                              200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
-                             difficulty, BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
+                             difficulty, buttonColor, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
                              resized ? ButtonState::BUTTON_IDLE : ButtonState::BUTTON_HOVER,
                              input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f + 80.0f * input.screenScaleX,
                              input.gameWindow.getSize().y / 2.f - 60.0f * input.screenScaleX,
                              200.0f * input.screenScaleX, 30.0f * input.screenScaleX, fontMenu,
-                             traffic, BUTTON_IDLE_COLOR, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
+                             traffic, buttonColor, BUTTON_HOVER_COLOR, BUTTON_SELECTED_COLOR,
                              ButtonState::BUTTON_IDLE, input.screenScaleX);
 
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f + 80.0f * input.screenScaleX,
@@ -198,10 +200,12 @@ void MenuOptions::handleEvent(Input& input){
         {
             switch (optionSelected) {
                 case 0:
-                    changeDifficulty(input, event);
+                    if (!pauseMode)
+                        changeDifficulty(input, event);
                     break;
                 case 1:
-                    changeTrafficLevel(input, event);
+                    if (!pauseMode)
+                        changeTrafficLevel(input, event);
                     break;
                 case 2:
                     changeResolution(input, event);
@@ -211,22 +215,23 @@ void MenuOptions::handleEvent(Input& input){
             input.modifiedinputig = true;
         }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-            if (!controlSelected)
-                Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
-            else
-                Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
+            if (!pauseMode || (pauseMode && optionSelected >= 2)){
+                if (!controlSelected)
+                    Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+                else
+                    Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
 
-            controlSelected = !controlSelected;
-            if (controlSelected){
-                menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_SELECTED);
-                menuButtons[optionSelected + 5].setButtonState(ButtonState::BUTTON_SELECTED);
-            }
-            else {
-                menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_HOVER);
-                menuButtons[optionSelected + 5].setButtonState(ButtonState::BUTTON_HOVER);
-            }
-            if (optionSelected > 2){
-                startPressed = true;
+                controlSelected = !controlSelected;
+                if (controlSelected){
+                    menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_SELECTED);
+                    menuButtons[optionSelected + 5].setButtonState(ButtonState::BUTTON_SELECTED);
+                }
+                else {
+                    menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_HOVER);
+                    menuButtons[optionSelected + 5].setButtonState(ButtonState::BUTTON_HOVER);
+                }
+                if (optionSelected > 2)
+                    startPressed = true;
             }
         }
     }
