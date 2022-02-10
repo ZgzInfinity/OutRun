@@ -100,6 +100,10 @@ class Vehicle {
 
         int getPosZ() const;
 
+        int getMaxCounterToChange() const;
+
+        int getCounter_code_image() const;
+
         sf::Texture getTexture() const;
 
         void elevationControl(const int& yWorld1, const int& yWorld2);

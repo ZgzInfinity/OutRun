@@ -23,9 +23,7 @@
  * Module Player implementation file
  */
 
-#include <cmath>
 #include "TrafficCar.h"
-#include "../../Random/Random.h"
 
 
 TrafficCar::TrafficCar() : Vehicle(){}
@@ -33,14 +31,31 @@ TrafficCar::TrafficCar() : Vehicle(){}
 
 TrafficCar::TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const std::string& name,
                        const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar)
-                       : Vehicle( _posX, _posY, _posZ, _speed, scale, name, _isTrafficCar)
+                       : Vehicle( _posX, _posY, _posZ, _speed, 1.f, name, _isTrafficCar)
 {
     id = _id;
     offset = _offset;
     active = _active;
     side = _side;
+
+    readProperties(name);
 }
 
+void TrafficCar::readProperties(const std::string& name){
+    ifstream fin("Resources/Vehicles/" + name + "/Car" + std::to_string(id) + ".txt");
+    if (fin.is_open()) {
+        while (!fin.eof()) {
+            string s;
+            fin >> s;
+            if (s == "SCALE:" && !fin.eof())
+                fin >> scale;
+            else if (!s.empty())
+                cerr << "WARNING: '" << s << "' at file "
+                     << "Resources/Vehicles/" << name << "/Car" << std::to_string(id) << ".txt" << endl;
+        }
+        fin.close();
+    }
+}
 
 void TrafficCar::setActive(const bool& _active) {
     active = _active;
@@ -141,4 +156,7 @@ bool TrafficCar::getPlayerClosed() const {
     return playerClosed;
 }
 
+float TrafficCar::getScale() const {
+    return scale;
+}
 

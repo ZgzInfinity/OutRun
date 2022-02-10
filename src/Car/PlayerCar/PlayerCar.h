@@ -67,7 +67,7 @@ class PlayerCar : public Vehicle {
 
         float maxHighSpeed, maxLowSpeed, lowAccel, brakeAccel, highAccel;
         float thresholdX, varThresholdX;
-        float collisionDir, speedGear;
+        float collisionDir, speedGear, collisionCurve;
 
         Direction direction;
         Action action;
@@ -77,7 +77,7 @@ class PlayerCar : public Vehicle {
 
         Collision modeCollision;
 
-        int numAngers, out, counterOut, roadTerrain, soundTrafficCounter;
+        int numAngers, out, counterOut, roadTerrain, soundTrafficCounter, numberCollisionLaps;
 
         int playerW, gear, skidIndex, showTerrain, current_terrain_image, current_smoke_image;
 
@@ -127,6 +127,10 @@ public:
     void setCollisionDir();
 
     float getCollisionDir() const;
+
+    void setCollisionCurve();
+
+    float getCollisionCurve() const;
 
     void setCrashing(const bool& _crashing);
 

@@ -74,6 +74,7 @@ const int MINIMUM_DISTANCE_Y = 20;
 const int TRAFFIC_CARS_EASY = 9;
 const int TRAFFIC_CARS_NORMAL = 20;
 const int TRAFFIC_CARS_HARD = 32;
+const int SPRITES_PER_COLLISION = 8;
 
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;

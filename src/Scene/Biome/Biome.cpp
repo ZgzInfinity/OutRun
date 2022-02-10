@@ -372,7 +372,7 @@ void Biome::loadObjects(const string &path, const vector<string> &objectNames){
                     fin >>  showTerrain;
                 }
                 else if (!s.empty()) {
-                    cerr << "WARNING: '" << s << "' at file " << path + objName + ".info" << endl;
+                    cerr << "WARNING: '" << s << "' at file " << path + objName + ".txt" << endl;
                 }
             }
             fin.close();

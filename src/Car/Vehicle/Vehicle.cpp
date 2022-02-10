@@ -102,6 +102,14 @@ int Vehicle::getPosZ() const {
     return posZ;
 }
 
+int Vehicle::getMaxCounterToChange() const {
+    return maxCounterToChange;
+}
+
+int Vehicle::getCounter_code_image() const {
+    return counter_code_image;
+}
+
 sf::Texture Vehicle::getTexture() const {
     return textures[current_code_image - 1];
 }

@@ -29,11 +29,13 @@
 #define TRAFFIC_CAR_H
 
 
+#include <cmath>
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include "../../Globals.h"
 #include "../../Input/Input.h"
 #include "../Vehicle/Vehicle.h"
+#include "../../Random/Random.h"
 
 class TrafficCar : public Vehicle {
 
@@ -49,6 +51,8 @@ class TrafficCar : public Vehicle {
 
         TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const std::string& name,
                    const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar);
+
+        void readProperties(const std::string& name);
 
         void setActive(const bool& _active);
 
@@ -69,6 +73,8 @@ class TrafficCar : public Vehicle {
         void setPlayerClosed(const bool _playerClosed);
 
         bool getPlayerClosed() const;
+
+        float getScale() const;
 };
 
 

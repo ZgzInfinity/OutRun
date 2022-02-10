@@ -125,7 +125,7 @@ void MenuOptions::loadMenu(Input& input){
             traffic = "EASY";
             break;
         case Level_Traffic::LOW:
-            traffic = "HARD";
+            traffic = "LOW";
             break;
         case Level_Traffic::MEDIUM:
             traffic = "MEDIUM";

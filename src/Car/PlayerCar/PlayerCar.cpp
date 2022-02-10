@@ -46,6 +46,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	maxHighSpeed = 75.f;
 	direction = Direction::FRONT;
 	collisionDir = 0.f;
+	collisionCurve = 0.f;
 	out = 0;
     skidIndex = -1;
 	gear = 0;
@@ -58,6 +59,7 @@ PlayerCar::PlayerCar(const int _posX, const int _posY, const int _posZ, const fl
 	soundTrafficCounter = 0;
 	current_terrain_image = 0;
 	current_smoke_image = 0;
+	numberCollisionLaps = 0;
 	thresholdX = 0.f;
 	speedGear = 0.f;
     playerMap = playerR::LEFTROAD;
@@ -151,6 +153,14 @@ float PlayerCar::getCollisionDir() const {
     return collisionDir;
 }
 
+void PlayerCar::setCollisionCurve(){
+    collisionCurve = 0.f;
+}
+
+float PlayerCar::getCollisionCurve() const {
+    return collisionCurve;
+}
+
 void PlayerCar::setCrashing(const bool& _crashing){
     crashing = _crashing;
 }
@@ -218,10 +228,12 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
             }
             else
             {
-                if (gear == 1)
+                if (gear == 1){
                     maxHighSpeed = 170.f;
-                else
+                }
+                else {
                     maxHighSpeed = 100.f;
+                }
             }
 
             if ((input.pressed(Key::BRAKE, event) || input.held(Key::BRAKE)) && speed > 0.f){
@@ -247,9 +259,8 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
             else if ((input.pressed(Key::ACCELERATE, event) || input.held(Key::ACCELERATE)) && speed <= maxHighSpeed && !outsideRoad){
                 if (speed <= maxHighSpeed){
                     speed += lowAccel * time;
-                    if (speed > maxHighSpeed){
+                    if (speed > maxHighSpeed)
                         speed = maxHighSpeed;
-                    }
                 }
                 else
                     speed = maxHighSpeed;
@@ -337,17 +348,17 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
             {
                 direction = Direction::TURNLEFT;
                 if (thresholdX > -varThresholdX)
-                    thresholdX -= 0.2f;
+                    thresholdX -= 0.3f;
                 else if (thresholdX < -varThresholdX)
-                    thresholdX += 0.2f;
+                    thresholdX += 0.3f;
             }
             else if (input.pressed(Key::TURN_RIGHT, event) || input.held(Key::TURN_RIGHT))
             {
                 direction = Direction::TURNRIGHT;
                 if (thresholdX < varThresholdX)
-                    thresholdX += 0.2f;
+                    thresholdX += 0.3f;
                 else if (thresholdX > varThresholdX)
-                    thresholdX -= 0.2f;
+                    thresholdX -= 0.3f;
             }
             else {
                 direction = Direction::FRONT;
@@ -366,8 +377,8 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
             break;
         case State::END_ROUND:
             if (endAnimation){
-                if (!gear)
-                    gear = true;
+                if (gear == 0)
+                    gear = 1;
 
                 maxHighSpeed = (int)SEGMENT_LENGTH;
                 speed += lowAccel * time;
@@ -447,24 +458,30 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
         if (hasCrashed(((float) input.gameWindow.getSize().x) / 2.0f + 5,
                        playerW, x2, sprite->getWidthCol(), scale))
         {
+            collisionCurve = playerLine->curve;
             collisionDir = posX;
             crashing = true;
             crashed = true;
             trafficCrash = false;
             modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A,
                                                               (int)Collision::TYPE_B));
-            if (speed <= 80 )
-                lowAccel = speed / 2.0f;
-            else if (speed >= 80 && speed <= 150)
-                lowAccel = speed / 0.8f;
-            else if (speed > 150 && speed <= 190)
-                lowAccel = speed / 1.6f;
 
+            if (speed <= 20.f)
+                numberCollisionLaps = 1;
+            else if (speed >= 20.f && speed <= 60.f)
+                numberCollisionLaps = 2;
+            else if (speed > 60.f && speed <= 120.f)
+                numberCollisionLaps = 3;
+            else
+                numberCollisionLaps = 4;
+
+            lowAccel = speed / (numberCollisionLaps * SPRITES_PER_COLLISION);
             wheelL = StateWheel::SMOKE;
             wheelR = StateWheel::SMOKE;
             Audio::play(Sfx::FERRARI_CRASH, false);
             Audio::play(static_cast<Sfx>(random_int((int)Sfx::SPECTATORS_FIRST_SHOUT,
                                                     (int)Sfx::SPECTATORS_EIGHTH_SHOUT)), false);
+
         }
     }
     else if (!outsideRoad && showTerrain == 0 && sprite->getShowTerrain() == 1)
@@ -501,15 +518,19 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
             crashing = true;
             crashed = true;
             trafficCrash = true;
-            modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A, (int)Collision::TYPE_B));
+            modeCollision = static_cast<Collision>(random_int((int)Collision::TYPE_A,
+                                                              (int)Collision::TYPE_B));
 
-            if (speed <= 80 )
-                lowAccel = speed / 2.0f;
-            else if (speed >= 80 && speed <= 150)
-                lowAccel = speed / 0.8f;
-            else if (speed > 150 && speed <= 190)
-                lowAccel = speed / 1.6f;
+            if (speed <= 20.f)
+                numberCollisionLaps = 1;
+            else if (speed >= 20.f && speed <= 60.f)
+                numberCollisionLaps = 2;
+            else if (speed > 60.f && speed <= 120.f)
+                numberCollisionLaps = 3;
+            else
+                numberCollisionLaps = 4;
 
+            lowAccel = speed / (numberCollisionLaps * SPRITES_PER_COLLISION);
             wheelL = StateWheel::SMOKE;
             wheelR = StateWheel::SMOKE;
             Audio::play(Sfx::FERRARI_CRASH, false);
@@ -924,7 +945,8 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
                                         }
                                      }
                                 }
-
+                                else
+                                    current_code_image = 0;
                             }
                             else {
                                 if (current_code_image < 121 || current_code_image > 128)
@@ -947,7 +969,8 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
                                         }
                                      }
                                 }
-
+                                else
+                                    current_code_image = 0;
                             }
                             else {
                                 if (current_code_image < 134 || current_code_image > 141)

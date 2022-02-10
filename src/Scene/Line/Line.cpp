@@ -116,8 +116,8 @@ void Line::renderCars(Input& input, TrafficCar* car, const bool pauseMode) {
 	//If has to be clipped
 	if (clip < spriteY)
 	{
-		float clipH = MAX(0, clip - (spriteY - (destH*3.43f*1.2f)));
-		float clipHPerc = (clipH / (destH*3.43f*1.2f));
+		float clipH = MAX(0, clip - (spriteY - (destH *3.43f * car->getScale())));
+		float clipHPerc = (clipH / (destH * 3.43f * car->getScale()));
 		height = (int)(height * clipHPerc);
 		spriteY = clip;
 		destH *= clipHPerc;
@@ -125,7 +125,7 @@ void Line::renderCars(Input& input, TrafficCar* car, const bool pauseMode) {
 
 	if (height > 0)
 		drawObject(input, (int)spriteX, (int)(spriteY + SCREEN_Y_OFFSET),
-             &(rectDest), 1.f, { (destW / width) * 3.2f *1.2f, (destH / height) * 3.43f * 1.2f }, pivot);
+             &(rectDest), 1.f, { (destW / width) * 3.2f * car->getScale(), (destH / height) * 3.43f * car->getScale() }, pivot);
 }
 
 
