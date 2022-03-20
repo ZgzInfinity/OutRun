@@ -146,10 +146,11 @@ State MenuPause::returnMenu(Input& input){
                 return State::PLAY_ROUND;
                 break;
             case 1:
-                 Audio::play(Soundtrack::OPTIONS, true);
+                Audio::play(Soundtrack::OPTIONS, true);
                 return State::OPTIONS;
                 break;
             case 2:
+                Audio::stop(input.currentSoundtrack);
                 return State::START;
                 break;
             case 3:
