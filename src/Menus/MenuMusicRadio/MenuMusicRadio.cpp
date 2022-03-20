@@ -153,7 +153,7 @@ void MenuMusicRadio::draw(Input& input){
 
 State MenuMusicRadio::returnMenu(Input& input){
     if (startPressed){
-        return State::LOAD_BIOMES;
+        return State::LOADING;
     }
     else if (backPressed){
         return State::GEARS;

@@ -18,6 +18,7 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <atomic>
 #include <SFML/Graphics.hpp>
 #include "../Menu/Menu.h"
 #include "../../Globals.h"

@@ -21,6 +21,7 @@
 #include "Game.h"
 
 mutex mtx;
+std::atomic<bool> biomesLoadDone(false);
 
 void Game::updateTime(){
 
@@ -73,8 +74,6 @@ void Game::updateTime(){
     }
 }
 
-Game::Game(){}
-
 Game::Game(Input& input){
     gameStatus = State::ANIMATION;
     automaticMode = false;
@@ -108,6 +107,7 @@ Game::Game(Input& input){
     carSelectionRefused = false;
     checkPoint = false;
     checkPointDisplayed = false;
+    failBiomesLoaded = false;
 
     Audio::loadAll(input);
 }
@@ -610,7 +610,7 @@ State Game::gameOverRound(Input& input){
 }
 
 
-State Game::loadBiomes(Input& input){
+void Game::loadBiomes(Input& input){
 
     Logger::setWidthScreen(input.gameWindow.getSize().x);
 
@@ -619,6 +619,8 @@ State Game::loadBiomes(Input& input){
     currentMap = new Map();
     std::string path = "";
     biomes.clear();
+
+    failBiomesLoaded = false;
 
     for (int i = 0; i < 5; i++) {
         vector<Biome> bm;
@@ -638,12 +640,12 @@ State Game::loadBiomes(Input& input){
                 if (!Logger::getFailDetected())
                     Logger::setFailDetected(Logger::checkColors(*currentBiome));
                 else
-                    return State::EXIT;
+                    failBiomesLoaded = true;
 
                 if (!Logger::getFailDetected())
                     Logger::setFailDetected(Logger::checkBiomeRelief(*currentBiome));
                 else
-                    return State::EXIT;
+                    failBiomesLoaded = true;
 
                 currentBiome->setBackgroundFront(path + "/front.png");
                 currentBiome->setBackgroundBack(path + "/back.png");
@@ -672,15 +674,24 @@ State Game::loadBiomes(Input& input){
                 if (!Logger::getFailDetected())
                     Logger::setFailDetected(Logger::checkLevelBiomeSprites(*currentBiome));
                 else
-                    return State::EXIT;
+                    failBiomesLoaded = true;
 
                 bm.push_back(*currentBiome);
                 Logger::close();
                 nm++;
             }
             else
-                return State::EXIT;
+                failBiomesLoaded = true;
+
+            if (failBiomesLoaded)
+                break;
         }
+
+        if (failBiomesLoaded){
+            Logger::setFailDetected(true);
+            break;
+        }
+
         biomes.emplace_back(bm);
     }
 
@@ -707,13 +718,18 @@ State Game::loadBiomes(Input& input){
         }
 
         Logger::close();
-        return State::LOADING;
     }
     else
-        return State::EXIT;
+        failBiomesLoaded = true;
+
+    biomesLoadDone = true;
 }
 
 void Game::run(Input& input){
+
+    biomesLoader = std::thread(loadBiomes, this, ref(input));
+    biomesLoader.detach();
+
     while (input.gameWindow.isOpen() && gameStatus != State::EXIT){
         switch (gameStatus) {
             case State::ANIMATION: {
@@ -724,6 +740,10 @@ void Game::run(Input& input){
                 break;
             }
             case State::START: {
+                if (!firstLoad){
+                    biomesLoader = std::thread(loadBiomes, this, ref(input));
+                    biomesLoader.detach();
+                }
                 MenuStart mS = MenuStart();
                 mS.setMenuStart(firstLoad, pauseMode, outOfTime);
                 mS.loadMenu(input);
@@ -754,9 +774,8 @@ void Game::run(Input& input){
                 mO.draw(input);
                 gameStatus = mO.returnMenu(input);
 
-                if (currentMap != nullptr){
+                if (currentMap != nullptr)
                     Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
-                }
 
                 if (player != nullptr){
                     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
@@ -800,10 +819,13 @@ void Game::run(Input& input){
                 mMr.loadMenu(input);
                 mMr.draw(input);
                 gameStatus =  mMr.returnMenu(input);
-                break;
-            }
-            case State::LOAD_BIOMES: {
-                gameStatus = this->loadBiomes(input);
+
+                if (!biomesLoadDone)
+                    while (!biomesLoadDone);
+
+                if (failBiomesLoaded)
+                    gameStatus = State::EXIT;
+
                 break;
             }
             case State::LOADING: {

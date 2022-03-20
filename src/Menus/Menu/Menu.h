@@ -38,7 +38,6 @@ enum class State : int {
     GEARS,
     VEHICLE,
     MUSIC,
-    LOAD_BIOMES,
     LOADING,
     PREPARE_ROUND,
     PLAY_ROUND,

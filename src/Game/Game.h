@@ -25,6 +25,7 @@
 
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include "../Input/Input.h"
 #include "../Audio/Audio.h"
 #include "../Menus/Menu/Menu.h"
@@ -122,6 +123,8 @@
 
         bool carSelectionRefused;
 
+        bool failBiomesLoaded;
+
         float elapsed1, elapsed2, elapsed3, elapsed4, bonusTime, elapsedBonusTime;
 
         std::vector<std::vector<Biome>> biomes;
@@ -130,7 +133,7 @@
 
         int playerCarSelected;
 
-        thread timeCounter;
+        thread timeCounter, biomesLoader;
 
     public:
 
@@ -152,7 +155,7 @@
 
         State gameOverRound(Input& input);
 
-        State loadBiomes(Input& input);
+        void loadBiomes(Input& input);
 
         void run(Input& input);
  };
