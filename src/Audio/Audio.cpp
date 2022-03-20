@@ -108,6 +108,7 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::GAME_OVER, "Resources/SoundEffects/Game_Over.ogg");
     instance.load(Sfx::COUNTDOWN, "Resources/SoundEffects/Countdown.ogg");
 
+    instance.load(Sfx::BIOMES_LOADED_WELL, "Resources/SoundEffects/Biomes_Loaded_Well.ogg");
 
     if (input.exitsSettings){
         if ((input.volumeMusic % 5 == 0 && input.volumeMusic >= 0 && input.volumeMusic <= 100) &&

@@ -115,6 +115,8 @@ enum class Sfx : int {
     WIND,
     GAME_OVER,
     COUNTDOWN,
+
+    BIOMES_LOADED_WELL,
     __COUNT
 };
 

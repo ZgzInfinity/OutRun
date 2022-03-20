@@ -346,7 +346,6 @@ State Game::startRound(Input& input){
         cars.push_back(c);
     }
 
-    int counterAnimation = 0;
     int code = 121;
     float i = input.gameWindow.getSize().x / 2.f;
 
@@ -480,9 +479,8 @@ State Game::playRound(Input& input){
         return State::EXIT;
     else if (pauseMode)
         return State::PAUSE;
-    else if (outOfTime){
+    else if (outOfTime)
         return State::GAME_OVER;
-    }
 }
 
 State Game::endRound(Input& input){
@@ -819,20 +817,23 @@ void Game::run(Input& input){
                 mMr.loadMenu(input);
                 mMr.draw(input);
                 gameStatus =  mMr.returnMenu(input);
-
-                if (!biomesLoadDone)
-                    while (!biomesLoadDone);
-
-                if (failBiomesLoaded)
-                    gameStatus = State::EXIT;
-
                 break;
             }
             case State::LOADING: {
-                MenuLoading mL = MenuLoading(automaticMode);
-                mL.loadMenu(input);
-                mL.draw(input);
-                gameStatus = mL.returnMenu(input);
+                if (!biomesLoadDone)
+                    while (!biomesLoadDone);
+
+                if (failBiomesLoaded){
+                    Audio::play(Sfx::MENU_SELECTION_WRONG, false);
+                    gameStatus = State::EXIT;
+                }
+                else {
+                    Audio::play(Sfx::BIOMES_LOADED_WELL, false);
+                    MenuLoading mL = MenuLoading(automaticMode);
+                    mL.loadMenu(input);
+                    mL.draw(input);
+                    gameStatus = mL.returnMenu(input);
+                }
                 break;
             }
             case State::PREPARE_ROUND: {
