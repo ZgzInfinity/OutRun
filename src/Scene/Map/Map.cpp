@@ -106,7 +106,7 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 }
 
 
-void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score){
+void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p, int long long& score){
     Line* l;
     float posX;
     for (int i = 0; i < cars.size(); i++){
@@ -134,7 +134,18 @@ void Map::updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long
                     c->setActive(false);
                     c->setSpeed(0.f);
                     c->setOffset(random_int(-6, 6) * 0.15f);
-                    c->setPosZ(c->getPosZ() + (random_int(5, 7) * 100 * SEGMENT_LENGTH));
+
+
+                    switch (input.traffic){
+                        case Level_Traffic::LOW:
+                            c->setPosZ(c->getPosZ() + (random_int(5, 7) * 100 * SEGMENT_LENGTH));
+                            break;
+                        case Level_Traffic::MEDIUM:
+                            c->setPosZ(c->getPosZ() + (random_int(5, 9) * 100 * SEGMENT_LENGTH));
+                            break;
+                        case Level_Traffic::HIGH:
+                            c->setPosZ(c->getPosZ() + (random_int(5, 11) * 100 * SEGMENT_LENGTH));
+                    }
                 }
                 break;
 		}
@@ -244,7 +255,7 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
                     bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level){
 
-    updateCars(cars, p, score);
+    updateCars(input, cars, p, score);
 	iniPosition = position;
 
     if (p.getSpeed() > 0.f){
@@ -305,7 +316,6 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         position = iniPosition = 0;
 		trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 		p.setPosY(0);
-		p.setRoadTerrain(currentBiome->getRoadTerrain());
 
 		notDrawn = true;
 		playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
@@ -437,7 +447,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     else
         p.setPlayerMap(playerR::RIGHTROAD);
 
-    p.controlCentrifugalForce(playerLine, time, mapDistance);
+    if (p.getSpeed() >= 30.5f)
+        p.controlCentrifugalForce(playerLine, time, mapDistance);
+
 	mapDistance = (int)playerLine->distance;
 
     //Check road limits for player
@@ -479,6 +491,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 	if (!currentBiome->getStartBiome() && !currentBiome->getGoalBiome() &&
         !checkPointDisplayed && playerLine->index > currentBiome->lineCheckPoint)
         checkPoint = true;
+
 }
 
 
@@ -783,7 +796,7 @@ void Map::drawBackground(Input& input, int x, int y, sf::RectangleShape backgrou
     input.gameWindow.draw(background);
 }
 
-void Map::interpolateBiomes(Input& input, const PlayerCar& p)
+void Map::interpolateBiomes(Input& input, PlayerCar& p)
 {
     if (backgroundSwapOffset < input.gameWindow.getSize().x)
     {
@@ -816,10 +829,16 @@ void Map::interpolateBiomes(Input& input, const PlayerCar& p)
         offsetXBackground1 = BACKGROUND_MOVING_OFFSET;
         offsetXBackground2 = BACKGROUND_MOVING_OFFSET;
 
-        if (p.getPlayerMap() == playerR::LEFTROAD)
+        if (p.getPlayerMap() == playerR::LEFTROAD){
             setTerrain(currentBiome->getLeft()->getTerrain());
-        else
+            p.setRoadTerrain(currentBiome->getLeft()->getRoadTerrain());
+            p.setTerrain(currentBiome->getLeft()->getTerrain());
+        }
+        else {
             setTerrain(currentBiome->getRight()->getTerrain());
+            p.setRoadTerrain(currentBiome->getRight()->getRoadTerrain());
+            p.setTerrain(currentBiome->getRight()->getTerrain());
+        }
     }
 }
 

@@ -77,7 +77,7 @@ class PlayerCar : public Vehicle {
 
         Collision modeCollision;
 
-        int numAngers, out, counterOut, roadTerrain, soundTrafficCounter, numberCollisionLaps;
+        int numAngers, out, counterOut, roadTerrain, terrain, soundTrafficCounter, numberCollisionLaps;
 
         int playerW, gear, skidIndex, showTerrain, current_terrain_image, current_smoke_image;
 
@@ -113,6 +113,8 @@ public:
     void setDrawCar(const bool _drawCar);
 
     void setRoadTerrain(const int _roadTerrain);
+
+    void setTerrain(const int _terrain);
 
     playerR getPlayerMap() const;
 

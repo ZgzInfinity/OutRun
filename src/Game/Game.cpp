@@ -291,6 +291,7 @@ State Game::startRound(Input& input){
     checkPoint = false;
     checkPointDisplayed = false;
     blinkCheckPoint = false;
+    float posZ = 0.f;
 
     cars.clear();
 
@@ -339,7 +340,19 @@ State Game::startRound(Input& input){
     cars.push_back(car6);
 
     for (int i = 7; i <= numTrafficCars; i++){
-        TrafficCar* c = new TrafficCar(0, 0, random_int(5, 7) * 100 * SEGMENT_LENGTH, random_int(10, 16) * 10.f,
+
+        switch (input.traffic){
+            case Level_Traffic::LOW:
+                posZ = random_int(5, 7) * 100 * SEGMENT_LENGTH;
+                break;
+            case Level_Traffic::MEDIUM:
+                posZ = random_int(5, 9) * 100 * SEGMENT_LENGTH;
+                break;
+            case Level_Traffic::HIGH:
+                posZ = random_int(5, 11) * 100 * SEGMENT_LENGTH;
+        }
+
+        TrafficCar* c = new TrafficCar(0, 0, posZ, random_int(10, 16) * 10.f,
                                        "TrafficCars/Car" + std::to_string(i), i, random_int(-6, 6) * 0.15f, false,
                                        random_int(0, 1), true);
 

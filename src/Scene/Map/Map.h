@@ -87,7 +87,7 @@ class Map {
 
         void drawPoly4(Input &input, short x1, short y1, short x2, short y2, short x3, short y3, short x4, short y4, sf::Color color);
 
-        void updateCars(vector<TrafficCar*> cars, const PlayerCar& p, int long long& score);
+        void updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p, int long long& score);
 
         void updateCarPlayerWheels(PlayerCar& p);
 
@@ -96,7 +96,7 @@ class Map {
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode);
 
-        void interpolateBiomes(Input& input, const PlayerCar& p);
+        void interpolateBiomes(Input& input, PlayerCar& p);
 
         sf::Color interpolateColors(const sf::Color& c1, const sf::Color& c2);
 
