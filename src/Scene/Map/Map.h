@@ -53,7 +53,6 @@ class Map {
         bool swapping;
         float backgroundSwapOffset;
         bool ending;
-        bool notDrawn;
         bool newBiomeChosen;
 
         sf::Color sand, road, rumble, lane, rumbleLane;
@@ -105,10 +104,6 @@ class Map {
         void setMapColors();
 
         bool getEnding() const;
-
-        void setNotDrawn(const bool _notDrawn);
-
-        bool getNotDrawn() const;
 
         void setTerrain(const int _terrain);
 

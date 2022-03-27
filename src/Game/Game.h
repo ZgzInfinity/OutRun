@@ -133,7 +133,7 @@
 
         int playerCarSelected;
 
-        thread timeCounter, biomesLoader;
+        thread timeCounter, biomesLoader, trafficCarLoader;
 
     public:
 
@@ -156,6 +156,8 @@
         State gameOverRound(Input& input);
 
         void loadBiomes(Input& input);
+
+        void loadTrafficCars(Input& input);
 
         void run(Input& input);
  };

@@ -47,13 +47,27 @@ vector<Score> getGlobalScores(Input& input){
 
     switch(input.difficulty){
         case Level_Difficulty::EASY:
-            path = SCORE_FILE_EASY;
+            path = "Resources/Score/scoresEasy";
             break;
         case Level_Difficulty::NORMAL:
-            path = SCORE_FILE_NORMAL;
+            path = "Resources/Score/scoresNormal";
             break;
         case Level_Difficulty::HARD:
-            path = SCORE_FILE_HARD;
+            path = "Resources/Score/scoresHard";
+    }
+
+    switch(input.traffic){
+        case Level_Traffic::NONE:
+            path += "None.txt";
+            break;
+        case Level_Traffic::LOW:
+            path += "Low.txt";
+            break;
+        case Level_Traffic::MEDIUM:
+            path += "Medium.txt";
+            break;
+        case Level_Traffic::HIGH:
+            path += "High.txt";
     }
 
     ifstream fin(path);
@@ -96,13 +110,27 @@ bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score 
 
     switch(input.difficulty){
         case Level_Difficulty::EASY:
-            path = SCORE_FILE_EASY;
+            path = "Resources/Score/scoresEasy";
             break;
         case Level_Difficulty::NORMAL:
-            path = SCORE_FILE_NORMAL;
+            path = "Resources/Score/scoresNormal";
             break;
         case Level_Difficulty::HARD:
-            path = SCORE_FILE_HARD;
+            path = "Resources/Score/scoresHard";
+    }
+
+    switch(input.traffic){
+        case Level_Traffic::NONE:
+            path += "None.txt";
+            break;
+        case Level_Traffic::LOW:
+            path += "Low.txt";
+            break;
+        case Level_Traffic::MEDIUM:
+            path += "Medium.txt";
+            break;
+        case Level_Traffic::HIGH:
+            path += "High.txt";
     }
 
     ofstream fout(path, ofstream::trunc);

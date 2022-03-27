@@ -130,7 +130,7 @@ void MenuOptions::loadMenu(Input& input){
         case Level_Traffic::MEDIUM:
             traffic = "MEDIUM";
             break;
-        default:
+        case Level_Traffic::HIGH:
             traffic = "HIGH";
             break;
     }

@@ -37,7 +37,6 @@ Map::Map()
 	ending = false;
 	sameColors = 0;
 	numBiomesVisited = 0;
-	notDrawn = false;
 	newBiomeChosen = false;
 
 	//Initial position
@@ -317,7 +316,6 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 		trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 		p.setPosY(0);
 
-		notDrawn = true;
 		playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
     }
 
@@ -874,14 +872,6 @@ void Map::setMapColors(){
 
 bool Map::getEnding() const {
     return ending;
-}
-
-void Map::setNotDrawn(const bool _notDrawn){
-    notDrawn = _notDrawn;
-}
-
-bool Map::getNotDrawn() const {
-    return notDrawn;
 }
 
 void Map::setTerrain(const int _terrain){

@@ -83,10 +83,6 @@ const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * M_PI / 180.0f));
 const float CAMERA_HEIGHT = 800.f;
 const float HUD_SPEED_FACTOR = 1.945f;
 
-const std::string SCORE_FILE_EASY = "Resources/Score/scoresEasy.txt";
-const std::string SCORE_FILE_NORMAL = "Resources/Score/scoresNormal.txt";
-const std::string SCORE_FILE_HARD = "Resources/Score/scoresHard.txt";
-
 #define MIN( a, b ) ( ((a) < (b)) ? (a) : (b) )
 #define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
 

@@ -22,6 +22,7 @@
 
 mutex mtx;
 std::atomic<bool> biomesLoadDone(false);
+std::atomic<bool> trafficCarsLoadDone(false);
 
 void Game::updateTime(){
 
@@ -272,10 +273,7 @@ void Game::updateRound(Input& input){
         }
     }
 
-    if (!currentMap->getNotDrawn())
-        input.gameWindow.display();
-    else
-        currentMap->setNotDrawn(false);
+    input.gameWindow.display();
 }
 
 State Game::startRound(Input& input){
@@ -291,9 +289,6 @@ State Game::startRound(Input& input){
     checkPoint = false;
     checkPointDisplayed = false;
     blinkCheckPoint = false;
-    float posZ = 0.f;
-
-    cars.clear();
 
     timeToPlay = currentMap->getCurrentBiome()->getTime();
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
@@ -312,52 +307,8 @@ State Game::startRound(Input& input){
     HudCheckPoint::setHudCheckPoint(minutes, secs, cents_second);
     HudCheckPoint::configureHudCheckPoint(input);
 
-    switch (input.traffic){
-        case Level_Traffic::LOW:
-            numTrafficCars = TRAFFIC_CARS_EASY;
-            break;
-        case Level_Traffic::MEDIUM:
-            numTrafficCars = TRAFFIC_CARS_NORMAL;
-            break;
-        case Level_Traffic::HIGH:
-            numTrafficCars = TRAFFIC_CARS_HARD;
-    }
-
-    cars.reserve(numTrafficCars);
-
-    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, true);
-    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true);
-    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, true);
-    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, true);
-    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, true);
-    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, true);
-
-    cars.push_back(car1);
-    cars.push_back(car2);
-    cars.push_back(car3);
-    cars.push_back(car4);
-    cars.push_back(car5);
-    cars.push_back(car6);
-
-    for (int i = 7; i <= numTrafficCars; i++){
-
-        switch (input.traffic){
-            case Level_Traffic::LOW:
-                posZ = random_int(5, 7) * 100 * SEGMENT_LENGTH;
-                break;
-            case Level_Traffic::MEDIUM:
-                posZ = random_int(5, 9) * 100 * SEGMENT_LENGTH;
-                break;
-            case Level_Traffic::HIGH:
-                posZ = random_int(5, 11) * 100 * SEGMENT_LENGTH;
-        }
-
-        TrafficCar* c = new TrafficCar(0, 0, posZ, random_int(10, 16) * 10.f,
-                                       "TrafficCars/Car" + std::to_string(i), i, random_int(-6, 6) * 0.15f, false,
-                                       random_int(0, 1), true);
-
-        cars.push_back(c);
-    }
+    if (!trafficCarsLoadDone)
+        while (!trafficCarsLoadDone);
 
     int code = 121;
     float i = input.gameWindow.getSize().x / 2.f;
@@ -736,6 +687,62 @@ void Game::loadBiomes(Input& input){
     biomesLoadDone = true;
 }
 
+void Game::loadTrafficCars(Input& input){
+
+    int numTrafficCars = 0;
+
+    switch (input.traffic){
+        case Level_Traffic::LOW:
+            numTrafficCars = TRAFFIC_CARS_EASY;
+            break;
+        case Level_Traffic::MEDIUM:
+            numTrafficCars = TRAFFIC_CARS_NORMAL;
+            break;
+        case Level_Traffic::HIGH:
+            numTrafficCars = TRAFFIC_CARS_HARD;
+    }
+
+    cars.clear();
+    cars.reserve(numTrafficCars);
+    float posZ = 0.f;
+
+    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, true);
+    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true);
+    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, true);
+    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, true);
+    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, true);
+    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, true);
+
+    cars.push_back(car1);
+    cars.push_back(car2);
+    cars.push_back(car3);
+    cars.push_back(car4);
+    cars.push_back(car5);
+    cars.push_back(car6);
+
+    for (int i = 7; i <= numTrafficCars; i++){
+
+        switch (input.traffic){
+            case Level_Traffic::LOW:
+                posZ = random_int(5, 7) * 100 * SEGMENT_LENGTH;
+                break;
+            case Level_Traffic::MEDIUM:
+                posZ = random_int(5, 9) * 100 * SEGMENT_LENGTH;
+                break;
+            case Level_Traffic::HIGH:
+                posZ = random_int(5, 11) * 100 * SEGMENT_LENGTH;
+        }
+
+        TrafficCar* c = new TrafficCar(0, 0, posZ, random_int(10, 16) * 10.f,
+                                       "TrafficCars/Car" + std::to_string(i), i, random_int(-6, 6) * 0.15f, false,
+                                       random_int(0, 1), true);
+
+        cars.push_back(c);
+    }
+
+    trafficCarsLoadDone = true;
+}
+
 void Game::run(Input& input){
 
     biomesLoader = std::thread(loadBiomes, this, ref(input));
@@ -809,6 +816,10 @@ void Game::run(Input& input){
                 break;
             }
             case State::GEARS: {
+
+                trafficCarLoader = std::thread(loadTrafficCars, this, ref(input));
+                trafficCarLoader.detach();
+
                 MenuGears mGe = MenuGears(playerCarSelected);
                 mGe.loadMenu(input);
                 mGe.draw(input);
@@ -838,6 +849,7 @@ void Game::run(Input& input){
 
                 if (failBiomesLoaded){
                     Audio::play(Sfx::MENU_SELECTION_WRONG, false);
+                    sf::sleep(Audio::getDurationSfx(Sfx::MENU_SELECTION_WRONG));
                     gameStatus = State::EXIT;
                 }
                 else {

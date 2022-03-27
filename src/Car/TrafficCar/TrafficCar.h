@@ -45,6 +45,14 @@ class TrafficCar : public Vehicle {
         float offset, percent;
         bool active, side, playerClosed;
 
+        enum class Traffic_Ai {
+            PACIFIC,
+            EVASIVE,
+            OBSTACLE
+        };
+
+        Traffic_Ai typeAi;
+
     public:
 
         TrafficCar();
