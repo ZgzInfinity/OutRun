@@ -18,6 +18,8 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #ifndef LINE_H
 #define LINE_H
 
@@ -26,6 +28,7 @@
 #include "../../Input/Input.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
 
+class TrafficCar;
 
 struct PointLine {
 	float xCamera, yCamera, zCamera;

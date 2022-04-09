@@ -86,12 +86,12 @@ class Map {
 
         void drawPoly4(Input &input, short x1, short y1, short x2, short y2, short x3, short y3, short x4, short y4, sf::Color color);
 
-        void updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p, int long long& score);
+        void updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p, int long long& score, int& startCodeAi);
 
         void updateCarPlayerWheels(PlayerCar& p);
 
         void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
-                       bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level);
+                       bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level, int& startCodeAi);
 
         void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode);
 

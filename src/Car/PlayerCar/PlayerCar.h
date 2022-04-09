@@ -29,11 +29,15 @@
 #ifndef PLAYER_CAR_H
 #define PLAYER_CAR_H
 
+#include "../TrafficCar/TrafficCar.h"
 #include "../Vehicle/Vehicle.h"
 #include "../../Globals.h"
 #include "../../Input/Input.h"
 #include "../../Scene/Line/Line.h"
 #include "../../Menus/Menu/Menu.h"
+
+class TrafficCar;
+class Line;
 
 enum class StateWheel : int {
     NORMAL,

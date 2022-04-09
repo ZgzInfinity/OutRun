@@ -32,17 +32,21 @@
 #include <cmath>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "../Vehicle/Vehicle.h"
+#include "../PlayerCar/PlayerCar.h"
 #include "../../Globals.h"
 #include "../../Input/Input.h"
-#include "../Vehicle/Vehicle.h"
 #include "../../Random/Random.h"
+#include "../../Scene/Line/Line.h"
+
+class PlayerCar;
 
 class TrafficCar : public Vehicle {
 
     private:
 
-        int id;
-        float offset, percent;
+        int id, pathSelected, timeToReturn;
+        float offset, offsetDest, percent;
         bool active, side, playerClosed;
 
         enum class Traffic_Ai {
@@ -58,7 +62,8 @@ class TrafficCar : public Vehicle {
         TrafficCar();
 
         TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const std::string& name,
-                   const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar);
+                   const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar,
+                   const int startCodeAi);
 
         void readProperties(const std::string& name);
 
@@ -83,6 +88,10 @@ class TrafficCar : public Vehicle {
         bool getPlayerClosed() const;
 
         float getScale() const;
+
+        void controlAiTrack(const PlayerCar& p, const Line* playerLine, const Line* trafficCarLine);
+
+        void setAi(const int startCodeAi);
 };
 
 

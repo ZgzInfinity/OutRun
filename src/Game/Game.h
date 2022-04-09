@@ -97,7 +97,7 @@
 
         float cents_secondTrip;
 
-        int level, timeCheck, treeMapPos;
+        int level, timeCheck, treeMapPos, startCodeAi;
 
         Map* currentMap;
 

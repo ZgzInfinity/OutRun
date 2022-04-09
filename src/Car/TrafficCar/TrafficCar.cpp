@@ -30,13 +30,27 @@ TrafficCar::TrafficCar() : Vehicle(){}
 
 
 TrafficCar::TrafficCar(const int _posX, const int _posY, const int _posZ, const float _speed, const std::string& name,
-                       const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar)
-                       : Vehicle( _posX, _posY, _posZ, _speed, 1.f, name, _isTrafficCar)
+                       const int& _id, const float& _offset, const bool& _active, const bool& _side, const bool _isTrafficCar,
+                       const int startCodeAi) : Vehicle( _posX, _posY, _posZ, _speed, 1.f, name, _isTrafficCar)
 {
     id = _id;
     offset = _offset;
     active = _active;
     side = _side;
+    pathSelected = -1;
+    offsetDest = -1000.f;
+    timeToReturn = 0;
+
+    switch (startCodeAi){
+        case 1:
+            typeAi = Traffic_Ai::PACIFIC;
+            break;
+        case 2:
+            typeAi = Traffic_Ai::EVASIVE;
+            break;
+        case 3:
+            typeAi = Traffic_Ai::OBSTACLE;
+    }
 
     readProperties(name);
 }
@@ -158,5 +172,144 @@ bool TrafficCar::getPlayerClosed() const {
 
 float TrafficCar::getScale() const {
     return scale;
+}
+
+void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, const Line* trafficCarLine){
+    if (typeAi == Traffic_Ai::EVASIVE && abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y){
+        if (pathSelected != -1){
+            if (pathSelected == 0){
+                if (offsetDest == -1000.f)
+                    offsetDest = offset - 0.5f;
+                    if (offsetDest < -0.9f)
+                        offsetDest = -0.9f;
+                else {
+                    if (offset > offsetDest){
+                        offset -= 0.005f;
+                        if (offset <= offsetDest){
+                            offset = offsetDest;
+                            offsetDest = -1000.f;
+                            if (timeToReturn < 200)
+                                timeToReturn++;
+                            else {
+                                timeToReturn = 0;
+                                pathSelected = -1;
+                            }
+                        }
+                    }
+                }
+            }
+            else if (pathSelected == 1){
+                if (offsetDest == -1000.f)
+                    offsetDest = offset + 0.5f;
+                    if (offsetDest > 0.9f)
+                        offsetDest = 0.9f;
+                else {
+                    if (offset < offsetDest){
+                        offset += 0.005f;
+                        if (offset >= offsetDest){
+                            offset = offsetDest;
+                            offsetDest = -1000.f;
+                            if (timeToReturn < 200)
+                                timeToReturn++;
+                            else {
+                                timeToReturn = 0;
+                                pathSelected = -1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            float distXLeft = offset + 0.9f;
+            float distXRight = 0.9f - offset;
+
+            if (distXLeft > distXRight)
+                pathSelected = 0;
+            else if (distXLeft < distXRight)
+                pathSelected = 1;
+            else
+                pathSelected = random_int(0 , 1);
+        }
+
+    }
+    else {
+        if (side){
+            if (p.getPlayerMap() == playerR::RIGHTROAD){
+                if (posX > p.getPosX() * ROAD_WIDTH &&
+                    abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y)
+                {
+                    switch (typeAi){
+                        case Traffic_Ai::OBSTACLE:
+                            if (offset > -0.9f){
+                                offset -= 0.005f;
+                                if (offset < -0.9f)
+                                    offset = -0.9f;
+
+                            }
+                            break;
+                    }
+                }
+                else if (posX < p.getPosX() * ROAD_WIDTH &&
+                         abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y)
+                {
+                    switch (typeAi){
+                        case Traffic_Ai::OBSTACLE:
+                            if (offset < 0.9f){
+                                offset += 0.005f;
+                                if (offset > 0.9f)
+                                    offset = 0.9f;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        else {
+            if (p.getPlayerMap() == playerR::LEFTROAD){
+                if (posX > p.getPosX() * ROAD_WIDTH &&
+                    abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y)
+                {
+                    switch (typeAi){
+                        case Traffic_Ai::OBSTACLE:
+                            if (offset > -0.9f){
+                                offset -= 0.005f;
+                                if (offset < -0.9f)
+                                    offset = -0.9f;
+
+                            }
+                            break;
+                    }
+                }
+                else if (posX < p.getPosX() * ROAD_WIDTH &&
+                         abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y)
+                {
+                    switch (typeAi){
+                        case Traffic_Ai::OBSTACLE:
+                            if (offset < 0.9f){
+                                offset += 0.005f;
+                                if (offset > 0.9f)
+                                    offset = 0.9f;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+void TrafficCar::setAi(const int startCodeAi){
+     switch (startCodeAi){
+        case 1:
+            typeAi = Traffic_Ai::PACIFIC;
+            break;
+        case 2:
+            typeAi = Traffic_Ai::EVASIVE;
+            break;
+        case 3:
+            typeAi = Traffic_Ai::OBSTACLE;
+    }
 }
 

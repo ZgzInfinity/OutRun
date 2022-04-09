@@ -105,7 +105,7 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 }
 
 
-void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p, int long long& score){
+void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p, int long long& score, int& startCodeAi){
     Line* l;
     float posX;
     for (int i = 0; i < cars.size(); i++){
@@ -120,6 +120,9 @@ void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p,
                 {
                     c->setActive(true);
                     c->setSpeed(random_int(10, 16) * 10.f);
+
+                    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+                    c->setAi(startCodeAi);
                 }
                 break;
             case true:
@@ -156,6 +159,8 @@ void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p,
 			c->setDirection(Direction::TURNLEFT);
 		else
 			c->setDirection(Direction::TURNRIGHT);
+
+        c->controlAiTrack(p, playerLine, l);
 	}
 }
 
@@ -252,9 +257,9 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 }
 
 void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
-                    bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level){
+                    bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level, int& startCodeAi){
 
-    updateCars(input, cars, p, score);
+    updateCars(input, cars, p, score, startCodeAi);
 	iniPosition = position;
 
     if (p.getSpeed() > 0.f){

@@ -92,6 +92,7 @@ Game::Game(Input& input){
     cents_secondTrip = 0.f;
     level = 1;
     timeCheck = 0;
+    startCodeAi = 0;
     playerCarSelected = 0;
     treeMapPos = LEVEL_FACTOR;
     currentMap = nullptr;
@@ -160,7 +161,8 @@ void Game::updateRound(Input& input){
     HudRound::setAllHudRoundIndicators(input);
 
     if (gameStatus != State::GAME_OVER)
-        currentMap->updateMap(input, cars, *player, gameStatus, time, score, checkPoint, checkPointDisplayed, treeMapPos, currentLevel);
+        currentMap->updateMap(input, cars, *player, gameStatus, time, score, checkPoint, checkPointDisplayed,
+                              treeMapPos, currentLevel, startCodeAi);
 
     currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
 
@@ -705,13 +707,25 @@ void Game::loadTrafficCars(Input& input){
     cars.clear();
     cars.reserve(numTrafficCars);
     float posZ = 0.f;
+    startCodeAi = random_int(1, 3);
 
-    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, true);
-    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true);
-    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, true);
-    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, true);
-    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, true);
-    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, true);
+    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, -0.5f, false, true, true, startCodeAi);
+    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+
+    TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true, startCodeAi);
+    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+
+    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, true, startCodeAi);
+    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+
+    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, true, startCodeAi);
+    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+
+    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, true, startCodeAi);
+    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+
+    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, true, startCodeAi);
+    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
 
     cars.push_back(car1);
     cars.push_back(car2);
@@ -733,9 +747,10 @@ void Game::loadTrafficCars(Input& input){
                 posZ = random_int(5, 11) * 100 * SEGMENT_LENGTH;
         }
 
+        startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
         TrafficCar* c = new TrafficCar(0, 0, posZ, random_int(10, 16) * 10.f,
                                        "TrafficCars/Car" + std::to_string(i), i, random_int(-6, 6) * 0.15f, false,
-                                       random_int(0, 1), true);
+                                       random_int(0, 1), true, startCodeAi);
 
         cars.push_back(c);
     }

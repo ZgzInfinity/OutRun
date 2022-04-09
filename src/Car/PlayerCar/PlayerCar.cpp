@@ -23,6 +23,8 @@
  * Module Player implementation file
  */
 
+#pragma once
+
 #include <cmath>
 #include "PlayerCar.h"
 #include "../../Random/Random.h"
