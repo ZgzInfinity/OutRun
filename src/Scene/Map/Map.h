@@ -80,7 +80,7 @@ class Map {
 
         bool getgoalMap() const;
 
-        void setMapDistanceAndTrackLength();
+        void setMapDistanceAndTrackLength(const bool ending);
 
         void drawQuad(Input &input, int x1, int y1, int width, int height, sf::Color sky, bool use_camera = true);
 

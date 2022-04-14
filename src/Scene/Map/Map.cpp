@@ -56,14 +56,21 @@ bool Map::getgoalMap() const {
     return currentBiome->goalBiome;
 }
 
-void Map::setMapDistanceAndTrackLength(){
+void Map::setMapDistanceAndTrackLength(const bool ending){
     int not_count_lines = NOT_COUNT_LINES;
-    int gradient = random_int(-1, 1);
-    currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
-	currentBiome->addBiome(50, 50, 50, 0, 0, true, currentBiome->dist8, not_count_lines);
-	currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist5, not_count_lines);
-	currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->dist3, not_count_lines);
-	currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
+    if (ending){
+        currentBiome->addBiome(10, 400, 50, -2, GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
+        currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
+        currentBiome->addBiome(10, 10, 10, 0, 0, false, currentBiome->dist3, not_count_lines);
+    }
+    else {
+        int gradient = random_int(-1, 1);
+        currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
+        currentBiome->addBiome(50, 50, 50, 0, 0, true, currentBiome->dist8, not_count_lines);
+        currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist5, not_count_lines);
+        currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->dist3, not_count_lines);
+        currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
+    }
     mapDistance = (int)currentBiome->lines[0]->distance;
 	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 	currentBiome->lastLine = currentBiome->lines.size() - drawDistance;
@@ -298,10 +305,10 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         currentBiome = nextBiome;
 
         numBiomesVisited++;
-        if (numBiomesVisited != 5)
+        if (numBiomesVisited != LEVELS_TO_COMPLETE)
             currentBiome->end = false;
 
-        setMapDistanceAndTrackLength();
+        setMapDistanceAndTrackLength(numBiomesVisited == (LEVELS_TO_COMPLETE - 1));
         setMapColors();
         swapping = false;
         checkPointDisplayed = false;
@@ -415,7 +422,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         bool hasCrashed = false;
         p.setShowTerrain();
 
-        if (!p.getCrashing()){
+        if (!currentBiome->end && !p.getCrashing()){
 
             if (playerLine->hasSpriteFarLeft)
                 p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarLeft);
@@ -450,7 +457,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     else
         p.setPlayerMap(playerR::RIGHTROAD);
 
-    if (p.getSpeed() >= 30.5f)
+    if (p.getSpeed() >= 80.f)
         p.controlCentrifugalForce(playerLine, time, mapDistance);
 
 	mapDistance = (int)playerLine->distance;
@@ -460,6 +467,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         p.setPosX(-1.48f);
     else if (p.getPosX() > 1.5f + ((float)mapDistance / (float)ROAD_WIDTH))
         p.setPosX(1.48f + ((float)mapDistance / (float)ROAD_WIDTH));
+
 
     if (playerLine->mirror)
     {
@@ -480,7 +488,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         p.getStateWheelLeft() != StateWheel::SNOW && p.getStateWheelRight() != StateWheel::SNOW &&
         p.getStateWheelLeft() != StateWheel::MUD && p.getStateWheelRight() != StateWheel::MUD && p.getSpeed() > 70.f)
 	{
-		if (abs(p.getThresholdX()) >= (p.getSpeed() * time * 0.8f) && abs(playerLine->curve) >= 2.5f)
+		if (abs(p.getThresholdX()) >= (p.getSpeed() * time * 0.8f) && abs(playerLine->curve) >= 2.75f)
 		{
 		    p.setSkidding(true);
 			p.setStateWheelLeft(StateWheel::SMOKE);
@@ -489,7 +497,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 		else {
             p.setSkidding(false);
 		}
-	}
+    }
 
 	if (!currentBiome->getStartBiome() && !currentBiome->getGoalBiome() &&
         !checkPointDisplayed && playerLine->index > currentBiome->lineCheckPoint)
@@ -754,13 +762,15 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
             if (l->hasSpriteNearRight)
                 l->renderSpriteInfo(input, l->spriteNearRight);
 
-            Line* l2;
-            for (unsigned int n = 0; n < cars.size(); ++n)
-            {
-                l2 = currentBiome->lines[(int)(cars[n]->getPosZ() / SEGMENTL) % currentBiome->lines.size()];
-                if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
+            if (!currentBiome->end){
+                Line* l2;
+                for (unsigned int n = 0; n < cars.size(); ++n)
                 {
-                    l2->renderCars(input, cars[n], pauseMode);
+                    l2 = currentBiome->lines[(int)(cars[n]->getPosZ() / SEGMENTL) % currentBiome->lines.size()];
+                    if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
+                    {
+                        l2->renderCars(input, cars[n], pauseMode);
+                    }
                 }
             }
         }

@@ -464,7 +464,7 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
         if (hasCrashed(((float) input.gameWindow.getSize().x) / 2.0f + 5,
                        playerW, x2, sprite->getWidthCol(), scale))
         {
-            collisionCurve = playerLine->curve;
+            collisionCurve = (abs(playerLine->curve) >= 2.f) ? playerLine->curve * 0.3f : playerLine->curve;
             collisionDir = posX;
             crashing = true;
             crashed = true;
@@ -674,7 +674,7 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
 
                 if (!crashing && skidding && !Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
                     Audio::play(Sfx::FERRARI_ENGINE_SKIDDING, true);
-                else if (crashing || !skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING))
+                else if (crashing || (!skidding && Audio::isPlaying(Sfx::FERRARI_ENGINE_SKIDDING)))
                     Audio::stop(Sfx::FERRARI_ENGINE_SKIDDING);
 
                 if (!crashing && outsideRoad && !Audio::isPlaying(Sfx::FERRARI_ENGINE_ROAD_OUTSIDE))
@@ -707,7 +707,7 @@ void PlayerCar::drawPlayRound(Input& input, const bool& pauseMode, const int ter
                 if (Audio::isPlaying(Sfx::FERRARI_ENGINE_BRAKE))
                     Audio::stop(Sfx::FERRARI_ENGINE_BRAKE);
 
-                if (angryWoman && numAngers == 1)
+                if (angryWoman && numAngers == 1 && !Audio::isPlaying(Sfx::BLOND_WOMAN_DIE))
                     Audio::play(Sfx::BLOND_WOMAN_DIE, false);
             }
             else {

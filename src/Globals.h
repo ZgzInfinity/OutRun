@@ -75,6 +75,7 @@ const int TRAFFIC_CARS_EASY = 9;
 const int TRAFFIC_CARS_NORMAL = 20;
 const int TRAFFIC_CARS_HARD = 32;
 const int SPRITES_PER_COLLISION = 8;
+const int LEVELS_TO_COMPLETE = 5;
 
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;

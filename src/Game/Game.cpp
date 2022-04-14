@@ -662,7 +662,7 @@ void Game::loadBiomes(Input& input){
     if (!Logger::getFailDetected()){
         currentMap->setCurrentBiome(biomes[0][0]);
         currentMap->setTerrain(currentMap->getCurrentBiome()->getTerrain());
-        currentMap->setMapDistanceAndTrackLength();
+        currentMap->setMapDistanceAndTrackLength(false);
         currentMap->setMapColors();
         Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
 
@@ -709,7 +709,7 @@ void Game::loadTrafficCars(Input& input){
     float posZ = 0.f;
     startCodeAi = random_int(1, 3);
 
-    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, -0.5f, false, true, true, startCodeAi);
+    TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, true, startCodeAi);
     startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
 
     TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true, startCodeAi);
