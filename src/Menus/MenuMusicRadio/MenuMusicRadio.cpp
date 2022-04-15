@@ -38,21 +38,21 @@ void MenuMusicRadio::loadMenu(Input& input){
     for (int i = 1; i <= Audio::NUM_SOUNDTRACKS; i++) {
         // Loading the icon texture
         t.loadFromFile("Resources/Menus/MusicMenu/soundtrack" + to_string(i) + ".png");
-        textures.push_back(t);
+        musicTitleTextures.push_back(t);
     }
 
     // Load the titles of the soundtracks
     for (int i = 1; i <= Audio::NUM_SOUNDTRACKS; i++) {
         // Loading the icon texture
         t.loadFromFile("Resources/Menus/MusicMenu/radio" + to_string(i) + ".png");
-        textures.push_back(t);
+        radioTextures.push_back(t);
     }
 
     // Load the titles of the soundtracks
-    for (int i = 1; i <= Audio::NUM_SOUNDTRACKS; i++) {
+    for (int i = 1; i <= (Audio::NUM_SOUNDTRACKS / 3); i++) {
         // Loading the icon texture
         t.loadFromFile("Resources/Menus/MusicMenu/hand" + to_string(i) + ".png");
-        textures.push_back(t);
+        handTextures.push_back(t);
     }
 }
 
@@ -119,15 +119,15 @@ void MenuMusicRadio::draw(Input& input){
         handleEvent(input);
 
         // Load the texture of the soundtrack to display in the radio panel
-        music.setTexture(textures[input.currentSoundtrack - 1], true);
+        music.setTexture(musicTitleTextures[input.currentSoundtrack - 1], true);
         music.setScale(3.0f * input.screenScaleX, 3.f * input.screenScaleX);
 
         // Get the dial movement to reproduce
-        radio.setTexture(textures[input.currentSoundtrack + 2], true);
+        radio.setTexture(radioTextures[input.currentSoundtrack - 1], true);
         radio.setScale(3.f * input.screenScaleX, 3.f * float(input.gameWindow.getSize().y) / SCREEN_0.second);
 
         // Get the hand movement of the driver
-        hand.setTexture(textures[input.currentSoundtrack + 5], true);
+        hand.setTexture(handTextures[(input.currentSoundtrack - 1) % 3], true);
         hand.setScale(3.f * input.screenScaleX, 3.f * float(input.gameWindow.getSize().y) / SCREEN_0.second);
 
         // Control the coordinates X and Y where display the title

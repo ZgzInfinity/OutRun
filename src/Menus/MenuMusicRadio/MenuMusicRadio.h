@@ -33,7 +33,9 @@ class MenuMusicRadio : public Menu {
     private:
 
         sf::Texture backgroundMusic, t;
-        vector<sf::Texture> textures;
+        vector<sf::Texture> musicTitleTextures;
+        vector<sf::Texture> radioTextures;
+        vector<sf::Texture> handTextures;
 
         sf::Sprite radioMenu, music, radio, hand;
 

@@ -40,15 +40,19 @@ void Credit::loadAll(){
 
     instance.load(Soundtrack_Credit::SUPER_HANG_ON, "SUPER HANG ON - 1989 - SEGA MEGADRIVE");
     instance.load(Soundtrack_Credit::OUT_RUN, "OUT RUN - 1986 - ARCADE VERSION");
-    instance.load(Soundtrack_Credit::WORLD_CUP_ITALIA, "WORLD CUP ITALI 90 - 1989 - SEGA MEGADRIVE");
-    instance.load(Soundtrack_Credit::MARIO_KART_GBA, "MARIO KART SUPER CIRCUIT - 2001 - GAME BOY ADVANCED");
-    instance.load(Soundtrack_Credit::MARIO_KART_TOUR, "MARIO KART TOUR - 2019 - ANDROID AND IOS");
+    instance.load(Soundtrack_Credit::OUT_RUN_3D, "3D OUT RUN - 2015 - NINTENDO 3DS");
 
     instance.load(Soundtrack_Enterprise::SUPER_HANG_ON, "SEGA AM2 AND SEGA");
     instance.load(Soundtrack_Enterprise::OUT_RUN, "SEGA AM2, SEGA, M2, NEC CORPORATION, ACCLAIM STUDIOS LONDON AND SEGA MOBILE");
-    instance.load(Soundtrack_Enterprise::WORLD_CUP_ITALIA, "MASTERTRONIC AND SEGA");
-    instance.load(Soundtrack_Enterprise::MARIO_KART_GBA, "INTELLIGENT SYSTEMS");
-    instance.load(Soundtrack_Enterprise::MARIO_KART_TOUR, "DeNA, NINTENDO EAD AND NINTENDO EPD");
+    instance.load(Soundtrack_Enterprise::OUT_RUN_3D, "SEGA AND eSHOP");
+
+    instance.load(Soundtrack_Credit_Two::WORLD_CUP_ITALIA, "WORLD CUP ITALI 90 - 1989 - SEGA MEGADRIVE");
+    instance.load(Soundtrack_Credit_Two::MARIO_KART_GBA, "MARIO KART SUPER CIRCUIT - 2001 - GAME BOY ADVANCED");
+    instance.load(Soundtrack_Credit_Two::MARIO_KART_TOUR, "MARIO KART TOUR - 2019 - ANDROID AND IOS");
+
+    instance.load(Soundtrack_Enterprise_Two::WORLD_CUP_ITALIA, "MASTERTRONIC AND SEGA");
+    instance.load(Soundtrack_Enterprise_Two::MARIO_KART_GBA, "INTELLIGENT SYSTEMS");
+    instance.load(Soundtrack_Enterprise_Two::MARIO_KART_TOUR, "DeNA, NINTENDO EAD AND NINTENDO EPD");
 
     instance.load(Sfx_Credit::SUPER_HANG_ON, "SUPER HANG ON - 1989 - SEGA MEGADRIVE");
     instance.load(Sfx_Credit::CRUIS_USA, "CRUIS'N USA - 1994 - N64");
@@ -85,12 +89,20 @@ void Credit::load(const Soundtrack_Credit sdC, const std::string &name){
     instance.soundtrackCredits[(int)sdC] = name;
 }
 
+void Credit::load(const Soundtrack_Credit_Two sdC, const std::string &name){
+    instance.soundtrackCreditsTwo[(int)sdC] = name;
+}
+
 void Credit::load(const Sfx_Credit sfxC, const std::string &name){
     instance.soundEffectsCredits[(int)sfxC] = name;
 }
 
 void Credit::load(const Soundtrack_Enterprise sdE, const std::string &name){
-    instance.soundtrackEnterrpisesCredits[(int)sdE] = name;
+    instance.soundtrackEnterpisesCredits[(int)sdE] = name;
+}
+
+void Credit::load(const Soundtrack_Enterprise_Two sdE, const std::string &name){
+    instance.soundtrackEnterpisesCreditsTwo[(int)sdE] = name;
 }
 
 void Credit::load(const Sfx_Enterprise sfxE, const std::string &name){
@@ -122,11 +134,19 @@ std::string Credit::getSfxCredit(const int i){
 }
 
 std::string Credit::getSoundtrackEnterpriseCredit(const int i){
-    return instance.soundtrackEnterrpisesCredits[i];
+    return instance.soundtrackEnterpisesCredits[i];
 }
 
 std::string Credit::getSfxEnterpriseCredit(const int i){
     return instance.soundEffectsEnterprisesCredits[i];
+}
+
+std::string Credit::getSoundtrackCreditTwo(const int i){
+    return instance.soundtrackCreditsTwo[i];
+}
+
+std::string Credit::getSoundtrackEnterpriseCreditTwo(const int i){
+    return instance.soundtrackEnterpisesCreditsTwo[i];
 }
 
 std::string Credit::getSpriteEnterpriseCredit(const int i){

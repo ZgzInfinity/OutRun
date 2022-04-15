@@ -184,7 +184,7 @@ void MenuCredits::draw(Input& input){
 
     int numAnimation = 1;
 
-    while (!startPressed && !escapePressed && !backPressed && numAnimation <= 6) {
+    while (!startPressed && !escapePressed && !backPressed && numAnimation <= 7) {
 
         // Wait until the time pass displaying the info
         int i = 0;
@@ -232,16 +232,34 @@ void MenuCredits::draw(Input& input){
                     for (int j = 0; j < (int)Soundtrack_Credit::__COUNT; j++){
                         info.setString(Credit::getSoundtrackCredit(j));
                         info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
-                                         input.gameWindow.getSize().y / 2.f - 165.f + (80.f * j) * input.screenScaleY);
+                                         input.gameWindow.getSize().y / 2.f - 125.f + (120.f * j) * input.screenScaleY);
                         input.gameWindow.draw(info);
 
                         info.setString(Credit::getSoundtrackEnterpriseCredit(j));
                         info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
-                                         input.gameWindow.getSize().y / 2.f - 135.f + (80.f * j) * input.screenScaleY);
+                                         input.gameWindow.getSize().y / 2.f - 95.f + (120.f * j) * input.screenScaleY);
                         input.gameWindow.draw(info);
                     }
                     break;
                 case 4:
+                    titleText.setString("SOUNDTRACKS");
+                    titleText.setPosition(((input.gameWindow.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
+                                          input.gameWindow.getSize().y / 2.f - 240.0f * input.screenScaleY);
+                    input.gameWindow.draw(titleText);
+
+                    for (int j = 0; j < (int)Soundtrack_Credit_Two::__COUNT; j++){
+                        info.setString(Credit::getSoundtrackCreditTwo(j));
+                        info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
+                                         input.gameWindow.getSize().y / 2.f - 125.f + (120.f * j) * input.screenScaleY);
+                        input.gameWindow.draw(info);
+
+                        info.setString(Credit::getSoundtrackEnterpriseCreditTwo(j));
+                        info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
+                                         input.gameWindow.getSize().y / 2.f - 95.f + (120.f * j) * input.screenScaleY);
+                        input.gameWindow.draw(info);
+                    }
+                    break;
+                case 5:
                     titleText.setString("SFX");
                     titleText.setPosition(((input.gameWindow.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
                                             input.gameWindow.getSize().y / 2.f - 240.0f * input.screenScaleY);
@@ -250,16 +268,16 @@ void MenuCredits::draw(Input& input){
                     for (int j = 0; j < (int)Soundtrack_Credit::__COUNT; j++){
                         info.setString(Credit::getSfxCredit(j));
                         info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
-                                         input.gameWindow.getSize().y / 2.f - 165.f + (80.f * j) * input.screenScaleY);
+                                         input.gameWindow.getSize().y / 2.f - 125.f + (120.f * j) * input.screenScaleY);
                         input.gameWindow.draw(info);
 
                         info.setString(Credit::getSfxEnterpriseCredit(j));
                         info.setPosition(input.gameWindow.getSize().x / 2.f - info.getLocalBounds().width / 2.f,
-                                         input.gameWindow.getSize().y / 2.f - 135.f + (80.f * j) * input.screenScaleY);
+                                         input.gameWindow.getSize().y / 2.f - 95.f + (120.f * j) * input.screenScaleY);
                         input.gameWindow.draw(info);
                     }
                     break;
-                case 5:
+                case 6:
                     titleText.setString("SPRITES");
                     titleText.setPosition(((input.gameWindow.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
                                             input.gameWindow.getSize().y / 2.f - 240.0f * input.screenScaleY);
@@ -272,7 +290,7 @@ void MenuCredits::draw(Input& input){
                         input.gameWindow.draw(right);
                     }
                     break;
-                case 6:
+                case 7:
                     titleText.setString("ACKNOWLEDGMENTS");
                     titleText.setPosition(((input.gameWindow.getSize().x / 2.f) - (titleText.getLocalBounds().width / 2.f)) * offsetTitleText,
                                             input.gameWindow.getSize().y / 2.f - 240.0f * input.screenScaleY);

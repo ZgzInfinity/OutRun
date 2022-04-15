@@ -32,7 +32,14 @@ void Audio::loadAll(Input& input){
     instance.load(Soundtrack::MAGICAL_SOUND_SHOWER, "Resources/Soundtracks/Magical_Sound_Shower.ogg");
     instance.load(Soundtrack::PASSING_BREEZE, "Resources/Soundtracks/Passing_Breeze.ogg");
     instance.load(Soundtrack::SPLASH_WAVE, "Resources/Soundtracks/Splash_Wave.ogg");
+    instance.load(Soundtrack::WAY_TO_MY_LOVE, "Resources/Soundtracks/Way_To_My_Love.ogg");
+    instance.load(Soundtrack::CRUISING_LINE, "Resources/Soundtracks/Cruising_Line.ogg");
+    instance.load(Soundtrack::OUTRIDE_A_CRISIS, "Resources/Soundtracks/Outride_A_Crisis.ogg");
+    instance.load(Soundtrack::SPRINTER, "Resources/Soundtracks/Sprinter.ogg");
+    instance.load(Soundtrack::HARD_ROAD, "Resources/Soundtracks/Hard_Road.ogg");
+    instance.load(Soundtrack::WINNING_RUN, "Resources/Soundtracks/Winning_Run.ogg");
     instance.load(Soundtrack::LAST_WAVE, "Resources/Soundtracks/Last_Wave.ogg");
+
     instance.load(Soundtrack::GAME_OVER, "Resources/Soundtracks/Game_Over.ogg");
     instance.load(Soundtrack::VEHICLE_SELECTION, "Resources/Soundtracks/Vehicle_Selection.ogg");
     instance.load(Soundtrack::LOADING, "Resources/Soundtracks/Loading.ogg");

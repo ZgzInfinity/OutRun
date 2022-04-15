@@ -567,6 +567,10 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
                                                         (int)Sfx::TRAFFIC_SECOND_ENGINE)), false);
 
             soundTrafficCounter++;
+
+            if (abs(trafficCarLine->index - playerLine->index) <= (MINIMUM_DISTANCE_Y - 5))
+                Audio::play(static_cast<Sfx>(random_int((int)Sfx::BLOND_WOMAN_FIRST_SHOUT,
+                                                        (int)Sfx::BLOND_WOMAN_THIRD_SHOUT)), false);
         }
         if (!c->getPlayerClosed())
             c->setPlayerClosed(true);

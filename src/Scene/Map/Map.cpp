@@ -393,6 +393,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                         p.setCrashing(false);
                         p.setNumAngers();
                         p.setDrawCar(true);
+                        p.setSkidding(false);
                     }
                 }
                 p.setStateWheelLeft(StateWheel::NORMAL);

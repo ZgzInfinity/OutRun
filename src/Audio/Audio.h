@@ -38,6 +38,12 @@ enum class Soundtrack : int {
     MAGICAL_SOUND_SHOWER,
     PASSING_BREEZE,
     SPLASH_WAVE,
+    WAY_TO_MY_LOVE,
+    CRUISING_LINE,
+    OUTRIDE_A_CRISIS,
+    SPRINTER,
+    HARD_ROAD,
+    WINNING_RUN,
     LAST_WAVE,
     GAME_OVER,
     VEHICLE_SELECTION,
@@ -139,7 +145,7 @@ class Audio {
 
     public:
 
-        static constexpr const float NUM_SOUNDTRACKS = 3;
+        static constexpr const float NUM_SOUNDTRACKS = 9;
 
         Audio();
 

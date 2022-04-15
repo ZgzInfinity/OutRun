@@ -48,22 +48,31 @@ enum class Game_Acknowlegment : int {
 enum class Soundtrack_Credit : int {
     SUPER_HANG_ON,
     OUT_RUN,
+    OUT_RUN_3D,
+    __COUNT
+};
+
+
+enum class Soundtrack_Credit_Two : int {
     WORLD_CUP_ITALIA,
     MARIO_KART_GBA,
     MARIO_KART_TOUR,
     __COUNT
 };
-
 
 enum class Soundtrack_Enterprise : int {
     SUPER_HANG_ON,
     OUT_RUN,
+    OUT_RUN_3D,
+    __COUNT
+};
+
+enum class Soundtrack_Enterprise_Two : int {
     WORLD_CUP_ITALIA,
     MARIO_KART_GBA,
     MARIO_KART_TOUR,
     __COUNT
 };
-
 
 enum class Sfx_Credit : int {
     SUPER_HANG_ON,
@@ -109,8 +118,10 @@ class Credit {
         std::array<std::string, (int)Game_Detail::__COUNT> gameDetails;
         std::array<std::string, (int)Game_Acknowlegment::__COUNT> gameAcknowlegments;
         std::array<std::string, (int)Soundtrack_Credit::__COUNT> soundtrackCredits;
+        std::array<std::string, (int)Soundtrack_Credit::__COUNT> soundtrackCreditsTwo;
         std::array<std::string, (int)Sfx_Credit::__COUNT> soundEffectsCredits;
-        std::array<std::string, (int)Soundtrack_Enterprise::__COUNT> soundtrackEnterrpisesCredits;
+        std::array<std::string, (int)Soundtrack_Enterprise::__COUNT> soundtrackEnterpisesCredits;
+        std::array<std::string, (int)Soundtrack_Enterprise::__COUNT> soundtrackEnterpisesCreditsTwo;
         std::array<std::string, (int)Sfx_Enterprise::__COUNT> soundEffectsEnterprisesCredits;
         std::array<std::string, (int)Sprite_Enterprise::__COUNT> spritesEnterprisesCredits;
         std::array<std::string, (int)Acknowledgments::__COUNT> acknowledgments;
@@ -118,8 +129,10 @@ class Credit {
         static void load(const Game_Detail gC, const std::string &name);
         static void load(const Game_Acknowlegment gA, const std::string &name);
         static void load(const Soundtrack_Credit sdC, const std::string &name);
+        static void load(const Soundtrack_Credit_Two sdC, const std::string &name);
         static void load(const Sfx_Credit sfxC, const std::string &name);
         static void load(const Soundtrack_Enterprise sdE, const std::string &name);
+        static void load(const Soundtrack_Enterprise_Two sdE, const std::string &name);
         static void load(const Sfx_Enterprise sfxE, const std::string &name);
         static void load(const Sprite_Enterprise spE, const std::string &name);
         static void load(const Acknowledgments ack, const std::string &name);
@@ -142,6 +155,10 @@ class Credit {
         static std::string getSoundtrackEnterpriseCredit(const int i);
 
         static std::string getSfxEnterpriseCredit(const int i);
+
+        static std::string getSoundtrackEnterpriseCreditTwo(const int i);
+
+        static std::string getSoundtrackCreditTwo(const int i);
 
         static std::string getSpriteEnterpriseCredit(const int i);
 
