@@ -47,8 +47,8 @@ void MenuSound::loadMenu(Input& input){
     shape.setTexture(&textureShape, true);
 
     fontMenu.loadFromFile("Resources/Fonts/DisposableDroid.ttf");
-    string volMusic = to_string(int(Audio::getMusicVolume() + 0.005f) * 100);
-    string volSfx = to_string(int(Audio::getSfxVolume() + 0.005f) * 100);
+    string volMusic = std::to_string(input.volumeMusic);
+    string volSfx = std::to_string(input.volumeEffects);
 
     optionsText.setString("SOUND MENU");
     optionsText.setCharacterSize(static_cast<unsigned int>(int(55.0f * input.screenScaleX)));
@@ -208,6 +208,7 @@ void MenuSound::changeButtonSelected(const bool& menuUpPressed){
 void MenuSound::changeVolume(Input& input, const bool& menuLeft){
     float volumeMusicPct = Audio::getMusicVolume();
     float volumeSfxPct = Audio::getSfxVolume();
+    int newVolMusic = 0, newVolSfx = 0;
     string volMusic, volSfx;
     if (menuLeft){
         switch (optionSelected) {
@@ -231,18 +232,22 @@ void MenuSound::changeVolume(Input& input, const bool& menuLeft){
             case 0:
                 volumeMusicPct = std::fminf(volumeMusicPct + 0.05f, 1.0f);
                 Audio::setVolumeMusic(volumeMusicPct);
-                volMusic = to_string((int)((Audio::getMusicVolume() + 0.005f) * 100));
+                newVolMusic = (int)((Audio::getMusicVolume() + 0.005f) * 100);
+                volMusic = to_string(newVolMusic);
                 menuButtons[optionSelected + 2].setTextButton(volMusic);
                 Audio::play(Sfx::MENU_SELECTION_MOVE, false);
                 break;
             case 1:
                 volumeSfxPct = std::fminf(volumeSfxPct + 0.05f, 1.0f);
                 Audio::setVolumeSfx(volumeSfxPct);
-                volSfx = to_string((int)((Audio::getSfxVolume() + 0.005f) * 100));
+                newVolSfx = (int)((Audio::getSfxVolume() + 0.005f) * 100);
+                volSfx = to_string(newVolSfx);
                 menuButtons[optionSelected + 2].setTextButton(volSfx);
                 Audio::play(Sfx::MENU_SELECTION_MOVE, false);
         }
     }
+    input.volumeMusic = newVolMusic;
+    input.volumeEffects = newVolSfx;
     input.modifiedinputig = true;
 }
 

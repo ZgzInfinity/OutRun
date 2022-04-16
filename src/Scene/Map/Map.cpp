@@ -59,17 +59,13 @@ bool Map::getgoalMap() const {
 void Map::setMapDistanceAndTrackLength(const bool ending){
     int not_count_lines = NOT_COUNT_LINES;
     if (ending){
-        currentBiome->addBiome(10, 400, 50, -2, GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
+        currentBiome->addBiome(10, 400, 50, -2.0, GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
         currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
-        currentBiome->addBiome(10, 10, 10, 0, 0, false, currentBiome->dist3, not_count_lines);
     }
     else {
         int gradient = random_int(-1, 1);
-        currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
-        currentBiome->addBiome(50, 50, 50, 0, 0, true, currentBiome->dist8, not_count_lines);
-        currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist5, not_count_lines);
-        currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->dist3, not_count_lines);
-        currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
+        currentBiome->addBiome(10, 400, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
+        currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
     }
     mapDistance = (int)currentBiome->lines[0]->distance;
 	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
@@ -467,7 +463,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     else
         p.setPlayerMap(playerR::RIGHTROAD);
 
-    if (p.getSpeed() >= 80.f)
+    if (p.getSpeed() >= 30.5f)
         p.controlCentrifugalForce(playerLine, time, mapDistance);
 
 	mapDistance = (int)playerLine->distance;
