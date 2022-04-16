@@ -114,13 +114,19 @@ void Map::drawPoly4(Input &input, short x1, short y1, short x2, short y2, short 
 
 void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p, int long long& score, int& startCodeAi){
     Line* l;
+    Line* trafficOldLine;
     float posX;
+    Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
+
     for (int i = 0; i < cars.size(); i++){
 		TrafficCar* c = cars[i];
-		c->setPosZ(c->getPosZ() + c->getSpeed());
+		trafficOldLine = currentBiome->lines[(int)((c->getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
+
+		if (abs(trafficOldLine->index - playerLine->index) <= (drawDistance * 5))
+            c->setPosZ(c->getPosZ() + c->getSpeed());
+
 		l = currentBiome->lines[(int)((c->getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
         c->elevationControl(l->p1.yWorld, l->p2.yWorld);
-		Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
 		switch (c->getActive()) {
             case false:
                 if (l->index < playerLine->index + drawDistance && l->index > playerLine->index)
@@ -270,8 +276,11 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 	iniPosition = position;
 
     if (p.getSpeed() > 0.f){
-        if (p.getTrafficCrash())
+        if (p.getTrafficCrash()){
             position = position - (p.getSpeed() * 0.5f);
+            if (position <= 0)
+                position = 0;
+        }
         else
             position = position + p.getSpeed();
     }

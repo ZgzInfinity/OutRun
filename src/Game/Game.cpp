@@ -47,6 +47,18 @@ void Game::updateTime(){
                     cents_second -= 1.f;
                     secs++;
                     timeToPlay--;
+
+                    if (timeToPlay == 10)
+                        Audio::play(Sfx::BLOND_WOMAN_TEN_SECONDS, false);
+                    else if (timeToPlay < 10){
+                        if (timeToPlay == 5)
+                            Audio::play(Sfx::BLONDE_WOMAN_HURRY_UP, false);
+                        else if (timeToPlay == 0)
+                            endOfGame = true;
+                        if (!Audio::isPlaying(Sfx::COUNTDOWN))
+                            Audio::play(Sfx::COUNTDOWN, false);
+                    }
+
                     if (secs == 60.f) {
                         secs = 0;
                         minutes++;
@@ -67,7 +79,7 @@ void Game::updateTime(){
 
             mtx.lock();
             arrived = arrival;
-            endOfGame = outOfTime;
+            outOfTime = endOfGame;
             pause = pauseMode;
             escaped = escape;
             mtx.unlock();
@@ -129,7 +141,9 @@ void Game::handleEvent(Input& input, const float& time){
                 mtx.unlock();
                 Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
             }
-            else if (!start && outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+        }
+        else if (gameStatus == State::GAME_OVER){
+            if (!start && outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
                 start = true;
                 Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
             }
@@ -157,6 +171,7 @@ void Game::updateRound(Input& input){
 
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, currentLevel, treeMapPos, checkPoint,
                             player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
+
     mtx.unlock();
     HudRound::setAllHudRoundIndicators(input);
 
@@ -166,11 +181,10 @@ void Game::updateRound(Input& input){
 
     currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
 
-    if (gameStatus == State::PLAY_ROUND)
+    if (gameStatus == State::PLAY_ROUND){
         arrival = currentMap->getEnding();
-
-    if (gameStatus == State::PLAY_ROUND)
         player->drawPlayRound(input, false, currentMap->getTerrain());
+    }
     else
         player->drawEndDriftRound(input);
 
@@ -548,7 +562,7 @@ State Game::gameOverRound(Input& input){
     while (!escape && !start){
         handleEvent(input, time);
         currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
-        player->drawPlayRound(input, true, false);
+        player->drawPlayRound(input, true, currentMap->getTerrain(), false);
         HudRound::drawHudRound(input);
         input.gameWindow.display();
     }
