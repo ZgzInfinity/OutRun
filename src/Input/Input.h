@@ -172,6 +172,7 @@ struct Input {
         sf::Image i;
         i.loadFromFile("Resources/Icon/OutRun.png");
         gameWindow.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
+        gameWindow.setMouseCursorVisible(false);
     }
 
 

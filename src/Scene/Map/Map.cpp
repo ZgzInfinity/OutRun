@@ -58,15 +58,19 @@ bool Map::getgoalMap() const {
 
 void Map::setMapDistanceAndTrackLength(const bool ending){
     int not_count_lines = NOT_COUNT_LINES;
-    if (ending){
-        currentBiome->addBiome(10, 400, 50, -2.0, GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
-        currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
-    }
-    else {
-        int gradient = random_int(-1, 1);
-        currentBiome->addBiome(10, 400, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
-        currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
-    }
+    int gradient;
+    if (ending)
+        gradient = 1;
+    else
+        gradient = random_int(-1, 1);
+
+    currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist5, not_count_lines);
+    currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->dist3, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
+
     mapDistance = (int)currentBiome->lines[0]->distance;
 	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);
 	currentBiome->lastLine = currentBiome->lines.size() - drawDistance;
@@ -368,17 +372,18 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                     if (offsetX < 0.f)
                         offsetX = -offsetX;
 
-                    p.setPosX(p.getPosX() - MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 1.2f * offsetX * time);
+                    p.setPosX(p.getPosX() - MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 0.6f * offsetX * time);
                 }
                 else {
                     if (offsetX < 0.f)
                         offsetX = -offsetX;
 
-                    p.setPosX(p.getPosX() + MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 1.2f * offsetX * time);
+                    p.setPosX(p.getPosX() + MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 0.6f * offsetX * time);
                 }
             }
             else {
                 p.setSpeed(0.f);
+                p.setGear();
                 p.setLowAccel(p.getLowMaxSpeed() / 6.5f);
                 p.setCollisionDir();
                 p.setCollisionCurve();
@@ -473,7 +478,6 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         p.setPosX(-1.48f);
     else if (p.getPosX() > 1.5f + ((float)mapDistance / (float)ROAD_WIDTH))
         p.setPosX(1.48f + ((float)mapDistance / (float)ROAD_WIDTH));
-
 
     if (playerLine->mirror)
     {
@@ -775,7 +779,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                     l2 = currentBiome->lines[(int)(cars[n]->getPosZ() / SEGMENTL) % currentBiome->lines.size()];
                     if (l2->index == l->index && l2->index >= playerLine->index && l2->index < playerLine->index + drawDistance)
                     {
-                        l2->renderCars(input, cars[n], pauseMode);
+                        l2->renderCars(input, cars[n], pauseMode, gameStatus);
                     }
                 }
             }

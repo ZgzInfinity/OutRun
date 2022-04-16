@@ -104,6 +104,8 @@ public:
 
     int getNumAngers() const;
 
+    void setGear();
+
     int getGear() const;
 
     float getHighMaxSpeed() const;

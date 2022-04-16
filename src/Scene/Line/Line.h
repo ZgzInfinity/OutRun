@@ -27,6 +27,7 @@
 #include "../SpriteInfo/SpriteInfo.h"
 #include "../../Input/Input.h"
 #include "../../Car/TrafficCar/TrafficCar.h"
+#include "../../Menus/Menu/Menu.h"
 
 class TrafficCar;
 
@@ -60,7 +61,7 @@ struct Line {
 
     void renderSpriteInfo(Input& input, SpriteInfo* sprite);
 
-	void renderCars(Input& input, TrafficCar* car, const bool pauseMode);
+	void renderCars(Input& input, TrafficCar* car, const bool pauseMode, const State gameStatus);
 
 	void drawObject(Input& input, int x, int y, sf::Texture* t, float speed, fPoint scale, fPoint pivot);
 

@@ -104,12 +104,12 @@ int TrafficCar::getId() const {
  * @param e is the current elevation of the terrain where is the camera
  * @param camX is the position of the camera in the axis x
  */
-void TrafficCar::draw(const bool pauseMode) {
+void TrafficCar::draw(const bool pauseMode, const State gameStatus) {
 
     if (counter_code_image >= maxCounterToChange) {
         counter_code_image = 0;
 
-        if (speed > 0.f && !pauseMode)
+        if (speed > 0.f && !pauseMode && gameStatus != State::GAME_OVER)
             current_code_image++;
 
         if (textures.size() == TRAFFIC_TEXTURES) {

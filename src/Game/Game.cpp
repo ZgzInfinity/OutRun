@@ -729,16 +729,16 @@ void Game::loadTrafficCars(Input& input){
     TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true, startCodeAi);
     startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
 
-    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, 0.5f, false, true, true, startCodeAi);
+    TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, -0.5f, false, true, true, startCodeAi);
     startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
 
-    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.5f, false, true, true, startCodeAi);
+    TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.25f, false, true, true, startCodeAi);
     startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
 
-    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.5f, false, true, true, startCodeAi);
+    TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.f, false, true, true, startCodeAi);
     startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
 
-    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.f, false, true, true, startCodeAi);
+    TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.25f, false, true, true, startCodeAi);
     startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
 
     cars.push_back(car1);
@@ -931,4 +931,14 @@ void Game::run(Input& input){
     Audio::stopSfx();
     delete currentMap;
     delete player;
+    delete goalBiome;
+    biomes.clear();
+    int trafficCars = cars.size();
+    if (trafficCars > 0){
+        for (int i = 0; i < trafficCars; i++)
+        {
+            delete cars[i];
+        }
+    }
+
 }

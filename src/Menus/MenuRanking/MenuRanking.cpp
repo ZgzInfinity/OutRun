@@ -300,7 +300,7 @@ void MenuRanking::draw(Input& input){
 
             for (int i = 0; i <= record - 1; i++) {
 
-                index.setString(to_string(i) + ".");
+                index.setString(to_string(i + 1) + ".");
                 index.setPosition((input.gameWindow.getSize().x / 13.f) - index.getLocalBounds().width,
                                   (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 1));
 
@@ -343,7 +343,7 @@ void MenuRanking::draw(Input& input){
 
             int offset = (record == 0) ? 1 : record + 1;
 
-            index.setString(to_string(record) + ".");
+            index.setString(to_string(record + 1) + ".");
             index.setPosition((input.gameWindow.getSize().x / 13.f) - index.getLocalBounds().width,
                               (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float)offset);
 
@@ -388,7 +388,7 @@ void MenuRanking::draw(Input& input){
 
             for (int i = record; i < 6 && i < (int)scoreRankingPlayer.size(); i++) {
 
-                index.setString(to_string(i) + ".");
+                index.setString(to_string(i + 2) + ".");
                 index.setPosition((input.gameWindow.getSize().x / 13.f) - index.getLocalBounds().width,
                               (input.gameWindow.getSize().y / offsetIndexIndicator) + 50.0f * input.screenScaleX * (float) (i + 2));
 

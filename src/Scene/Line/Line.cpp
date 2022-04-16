@@ -86,7 +86,7 @@ void Line::renderSpriteInfo(Input& input, SpriteInfo* sprite)
 }
 
 
-void Line::renderCars(Input& input, TrafficCar* car, const bool pauseMode) {
+void Line::renderCars(Input& input, TrafficCar* car, const bool pauseMode, const State gameStatus) {
 
 	PointLine p = p1;
 	PointLine px = p2;
@@ -104,7 +104,7 @@ void Line::renderCars(Input& input, TrafficCar* car, const bool pauseMode) {
 	float spriteX = xOffset + (car->getOffset() * scaleOffset * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
 	float spriteY = yOffset;
 	fPoint pivot = { 0.5f, 1.f };
-	car->draw(pauseMode);
+	car->draw(pauseMode, gameStatus);
 	sf::Texture rectDest = car->getTexture();
 
     float width = rectDest.getSize().x;

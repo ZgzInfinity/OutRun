@@ -99,6 +99,10 @@ int PlayerCar::getNumAngers() const {
     return numAngers;
 }
 
+void PlayerCar::setGear(){
+    gear = 0;
+}
+
 int PlayerCar::getGear() const {
     return gear;
 }

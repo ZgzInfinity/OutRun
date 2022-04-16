@@ -38,6 +38,7 @@
 #include "../../Input/Input.h"
 #include "../../Random/Random.h"
 #include "../../Scene/Line/Line.h"
+#include "../../Menus/Menu/Menu.h"
 
 class PlayerCar;
 
@@ -81,7 +82,7 @@ class TrafficCar : public Vehicle {
 
         int getId() const;
 
-        void draw(const bool pauseMode);
+        void draw(const bool pauseMode, const State gameStatus);
 
         void setPlayerClosed(const bool _playerClosed);
 

@@ -46,7 +46,7 @@ void Credit::loadAll(){
     instance.load(Soundtrack_Enterprise::OUT_RUN, "SEGA AM2, SEGA, M2, NEC CORPORATION, ACCLAIM STUDIOS LONDON AND SEGA MOBILE");
     instance.load(Soundtrack_Enterprise::OUT_RUN_3D, "SEGA AND eSHOP");
 
-    instance.load(Soundtrack_Credit_Two::WORLD_CUP_ITALIA, "WORLD CUP ITALI 90 - 1989 - SEGA MEGADRIVE");
+    instance.load(Soundtrack_Credit_Two::WORLD_CUP_ITALIA, "WORLD CUP ITALIA 90 - 1989 - SEGA MEGADRIVE");
     instance.load(Soundtrack_Credit_Two::MARIO_KART_GBA, "MARIO KART SUPER CIRCUIT - 2001 - GAME BOY ADVANCED");
     instance.load(Soundtrack_Credit_Two::MARIO_KART_TOUR, "MARIO KART TOUR - 2019 - ANDROID AND IOS");
 

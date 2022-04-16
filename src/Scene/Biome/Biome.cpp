@@ -38,7 +38,7 @@ Biome::Biome(){
 	dist6 = dist5 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
 	dist7 = dist6 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
 	dist8 = dist7 + ((int)ROAD_WIDTH * 16 / 27) + ((int)ROAD_WIDTH / 18);
-	distM = dist8 + ((int)ROAD_WIDTH * 16 / 27) * 10 + ((int)ROAD_WIDTH / 18) * 10;
+	distM = dist8 + ((int)ROAD_WIDTH * 16 / 27) * 20 + ((int)ROAD_WIDTH / 18) * 7;
 
 }
 
