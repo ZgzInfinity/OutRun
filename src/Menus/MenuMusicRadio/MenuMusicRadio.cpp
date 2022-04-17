@@ -110,6 +110,7 @@ void MenuMusicRadio::handleEvent(Input& input){
 
 void MenuMusicRadio::draw(Input& input){
 
+    input.currentSoundtrack = 1;
     Audio::play(Sfx::MENU_SELECTION_MUSIC, false);
     Audio::play(Sfx::WAVE, true);
     Audio::play(input.currentSoundtrack, true);

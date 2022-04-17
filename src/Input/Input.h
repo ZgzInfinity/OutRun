@@ -60,7 +60,6 @@ enum class Level_Difficulty : int{
 
 
 enum class Level_Traffic : int {
-    NONE,
     LOW,
     MEDIUM,
     HIGH,

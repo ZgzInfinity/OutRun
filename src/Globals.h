@@ -84,6 +84,12 @@ const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * M_PI / 180.0f));
 const float CAMERA_HEIGHT = 800.f;
 const float HUD_SPEED_FACTOR = 1.945f;
 
+const float MULTI_FACTOR_SECOND_LEVEL = 0.53125f;
+const float MULTI_FACTOR_THIRD_LEVEL = 0.5f;
+const float MULTI_FACTOR_FOURTH_LEVEL = 0.46875f;
+const float MULTI_FACTOR_FIFTH_LEVEL = 0.4375f;
+
+
 #define MIN( a, b ) ( ((a) < (b)) ? (a) : (b) )
 #define MAX( a, b ) ( ((a) > (b)) ? (a) : (b) )
 

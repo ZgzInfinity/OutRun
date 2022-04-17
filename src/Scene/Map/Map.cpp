@@ -521,7 +521,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
         input.gameWindow.clear();
 
-        if (!pauseMode && swapping)
+        if (gameStatus != State::GAME_OVER && !pauseMode && swapping)
             interpolateBiomes(input, p);
 
         Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];

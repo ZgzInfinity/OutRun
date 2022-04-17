@@ -134,10 +134,7 @@ inline void Input::loadGameInput(){
             }
             if (s == "TRAFFIC:" && !fin.eof()) {
                 fin >> s;
-                if (s == "NONE"){
-                    traffic = Level_Traffic::NONE;
-                }
-                else if (s == "LOW"){
+                if (s == "LOW"){
                     traffic = Level_Traffic::LOW;
                 }
                 else if (s == "MEDIUM"){
@@ -800,9 +797,6 @@ void Input::writeNewInput (){
 
         f << "TRAFFIC: ";
         switch (traffic){
-            case Level_Traffic::NONE:
-                f << "NONE" << endl;
-                break;
             case Level_Traffic::LOW:
                 f << "LOW" << endl;
                 break;

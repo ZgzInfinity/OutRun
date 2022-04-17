@@ -57,9 +57,6 @@ vector<Score> getGlobalScores(Input& input){
     }
 
     switch(input.traffic){
-        case Level_Traffic::NONE:
-            path += "None.txt";
-            break;
         case Level_Traffic::LOW:
             path += "Low.txt";
             break;
@@ -120,9 +117,6 @@ bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score 
     }
 
     switch(input.traffic){
-        case Level_Traffic::NONE:
-            path += "None.txt";
-            break;
         case Level_Traffic::LOW:
             path += "Low.txt";
             break;

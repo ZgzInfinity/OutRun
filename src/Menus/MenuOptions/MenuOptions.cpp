@@ -121,9 +121,6 @@ void MenuOptions::loadMenu(Input& input){
 
     // Option Inputs
     switch (input.traffic) {
-        case Level_Traffic::NONE:
-            traffic = "EASY";
-            break;
         case Level_Traffic::LOW:
             traffic = "LOW";
             break;
@@ -134,6 +131,7 @@ void MenuOptions::loadMenu(Input& input){
             traffic = "HIGH";
             break;
     }
+
     subMenu = "MENU", access = "PRESS ENTER", saved = "SAVED!";
 
     string resolution = input.currentIndexResolution == (int)Resolution::__COUNT ? "FULLSCREEN" :
@@ -363,10 +361,10 @@ void MenuOptions::changeDifficulty(Input& input, const sf::Event& event){
 
 void MenuOptions::changeTrafficLevel(Input& input, const sf::Event& event){
     if (event.key.code == input.get(Key::MENU_LEFT)){
-        if (input.traffic != Level_Traffic::NONE) {
-            if (input.traffic == Level_Traffic::LOW) {
-                input.traffic = Level_Traffic::NONE;
-                menuButtons[optionSelected + 5].setTextButton("NONE");
+        if (input.traffic != Level_Traffic::LOW) {
+            if (input.traffic == Level_Traffic::MEDIUM) {
+                input.traffic = Level_Traffic::LOW;
+                menuButtons[optionSelected + 5].setTextButton("LOW");
             }
             else if (input.traffic == Level_Traffic::MEDIUM) {
                 input.traffic = Level_Traffic::LOW;
@@ -381,11 +379,7 @@ void MenuOptions::changeTrafficLevel(Input& input, const sf::Event& event){
     }
     else if (event.key.code == input.get(Key::MENU_RIGHT)){
         if (input.traffic != Level_Traffic::HIGH) {
-            if (input.traffic == Level_Traffic::NONE) {
-                input.traffic = Level_Traffic::LOW;
-                menuButtons[optionSelected + 5].setTextButton("LOW");
-            }
-            else if (input.traffic == Level_Traffic::LOW) {
+            if (input.traffic == Level_Traffic::LOW) {
                 input.traffic = Level_Traffic::MEDIUM;
                 menuButtons[optionSelected + 5].setTextButton("MEDIUM");
             }
@@ -414,6 +408,7 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
 
             input.gameWindow.setFramerateLimit(FPS);
             input.gameWindow.setKeyRepeatEnabled(false);
+            input.gameWindow.setMouseCursorVisible(false);
 
             // Create a new screen with the new resolution
             input.gameWindow.setView(sf::View(sf::Vector2f(input.gameWindow.getSize().x / 2.0f, input.gameWindow.getSize().y / 2.0f),
@@ -448,6 +443,7 @@ void MenuOptions::changeResolution(Input& input, const sf::Event& event){
 
             input.gameWindow.setFramerateLimit(FPS);
             input.gameWindow.setKeyRepeatEnabled(false);
+            input.gameWindow.setMouseCursorVisible(false);
 
             input.gameWindow.setView(sf::View(sf::Vector2f(input.gameWindow.getSize().x / 2.0f, input.gameWindow.getSize().y / 2.0f),
                                              sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y)));

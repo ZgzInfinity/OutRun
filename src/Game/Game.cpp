@@ -197,9 +197,28 @@ void Game::updateRound(Input& input){
         secs = 0;
         minutes = 0;
 
-        timeToPlay += int(currentMap->getCurrentBiome()->getTime());
-        timeCheck = timeToPlay;
         level++;
+        int timeToAdd = 0;
+
+        if (level == 2)
+            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_SECOND_LEVEL);
+        else if (level == 3)
+            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_THIRD_LEVEL);
+        else if (level == 4)
+            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_FOURTH_LEVEL);
+        else if (level == 5)
+            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_FIFTH_LEVEL);
+
+        timeToPlay += timeToAdd;
+
+        if (input.difficulty == Level_Difficulty::HARD)
+            timeToPlay += 5;
+
+        if (input.traffic == Level_Traffic::HIGH)
+            timeToPlay += 5;
+
+        timeCheck = timeToPlay;
+
 
         HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
                             player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
@@ -307,6 +326,17 @@ State Game::startRound(Input& input){
     blinkCheckPoint = false;
 
     timeToPlay = currentMap->getCurrentBiome()->getTime();
+
+    if (input.difficulty == Level_Difficulty::HARD)
+        timeToPlay += 5;
+    else if (input.difficulty == Level_Difficulty::EASY)
+        timeToPlay -= 5;
+
+    if (input.traffic == Level_Traffic::HIGH)
+        timeToPlay += 5;
+    else if (input.traffic == Level_Traffic::LOW)
+        timeToPlay -= 5;
+
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale,
                            "Ferraris/Ferrari" + to_string(playerCarSelected + 1), automaticMode, false,
