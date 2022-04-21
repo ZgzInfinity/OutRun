@@ -122,7 +122,7 @@ void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p,
 		TrafficCar* c = cars[i];
 		trafficOldLine = currentBiome->lines[(int)((c->getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
 
-		if (abs(trafficOldLine->index - playerLine->index) <= (drawDistance * 5))
+		if (abs(trafficOldLine->index - playerLine->index) <= (drawDistance * 8))
             c->setPosZ(c->getPosZ() + c->getSpeed());
 
 		l = currentBiome->lines[(int)((c->getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
@@ -183,6 +183,9 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
 	pWheelL = p.getPosX() * ROAD_WIDTH - 210;
 	pWheelR = p.getPosX() * ROAD_WIDTH + 210;
 
+	p.setOutsideRightWheelRoad(false);
+	p.setOutsideLeftWheelRoad(false);
+
 	if (p.getSpeed() > 0.f) {
 		if (pWheelR < -1831 || pWheelR > mapDistance + 1831){
             switch (terrain){
@@ -198,10 +201,8 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
                 case 4:
                     p.setStateWheelRight(StateWheel::MUD);
             }
-            p.setOutsideRoad(true);
+            p.setOutsideRightWheelRoad(true);
 		}
-		else
-            p.setOutsideRoad(false);
 
 		if (pWheelL < -1831 || pWheelL > mapDistance + 1831){
 			switch (terrain){
@@ -217,14 +218,10 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
                 case 4:
                     p.setStateWheelLeft(StateWheel::MUD);
             }
-            p.setOutsideRoad(true);
-		}
-        else {
-            if (!p.getOutiseRoad())
-                p.setOutsideRoad(false);
+            p.setOutsideLeftWheelRoad(true);
 		}
 
-		if (!p.getOutiseRoad() && mapDistance > 3662)
+		if (mapDistance > 3662)
 		{
 			if (pWheelR > 1831 && pWheelR < 1831 + (mapDistance - 3662)){
                 switch (terrain){
@@ -240,10 +237,8 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
                     case 4:
                         p.setStateWheelRight(StateWheel::MUD);
                 }
-                p.setOutsideRoad(true);
+                p.setOutsideRightWheelRoad(true);
 			}
-            else
-                p.setOutsideRoad(false);
 
 			if (pWheelL > 1831 && pWheelL < 1831 + (mapDistance - 3662)){
                 switch (terrain){
@@ -259,12 +254,8 @@ void Map::updateCarPlayerWheels(PlayerCar& p){
                     case 4:
                         p.setStateWheelLeft(StateWheel::MUD);
                 }
-                p.setOutsideRoad(true);
+                p.setOutsideLeftWheelRoad(true);
 			}
-            else {
-                if (!p.getOutiseRoad())
-                    p.setOutsideRoad(false);
-            }
 		}
 	}
 }
@@ -310,8 +301,10 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 	}
 
     if (!currentBiome->end && playerLine->index > currentBiome->lastLine){
-
         currentBiome = nextBiome;
+
+        if (!currentBiome->goalBiome)
+            Logger::setSpriteScreenY(*currentBiome);
 
         numBiomesVisited++;
         if (numBiomesVisited != LEVELS_TO_COMPLETE)
@@ -324,7 +317,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         checkPoint = false;
         newBiomeChosen = false;
 
-        if (currentBiome->end)
+        if (currentBiome->goalBiome)
             ending = true;
 
         for (unsigned int i = 0; i < cars.size(); ++i){
@@ -410,7 +403,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                 p.setStateWheelRight(StateWheel::NORMAL);
             }
         }
-        else if (p.getSpeed() <= 0.f && p.getOutiseRoad()){
+        else if (p.getSpeed() <= 0.f && (p.getOutsideLeftWheelRoad() || p.getOutsideRightWheelRoad())){
             p.setDrawCar(false);
             float dif = 0.f;
             if (p.getPlayerMap() == playerR::RIGHTROAD)
@@ -423,7 +416,8 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                 p.setCrashing(false);
                 p.setNumAngers();
                 p.setDrawCar(true);
-                p.setOutsideRoad(false);
+                p.setOutsideLeftWheelRoad(false);
+                p.setOutsideRightWheelRoad(false);
 
                 if (!Audio::isPlaying(Sfx::BLONDE_WOMAN_HURRY_UP))
                     Audio::play(Sfx::BLONDE_WOMAN_HURRY_UP, false);
@@ -772,7 +766,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
             if (l->hasSpriteNearRight)
                 l->renderSpriteInfo(input, l->spriteNearRight);
 
-            if (!currentBiome->end){
+            if (!currentBiome->goalBiome){
                 Line* l2;
                 for (unsigned int n = 0; n < cars.size(); ++n)
                 {

@@ -162,7 +162,7 @@ struct Input {
         gameWindow.setVerticalSyncEnabled(true);
 
         gameWindow.setView(sf::View(sf::Vector2f(gameWindow.getSize().x / 2.0f, gameWindow.getSize().y / 2.0f),
-        sf::Vector2f(gameWindow.getSize().x, gameWindow.getSize().y)));
+                                    sf::Vector2f(gameWindow.getSize().x, gameWindow.getSize().y)));
 
         // Calculation of the screen factor between the current resolution and the default resolution
         screenScaleX = float(gameWindow.getSize().x) / float(SCREEN_0.first);

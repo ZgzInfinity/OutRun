@@ -72,6 +72,8 @@ struct Biome{
 
     vector<fPoint> pivotRightColPoints;
 
+    vector<int> floatingSprites;
+
 	Biome();
 
     void setTime(const int _time);

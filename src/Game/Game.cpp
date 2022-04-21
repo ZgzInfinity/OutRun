@@ -324,6 +324,11 @@ State Game::startRound(Input& input){
     checkPoint = false;
     checkPointDisplayed = false;
     blinkCheckPoint = false;
+    escape = false;
+    arrival = false;
+
+    Audio::stopMusic();
+    Audio::stopSfx();
 
     timeToPlay = currentMap->getCurrentBiome()->getTime();
 
@@ -343,7 +348,7 @@ State Game::startRound(Input& input){
                            currentMap->getCurrentBiome()->getRoadTerrain());
 
     HudRound::loadHudRound();
-    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
+    HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, true,
                           player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
 
     HudRound::setAllHudRoundIndicators(input);
@@ -578,8 +583,13 @@ State Game::endRound(Input& input){
 
 State Game::gameOverRound(Input& input){
 
-    if (player->getOutiseRoad())
-        player->setOutsideRoad(false);
+    start = false;
+
+    if (player->getOutsideLeftWheelRoad())
+        player->setOutsideLeftWheelRoad(false);
+
+    if (player->getOutsideRightWheelRoad())
+        player->setOutsideRightWheelRoad(false);
 
     HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
                           player->getGear(), player->getSpeed(), player->getHighMaxSpeed());
@@ -817,7 +827,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::START: {
-                if (!firstLoad){
+                if (!firstLoad || outOfTime || arrival){
                     biomesLoader = std::thread(loadBiomes, this, ref(input));
                     biomesLoader.detach();
                 }
@@ -827,6 +837,7 @@ void Game::run(Input& input){
                 mS.draw(input);
                 gameStatus = mS.returnMenu(input);
                 firstLoad = mS.getFirstLoad();
+                outOfTime = false;
                 break;
             }
             case State::GAME: {
@@ -930,6 +941,8 @@ void Game::run(Input& input){
             }
             case State::END_ROUND: {
                 gameStatus = this->endRound(input);
+                trafficCarsLoadDone = false;
+                biomesLoadDone = false;
                 break;
             }
             case State::PAUSE:{
@@ -946,6 +959,8 @@ void Game::run(Input& input){
             }
             case State::GAME_OVER: {
                 gameStatus = this->gameOverRound(input);
+                trafficCarsLoadDone = false;
+                biomesLoadDone = false;
                 break;
             }
             case State::RANKING: {
@@ -953,10 +968,13 @@ void Game::run(Input& input){
                 mR.loadMenu(input);
                 mR.draw(input);
                 gameStatus = mR.returnMenu(input);
+                trafficCarsLoadDone = false;
+                biomesLoadDone = false;
                 break;
             }
         }
     }
+
     Audio::stopMusic();
     Audio::stopSfx();
     delete currentMap;

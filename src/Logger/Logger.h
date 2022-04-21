@@ -85,8 +85,6 @@ class Logger {
 
         std::ofstream outputFlux;
 
-        std::vector<int> floatingSprites;
-
     public:
 
         Logger();

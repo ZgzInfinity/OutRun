@@ -77,7 +77,7 @@ class PlayerCar : public Vehicle {
         Action action;
 
         bool firstTurnLeft, firstTurnRight, motorEngineSound, skidding, trafficCrash, drawCar,
-             crashing, outsideRoad, angryWoman, increaseGear, decreaseGear, automaticMode, endAnimation;
+             crashing, outsideLeftWheelRoad, outsideRightWheelRoad, angryWoman, increaseGear, decreaseGear, automaticMode, endAnimation;
 
         Collision modeCollision;
 
@@ -148,9 +148,13 @@ public:
 
     void setAngryWoman();
 
-    void setOutsideRoad(const bool& _outsideRoad);
+    void setOutsideLeftWheelRoad(const bool& _outsideLeftWheelRoad);
 
-    bool getOutiseRoad() const;
+    void setOutsideRightWheelRoad(const bool& _outsideRightWheelRoad);
+
+    bool getOutsideLeftWheelRoad() const;
+
+    bool getOutsideRightWheelRoad() const;
 
     bool getCrashing() const;
 

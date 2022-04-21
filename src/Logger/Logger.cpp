@@ -57,8 +57,8 @@ void Logger::setSpriteScreenY(Biome& m){
         m.setSpriteScreenY(806, float(instance.widthScreen * -1.6f / SCREEN_0.first));
     }
     else {
-        for (int i = 0; i < instance.floatingSprites.size(); i++){
-            m.setSpriteScreenY(instance.floatingSprites.at(i), float(instance.widthScreen * -1.45f / SCREEN_0.first));
+        for (int i = 0; i < m.floatingSprites.size(); i++){
+            m.setSpriteScreenY(m.floatingSprites.at(i), float(instance.widthScreen * -1.45f / SCREEN_0.first));
         }
     }
 }
@@ -1034,7 +1034,7 @@ bool Logger::checkLevelBiomeSprite(Biome& m, const int startPos, const int endPo
     if (endPos == -1){
         m.addSpriteInfo(startPos, newSprite, spritePos, isCheckPoint);
         if (offsetY != 0.f)
-            instance.floatingSprites.push_back(startPos);
+            m.floatingSprites.push_back(startPos);
     }
     else {
         for (int i = startPos; i < endPos; i += incrementor){
@@ -1042,7 +1042,7 @@ bool Logger::checkLevelBiomeSprite(Biome& m, const int startPos, const int endPo
                 m.addSpriteInfo(i, newSprite, spritePos, false);
 
                 if (offsetY != 0.f)
-                    instance.floatingSprites.push_back(i);
+                    m.floatingSprites.push_back(i);
             }
         }
     }

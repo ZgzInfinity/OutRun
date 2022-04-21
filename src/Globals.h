@@ -82,7 +82,7 @@ const float XINC = 0.06f;
 const float FOV = 120.f;
 const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * M_PI / 180.0f));
 const float CAMERA_HEIGHT = 800.f;
-const float HUD_SPEED_FACTOR = 1.945f;
+const float HUD_SPEED_FACTOR = 1.65f;
 
 const float MULTI_FACTOR_SECOND_LEVEL = 0.53125f;
 const float MULTI_FACTOR_THIRD_LEVEL = 0.5f;
