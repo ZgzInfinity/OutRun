@@ -172,7 +172,7 @@ void MenuRanking::handleEvent(Input& input){
             }
         }
         else if (input.isKeypressedEvent(event)){
-            if (input.pressedKeyIsValidLetter(event)){
+            if (lettersIntroduced < 3 && input.pressedKeyIsValidLetter(event)){
                 lettersIntroduced++;
                 string keyLetter = input.getKeyCodeName(event.key.code);
                 if (name == "_") {
