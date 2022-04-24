@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,6 +17,11 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+/*
+ * Main program file of Out Run
+ */
+
 #include <iostream>
 
 using namespace std;
@@ -27,10 +31,13 @@ using namespace std;
 
 int main(){
 
+    // Set the input module of the game to let the communication with the player
     Input input;
 
+    // Load the configuration and start the game
     Game g = Game(input);
 
+    // Execute and ending the game
     g.run(input);
 
     return 0;
