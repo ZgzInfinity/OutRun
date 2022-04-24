@@ -267,14 +267,14 @@ void Biome::setGoalBiome(){
     skyBiome = sf::Color(0, 207, 205);
     sandBiome1 = sf::Color(255, 235, 221);
     sandBiome2 = sf::Color(251, 229, 215);
-    roadBiome1 = sf::Color(148, 148, 148);
-    roadBiome2 = sf::Color(156, 156, 156);
+    roadBiome1 = sf::Color(156, 156, 156);
+    roadBiome2 = sf::Color(148, 148, 148);
     rumbleBiome1 = sf::Color(156, 156, 156);
     rumbleBiome2 = sf::Color(247, 247, 247);
     laneBiome1 = sf::Color(156, 156, 156);
     laneBiome2 = sf::Color(247, 247, 247);
     rumbleLane1 = sf::Color(247, 247, 247);
-    rumbleLane2 = sf::Color(156, 156, 156);
+    rumbleLane2 = sf::Color(148, 148, 148);
 
     time = 80;
     int not_count_lines = NOT_COUNT_LINES;
