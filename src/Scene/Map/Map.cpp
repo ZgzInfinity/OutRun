@@ -287,12 +287,12 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
 
 	if (playerLine->index > currentBiome->swapLine && !newBiomeChosen){
-        if (p.getPlayerMap() == playerR::LEFTROAD){
+        if (p.getPlayerRoad() == Player_Road::LEFTROAD){
             currentBiome->left->end = true;
             nextBiome = currentBiome->getLeft();
             treeMapPos += level;
         }
-        else if (p.getPlayerMap() == playerR::RIGHTROAD){
+        else if (p.getPlayerRoad() == Player_Road::RIGHTROAD){
             currentBiome->right->end = true;
             nextBiome = currentBiome->getRight();
             treeMapPos += (level + 1);
@@ -340,7 +340,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 	{
         swapping = true;
         Biome* biome = currentBiome->left;
-        if (p.getPlayerMap() == playerR::RIGHTROAD)
+        if (p.getPlayerRoad() == Player_Road::RIGHTROAD)
             biome = currentBiome->right;
 
         backGround2Front = biome->backGroundFront;
@@ -386,7 +386,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                     p.setDrawCar(false);
 
                     float dif = 0.f;
-                    if (p.getPlayerMap() == playerR::RIGHTROAD)
+                    if (p.getPlayerRoad() == Player_Road::RIGHTROAD)
                         dif = ((float)mapDistance / (float)ROAD_WIDTH);
                     if (p.getPosX() < -0.05f + dif)
                         p.setPosX(p.getPosX() + 0.012f);
@@ -406,7 +406,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         else if (p.getSpeed() <= 0.f && (p.getOutsideLeftWheelRoad() || p.getOutsideRightWheelRoad())){
             p.setDrawCar(false);
             float dif = 0.f;
-            if (p.getPlayerMap() == playerR::RIGHTROAD)
+            if (p.getPlayerRoad() == Player_Road::RIGHTROAD)
                 dif = ((float)mapDistance / (float)ROAD_WIDTH);
             if (p.getPosX() < -0.05f + dif)
                 p.setPosX(p.getPosX() + 0.012f);
@@ -458,9 +458,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
 
 	if (abs(playerLine->p1.xCamera) <= abs(playerLine->p11.xCamera))
-     	p.setPlayerMap(playerR::LEFTROAD);
+     	p.setPlayerRoad(Player_Road::LEFTROAD);
     else
-        p.setPlayerMap(playerR::RIGHTROAD);
+        p.setPlayerRoad(Player_Road::RIGHTROAD);
 
     if (p.getSpeed() >= 30.5f)
         p.controlCentrifugalForce(playerLine, time, mapDistance);
@@ -477,7 +477,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     {
         if ((float)mapDistance / (float)ROAD_WIDTH > 3.5f && p.getPosX() > 1.75f && p.getPosX() < (float)mapDistance / (float)ROAD_WIDTH - 1.75f)
         {
-            if (p.getPlayerMap() == playerR::LEFTROAD)
+            if (p.getPlayerRoad() == Player_Road::LEFTROAD)
                 p.setPosX(1.73f);
             else
                 p.setPosX((float)mapDistance / (float)ROAD_WIDTH - 1.73f);
@@ -846,7 +846,7 @@ void Map::interpolateBiomes(Input& input, PlayerCar& p)
         offsetXBackground1 = BACKGROUND_MOVING_OFFSET;
         offsetXBackground2 = BACKGROUND_MOVING_OFFSET;
 
-        if (p.getPlayerMap() == playerR::LEFTROAD){
+        if (p.getPlayerRoad() == Player_Road::LEFTROAD){
             setTerrain(currentBiome->getLeft()->getTerrain());
             p.setRoadTerrain(currentBiome->getLeft()->getRoadTerrain());
             p.setTerrain(currentBiome->getLeft()->getTerrain());

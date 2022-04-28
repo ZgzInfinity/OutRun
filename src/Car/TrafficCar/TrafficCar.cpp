@@ -310,7 +310,7 @@ void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, cons
         // AI type is not EVASIVE
         if (side){
             // Check if both (player car and traffic car are in the right road)
-            if (p.getPlayerMap() == playerR::RIGHTROAD){
+            if (p.getPlayerRoad() == Player_Road::RIGHTROAD){
                 // Check if the traffic car is on the right side of the player car
                 if (posX > p.getPosX() * ROAD_WIDTH &&
                     abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y)
@@ -346,7 +346,7 @@ void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, cons
         }
         else {
             // Check if both (player car and traffic car are in the right road)
-            if (p.getPlayerMap() == playerR::LEFTROAD){
+            if (p.getPlayerRoad() == Player_Road::LEFTROAD){
                 // Check if the traffic car is on the right side of the player car
                 if (posX > p.getPosX() * ROAD_WIDTH &&
                     abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y)
