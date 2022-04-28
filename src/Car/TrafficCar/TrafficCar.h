@@ -100,7 +100,7 @@ class TrafficCar : public Vehicle {
          * Read the properties associated to the traffic car and assign them to it
          * @param name is the path of the file that contains the properties of the car
          */
-        void readProperties(const std::string& name);
+        void readProperties(const std::string name);
 
 
 

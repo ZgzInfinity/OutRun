@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2020 Andres Gavin
- * Copyright (c) 2020 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,7 +17,9 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- /*
+
+
+/*
  * Module Score implementation file
  */
 
@@ -29,9 +30,20 @@
 
 using namespace std;
 
+
+
+/**
+ * Create a score of a player which is going to be stored
+ * @param _score is the score obtained by the player during the game mode
+ * @param _name is the nickname introduced by the player to save the record
+ * @param _minutes is the quantity of minutes that the game has lasted
+ * @param _secs is the quantity of seconds that the game has lasted
+ * @param _cents_second is the quantity of hundredths of second that the game has lasted
+ */
 Score::Score(long long int _score, const std::string _name,
              const int _minutes, const int _secs, const int _cents_second)
 {
+    // Assign all the information
     score = _score;
     name = _name;
     minutes = _minutes;
@@ -39,12 +51,23 @@ Score::Score(long long int _score, const std::string _name,
     cents_second = _cents_second;
 }
 
+
+
+/**
+ * Returns all score records in order from highest to lowest score, i.e. the best record will be in
+ * The size of the vector is between zero (no records) and seven (there are seven records in the
+ * positions zero to six)
+ * @param input is the module that has all the configuration of the game
+ */
 vector<Score> getGlobalScores(Input& input){
 
+    // Vector of scores
     vector<Score> globalScores;
 
+    // Determine the path depending on the level and traffic difficulty the scores to load
     string path;
 
+    // Check difficulty level
     switch(input.difficulty){
         case Level_Difficulty::EASY:
             path = "Resources/Score/scoresEasy";
@@ -56,6 +79,7 @@ vector<Score> getGlobalScores(Input& input){
             path = "Resources/Score/scoresHard";
     }
 
+    // Check the traffic level
     switch(input.traffic){
         case Level_Traffic::LOW:
             path += "Low.txt";
@@ -67,44 +91,81 @@ vector<Score> getGlobalScores(Input& input){
             path += "High.txt";
     }
 
+    // Open the file with a reading flux
     ifstream fin(path);
     if (fin.is_open()) {
         string line;
 
-        for (int i = 0; getline(fin, line) && i < 7; i++) {
+        // Iterate the different lines of the file
+        for (int i = 0; getline(fin, line) && i < TOTAL_SCORES; i++) {
             unsigned long score;
             string name;
             int minutes;
             int secs;
             int cents_second;
             istringstream iss(line);
+
+            // Read all the data
             iss >> score >> name >> minutes >> secs >> cents_second;
 
+            // Store it in the vector
             globalScores.emplace_back(score, name, minutes, secs, cents_second);
         }
+        // Close the file
         fin.close();
     }
+    // Return the scores
     return globalScores;
 }
 
+
+
+/**
+ * Given all records in order from highest to lowest score and a score, return the
+ * position of the new record (0 to 6) or -1 if not a new record
+ * @param globalScores is a vector which stores all the records of the game mode
+ * @param score is the score which is going to be test to check if it's a new record or not
+ */
 int isNewRecord(const vector<Score> &globalScores, unsigned long score) {
-    int i = 0;
-    for (; i < (int)globalScores.size() && i < 7; i++) {
+    // Index of the current record to be check
+    int i;
+
+    // Iterate all the records until its position in the ranking is found
+    for (i = 0; i < (int)globalScores.size() && i < TOTAL_SCORES; i++) {
+        // If the position of the new record has been found
         if (globalScores[i].score < score)
+            // Get the position
             return i;
     }
-    if (globalScores.size() < 7)
+
+    // If the score is located in the last position of the ranking
+    if (globalScores.size() < TOTAL_SCORES)
+        // Get the position
         return i;
     else
+        // The new score is not between the best scores of the game mode
         return -1;
 }
 
+
+
+/**
+ * Given all the records of punctuation ordered from highest to lowest punctuation
+ * and a new record, add the new record of score and returns true if it has been
+ * stored successfully and false if not.
+ * @param input is the module that has all the configuration of the game
+ * @param globalScores is a vector which stores all the records of the game mode
+ * @param newRecord is the new record of the game mode which is going to be stored
+ */
 bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score &newRecord) {
 
+    // Controls if the record has been saved correctly
     bool saved = false;
 
+    // Determine the path depending on the level and traffic difficulty the scores to load
     string path;
 
+    // Check difficulty level
     switch(input.difficulty){
         case Level_Difficulty::EASY:
             path = "Resources/Score/scoresEasy";
@@ -116,6 +177,7 @@ bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score 
             path = "Resources/Score/scoresHard";
     }
 
+    // Check traffic level
     switch(input.traffic){
         case Level_Traffic::LOW:
             path += "Low.txt";
@@ -127,13 +189,16 @@ bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score 
             path += "High.txt";
     }
 
+    // Open the file with a writing flux and check if it has been opened
     ofstream fout(path, ofstream::trunc);
 
     if (fout.is_open()) {
         bool end = false;
         int i = 0;
 
-        for (int j = 0; !end && j < 7; j++) {
+        // Loop throughout the record
+        for (int j = 0; !end && j < TOTAL_SCORES; j++) {
+            // Write the new record
             if (!saved && ((i < (int)globalScores.size() && globalScores[i].score < newRecord.score) ||
                            (i >= (int)globalScores.size())))
             {
@@ -142,15 +207,19 @@ bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score 
                      << " " << newRecord.cents_second << endl;
             }
             else {
+                // Write the rest of the records
                 fout << globalScores[i].score << " " << globalScores[i].name << " " << globalScores[i].minutes << " "
                      << globalScores[i].secs << " " << globalScores[i].cents_second << endl;
                 i++;
             }
 
+            // Finish the process
             if (i >= (int)globalScores.size() && saved)
                 end = true;
         }
+        // Close the file
         fout.close();
     }
+    // Return if the record has been saved or not
     return saved;
 }

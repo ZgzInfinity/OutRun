@@ -37,7 +37,7 @@ TrafficCar::TrafficCar() : Vehicle(){}
  * Read the properties associated to the traffic car and assign them to it
  * @param name is the path of the file that contains the properties of the car
  */
-void TrafficCar::readProperties(const std::string& name){
+void TrafficCar::readProperties(const std::string name){
     // Open the properties file
     ifstream fin("Resources/Vehicles/" + name + "/Car" + std::to_string(id) + ".txt");
     // If it is open read the content

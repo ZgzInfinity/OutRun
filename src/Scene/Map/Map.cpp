@@ -639,7 +639,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
         if (!swapping){
 
-            if (!pauseMode && !playerLine->mirror){
+            if (!pauseMode && !playerLine->mirror && gameStatus != State::GAME_OVER){
                 offsetXBackground1 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 2.0f;
                 offsetXBackground2 += playerLine->curve * (position - iniPosition) / SEGMENT_LENGTH * 2.5f;
             }
