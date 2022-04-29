@@ -25,6 +25,8 @@
 
 #include "Audio.h"
 
+
+// Declare the static instance of the class
 Audio Audio::instance;
 
 

@@ -146,11 +146,13 @@ class Audio {
 
     private:
 
+        // Volume sound multiplier factor
         static constexpr const float VOLUME_MULTIPLIER = 0.8f;
 
         // Max true volume val
         static constexpr const float VOLUME_LOG_EXP = 1.0f;
 
+        // Static instance of the class
         static Audio instance;
 
         // Array that stores all the soundtracks of the game

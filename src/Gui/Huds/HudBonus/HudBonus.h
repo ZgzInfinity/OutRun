@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,6 +17,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Interface file of the module HudBonus
+ */
+
 #pragma once
 
 #ifndef HUD_BONUS_H
@@ -26,6 +31,11 @@
 #include <SFML/Graphics.hpp>
 #include "../../../Input/Input.h"
 
+
+
+/**
+ * Represents the text indicators of the hud
+ */
 enum class Hud_Bonus_Text_Indicator : int {
     BONUS_TIME_POINTS_TEXT,
     BONUS_SECONDS_POINTS_TEXT,
@@ -37,11 +47,21 @@ enum class Hud_Bonus_Text_Indicator : int {
 };
 
 
+
+/**
+ * Represents the hud that appears when the
+ * player finishes a game round
+ */
 class HudBonus {
 
     private:
 
+        // Static instance of the class
         static HudBonus instance;
+
+        /*
+         * Text indicators of the hud
+         */
 
         const std::string BONUS_POINTS_INDICATOR = "BONUS POINTS.";
 
@@ -53,26 +73,57 @@ class HudBonus {
 
         const std::string POINTS_INDICATOR = "PTS";
 
+        // Vector of texts
         std::array<sf::Text, (int)Hud_Bonus_Text_Indicator::__COUNT> hudTexts;
 
+        // Font of the texts that compose the hud
         sf::Font hudIndicatorText;
 
+        // Seconds of bonus
         int secondsBonus;
 
-        int cents_secondBonus;
+        // Tenths of seconds of bonus
+        int tenths_secondBonus;
+
 
     public:
 
+
+
+        /**
+         * Default constructor
+         */
         HudBonus();
 
+
+        /**
+         * Load the bonus hud
+         * @param input is the module that has all the configuration of the game
+         */
         static void loadHudBonus(Input& input);
 
+
+
+        /**
+         * Set the content of the hud
+         * @param _secs are the seconds of bonus given to the player
+         * @param _tenths_second are the tenths of seconds of bonus given to the player
+         */
+        static void setHudBonus(const int _secondsBonus, const int _tenths_second);
+
+
+
+        /**
+         * Set the text contents of the text indicators
+         */
         static void setTextHudBonusIndicator();
 
-        static void setAllHudBonusIndicators(Input& input);
 
-        static void setHudBonus(const int _secondsBonus, const int _cents_secondBonus);
 
+        /**
+         * Draw the hud of the bonus in the screen
+         * @param input is the module that has all the configuration of the game
+         */
         static void drawHudBonus(Input& input);
 
 };

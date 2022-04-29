@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2020 Andres Gavin
- * Copyright (c) 2020 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -19,8 +18,8 @@
  */
 
 
- /*
- * Module Button interface file
+/*
+ * Interface file of the module Audio
  */
 
 #pragma once
@@ -34,7 +33,8 @@
 #include "SFML/Graphics.hpp"
 
 
-/*
+
+/**
  * States of the button
  */
 enum class ButtonState : int {
@@ -51,43 +51,84 @@ enum class ButtonState : int {
  */
 class Button {
 
-private:
+    private:
 
-    sf::RectangleShape shape;
-    sf::Text textButton;
-    ButtonState state;
-    float scale;
+        // Rectangle of the button
+        sf::RectangleShape shape;
 
-    sf::Color idleColorButton, hoverColorButton,
-    selectedColorButton, fontColorButton;
+        // Text of the button
+        sf::Text textButton;
 
-public:
-
+        // Status of the button
+        ButtonState state;
 
 
-    /**
-     * Default constructor
-     */
-    Button();
+        float scale;
 
+        // Color of the button when is not hovered and not selected
+        sf::Color idleColorButton;
 
+        // Color of the button when it is hovered
+        sf::Color hoverColorButton;
 
-    Button(float x, float y, float width, float height, sf::Font &f,
-           const std::string &text, sf::Color idleColor, sf::Color hoverColor,
-           const sf::Color selectedColor, const ButtonState& stateButton, float screenScale);
+        // Color of the button when it is selected
+        sf::Color selectedColorButton;
 
+        // Color of the text of the button
+        sf::Color fontColorButton;
 
-
-    void setButtonState(const ButtonState& stateButton);
-
+    public:
 
 
 
-    void render(sf::RenderWindow *app);
+        /**
+         * Default constructor
+         */
+        Button();
 
 
 
-    void setTextButton(const std::string &newString);
+        /**
+         * Constructor of the button
+         * @param _posX is the coordinate in axis x of the button in the screen
+         * @param _posY is the coordinate in axis y of the button in the screen
+         * @param _width is the width dimension of the button
+         * @param _height is the height dimension of the button
+         * @param _fontText is the font of the text
+         * @param _text is the content of the button
+         * @param _idleColor is the normal color of the button
+         * @param _hoverColor is the color of the button hovered
+         * @param _activeColor is the color of the button pressed
+         * @param _initialState is the state code of the button
+         * @param _screenScale is the factor of resolution of the screen
+         */
+        Button(const float _posX, const float _posY, const float _width, const float _height, sf::Font& _fontText,
+               const std::string _text, const sf::Color _idleColor, const sf::Color _hoverColor,
+               const sf::Color _selectedColor, const ButtonState& _stateButton, const float _screenScale);
+
+
+
+        /**
+         * Updates the state of the button
+         * @param buttonState is the new state of the button to change
+         */
+        void setButtonState(const ButtonState& stateButton);
+
+
+
+        /**
+         * Draws the button
+         * @param app is the console window of the game
+         */
+        void render(sf::RenderWindow *app);
+
+
+
+        /**
+         * Initialize the text content of the button
+         * @param newString is the content text of the button
+         */
+        void setTextButton(const std::string newString);
 };
 
 #endif // BUTTON_H

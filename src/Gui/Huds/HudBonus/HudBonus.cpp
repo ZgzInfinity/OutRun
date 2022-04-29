@@ -20,18 +20,35 @@
 
 #include "HudBonus.h"
 
+
+// Declare the static instance of the class
 HudBonus HudBonus::instance;
 
+
+
+/**
+ * Default constructor
+ */
 HudBonus::HudBonus(){
     secondsBonus = 0;
-    cents_secondBonus = 0;
+    tenths_secondBonus = 0;
 }
 
 
+
+/**
+ * Load the bonus hud
+ * @param input is the module that has all the configuration of the game
+ */
 void HudBonus::loadHudBonus(Input& input){
 
+    // Load the text font to display the text indicators
     float separation = 50.f;
     instance.hudIndicatorText.loadFromFile("Resources/Fonts/DisposableDroid.ttf");
+
+    /*
+     * Configure all the text indicators of the hud
+     */
 
     instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_TIME_POINTS_TEXT].setFont(instance.hudIndicatorText);
     instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_TIME_POINTS_TEXT].setString(instance.BONUS_POINTS_INDICATOR);
@@ -48,7 +65,6 @@ void HudBonus::loadHudBonus(Input& input){
 
     instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_TIME_POINTS_TEXT].setPosition(initial, float(input.gameWindow.getSize().y) / 3.0f -
                      float(instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_TIME_POINTS_TEXT].getCharacterSize()));
-
 
     instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_SECONDS_POINTS_TEXT].setFont(instance.hudIndicatorText);
     instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_SECONDS_POINTS_TEXT].setCharacterSize(static_cast<unsigned int>(int(55.0f * input.screenScaleX)));
@@ -110,17 +126,38 @@ void HudBonus::loadHudBonus(Input& input){
                      float(instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_POINTS_TEXT].getCharacterSize()));
 }
 
-void HudBonus::setTextHudBonusIndicator(){
-    instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_SECONDS_POINTS_TEXT].setString(
-                     to_string(instance.secondsBonus) + "." + to_string(instance.cents_secondBonus));
-}
 
-void HudBonus::setHudBonus(const int _secondsBonus, const int _cents_secondBonus){
+
+/**
+ * Set the content of the hud
+ * @param _secs are the seconds of bonus given to the player
+ * @param _tenths_second are the tenths of seconds of bonus given to the player
+ */
+void HudBonus::setHudBonus(const int _secondsBonus, const int tenths_secondBonus){
+    // Update the information of the hud
     instance.secondsBonus = _secondsBonus;
-    instance.cents_secondBonus = _cents_secondBonus;
+    instance.tenths_secondBonus = tenths_secondBonus;
 }
 
+
+
+/**
+ * Set the text contents of the text indicators
+ */
+void HudBonus::setTextHudBonusIndicator(){
+    // Set the text indicator with the new information
+    instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_SECONDS_POINTS_TEXT].setString(
+                     to_string(instance.secondsBonus) + "." + to_string(instance.tenths_secondBonus));
+}
+
+
+
+/**
+ * Draw the hud of the bonus in the screen
+ * @param input is the module that has all the configuration of the game
+ */
 void HudBonus::drawHudBonus(Input& input){
+    // Draw all the indicators of the hud
     input.gameWindow.draw(instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_TIME_POINTS_TEXT]);
     input.gameWindow.draw(instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_SECONDS_POINTS_TEXT]);
     input.gameWindow.draw(instance.hudTexts[(int)Hud_Bonus_Text_Indicator::BONUS_SECONDS_TEXT]);
