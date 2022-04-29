@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Andres Gavin
- * Copyright (c) 2020 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,8 +17,9 @@
  */
 
 
+
 /*
- * Module Random implementation file
+ * Implementation file of the module Random
  */
 
 #include <random>
@@ -36,7 +36,6 @@ static thread_local uniform_real_distribution<float> dist(0.0f, 1.0f);
 
 /**
  * Returns a random number between zero and one
- * @return
  */
 float random_zero_one() {
     return dist(generator);
@@ -48,7 +47,6 @@ float random_zero_one() {
 /**
  * Returns a random number between zero and n
  * @param n is the upper bound number to generate the random number
- * @return
  */
 int random_zero_n(int n) {
     return uniform_int_distribution<>(0, n)(generator);
@@ -60,7 +58,6 @@ int random_zero_n(int n) {
  * Returns a integer random number between a lower bound and an upper bound numbers
  * @param min is the lower bound number of the interval
  * @param max is the upper bound number of the interval
- * @return
  */
 int random_int(int min, int max) {
     return uniform_int_distribution<int>(min, max)(generator);
@@ -72,7 +69,6 @@ int random_int(int min, int max) {
  * Returns a float random number between a lower bound and an upper bound numbers
  * @param min is the lower bound number of the interval
  * @param max is the upper bound number of the interval
- * @return
  */
 float random_float(float min, float max) {
     return uniform_real_distribution<float>(min, max)(generator);

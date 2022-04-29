@@ -187,7 +187,7 @@ void MenuControls::handleEvent(Input& input){
                         case 5:
                             updateGameControl(input, event.key.code, Key::DOWN_GEAR);
                     }
-                    input.modifiedinputig = true;
+                    input.modifiedConfig = true;
                 }
             }
             else {

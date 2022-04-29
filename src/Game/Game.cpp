@@ -832,7 +832,7 @@ void Game::run(Input& input){
                     biomesLoader.detach();
                 }
                 MenuStart mS = MenuStart();
-                mS.setMenuStart(firstLoad, pauseMode, outOfTime);
+                mS.setMenuStart(firstLoad, outOfTime);
                 mS.loadMenu(input);
                 mS.draw(input);
                 gameStatus = mS.returnMenu(input);
@@ -955,6 +955,10 @@ void Game::run(Input& input){
                 mP.loadMenu(input);
                 mP.draw(input);
                 gameStatus = mP.returnMenu(input);
+                if (gameStatus == State::START){
+                    pauseMode = false;
+                    firstLoad = true;
+                }
                 break;
             }
             case State::GAME_OVER: {

@@ -248,6 +248,6 @@ void MenuSound::changeVolume(Input& input, const bool& menuLeft){
     }
     input.volumeMusic = newVolMusic;
     input.volumeEffects = newVolSfx;
-    input.modifiedinputig = true;
+    input.modifiedConfig = true;
 }
 

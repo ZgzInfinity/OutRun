@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,8 +17,10 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
 /*
- * Module inputig interface file
+ * Interface file of the module Audio
  */
 
 #pragma once
@@ -40,6 +41,10 @@
 using namespace std;
 
 
+
+/**
+ * Represents the different types of resolution available
+ */
 enum class Resolution : int {
     SCREEN_0,
     SCREEN_1,
@@ -50,7 +55,9 @@ enum class Resolution : int {
 
 
 
-// Levels of difficulty of the game
+/**
+ * Represents the different types of difficulty levels available
+ */
 enum class Level_Difficulty : int{
     EASY,
     NORMAL,
@@ -59,6 +66,10 @@ enum class Level_Difficulty : int{
 };
 
 
+
+/**
+ * Represents the different types of traffic levels available
+ */
 enum class Level_Traffic : int {
     LOW,
     MEDIUM,
@@ -67,6 +78,10 @@ enum class Level_Traffic : int {
 };
 
 
+
+/**
+ * Represents the keywords to play and manage the game
+ */
 enum class Key : int {
 
     // Driving actions
@@ -96,12 +111,16 @@ enum class Key : int {
  */
 struct Input {
 
+    // Structure of store all the keywords
     sf::Keyboard::Key map[(int)Key::__COUNT];
 
+    // Window of the game
     sf::RenderWindow gameWindow;
 
-    // Level of difficulty
+    // Level of difficulty (EASY, NORMAL or HARD)
     Level_Difficulty difficulty;
+
+    // Traffic level (LOW, MEDIUM or HIGH
     Level_Traffic traffic;
 
     // Vector with all the available resolutions
@@ -110,7 +129,7 @@ struct Input {
     // Index of resolution
     int currentIndexResolution;
 
-
+    // Scale factors to draw the elements in the screen in both axis X and Y
     float screenScaleX, screenScaleY;
 
     // Camera depth
@@ -119,24 +138,145 @@ struct Input {
     // Control the volume of the effects and the music
     int volumeEffects, volumeMusic;
 
-    // Identifier of soundtrack to reproduce
+    // Identifier of soundtrack to play
     int currentSoundtrack;
 
-    // max AI aggressiveness level: max probability that the AI will be activated
-    float maxAggressiveness;
-
     // Control if there is any modification in the game Input
-    bool modifiedinputig;
+    bool modifiedConfig;
 
+    // Checks if there is a settings file with a configuration to load
     bool exitsSettings;
 
-    bool existSettingsFile(const char path[]);
 
-    void loadGameInput();
 
-    void writeDefaultInput();
+    /**
+     * Set the render window properties
+     * @param width is the horizontal dimension of the game screen
+     * @param height is the vertical dimension of the game screen
+     */
+    inline void setGameWindow(const int width, const int heigth){
 
-    void writeNewInput();
+        // Check if the resolution of the game and create the window with that resolution
+        if (currentIndexResolution == (int)Resolution::__COUNT)
+            gameWindow.create(sf::VideoMode(SCREEN_1.first, SCREEN_1.second), "Out Run", sf::Style::Fullscreen);
+        else
+            gameWindow.create(sf::VideoMode(width, heigth), "Out Run", sf::Style::Titlebar | sf::Style::Close);
+
+        // Establish the frames per sec and more properties of the window
+        gameWindow.setFramerateLimit(FPS);
+        gameWindow.setKeyRepeatEnabled(false);
+        gameWindow.setVerticalSyncEnabled(true);
+
+        // Establish the view to watch the game with good quality
+        gameWindow.setView(sf::View(sf::Vector2f(gameWindow.getSize().x / 2.0f, gameWindow.getSize().y / 2.0f),
+                                    sf::Vector2f(gameWindow.getSize().x, gameWindow.getSize().y)));
+
+        // Calculation of the screen factor between the current resolution and the default resolution
+        screenScaleX = float(gameWindow.getSize().x) / float(SCREEN_0.first);
+        screenScaleY = float(gameWindow.getSize().y) / float(SCREEN_0.second);
+
+        // Assign an icon to the window of the game
+        sf::Image i;
+        i.loadFromFile("Resources/Icon/OutRun.png");
+        gameWindow.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
+        gameWindow.setMouseCursorVisible(false);
+    }
+
+
+
+    /**
+     * Match and action of the game (driving or navigation) with a concrete key
+     * @param action is the action to be matched
+     * @param code is the numeric code that identifies the key in the keyboard to be used
+     */
+    inline void set(const Key action, const sf::Keyboard::Key code) {
+        map[(int)action] = code;
+    }
+
+
+
+    /**
+     * Returns the key associated to a concrete action of the game
+     * @param action is the action whose associated key is desired to be obtained
+     */
+    inline const sf::Keyboard::Key &get(Key action) {
+        return map[(int)action];
+    }
+
+
+
+    /**
+     * Controls if the code of the keyword pressed matches with the action done
+     * @param action is the action done by the player
+     * @param code is the identifier of the keyword used to do it
+     */
+    inline bool equal(const Key action, const sf::Keyboard::Key code) {
+        return get(action) == code;
+    }
+
+
+
+    /**
+     * Returns if the player has pressed the key matched with its action
+     * @param action is the action done by the player
+     * @param event is the interruption event captured
+     */
+    inline bool pressed(const Key action, const sf::Event &event) {
+        return isKeypressedEvent(event) && event.key.code == get(action);
+    }
+
+
+
+    /**
+     * Returns if the type of interruption event is key pressed
+     * @param event is the interruption event captured
+     */
+    inline bool isKeypressedEvent(const sf::Event &event) {
+        return event.type == sf::Event::KeyPressed;
+    }
+
+
+
+    /**
+     * Returns if the keyword pressed captured in the interruption
+     * event has a available identifier
+     */
+    inline bool pressedKeyIsValidLetter(const sf::Event &event) {
+        return event.key.code >= 0 && event.key.code <= 25;
+    }
+
+
+
+    /**
+     * Returns if the player has released the key matched with its action
+     * @param action is the action done by the player
+     * @param event is the interruption event captured
+     */
+    inline bool released(const Key action, const sf::Event &event) {
+        return event.type == sf::Event::KeyReleased &&
+               event.key.code == get(action);
+    }
+
+
+
+    /**
+     * Returns if the player has holding (pressing) the key matched with its action
+     * @param action is the action done by the player
+     */
+    inline bool held(const Key action) {
+        return sf::Keyboard::isKeyPressed(get(action)) &&
+                gameWindow.hasFocus();
+    }
+
+
+
+    /**
+     * Returns of the type of interruption event is close the window
+     * @param event is the interruption event captured
+     */
+    inline bool closed(const sf::Event &event) {
+        return event.type == sf::Event::Closed;
+    }
 
 
 
@@ -146,86 +286,57 @@ struct Input {
     Input();
 
 
-    // set window for focus checks
-    inline void setGameWindow(const int width, const int heigth){
 
-        if (currentIndexResolution == (int)Resolution::__COUNT){
-            gameWindow.create(sf::VideoMode(SCREEN_1.first, SCREEN_1.second), "Out Run", sf::Style::Fullscreen);
-        }
-        else {
-            // Create the screen with not full screen resolution
-            gameWindow.create(sf::VideoMode(width, heigth), "Out Run", sf::Style::Titlebar | sf::Style::Close);
-        }
-
-        gameWindow.setFramerateLimit(FPS);
-        gameWindow.setKeyRepeatEnabled(false);
-        gameWindow.setVerticalSyncEnabled(true);
-
-        gameWindow.setView(sf::View(sf::Vector2f(gameWindow.getSize().x / 2.0f, gameWindow.getSize().y / 2.0f),
-                                    sf::Vector2f(gameWindow.getSize().x, gameWindow.getSize().y)));
-
-        // Calculation of the screen factor between the current resolution and the default resolution
-        screenScaleX = float(gameWindow.getSize().x) / float(SCREEN_0.first);
-        screenScaleY = float(gameWindow.getSize().y) / float(SCREEN_0.second);
-
-        sf::Image i;
-        i.loadFromFile("Resources/Icon/OutRun.png");
-        gameWindow.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
-        gameWindow.setMouseCursorVisible(false);
-    }
+    /**
+     * Returns if there is a file with a default configuration to load the game
+     * @param path is the path of the file to look for
+     */
+    bool existSettingsFile(const char path[]);
 
 
 
-    // Read/write the key map
-    inline void set(const Key action, const sf::Keyboard::Key code) {
-        map[(int)action] = code;
-    }
+    /**
+     * Load the configuration stored in the settings file of the game
+     */
+    void loadGameInput();
 
-    inline const sf::Keyboard::Key &get(Key action) {
-        return map[(int)action];
-    }
 
-    inline bool equal(const Key action, const sf::Keyboard::Key code) {
-        return get(action) == code;
-    }
 
-    // Check for key press/release/hold events
-    inline bool pressed(const Key action, const sf::Event &event) {
-        return isKeypressedEvent(event) && event.key.code == get(action);
-    }
+    /**
+     * Writes a file with a default configuration only when this file does not exist
+     */
+    void writeDefaultInput();
 
-    inline bool isKeypressedEvent(const sf::Event &event) {
-        return event.type == sf::Event::KeyPressed;
-    }
 
-    inline bool pressedKeyIsValidLetter(const sf::Event &event) {
-        return event.key.code >= 0 && event.key.code <= 25;
-    }
 
-    inline bool released(const Key action, const sf::Event &event) {
-        return event.type == sf::Event::KeyReleased &&
-               event.key.code == get(action);
-    }
+    /**
+     * Writes a file with the new configuration specified by the player
+     */
+    void writeNewInput();
 
-    inline bool held(const Key action) {
-        return sf::Keyboard::isKeyPressed(get(action)) &&
-                gameWindow.hasFocus();
-    }
 
-    inline bool closed(const sf::Event &event) {
-        return event.type == sf::Event::Closed;
-    }
 
-    // returns true if key is accepted in game
+    /**
+     * Returns the action name associated to the action done by the player
+     * @param action is the action done by the player
+     */
     std::string getActionName(const Key action);
 
-    // code based on:
-    // https://en.sfml-dev.org/forums/index.php?topic=15226.0
-    // returns true if key is accepted in game
+
+
+    /**
+     * Returns the name of the keyword pressed by the player
+     * using its numeric identifier
+     * @param code is the numeric identifier of the code entered by the player
+     */
     std::string getKeyCodeName(const sf::Keyboard::Key code);
 
-    // code based on:
-    // https://en.sfml-dev.org/forums/index.php?topic=15226.0
+
+
+    /**
+     * Returns the keyword associated to a concrete name of keyword
+     * @param code is the name of the keyword introduce
+     */
     sf::Keyboard::Key getKeyCode(const std::string code);
 
 };

@@ -210,7 +210,7 @@ void MenuOptions::handleEvent(Input& input){
                     loadMenu(input);
                     break;
             }
-            input.modifiedinputig = true;
+            input.modifiedConfig = true;
         }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
             if (!pauseMode || (pauseMode && optionSelected >= 2)){
@@ -272,17 +272,15 @@ State MenuOptions::returnMenu(Input& input){
         }
     }
     else if (backPressed){
-        if (input.modifiedinputig){
+        if (input.modifiedConfig){
             input.writeNewInput();
             Logger::setWidthScreen(input.gameWindow.getSize().x);
         }
-        input.modifiedinputig = false;
-        if (pauseMode){
+        input.modifiedConfig = false;
+        if (pauseMode)
             return State::PAUSE;
-        }
-        else {
+        else
             return State::GAME;
-        }
     }
     else if (escapePressed) {
         return State::EXIT;

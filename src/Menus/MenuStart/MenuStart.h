@@ -54,7 +54,7 @@ class MenuStart : public Menu {
 
         MenuStart();
 
-        void setMenuStart(const bool& first, const bool& pause, const bool& newRound);
+        void setMenuStart(const bool& first, const bool& newRound);
 
         bool getFirstLoad() const;
 

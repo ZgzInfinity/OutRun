@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -19,13 +18,24 @@
  */
 
 
+
+/*
+ * Implementation file of the module Input
+ */
+
 #include "Input.h"
 
+
+
+/**
+ * Default constructor
+ */
 Input::Input(){
 
     // Resolutions of the game
     currentSoundtrack = 1;
 
+    // Fill the vector of resolutions
     resolutions[(int)Resolution::SCREEN_0] = SCREEN_0;
     resolutions[(int)Resolution::SCREEN_1] = SCREEN_1;
     resolutions[(int)Resolution::SCREEN_2] = SCREEN_2;
@@ -56,16 +66,12 @@ Input::Input(){
         traffic = Level_Traffic::MEDIUM;
 
         // By default any aspect of the Input has been modified
-        modifiedinputig = false;
-
-        // Default level of AI aggressiveness
-        maxAggressiveness = 0.0f;
+        modifiedConfig = false;
     }
-    else {
-
+    else
         loadGameInput();
-    }
 
+    // Associate the action with the keys
     set(Key::MENU_UP, sf::Keyboard::Up);
     set(Key::MENU_DOWN, sf::Keyboard::Down);
     set(Key::MENU_LEFT, sf::Keyboard::Left);
@@ -75,6 +81,7 @@ Input::Input(){
     set(Key::MENU_PAUSE, sf::Keyboard::Escape);
     set(Key::MENU_CREDITS, sf::Keyboard::Space);
 
+    // Fix the depth of the camera depending on the screen resolution
     if (currentIndexResolution <= 1)
         camD = 0.84;
     else
@@ -88,8 +95,8 @@ Input::Input(){
 
 
 /**
- * Returns true if a the Input file of the game exits or not. Otherwise returns false
- * @param path is the path of the Input file of the game
+ * Returns if there is a file with a default configuration to load the game
+ * @param path is the path of the file to look for
  */
 bool Input::existSettingsFile(const char path[]){
     // Check if the Input file exits
@@ -108,8 +115,10 @@ bool Input::existSettingsFile(const char path[]){
 
 
 
-
-inline void Input::loadGameInput(){
+/**
+ * Load the configuration stored in the settings file of the game
+ */
+void Input::loadGameInput(){
 
      // Load the Input of the game
     ifstream fin("Resources/Settings/Settings.txt");
@@ -198,8 +207,7 @@ inline void Input::loadGameInput(){
 
 
 /**
- * Write a default Input for the game
- * @param path is the path with the default Input of the game
+ * Writes a file with a default configuration only when this file does not exist
  */
 void Input::writeDefaultInput(){
 
@@ -228,9 +236,70 @@ void Input::writeDefaultInput(){
 
 
 
+/**
+ * Writes a file with the new configuration specified by the player
+ */
+void Input::writeNewInput (){
+
+    //  New file which stores the new Input of the game
+    ofstream f("Resources/Settings/Settings.txt");
+
+    // Check if the file has been opened correctly
+    if (f.is_open()){
+        f << "DIFFICULTY: ";
+        switch (difficulty){
+            case Level_Difficulty::EASY:
+                f << "EASY" << endl;
+                break;
+            case Level_Difficulty::NORMAL:
+                f << "NORMAL" << endl;
+                break;
+            case Level_Difficulty::HARD:
+                f << "HARD" << endl;
+        }
+
+        f << "TRAFFIC: ";
+        switch (traffic){
+            case Level_Traffic::LOW:
+                f << "LOW" << endl;
+                break;
+            case Level_Traffic::MEDIUM:
+                f << "MEDIUM" << endl;
+                break;
+            case Level_Traffic::HIGH:
+                f << "HIGH" << endl;
+        }
+
+        int musicVol = (Audio::getMusicVolume() + 0.005f) * 100;
+        int sfxVol = (Audio::getSfxVolume() + 0.005f) * 100;
+
+        f << "VOLUME_SOUNDTRACKS: " << musicVol << endl;
+        f << "VOLUME_EFFECTS: " << sfxVol << endl;
+        f << "RESOLUTION: " << currentIndexResolution << endl;
+        f << "CONTROL_LEFT: " << getKeyCodeName(get(Key::TURN_LEFT)) << endl;
+        f << "CONTROL_RIGHT: " << getKeyCodeName(get(Key::TURN_RIGHT)) << endl;
+        f << "CONTROL_ACCELERATE: " << getKeyCodeName(get(Key::ACCELERATE)) << endl;
+        f << "CONTROL_BRAKE: " << getKeyCodeName(get(Key::BRAKE)) << endl;
+        f << "CONTROL_UP_GEAR: " << getKeyCodeName(get(Key::UP_GEAR)) << endl;
+        f << "CONTROL_DOWN_GEAR: " << getKeyCodeName(get(Key::DOWN_GEAR)) << endl;
+    }
+    f.close();
+}
+
+
+
+/**
+ * Returns the action name associated to the action done by the player
+ * @param action is the action done by the player
+ */
 std::string Input::getActionName(const Key action) {
 
     std::string ret;
+
+    /*
+     * Returns the action name associated
+     * to the action done by the player
+     */
 
     switch (action) {
         // Driving actions
@@ -261,7 +330,18 @@ std::string Input::getActionName(const Key action) {
 
 
 
+/**
+ * Returns the name of the keyword pressed by the player
+ * using its numeric identifier
+ * @param code is the numeric identifier of the code entered by the player
+ */
 std::string Input::getKeyCodeName(const sf::Keyboard::Key keycode) {
+
+    /*
+     * Returns the name of the keyword which
+     * numeric code has been passed
+     */
+
     std::string ret;
     switch (keycode) {
         case sf::Keyboard::A:
@@ -519,9 +599,16 @@ std::string Input::getKeyCodeName(const sf::Keyboard::Key keycode) {
 
 
 
-// code based on:
-// https://en.sfml-dev.org/forums/index.php?topic=15226.0
+/**
+ * Returns the keyword associated to a concrete name of keyword
+ * @param code is the name of the keyword introduce
+ */
 sf::Keyboard::Key Input::getKeyCode(const std::string code) {
+
+    /*
+     * Compare the name of the keyword entered
+     * and return the keyword associated to it
+     */
 
     if (code.compare("A") == 0){
         return sf::Keyboard::A;
@@ -776,49 +863,3 @@ sf::Keyboard::Key Input::getKeyCode(const std::string code) {
 
 
 
-void Input::writeNewInput (){
-
-    //  New file which stores the new Input of the game
-    ofstream f("Resources/Settings/Settings.txt");
-
-    // Check if the file has been opened correctly
-    if (f.is_open()){
-        f << "DIFFICULTY: ";
-        switch (difficulty){
-            case Level_Difficulty::EASY:
-                f << "EASY" << endl;
-                break;
-            case Level_Difficulty::NORMAL:
-                f << "NORMAL" << endl;
-                break;
-            case Level_Difficulty::HARD:
-                f << "HARD" << endl;
-        }
-
-        f << "TRAFFIC: ";
-        switch (traffic){
-            case Level_Traffic::LOW:
-                f << "LOW" << endl;
-                break;
-            case Level_Traffic::MEDIUM:
-                f << "MEDIUM" << endl;
-                break;
-            case Level_Traffic::HIGH:
-                f << "HIGH" << endl;
-        }
-
-        int musicVol = (Audio::getMusicVolume() + 0.005f) * 100;
-        int sfxVol = (Audio::getSfxVolume() + 0.005f) * 100;
-
-        f << "VOLUME_SOUNDTRACKS: " << musicVol << endl;
-        f << "VOLUME_EFFECTS: " << sfxVol << endl;
-        f << "RESOLUTION: " << currentIndexResolution << endl;
-        f << "CONTROL_LEFT: " << getKeyCodeName(get(Key::TURN_LEFT)) << endl;
-        f << "CONTROL_RIGHT: " << getKeyCodeName(get(Key::TURN_RIGHT)) << endl;
-        f << "CONTROL_ACCELERATE: " << getKeyCodeName(get(Key::ACCELERATE)) << endl;
-        f << "CONTROL_BRAKE: " << getKeyCodeName(get(Key::BRAKE)) << endl;
-        f << "CONTROL_UP_GEAR: " << getKeyCodeName(get(Key::UP_GEAR)) << endl;
-        f << "CONTROL_DOWN_GEAR: " << getKeyCodeName(get(Key::DOWN_GEAR)) << endl;
-    }
-    f.close();
-}
