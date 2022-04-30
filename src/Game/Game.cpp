@@ -814,9 +814,6 @@ void Game::loadTrafficCars(Input& input){
 
 void Game::run(Input& input){
 
-    biomesLoader = std::thread(loadBiomes, this, ref(input));
-    biomesLoader.detach();
-
     while (input.gameWindow.isOpen() && gameStatus != State::EXIT){
         switch (gameStatus) {
             case State::ANIMATION: {
@@ -827,7 +824,7 @@ void Game::run(Input& input){
                 break;
             }
             case State::START: {
-                if (!firstLoad || outOfTime || arrival){
+                if (firstLoad || outOfTime || arrival){
                     biomesLoader = std::thread(loadBiomes, this, ref(input));
                     biomesLoader.detach();
                 }

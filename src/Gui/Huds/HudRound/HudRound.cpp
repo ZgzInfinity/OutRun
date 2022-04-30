@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,11 +17,108 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Implementation file of the module HudRound
+ */
+
 #include "HudRound.h"
 
+// Declare the static instance of the class
 HudRound HudRound::instance;
 
+
+
+/**
+ * Load a texture in the vector of textures of the hud
+ * @param hudInd is the index position of the vector where the texture has to be stored
+ * @param name is the path from where the texture has to be loaded
+ */
+void HudRound::loadHudRoundTextureIndicator(const Hud_Texture_Indicator hudInd , const std::string name){
+    sf::Texture indicatorTexture;
+    // Read the texture if the file exits and stores it in the vector
+    if (indicatorTexture.loadFromFile(name)){
+        instance.hudTextures[(int)hudInd] = indicatorTexture;
+        instance.hudSprites[(int)hudInd].setTexture(instance.hudTextures[(int)hudInd], true);
+    }
+}
+
+
+
+/**
+ * Rescale a indicator of the hud (texture)
+ * @param hudInd is the index of the indicator to be scaled in the screen
+ * @param scale is a two components array that shows the new scale ratio of the new indicator
+ */
+void HudRound::setScaleHudRoundIndicator(const Hud_Texture_Indicator hudInd, const sf::Vector2f& scale){
+    // Modify the scale of the indicator
+    instance.hudSprites[(int)hudInd].setScale(scale.x, scale.y);
+}
+
+
+
+/**
+ * Locate a indicator of the hud (texture) in a concrete position of the screen
+ * @param hudInd is the index of the indicator to be located in the screen
+ * @param pos is a two components array that shows where the indicator has to be located
+ */
+void HudRound::setPositionHudRoundIndicator(const Hud_Texture_Indicator hudInd, const sf::Vector2f& pos){
+        // Assign a position to the indicator (texture)
+    instance.hudSprites[(int)hudInd].setPosition(pos.x, pos.y);
+}
+
+
+
+/**
+ * Locate a indicator of the hud (text) in a concrete position with a concrete text in the screen
+ * @param hudInd is the index of the indicator to be located in the screen
+ * @param message is the new content of the text indicator
+ * @param pos is a two components array that shows where the indicator has to be located
+ */
+void HudRound::setTextHudRoundIndicator(const Hud_Text_Indicator hudInd, const std::string message, const sf::Vector2f& pos){
+    // Set the position and the message of the text indicator
+    instance.hudTexts[(int)hudInd].setPosition(pos.x, pos.y);
+    instance.hudTexts[(int)hudInd].setString(message);
+}
+
+
+
+/**
+ * Set a indicator of the hud (text) with a concrete text message
+ * @param input is the module that has all the configuration of the game
+ * @param message is a two components array that shows where the indicator has to be located
+ */
+void HudRound::setTextHudRoundIndicator(Input& input, const Hud_Text_Indicator hudInd, const std::string message){
+    // Get the position of the text indicator
+    sf::Vector2f posSpeedTextIndicator = instance.hudTexts[(int)hudInd].getPosition();
+
+    // Check if the text indicator is the speed or the score
+    if (hudInd == Hud_Text_Indicator::SPEED_TEXT || hudInd == Hud_Text_Indicator::SCORE_TEXT)
+    {
+        // Calculation of the new position (text width grows to the right and must be aligned
+        float posX;
+        if (hudInd == Hud_Text_Indicator::SPEED_TEXT)
+            posX = float(input.gameWindow.getSize().x) / 6.0f;
+        else
+            posX = instance.hudSprites[(int)Hud_Texture_Indicator::SCORE_INDICATOR].getGlobalBounds().width * 6.2f;
+
+        // Set the new content in the position
+        instance.hudTexts[(int)hudInd].setString(message);
+        instance.hudTexts[(int)hudInd].setPosition(posX - instance.hudTexts[(int)hudInd].getLocalBounds().width, posSpeedTextIndicator.y);
+    }
+    else
+        // Set the new text content but the position is the same
+        instance.hudTexts[(int)hudInd].setString(message);
+}
+
+
+
+/**
+ * Default constructor
+ */
 HudRound::HudRound(){
+    // Initialize all the information
     time = 0;
     score = 0;
     minutes = 0.f;
@@ -38,15 +134,17 @@ HudRound::HudRound(){
     treeMapPos = LEVEL_FACTOR;
 }
 
-void HudRound::loadHudRoundTextureIndicator(const Hud_Texture_Indicator hudInd , const std::string& name){
-    sf::Texture indicatorTexture;
-    if (indicatorTexture.loadFromFile(name)){
-        instance.hudTextures[(int)hudInd] = indicatorTexture;
-        instance.hudSprites[(int)hudInd].setTexture(instance.hudTextures[(int)hudInd], true);
-    }
-}
 
+
+
+/**
+ * Load all the checkpoint hud
+ */
 void HudRound::loadHudRound(){
+
+    /*
+     * Load all the hud round indicators
+     */
 
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::TIME_INDICATOR, "Resources/Huds/HudRound/Time_Indicator.png");
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::SCORE_INDICATOR, "Resources/Huds/HudRound/Score_Indicator.png");
@@ -71,57 +169,39 @@ void HudRound::loadHudRound(){
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::TREE_LEVEL_14_INDICATOR, "Resources/Huds/HudRound/Tree_level_14_indicator.png");
     loadHudRoundTextureIndicator(Hud_Texture_Indicator::TREE_LEVEL_15_INDICATOR, "Resources/Huds/HudRound/Tree_level_15_indicator.png");
 
+    // Set the text fonts to write the text indicators
     instance.hudIndicatorSpeed.loadFromFile("Resources/Fonts/digital.ttf");
     instance.hudIndicatorText.loadFromFile("Resources/Fonts/DisposableDroid.ttf");
 }
 
-void HudRound::setScaleHudRoundIndicator(const Hud_Texture_Indicator& hudInd, const sf::Vector2f& scale){
-    instance.hudSprites[(int)hudInd].setScale(scale.x, scale.y);
-}
-
-void HudRound::setPositionHudRoundIndicator(const Hud_Texture_Indicator& hudInd, const sf::Vector2f& pos){
-    instance.hudSprites[(int)hudInd].setPosition(pos.x, pos.y);
-}
-
-void HudRound::setTextHudRoundIndicator(const Hud_Text_Indicator& hudInd, const std::string message, const sf::Vector2f& pos){
-    instance.hudTexts[(int)hudInd].setPosition(pos.x, pos.y);
-    instance.hudTexts[(int)hudInd].setString(message);
-}
 
 
-void HudRound::setTextHudRoundIndicator(Input& input, const Hud_Text_Indicator& hudInd, const std::string message){
-    sf::Vector2f posSpeedTextIndicator = instance.hudTexts[(int)hudInd].getPosition();
-    if (hudInd == Hud_Text_Indicator::SPEED_TEXT || hudInd == Hud_Text_Indicator::SCORE_TEXT)
-    {
-        float posX;
-        if (hudInd == Hud_Text_Indicator::SPEED_TEXT)
-            posX = float(input.gameWindow.getSize().x) / 6.0f;
-        else
-            posX = instance.hudSprites[(int)Hud_Texture_Indicator::SCORE_INDICATOR].getGlobalBounds().width * 6.2f;
-
-        instance.hudTexts[(int)hudInd].setString(message);
-        instance.hudTexts[(int)hudInd].setPosition(posX - instance.hudTexts[(int)hudInd].getLocalBounds().width, posSpeedTextIndicator.y);
-    }
-    else
-        instance.hudTexts[(int)hudInd].setString(message);
-}
-
+/**
+ * Set all the indicators that compose the round hud
+ * @param input is the module that has all the configuration of the game
+ */
 void HudRound::setAllHudRoundIndicators(Input& input){
+
+    // Set the time and score text indicators
     setTextHudRoundIndicator(input, Hud_Text_Indicator::TIME_TEXT, std::to_string(instance.time));
     setTextHudRoundIndicator(input, Hud_Text_Indicator::SCORE_TEXT, std::to_string(instance.score));
 
+    // Compose the new time o the lap
     std::string lap;
     lap = (instance.minutes < 10.f) ? "0" + to_string(int(instance.minutes)) + " '" : to_string(int(instance.minutes)) + " '";
     lap += (instance.secs < 10.f) ? "0" + to_string(int(instance.secs)) + " ''" : to_string(int(instance.secs)) + " ''";
     lap += (int(instance.cents_second * 100.f) < 10 ) ? "0" + to_string(int(instance.cents_second * 100.f)) : to_string(int(instance.cents_second * 100.f));
     setTextHudRoundIndicator(input, Hud_Text_Indicator::LAP_TEXT, lap);
 
+    // Set the speed and level text indicators
     setTextHudRoundIndicator(input, Hud_Text_Indicator::SPEED_TEXT, std::to_string((int)instance.speed));
     setTextHudRoundIndicator(input, Hud_Text_Indicator::LEVEL_TEXT, std::to_string(instance.level));
 
+    // Set the gear indicator
     string playerGear = (instance.gear == 1) ? "H" : "L";
     setTextHudRoundIndicator(input, Hud_Text_Indicator::GEAR_TEXT, playerGear);
 
+    // Establish the new appearance of the speed grey bar indicator
     int width = int(instance.speedHud * 120.f / instance.maxSpeed);
     if (width > 0){
         instance.speedMotorIndicator.loadFromFile("Resources/Huds/HudRound/Speed_Motor_Indicator.png",
@@ -131,11 +211,23 @@ void HudRound::setAllHudRoundIndicators(Input& input){
     else
         instance.speedHud = 0.0f;
 
+    // Draw the speed bar indicator
     instance.hudSprites[instance.treeMapPos].setTexture(instance.hudTextures[instance.treeMapPos], true);
 }
 
 
+
+
+/**
+ * Set the content, scale and positions of all the indicator that compose the round hud
+ * @param input is the module that has all the configuration of the game
+ */
 void HudRound::configureHudRound(Input& input){
+
+    /*
+     * Set the position, scale and content of all
+     * indicators (texts and sprites) of the round hud
+     */
 
     const float up = float(input.gameWindow.getSize().y) / 10.0f;
     float posX, posY;
@@ -307,10 +399,26 @@ void HudRound::configureHudRound(Input& input){
 }
 
 
+
+/**
+ * Set the content of the hud
+ * @param _time is the time that the player has to complete the scenario
+ * @param _scores is the score of the player
+ * @param _minutes are the minutes spent since the player started the scenario
+ * @param _secs are are the seconds spent since the player started the scenario
+ * @param _cents_second are the hundredths of seconds spent since the player started the scenario
+ * @param _level is the level where the playing is driving
+ * @param _treeMapPos is the level location in the tree map (right hud panel)
+ * @param _checkPoint controls if the checkpoint animation has to be drawn in the screen
+ * @param _gear is the gear that the player is currently using (up or down)
+ * @param _speed is the speed of the player car
+ * @param _maxSpeed is the maximum speed that the player car can reach
+ */
 void HudRound::setHudRound(const int _time, const long long int _score, const float _minutes, const float _secs,
                  const float _cents_second, const int _level, const int _treeMapPos, const bool checkPoint,
-                 const int _gear, float _speed, const float _maxSpeed)
+                 const int _gear, const float _speed, const float _maxSpeed)
 {
+    // Update the content of the hud
     instance.time = _time;
     instance.score = _score;
     instance.minutes = _minutes;
@@ -322,12 +430,22 @@ void HudRound::setHudRound(const int _time, const long long int _score, const fl
     instance.maxSpeed = _maxSpeed;
     instance.speedHud = _speed;
 
+    // Check if the player has passed the checkpoint to change the tree map level position panel
     if (checkPoint)
         instance.treeMapPos = _treeMapPos;
 }
 
 
+
+/**
+ * Draw the round hud in the screen
+ * @param input is the module that has all the configuration of the game
+ */
 void HudRound::drawHudRound(Input& input){
+
+    /*
+     * Draw all the hud round indicators (text and sprites)
+     */
 
     input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::TIME_INDICATOR]);
     input.gameWindow.draw(instance.hudSprites[(int)Hud_Texture_Indicator::SCORE_INDICATOR]);
