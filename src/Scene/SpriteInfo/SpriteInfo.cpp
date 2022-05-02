@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,17 +17,46 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Implementation file of the module SpriteInfo
+ */
+
 #include "SpriteInfo.h"
 
+
+
+/**
+ * Default constructor
+ */
 SpriteInfo::SpriteInfo(){}
 
-SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const fPoint _pivotR, const float _scale,
-               const int _wCol, const int _showTerrain, const fPoint _pivotColL, const fPoint _pivotColR,
-               const bool _collider, const float _offsetX, const float _offsetY, const bool _side)
+
+
+/**
+ * Second constructor
+ * @param _textureSprite is the texture of the sprite
+ * @param _pivotLeft is the lower left point of the sprite to calculate its position in the screen
+ * @param _pivotRight is the lower right point of the sprite to calculate its position in the screen
+ * @param _scale is the scale factor used to draw the sprite
+ * @param _wCol is the part of the width dimension of the sprite which can make the player car crash
+ * @param _showTerrain controls if the player car has to draw terrain effects when crashes with it
+ * @param _pivotColLeft is the lower left point of the sprite to calculate the possible collisions with the player car
+ * @param _pivotColRight is the lower right point of the sprite to calculate the possible collisions with the player car
+ * @param _collider controls if the player car can crash with the sprite
+ * @param _offsetX is the position of the sprite in axis X using like reference the center of the road
+ * @param _offsetY is the position of the sprite in axis Y
+ * @param _side controls if the sprite must be drawn next to the left or next to the right road
+ */
+SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotLeft, const fPoint _pivotRight, const float _scale,
+                       const int _wCol, const int _showTerrain, const fPoint _pivotColLeft, const fPoint _pivotColRight,
+                       const bool _collider, const float _offsetX, const float _offsetY, const bool _side)
 {
+    // Assign all the information
     textureSprite = _textureSprite;
-    pivotLeft = _pivotL;
-    pivotRight = _pivotR;
+    pivotLeft = _pivotLeft;
+    pivotRight = _pivotRight;
     scale = _scale;
     collider = _collider;
     widthCol = _wCol;
@@ -36,62 +64,132 @@ SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotL, const 
     offsetX = _offsetX;
     offsetY = _offsetY;
     side = _side;
-    pivotColLeft = _pivotColL;
-    pivotColRight = _pivotColR;
+    pivotColLeft = pivotColLeft;
+    pivotColRight = _pivotColRight;
 };
 
-sf::Texture* SpriteInfo::getTextureSprite() const {
-    return textureSprite;
-}
 
-fPoint SpriteInfo::getPivotLeft() const {
-    return pivotLeft;
-}
 
-fPoint SpriteInfo::getPivotRight() const {
-    return pivotRight;
-}
-
-float SpriteInfo::getScale() const {
-    return scale;
-}
-
-bool SpriteInfo::getCollider() const {
-    return collider;
-}
-
-bool SpriteInfo::getSide() const {
-    return side;
-}
-
-float SpriteInfo::getWidthCol() const {
-    return widthCol;
-}
-
-float SpriteInfo::getOffsetX() const {
-    return offsetX;
-}
-
-void SpriteInfo::setOffsetY(const float _offsetY){
-    offsetY = _offsetY;
-}
-
+/**
+ * Set the position of the sprite in axis X using like reference the center of the road
+ * @param _offsetX is the position of the sprite in axis X using like reference the center of the road
+ */
 void SpriteInfo::setOffsetX(const float _offsetX){
     offsetX = _offsetX;
 }
 
+
+
+/**
+ * Set the position of the sprite in axis Y
+ * @param _offsetY is the position of the sprite in axis Y
+ */
+void SpriteInfo::setOffsetY(const float _offsetY){
+    offsetY = _offsetY;
+}
+
+
+
+/**
+ * Get the position of the sprite in axis X using like reference the center of the road
+ */
+float SpriteInfo::getOffsetX() const {
+    return offsetX;
+}
+
+
+
+/**
+ * Get the position of the sprite in axis Y
+ */
 float SpriteInfo::getOffsetY() const {
     return offsetY;
 }
 
+
+/**
+ * Get the texture of the sprite
+ */
+sf::Texture* SpriteInfo::getTextureSprite() const {
+    return textureSprite;
+}
+
+
+/**
+ * Get the lower left point of the sprite to calculate its position in the screen
+ */
+fPoint SpriteInfo::getPivotLeft() const {
+    return pivotLeft;
+}
+
+
+
+/**
+ * the lower right point of the sprite to calculate its position in the screen
+ */
+fPoint SpriteInfo::getPivotRight() const {
+    return pivotRight;
+}
+
+
+
+/**
+ * Get the scale factor to draw the sprites in the screen
+ */
+float SpriteInfo::getScale() const {
+    return scale;
+}
+
+
+
+/**
+ * Get if the player car crash with the sprite
+ */
+bool SpriteInfo::getCollider() const {
+    return collider;
+}
+
+
+
+/**
+ * Get the side where the sprite has to be drawn (left or right)
+ */
+bool SpriteInfo::getSide() const {
+    return side;
+}
+
+
+
+/**
+ * Get the part of the width dimension of the sprite which can make the player car crash
+ */
+float SpriteInfo::getWidthCol() const {
+    return widthCol;
+}
+
+
+
+/**
+ * Get if the player car has to draw terrain effects when crashes with it
+ */
 int SpriteInfo::getShowTerrain() const {
     return showTerrain;
 }
 
+
+
+/**
+ * Get the lower left point of the sprite to calculate the possible collisions with the player car
+ */
 fPoint SpriteInfo::getPivotColLeft() const {
     return pivotColLeft;
 }
 
+
+
+/**
+ * Get the lower right point of the sprite to calculate the possible collisions with the player car
+ */
 fPoint SpriteInfo::getPivotColRight() const {
     return pivotColRight;
 }
