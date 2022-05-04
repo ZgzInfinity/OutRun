@@ -126,7 +126,7 @@ void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p,
             c->setPosZ(c->getPosZ() + c->getSpeed());
 
 		l = currentBiome->lines[(int)((c->getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
-        c->elevationControl(l->p1.yWorld, l->p2.yWorld);
+        c->elevationControl(l->lowerLeftPoint.yPosWorld, l->lowerRightPoint.yPosWorld);
 		switch (c->getActive()) {
             case false:
                 if (l->index < playerLine->index + drawDistance && l->index > playerLine->index)
@@ -282,9 +282,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 		position += trackLength;
 
 	Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];
-	p.elevationControl(playerLine->p1.yWorld, playerLine->p2.yWorld);
+	p.elevationControl(playerLine->lowerLeftPoint.yPosWorld, playerLine->lowerRightPoint.yPosWorld);
     float playerPerc = (float)(((position + p.getPosZ()) % (int)SEGMENTL) / SEGMENTL);
-	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
+	p.setPosY((int)(playerLine->lowerLeftPoint.yPosWorld + (playerLine->lowerRightPoint.yPosWorld - playerLine->lowerLeftPoint.yPosWorld) * playerPerc));
 
 	if (playerLine->index > currentBiome->swapLine && !newBiomeChosen){
         if (p.getPlayerRoad() == Player_Road::LEFTROAD){
@@ -455,9 +455,9 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 	}
 
     playerPerc = (float)(((position + p.getPosZ()) % (int)SEGMENTL) / SEGMENTL);
-	p.setPosY((int)(playerLine->p1.yWorld + (playerLine->p2.yWorld - playerLine->p1.yWorld) * playerPerc));
+	p.setPosY((int)(playerLine->lowerLeftPoint.yPosWorld + (playerLine->lowerRightPoint.yPosWorld - playerLine->lowerLeftPoint.yPosWorld) * playerPerc));
 
-	if (abs(playerLine->p1.xCamera) <= abs(playerLine->p11.xCamera))
+	if (abs(playerLine->lowerLeftPoint.xPosCamera) <= abs(playerLine->upperLeftPoint.xPosCamera))
      	p.setPlayerRoad(Player_Road::LEFTROAD);
     else
         p.setPlayerRoad(Player_Road::RIGHTROAD);
@@ -525,10 +525,10 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         float sumX = 0;
         Line* l;
 
-        playerLine->projection(input, playerLine->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
+        playerLine->projection(input, playerLine->lowerLeftPoint, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
                                (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-        float maxY = playerLine->p1.yScreen;
+        float maxY = playerLine->lowerLeftPoint.yPosScreen;
 
         int x1 = 0, y1 = input.gameWindow.getSize().y;
         int width = input.gameWindow.getSize().x;
@@ -547,48 +547,48 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
             l->light ? laneColor = lane : laneColor = lane2;
             l->light ? rumbleLaneColor = rumbleLane : rumbleLaneColor = rumbleLane2;
 
-            l->projection(input, l->p1, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
+            l->projection(input, l->lowerLeftPoint, (int)((p.getPosX() * ROAD_WIDTH) - sumX),
                     (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-            l->projection(input, l->p2, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX),
+            l->projection(input, l->lowerRightPoint, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX),
                     (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
             if (l->mirror)
             {
-                l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) + sumX - mapDistance),
+                l->projection(input, l->upperLeftPoint, (int)((p.getPosX() * ROAD_WIDTH) + sumX - mapDistance),
                      (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-                l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) + sumX + difX - mapDistance),
+                l->projection(input, l->upperRightPoint, (int)((p.getPosX() * ROAD_WIDTH) + sumX + difX - mapDistance),
                      (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
             }
             else
             {
-                l->projection(input, l->p11, (int)((p.getPosX() * ROAD_WIDTH) - sumX - mapDistance),
+                l->projection(input, l->upperLeftPoint, (int)((p.getPosX() * ROAD_WIDTH) - sumX - mapDistance),
                      (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
 
-                l->projection(input, l->p21, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX - mapDistance),
+                l->projection(input, l->upperRightPoint, (int)((p.getPosX() * ROAD_WIDTH) - sumX - difX - mapDistance),
                      (int)((float)CAMERA_HEIGHT + p.getPosY()), position, CAMERA_DISTANCE);
             }
 
             sumX += difX;
             difX += l->curve;
 
-            if ((l->p1.zCamera <= CAMERA_DISTANCE) || (l->p2.yScreen >= maxY))
+            if ((l->lowerLeftPoint.zPosCamera <= CAMERA_DISTANCE) || (l->lowerRightPoint.yPosScreen >= maxY))
                 continue;
 
-            short x1 = (short)l->p1.xScreen;
-            short x2 = (short)l->p2.xScreen;
-            short y1 = (short)l->p1.yScreen;
-            short y2 = (short)l->p2.yScreen;
-            short w1 = (short)l->p1.wScreen;
-            short w2 = (short)l->p2.wScreen;
+            short x1 = (short)l->lowerLeftPoint.xPosScreen;
+            short x2 = (short)l->lowerRightPoint.xPosScreen;
+            short y1 = (short)l->lowerLeftPoint.yPosScreen;
+            short y2 = (short)l->lowerRightPoint.yPosScreen;
+            short w1 = (short)l->lowerLeftPoint.wPosScreen;
+            short w2 = (short)l->lowerRightPoint.wPosScreen;
 
-            short x11 = (short)l->p11.xScreen;
-            short x21 = (short)l->p21.xScreen;
-            short y11 = (short)l->p11.yScreen;
-            short y21 = (short)l->p21.yScreen;
-            short w11 = (short)l->p11.wScreen;
-            short w21 = (short)l->p21.wScreen;
+            short x11 = (short)l->upperLeftPoint.xPosScreen;
+            short x21 = (short)l->upperRightPoint.xPosScreen;
+            short y11 = (short)l->upperLeftPoint.yPosScreen;
+            short y21 = (short)l->upperRightPoint.yPosScreen;
+            short w11 = (short)l->upperLeftPoint.wPosScreen;
+            short w21 = (short)l->upperRightPoint.wPosScreen;
 
             drawPoly4(input, 0, y1, (int)input.gameWindow.getSize().x, y1, (int)input.gameWindow.getSize().x, y2, 0, y2, sandColor);
             drawPoly4(input, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, roadColor);
@@ -622,7 +622,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
             drawPoly4(input, x11 - w11 + (w11 / 18) * 2 + (w11 * 16 / 27), y11, x11 + w11 - (w11 / 18) * 2 - (w11 * 16 / 27), y11,
                 x21 + w21 - (w21 / 18) * 2 - (w21 * 16 / 27), y21, x21 - w21 + (w21 / 18) * 2 + (w21 * 16 / 27), y21, roadColor);
 
-            maxY = l->p2.yScreen;
+            maxY = l->lowerRightPoint.yPosScreen;
         }
 
         sf::RectangleShape backgroundShapeSliced, backgroundShapeNewBiome;

@@ -760,12 +760,12 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
     {
 
         // Get the the reference point of the sprite
-        PointLine point = playerLine->p1;
+        VertexPoint point = playerLine->lowerLeftPoint;
         if (sprite->getSide())
-            point = playerLine->p11;
+            point = playerLine->upperLeftPoint;
 
         // Compute the coordinates and dimensions to control the collide
-        float x2 = point.xScreen + (sprite->getOffsetX() * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
+        float x2 = point.xPosScreen + (sprite->getOffsetX() * point.scale * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
         float scale = 1.6f * (0.3f * (1.f / 170.f)) * point.scale * input.gameWindow.getSize().x * ROAD_WIDTH * sprite->getScale();
         int width = sprite->getTextureSprite()->getSize().x;
 
@@ -835,20 +835,20 @@ void PlayerCar::checkCollisionTrafficCar(Input& input, const Line* playerLine, c
     if (trafficCarLine->index == playerLine->index)
     {
         // The reference points of the player car
-        PointLine point = playerLine->p1;
-        PointLine point2 = playerLine->p2;
+        VertexPoint point = playerLine->lowerLeftPoint;
+        VertexPoint point2 = playerLine->lowerRightPoint;
         if (trafficCar->getSide())
         {
             // Get the reference points of the player car but in the other side (drives in the right road)
-            point = playerLine->p11;
-            point2 = playerLine->p21;
+            point = playerLine->upperLeftPoint;
+            point2 = playerLine->upperRightPoint;
         }
 
         // Compute the scale and the coordinate points to determine the collision
         float perc = (float)(((int)(trafficCar->getPosZ()) % (int)SEGMENT_LENGTH) / (float)SEGMENT_LENGTH);
         float scaleOffset = point.scale + (point2.scale - point.scale) * perc;
-        float xOffset = point.xScreen + (point2.xScreen - point.xScreen) * perc;
-        float yOffset = point.yScreen + (point2.yScreen - point.yScreen) * perc;
+        float xOffset = point.xPosScreen + (point2.xPosScreen - point.xPosScreen) * perc;
+        float yOffset = point.yPosScreen + (point2.yPosScreen - point.yPosScreen) * perc;
 
         float x2 = xOffset + (trafficCar->getOffset() * scaleOffset * ROAD_WIDTH * input.gameWindow.getSize().x / 2);
         float scale = 1.6f * (0.3f * (1.f / 170.f)) * scaleOffset * input.gameWindow.getSize().x * ROAD_WIDTH * 1.2f;

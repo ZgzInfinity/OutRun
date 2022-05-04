@@ -115,7 +115,7 @@ void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool 
 	float total = (float)(enter + hold + leave);
 	if (mirror)
 	{
-		firstY = (lines.size() == 0 ? 0 : lines[lines.size() - 1]->p2.yWorld);
+		firstY = (lines.size() == 0 ? 0 : lines[lines.size() - 1]->lowerRightPoint.yPosWorld);
 		dist = lines[lines.size() - 1]->distance;
 		distPerc = (float)((distM - dist)) / total;
 	}
@@ -129,7 +129,7 @@ void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool 
 		}
 		else
 		{
-			firstY = lines[lines.size() - 1]->p2.yWorld;
+			firstY = lines[lines.size() - 1]->lowerRightPoint.yPosWorld;
 			dist = lines[lines.size() - 1]->distance;
 			distPerc = (float)((distance - dist)) / total;
 		}
@@ -180,14 +180,14 @@ void Biome::addSegment(float curve, float y, bool mirror, float dist, int& lines
 	Line* l = new Line();
 
 	l->index = n;
-	l->p1.zWorld = (float)(n * SEGMENTL);
-	l->p11.zWorld = l->p1.zWorld;
-	l->p1.yWorld = (lines.size() == 0 ? 0 : lines[lines.size() - 1]->p2.yWorld);
-	l->p11.yWorld = l->p1.yWorld;
-	l->p2.zWorld = (float)((n + 1) * SEGMENTL);
-	l->p21.zWorld = l->p2.zWorld;
-	l->p2.yWorld = y;
-	l->p21.yWorld = l->p2.yWorld;
+	l->lowerLeftPoint.zPosWorld = (float)(n * SEGMENTL);
+	l->upperLeftPoint.zPosWorld = l->lowerLeftPoint.zPosWorld;
+	l->lowerLeftPoint.yPosWorld = (lines.size() == 0 ? 0 : lines[lines.size() - 1]->lowerRightPoint.yPosWorld);
+	l->upperLeftPoint.yPosWorld = l->lowerLeftPoint.yPosWorld;
+	l->lowerRightPoint.zPosWorld = (float)((n + 1) * SEGMENTL);
+	l->upperRightPoint.zPosWorld = l->lowerRightPoint.zPosWorld;
+	l->lowerRightPoint.yPosWorld = y;
+	l->upperRightPoint.yPosWorld = l->lowerRightPoint.yPosWorld;
 	l->light = (int)((n / RUMBLE_LENGTH)) % 2;
 	l->curve = curve;
 	l->mirror = mirror;
