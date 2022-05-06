@@ -570,7 +570,7 @@ bool Logger::checkReliefStraight(Biome& m){
     int parametersRead = 0, totalParametersToRead = 5;
 
     bool mirror;
-    int enter, hold, leave, numTracks, distM;
+    int enter, hold, leave, numTracks, twoTracksDistance;
 
     // Read a straight relief part of the scenario
     while (!instance.failDetected && parametersRead < totalParametersToRead){

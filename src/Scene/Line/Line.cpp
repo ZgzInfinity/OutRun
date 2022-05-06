@@ -86,7 +86,7 @@ Line::~Line(){}
 * @param cameraZ is the position of the camera in axis Z
 * @param camD is the rendering depth
 */
-void Line::projection(Input& input, VertexPoint &p, int cameraX, int cameraY, int cameraZ, float cameraD){
+void Line::projection(Input& input, VertexPoint &p, const int cameraX, const int cameraY, const int cameraZ, const float cameraD){
 
     // Calculation of the camera position
     p.xPosCamera = p.xPosWorld - cameraX;
@@ -225,7 +225,7 @@ void Line::renderCars(Input& input, TrafficCar* car, const bool pauseMode, const
  * @param scale is the 2d scale point factor to rescale the size of the sprite
  * @param pivot is the 2d point from where the sprite has to be drawn
  */
-void Line::drawObject(Input& input, int x, int y, sf::Texture* t, fPoint scale, fPoint pivot){
+void Line::drawObject(Input& input, const int x, const int y, const sf::Texture* t, const fPoint scale, const fPoint pivot){
 
     // Check if there is texture to draw
     if (t != nullptr){

@@ -64,12 +64,12 @@ void Map::setMapDistanceAndTrackLength(const bool ending){
     else
         gradient = random_int(-1, 1);
 
-    currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->dist3, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->distM, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist5, not_count_lines);
-    currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->dist3, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->dist3, not_count_lines);
+    currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->threeTracksDistance, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->twoTracksDistance, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->fiveTracksDistance, not_count_lines);
+    currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->threeTracksDistance, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->threeTracksDistance, not_count_lines);
+    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->threeTracksDistance, not_count_lines);
 
     mapDistance = (int)currentBiome->lines[0]->distance;
 	trackLength = (int)(currentBiome->lines.size() * SEGMENTL);

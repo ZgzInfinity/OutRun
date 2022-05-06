@@ -178,7 +178,7 @@ struct Line {
      * @param cameraZ is the position of the camera in axis Z
      * @param camD is the rendering depth
      */
-	void projection(Input& input, VertexPoint &p, int cameraX, int cameraY, int cameraZ, float cameraD);
+	void projection(Input& input, VertexPoint &p, const int cameraX, const int cameraY, const int cameraZ, const float cameraD);
 
 
 
@@ -211,7 +211,7 @@ struct Line {
      * @param scale is the 2d scale point factor to rescale the size of the sprite
      * @param pivot is the 2d point from where the sprite has to be drawn
      */
-	void drawObject(Input& input, int x, int y, sf::Texture* t, fPoint scale, fPoint pivot);
+	void drawObject(Input& input, const int x, int const y, const sf::Texture* t, const fPoint scale, const fPoint pivot);
 
 };
 
