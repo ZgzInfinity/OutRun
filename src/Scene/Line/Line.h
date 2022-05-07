@@ -163,13 +163,6 @@ struct Line {
 
 
 	/**
-	 * Destructor
-	 */
-	~Line();
-
-
-
-	/**
 	 * Convert and project the position of an element in 3d world coordinates in a position in 2d (screen system)
      * @param input is the module that has all the configuration of the game
      * @param p is the structure of 4 points in 3d to be represented in 2d
