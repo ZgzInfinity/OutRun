@@ -731,6 +731,7 @@ void Game::updateRound(Input& input){
         else if (level == 5)
             timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_FIFTH_LEVEL);
 
+        timeToPlay += timeToAdd;
         timeCheck = timeToPlay;
 
         // Set the new changes of the game status in the hud round
@@ -1289,9 +1290,7 @@ void Game::run(Input& input){
     int trafficCars = cars.size();
     if (trafficCars > 0){
         for (int i = 0; i < trafficCars; i++)
-        {
             delete cars[i];
-        }
     }
 
 }
