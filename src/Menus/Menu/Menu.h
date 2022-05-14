@@ -120,6 +120,7 @@ class Menu {
         /**
          * Return the next status of the game after and option of the menu
          * has been selected by the player
+         * @param input is the module that has all the configuration of the game
          */
         virtual State returnMenu(Input& input) = 0;
 

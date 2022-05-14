@@ -19,6 +19,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Interface file of the module MenuRanking
+ */
+
 #pragma once
 
 #ifndef MENU_RANKING_H
@@ -28,54 +34,171 @@
 #include "../Menu/Menu.h"
 #include "../../Score/Score.h"
 
+
+
+/**
+ * Represents the ranking menu where the player introduces his/her credentials
+ * if he/she has got a new score record after winning a game round
+ */
 class MenuRanking : public Menu {
 
     private:
 
+        // Texture of the background
         sf::Texture backgroundMenu;
+
+        // Sprite of the main menu
         sf::Sprite mainMenu;
 
-        sf::Clock rankingTime, blinkStart;
+        // Internal clock to compute the seconds elapsed to end the menu
+        sf::Clock rankingTime;
 
+        // Internal clock to control the blinking effect
+        sf::Clock blinkStart;
+
+        // Black rectangle screen to create the darkness transition
         sf::RectangleShape blackShape;
 
+        // Interval time counted by the clock
         const sf::Time ranking_delay = sf::seconds(1.f);
 
-        sf::Text rankingTitle, scoreIndicator, playerIndicator, recordIndicator,
-                 timeCounter, scorePlayer, namePlayer, minutesPlayer, secondsPlayer,
-                 centsPlayer, index, start;
+        // Title of the menu
+        sf::Text rankingTitle;
 
-        int time, offsetStartText, offsetRankingTitle, offsetTimeCounter, offsetScoreIndicator,
-            offsetPlayerIndicator, offsetRecordIndicator, offsetIndexIndicator;
+        // Score text indicator
+        sf::Text scoreIndicator;
 
+        // Name text indicator
+        sf::Text playerIndicator;
+
+        // Record text indicator
+        sf::Text recordIndicator;
+
+        // Time text indicator to finish the menu
+        sf::Text timeCounter;
+
+        // Text that stores the score got by the player
+        sf::Text scorePlayer;
+
+        // Text that stores the name of the player
+        sf::Text namePlayer;
+
+        // Text that stores the total minutes elapsed by the player to complete the game round
+        sf::Text minutesPlayer;
+
+        // Text that stores the total seconds elapsed by the player to complete the game round
+        sf::Text secondsPlayer;
+
+        // Text that stores the total hundredths of second elapsed by the player to complete the game round
+        sf::Text centsPlayer;
+
+        // Index of a ranking position
+        sf::Text index;
+
+        // Text start indicator
+        sf::Text start;
+
+        // Time to finish the ranking menu
+        int time;
+
+        // Offset position in axis Y of the start text indicator depending on the screen resolution
+        int offsetStartIndicator;
+
+        // Offset position in axis Y of the title menu text indicator depending on the screen resolution
+        int offsetRankingTitle;
+
+        // Offset position in axis Y of the time counter text indicator depending on the screen resolution
+        int offsetTimeCounter;
+
+        // Offset position in axis Y of the score indicator depending on the screen resolution
+        int offsetScoreIndicator;
+
+        // Offset position in axis Y of the player name text indicator depending on the screen resolution
+        int offsetPlayerIndicator;
+
+        // Offset position in axis Y of the record text indicator depending on the screen resolution
+        int offsetRecordIndicator;
+
+        // Offset position in axis Y of the index text indicator depending on the screen resolution
+        int  offsetIndexIndicator;
+
+        // Flags to measure the time elapsed since the ranking menu started
         float elapsed1, elapsed2, elapsed3, elapsed4;
 
+        // Vector of scores
         std::vector<Score> scoreRankingPlayer;
 
+        // Control the position where the new record (if it exists has to be inserted) otherwise values -1
         int record;
 
+        // Flag to control the blinking effect
         bool blink;
 
+        // Letters introduced by the player (mandatory 3)
         int lettersIntroduced;
 
+        // Name of the player
         std::string name;
 
+        // Font of the text indicators
         sf::Font fontMenu;
 
+        // Total score reached by the player
         int long long score;
 
-        int minutes, secs, cents_second;
+        // Total minutes elapsed by the player to complete the game round
+        int minutes;
+
+        // Total seconds elapsed by the player to complete the game round
+        int secs;
+
+        // Total hundredths of second elapsed by the player to complete the game round
+        int cents_second;
 
     public:
 
+
+
+        /**
+         * Default constructor
+         * @param _score is the total score reached by the player after finishing a game round
+         * @param _minutes are the total minutes elapsed by the player to complete the game round
+         * @param _secs are the total seconds elapsed by the player to complete the game round
+         * @param _cents_seconds are the total hundredths of second elapsed by the player to complete the game round
+         */
         MenuRanking(const int long long _score, const int _minutes, const int _secs, const int _cents_second);
 
+
+
+        /**
+         * Load the menu with all its configuration
+         * @param input is the module that has all the configuration of the game
+         */
         void loadMenu(Input& input) override;
 
+
+
+        /**
+         * Detect an action of the player and executes it
+         * @param input is the module that has all the configuration of the game
+         */
         void handleEvent(Input& input) override;
 
+
+
+        /**
+         * Draw the menu in the screen
+         * @param input is the module that has all the configuration of the game
+         */
         void draw(Input& input) override;
 
+
+
+        /**
+         * Return the next status of the game after and option of the menu
+         * has been selected by the player
+         * @param input is the module that has all the configuration of the game
+         */
         State returnMenu(Input& input) override;
 
 };

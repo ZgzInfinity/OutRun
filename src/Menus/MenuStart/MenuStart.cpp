@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,47 +17,82 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+ /*
+ * Implementation file of the module MenuStart
+ */
+
 #include "MenuStart.h"
 
+
+
+/**
+ * Default constructor
+ */
 MenuStart::MenuStart() : Menu(){
+    // The elements of the menu are displayed by default
     blink = true;
 }
 
 
-void MenuStart::setMenuStart(const bool& first, const bool& newRound){
-    firstLoad = first;
-    newGame = newRound;
+
+/**
+ * Set the start menu configuration flags
+ * @param _firstLoad controls if it the first load of the menu
+ * @param _newGame controls if it is a new game round
+ */
+void MenuStart::setMenuStart(const bool _firstLoad, const bool _newGame){
+    firstLoad = _firstLoad;
+    newGame = _newGame;
 }
 
+
+
+/**
+ * Get if it is the first time that the menu has been loaded
+ */
 bool MenuStart::getFirstLoad() const {
     return firstLoad;
 }
 
 
+
+/**
+ * Load the menu with all its configuration
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuStart::loadMenu(Input& input){
 
+    // Load the menu background
     backgroundMenu.loadFromFile("Resources/Menus/MainMenu/LogoMain1.png");
-    mainMenu.setTexture(backgroundMenu);
-    mainMenu.setPosition(0, 0);
-    mainMenu.setScale((float) input.gameWindow.getSize().x / backgroundMenu.getSize().x,
-                      (float) input.gameWindow.getSize().y / backgroundMenu.getSize().y);
+    background.setTexture(backgroundMenu);
+    background.setPosition(0, 0);
+    background.setScale((float) input.gameWindow.getSize().x / backgroundMenu.getSize().x,
+                        (float) input.gameWindow.getSize().y / backgroundMenu.getSize().y);
 
+    // Load the font of the text indicators
     fontMenu.loadFromFile("Resources/Fonts/DisposableDroid.ttf");
 
+    // Load the game icon textures
     for (int i = 2; i <= 7; i++) {
         // Loading the texture of the game's name
         gameIcon.loadFromFile("Resources/Menus/MainMenu/LogoMain" + to_string(i) + ".png");
         gameIcons.push_back(gameIcon);
     }
 
+    // Set the game icon textures in the vector of sprites
     for (int i = 0; i < 6; i++) {
-        // Loading the texture of the game's name
         nameGame.setTexture(gameIcons[i], true);
         nameGame.setPosition((input.gameWindow.getSize().x / 2.f) - 180.0f * input.screenScaleX,
                              input.gameWindow.getSize().y / 2.f - 200.0f * input.screenScaleY);
         nameGame.setScale(2.0f * input.screenScaleX, 2.0f * input.screenScaleY);
         nameGames.push_back(nameGame);
     }
+
+    /*
+     * Set the text indicators of the menu
+     */
 
     textElements[0].setString("PRESS START");
     textElements[0].setCharacterSize(static_cast<unsigned int>(int(40.0f * input.screenScaleX)));
@@ -124,28 +158,41 @@ void MenuStart::loadMenu(Input& input){
     textElements[6].setPosition(input.gameWindow.getSize().x * 0.79f,
                                 input.gameWindow.getSize().y / 2.f + 280.0f * input.screenScaleY);
 
+    // Set the black rectangle to make the darkness transition
     blackShape.setPosition(0, 0);
     blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y));
 
 }
 
+
+
+/**
+ * Detect an action of the player and executes it
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuStart::handleEvent(Input& input){
     sf::Event event;
+    // Detect actions of the player
     input.gameWindow.pollEvent(event);
     if (input.closed(event)){
+        // Check if the game is closed
         if (!escapePressed)
             escapePressed = true;
     }
     else {
         if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+            // Check start key is pressed
             if (!startPressed){
+                // Only one time
                 startPressed = true;
                 Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
                 optionSelected = 0;
             }
         }
         else if (input.pressed(Key::MENU_CREDITS, event) && input.held(Key::MENU_CREDITS)){
+            // Check if the credits key has been pressed
             if (!startPressed){
+                // Only one time
                 startPressed = true;
                 optionSelected = 1;
                 Audio::stop(Sfx::WIND);
@@ -155,41 +202,51 @@ void MenuStart::handleEvent(Input& input){
     }
 }
 
+
+
+/**
+ * Draw the menu in the screen
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuStart::draw(Input& input){
 
+    // Configure the blinking effect with the clock
     int j = 0, k = 0;
     sf::Time blink_delay = sf::seconds(1.0);
     blinkClcok.restart().asSeconds();
     elapsedBlink = blinkClcok.restart().asSeconds();
 
-    if (!Audio::isPlaying(Sfx::WIND)){
+    // Play the wind sound
+    if (!Audio::isPlaying(Sfx::WIND))
         Audio::play(Sfx::WIND, true);
-    }
 
-    // Draw the landscape animation
+    // Draw the darkness animation
     if (firstLoad || newGame){
         for (int i = 255; i >= 0; i -= 5){
 
+            // Detect possible actions of the player
             handleEvent(input);
-
             elapsedHide = blinkClcok.getElapsedTime().asSeconds();
 
-            // Change the color of the main text
+            // Compute the blink effect
             if (elapsedHide - elapsedBlink >= blink_delay.asSeconds()) {
                 blink = !blink;
                 blinkClcok.restart();
             }
+
             if (blink) {
+                // Display the menu components
                 textElements[0].setFillColor(sf::Color::Green);
                 textElements[0].setOutlineColor(sf::Color::Black);
             }
             else {
+                // Hide the menu components
                 textElements[0].setFillColor(sf::Color::Transparent);
                 textElements[0].setOutlineColor(sf::Color::Transparent);
             }
 
-            // Show the press start title in the menu
-            input.gameWindow.draw(mainMenu);
+            // Show the press start title in the menu with all the text indicators
+            input.gameWindow.draw(background);
             input.gameWindow.draw(nameGames[j]);
             input.gameWindow.draw(textElements[0]);
             input.gameWindow.draw(textElements[1]);
@@ -199,81 +256,96 @@ void MenuStart::draw(Input& input){
             input.gameWindow.draw(textElements[5]);
             input.gameWindow.draw(textElements[6]);
 
+            // Draw the dark rectangle to make the darkness transition
             blackShape.setFillColor(sf::Color(0, 0, 0, i));
             input.gameWindow.draw(blackShape);
             input.gameWindow.display();
 
+            // Change the game icon texture to be displayed
             if (j < (int) nameGames.size() - 1){
                 if (k == 10){
                     j++;
                     k = 0;
                 }
-                else {
+                else
                     k++;
-                }
             }
-            else {
+            else
                 j = 0;
-            }
         }
     }
 
-    // While the console input.gameWindow is opened
+    // While the menu is been played
     while (!startPressed && !escapePressed) {
 
+        // Detect the actions of the player
         handleEvent(input);
         elapsedHide = blinkClcok.getElapsedTime().asSeconds();
 
-        // Change the color of the main text
+        // Compute the blinking effect
         if (elapsedHide - elapsedBlink >= blink_delay.asSeconds()) {
             blink = !blink;
             blinkClcok.restart();
         }
+
+
         if (blink) {
+            // Display the menu components
             textElements[0].setFillColor(sf::Color::Green);
             textElements[0].setOutlineColor(sf::Color::Black);
         }
         else {
+            // Hide the menu components
             textElements[0].setFillColor(sf::Color::Transparent);
             textElements[0].setOutlineColor(sf::Color::Transparent);
         }
 
-        // Show the press start title in the menu
-        input.gameWindow.draw(mainMenu);
+        // Show the press start title in the menu with all the text indicators
+        input.gameWindow.draw(background);
         input.gameWindow.draw(nameGames[j]);
-        for (int index = 0; index < ELEMENTS; index++){
+        for (int index = 0; index < ELEMENTS; index++)
             input.gameWindow.draw(textElements[index]);
-        }
+
+        // Display the menu
         input.gameWindow.display();
 
+        // Determine the game icon texture to be displayed
         if (j < (int) nameGames.size() - 1){
             if (k == 10){
                 j++;
                 k = 0;
             }
-            else {
+            else
                 k++;
-            }
         }
-        else {
+        else
             j = 0;
-        }
     }
 }
 
 
+
+/**
+ * Return the next status of the game after and option of the menu
+ * has been selected by the player
+ * @param input is the module that has all the configuration of the game
+ */
 State MenuStart::returnMenu(Input& input){
+    // Check if the player has pressed the start key
     if (startPressed){
         firstLoad = false;
+        // Depending on the option menu selected chose a menu or other
         switch (optionSelected){
             case 0:
+                // Game selection mode
                 return State::GAME;
                 break;
             case 1:
+                // Credits menu
                 return State::CREDITS;
         }
     }
-    else {
+    else
+        // Close the menu
         return State::EXIT;
-    }
 }

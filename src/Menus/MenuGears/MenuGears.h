@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,6 +17,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Interface file of the module MenuGears
+ */
+
 #pragma once
 
 #ifndef MENU_GEARS_H
@@ -26,46 +31,131 @@
 #include <SFML/Graphics.hpp>
 #include "../Menu/Menu.h"
 
+
+
+/**
+ * Represents the menu where the player select the gears transmission of the car
+ */
 class MenuGears : public Menu {
 
     private:
 
+        // Font menu for the text indicators of the menu
         sf::Font fontMenu;
-        sf::Texture backgroundMenu, gameIcon;
-        sf::Sprite mainMenu, nameGame;
 
-        sf::RectangleShape shape, blackShape;
-        sf::Text titleText, totalTime;
+        // Background texture of the menu
+        sf::Texture backgroundMenu;
 
+        // Texture of the game Icon tag
+        sf::Texture gameIcon;
+
+        // Sprite to store the background
+        sf::Sprite background;
+
+        // Sprite to store the name of the game
+        sf::Sprite nameGame;
+
+        // Main gear panel
+        sf::RectangleShape mainPanel;
+
+        // Black shadow to make the darkness transition
+        sf::RectangleShape blackShape;
+
+        // Title of the menu
+        sf::Text titleMenuText;
+
+        // Description of the menu
+        sf::Text descriptionMenuText;
+
+        // Vector with all the game icon textures
         vector<sf::Texture> gameIcons;
+
+        // Vector with all the sprites of the game icons
         vector<sf::Sprite> nameGames;
 
+        // Vector with the gear textures
         vector<sf::Texture> gearIcons;
+
+        // Vector where the textures of the gear are going to be stored
         vector<sf::Sprite> gears;
 
+        // Offset of the main panel animation move in axis X
         float offsetY;
-        float offsetTitleText;
-        float offsetTimeLapTexts;
+
+        // Offset of the main title text indicator move in axis X
+        float offsetTitleMenuText;
+
+        // Offset of the description text indicator move in axis X
+        float offsetDescriptionMenuText;
+
+        /*
+         * Flags that control the gear intro panel animation
+         */
+
+        // Flag of the main title text animation
         bool mainTextArrived;
-        bool lapTextsArrived;
-        bool carSpriteArrived;
+
+        // Flag of the description text animation
+        bool descriptionTextArrived;
+
+        // Control if the player has selected automatic or manual mode (true auto and false manual)
         bool automaticMode;
+
+        // Control if the player has pressed a key
         bool pressedKey;
+
+        // Determine if the player has selected a color for the car
         int playerCarSelected;
 
     public:
 
+
+
+        /**
+         * Default constructor
+         * @param _playerCarSelected controls if the player has selected a color for the car
+         */
         MenuGears(const int _playerCarSelected);
 
+
+
+        /**
+         * Get if the player has selected automatic mode or not
+         */
+        bool getAutomaticMode() const;
+
+
+
+        /**
+         * Load the menu with all its configuration
+         * @param input is the module that has all the configuration of the game
+         */
         void loadMenu(Input& input) override;
 
+
+
+        /**
+         * Detect an action of the player and executes it
+         * @param input is the module that has all the configuration of the game
+         */
         void handleEvent(Input& input) override;
 
+
+
+        /**
+         * Draw the menu in the screen
+         * @param input is the module that has all the configuration of the game
+         */
         void draw(Input& input) override;
 
-        State returnMenu(Input& input) override;
 
-        bool getAutomaticMode() const;
+
+        /**
+         * Return the next status of the game after and option of the menu
+         * has been selected by the player
+         * @param input is the module that has all the configuration of the game
+         */
+        State returnMenu(Input& input) override;
 
 };
 

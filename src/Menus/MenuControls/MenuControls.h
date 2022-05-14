@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,6 +17,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Interface file of the module MenuControl
+ */
+
 #pragma once
 
 #ifndef MENU_CONTROLS_H
@@ -28,38 +33,106 @@
 #include "../../Globals.h"
 #include "../../Gui/Button/Button.h"
 
+
+
+/**
+ * Represents the menu that lets the player
+ * to personalize the controllers of the game
+ */
+
 class MenuControls : public Menu {
 
     private:
 
-        sf::Texture iconBackground, textureShape;
-        sf::IntRect background;
+        // Background texture
+        sf::Texture backgroundTexture;
 
-        sf::Sprite sprite;
-        sf::RectangleShape shape;
+        // Texture of the main panel of the menu
+        sf::Texture texturePanel;
 
+        // Rectangle that contains the background of the menu
+        sf::IntRect backgroundMenu;
+
+        // Sprite that stores the background texture
+        sf::Sprite background;
+
+        // Sprite of the main panel of the menu
+        sf::RectangleShape mainPanel;
+
+        // Vector of buttons of the menu
         vector<Button> menuButtons;
 
+        // Font of the text indicators
         sf::Font fontMenu;
-        sf::Text optionsText, info;
 
+        // Title of the menu
+        sf::Text titleText;
+
+        // Information text of the menu
+        sf::Text informationText;
+
+        // Control if a controller has been selected by the player
         bool controlSelected;
 
     public:
 
+
+
+        /**
+         * Default constructor
+         */
         MenuControls();
 
-        void loadMenu(Input& input) override;
 
-        void handleEvent(Input& input) override;
 
-        void draw(Input& input) override;
+        /**
+         * Change the option menu selected
+         * @param menuUpPressed controls if the menu_up key has been or not pressed
+         */
+        void changeButtonSelected(const bool menuUpPressed);
 
-        State returnMenu(Input& input) override;
 
+
+        /**
+         * Update a game controller key of the game
+         * @param input is the module that has all the configuration of the game
+         * @param key is the new keyword entered by the player to be assigned to a game controller
+         * @param action is the action whose controller has been changed by the player
+         */
         void updateGameControl(Input& input, const sf::Keyboard::Key& key, const Key& action);
 
-        void changeButtonSelected(const bool& menuUpPressed);
+
+
+        /**
+         * Load the menu with all its configuration
+         * @param input is the module that has all the configuration of the game
+         */
+        void loadMenu(Input& input) override;
+
+
+
+        /**
+         * Detect an action of the player and executes it
+         * @param input is the module that has all the configuration of the game
+         */
+        void handleEvent(Input& input) override;
+
+
+
+        /**
+         * Draw the menu in the screen
+         * @param input is the module that has all the configuration of the game
+         */
+        void draw(Input& input) override;
+
+
+
+        /**
+         * Return the next status of the game after and option of the menu
+         * has been selected by the player
+         * @param input is the module that has all the configuration of the game
+         */
+        State returnMenu(Input& input) override;
 
 };
 

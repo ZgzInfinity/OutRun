@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,8 +17,10 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- /*
- * Module Globals interface file
+
+
+/*
+ * Interface file of the module Globals
  */
 
 #pragma once
@@ -33,13 +34,16 @@
 
 using namespace std;
 
+/*
+ * Constants of the game
+ */
+
 const int FPS = 60;
 const int TIME_CREDIT_SCREEN = 300;
 
 const float M_PI = 3.14159265358979323846264338327950288;
 const float SEGMENTL = 150.f;
 const float RUMBLE_LENGTH = 3.f;
-
 
 const pair<const int ,const int> SCREEN_0 = make_pair(921, 691);
 const pair<const int ,const int> SCREEN_1 = make_pair(1024, 768);

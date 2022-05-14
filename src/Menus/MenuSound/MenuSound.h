@@ -18,6 +18,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Interface file of the module MenuSound
+ */
+
 #pragma once
 
 #ifndef MENU_SOUND_H
@@ -28,38 +34,102 @@
 #include "../../Globals.h"
 #include "../../Gui/Button/Button.h"
 
+
+
+/**
+ * Represents the configuration menu sound of the game
+ */
 class MenuSound : public Menu {
 
     private:
 
-        sf::Texture iconBackground, textureShape;
-        sf::IntRect background;
+        // Background texture of the menu
+        sf::Texture background;
 
-        sf::Sprite sprite;
-        sf::RectangleShape shape;
+        // Texture of the main panel of the menu
+        sf::Texture panel;
 
+        // Rectangle that contains the background menu
+        sf::IntRect backgroundMenu;
+
+        // Store the background texture
+        sf::Sprite backGroundSprite;
+
+        // Main panel with all the buttons
+        sf::RectangleShape mainPanel;
+
+        // Vector of buttons of the menu
         vector<Button> menuButtons;
 
+        // Font of the text indicators
         sf::Font fontMenu;
-        sf::Text optionsText, info;
 
+        // Title text of the menu
+        sf::Text titleMenuText;
+
+        // Information text of the menu
+        sf::Text infoMenuText;
+
+        // Detect if any option (volume of soundtracks or sfx) has been selected
         bool controlSelected;
 
     public:
 
+
+
+        /**
+         * Default constructor
+         */
         MenuSound();
 
+
+
+        /**
+         * Change the option menu selected
+         * @param menuUpPressed controls if the menu_up key has been or not pressed
+         */
+        void changeButtonSelected(const bool menuUpPressed);
+
+
+
+        /**
+         * Change the level volume of the option selected
+         * @param menuLeftPressed controls if the menu_left key has been or not pressed
+         */
+        void changeVolume(Input& input, const bool menuLeftPressed);
+
+
+
+        /**
+         * Load the menu with all its configuration
+         * @param input is the module that has all the configuration of the game
+         */
         void loadMenu(Input& input) override;
 
+
+
+        /**
+         * Detect an action of the player and executes it
+         * @param input is the module that has all the configuration of the game
+         */
         void handleEvent(Input& input) override;
 
+
+
+        /**
+         * Draw the menu in the screen
+         * @param input is the module that has all the configuration of the game
+         */
         void draw(Input& input) override;
 
+
+
+        /**
+         * Return the next status of the game after and option of the menu
+         * has been selected by the player
+         * @param input is the module that has all the configuration of the game
+         */
         State returnMenu(Input& input) override;
-
-        void changeButtonSelected(const bool& menuUpPressed);
-
-        void changeVolume(Input& input, const bool& menuLeft);
 
 };
 

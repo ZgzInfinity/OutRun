@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,42 +17,107 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Implementation file of the module MenuPause
+ */
+
 #include "MenuPause.h"
 
-MenuPause::MenuPause(const Map& m, const PlayerCar& p, const vector<TrafficCar*> trafficCars, const int _terrain) : Menu()
+
+
+
+/**
+ * Default constructor
+ * @param _m is the scenario to be drawn in the screen
+ * @param _p is the player car
+ * @param _trafficCars is a vector that stores all the traffic cars of the game round
+ * @param _terrain is the type of terrain outside the road in
+ * the scenario (SAND, GRASS, SNOW or MUD) presented with values (1..4)
+ */
+MenuPause::MenuPause(const Map& _m, const PlayerCar& _p, const vector<TrafficCar*> _trafficCars, const int _terrain) : Menu()
 {
+    // Assign all the information
     optionSelected = 0;
-    map = m;
-    player = p;
-    cars = trafficCars;
+    m = _m;
+    player = _p;
+    cars = _trafficCars;
     terrain = _terrain;
 }
 
 
+
+/**
+ * Set the game status of the game
+ * @param _gameStatus is the current status of the game
+ */
+void MenuPause::setGameStatus(const State _gameStatus){
+    gameStatus = _gameStatus;
+}
+
+
+
+/**
+ * Change the option menu selected
+ * @param menuUpPressed controls if the menu_up key has been or not pressed
+ */
+void MenuPause::changeButtonSelected(const bool menuUpPressed){
+    // Check if the player has pressed the key move up the option selected
+    if (menuUpPressed){
+        if (optionSelected != 0){
+            // The previous option hovered was not the first one
+            optionSelected--;
+            menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_HOVER);
+            menuButtons[optionSelected + 1].setButtonState(ButtonState::BUTTON_IDLE);
+            Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+        }
+    }
+    else {
+        // Check if the player has pressed the key move down the option selected
+        if (optionSelected != int(menuButtons.size() - 1)){
+            // The previous option hovered was not the last one
+            optionSelected++;
+            menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_HOVER);
+            menuButtons[optionSelected - 1].setButtonState(ButtonState::BUTTON_IDLE);
+            Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+        }
+    }
+}
+
+
+
+/**
+ * Load the menu with all its configuration
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuPause::loadMenu(Input& input){
 
-    shape.setPosition(0, 0);
-    shape.setSize(sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y));
-    shape.setFillColor(sf::Color(0, 0, 0, 200));
+    // set the black screen of the menu
+    blackScreen.setPosition(0, 0);
+    blackScreen.setSize(sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y));
+    blackScreen.setFillColor(sf::Color(0, 0, 0, 200));
 
-    pauseShape.setPosition(input.gameWindow.getSize().x / 2.f - 120.0f * input.screenScaleX,
+    // Set the main panel of the menu that is going to content all the buttons
+    pausePanel.setPosition(input.gameWindow.getSize().x / 2.f - 120.0f * input.screenScaleX,
                            input.gameWindow.getSize().y / 2.f - 180.0f * input.screenScaleX);
 
-    pauseShape.setSize(sf::Vector2f(250.0f * input.screenScaleX, 400.0f * input.screenScaleX));
-    pauseShape.setFillColor(sf::Color(0, 0, 0));
-    pauseShape.setOutlineColor(sf::Color::Green);
-    pauseShape.setOutlineThickness(5.0f * input.screenScaleX);
+    pausePanel.setSize(sf::Vector2f(250.0f * input.screenScaleX, 400.0f * input.screenScaleX));
+    pausePanel.setFillColor(sf::Color(0, 0, 0));
+    pausePanel.setOutlineColor(sf::Color::Green);
+    pausePanel.setOutlineThickness(5.0f * input.screenScaleX);
 
+    // Load the font of the text indicators
     fontMenu.loadFromFile("Resources/Fonts/DisposableDroid.ttf");
 
-    textMenu.setString("PAUSE");
-    textMenu.setFont(fontMenu);
-    textMenu.setFillColor(sf::Color(214, 234, 12));
-    textMenu.setOutlineColor(sf::Color(12, 72, 234));
-    textMenu.setOutlineThickness(2.0f * input.screenScaleX);
-    textMenu.setCharacterSize(static_cast<unsigned int>(int(35.0f * input.screenScaleX)));
-    textMenu.setPosition(input.gameWindow.getSize().x / 2.f - textMenu.getLocalBounds().width / 2.f,
-                         input.gameWindow.getSize().y / 2.f - 150.0f * input.screenScaleX);
+    titleTextMenu.setString("PAUSE");
+    titleTextMenu.setFont(fontMenu);
+    titleTextMenu.setFillColor(sf::Color(214, 234, 12));
+    titleTextMenu.setOutlineColor(sf::Color(12, 72, 234));
+    titleTextMenu.setOutlineThickness(2.0f * input.screenScaleX);
+    titleTextMenu.setCharacterSize(static_cast<unsigned int>(int(35.0f * input.screenScaleX)));
+    titleTextMenu.setPosition(input.gameWindow.getSize().x / 2.f - titleTextMenu.getLocalBounds().width / 2.f,
+                              input.gameWindow.getSize().y / 2.f - 150.0f * input.screenScaleX);
 
     // Buttons of the menu
     menuButtons.emplace_back(input.gameWindow.getSize().x / 2.f - 95.0f * input.screenScaleX,
@@ -81,55 +145,77 @@ void MenuPause::loadMenu(Input& input){
                              ButtonState::BUTTON_IDLE, input.screenScaleX);
 }
 
+
+
+/**
+ * Detect an action of the player and executes it
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuPause::handleEvent(Input& input){
     sf::Event event;
+    // Check the possible actions of the player
     while (input.gameWindow.pollEvent(event)){
         if (input.closed(event)){
+            // Game closed
             if (!escapePressed)
                 escapePressed = true;
         }
         else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
             if (!startPressed){
+                // Start key pressed
                 startPressed = true;
                 Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
             }
         }
         else if (input.pressed(Key::MENU_UP, event) && input.held(Key::MENU_UP))
+            // Move up and hover the upper option
             changeButtonSelected(true);
         else if (input.pressed(Key::MENU_DOWN, event) && input.held(Key::MENU_DOWN))
+            // Move down and hover the lower option
             changeButtonSelected(false);
     }
 }
 
+
+
+/**
+ * Draw the menu in the screen
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuPause::draw(Input& input){
 
+    // Stop the current soundtrack
     Audio::pause(input.currentSoundtrack);
 
-    // Until the start keyword is not pressed
+    // Play the menu
     while (!startPressed && !escapePressed) {
 
+        // Detect the action of the player
         handleEvent(input);
 
+        // Clear the screen and draw all the menu components
         input.gameWindow.clear();
-        map.renderMap(input, cars, player, gameStatus, true);
+        m.renderMap(input, cars, player, gameStatus, true);
         player.drawPlayRound(input, true, terrain, false);
         HudRound::drawHudRound(input);
-        input.gameWindow.draw(shape);
-        input.gameWindow.draw(pauseShape);
-        input.gameWindow.draw(textMenu);
+        input.gameWindow.draw(blackScreen);
+        input.gameWindow.draw(pausePanel);
+        input.gameWindow.draw(titleTextMenu);
 
         // Show the buttons of the menu
-        for (auto &menuButton : menuButtons) {
+        for (auto &menuButton : menuButtons)
             menuButton.render(&input.gameWindow);
-        }
 
         input.gameWindow.display();
         sf::sleep(sf::milliseconds(120));
     }
+
+    // Check if START option has been pressed
     if (optionSelected == 2){
+        // Draw the darkness transition
         for (int i = 0; i <= 70; i++){
-            shape.setFillColor(sf::Color(0, 0, 0, i));
-            input.gameWindow.draw(shape);
+            blackScreen.setFillColor(sf::Color(0, 0, 0, i));
+            input.gameWindow.draw(blackScreen);
             input.gameWindow.display();
             sf::sleep(sf::milliseconds(10));
         }
@@ -138,52 +224,39 @@ void MenuPause::draw(Input& input){
 
 
 
+/**
+ * Return the next status of the game after and option of the menu
+ * has been selected by the player
+ * @param input is the module that has all the configuration of the game
+ */
 State MenuPause::returnMenu(Input& input){
+    // Check if the player pressed an option
     if (startPressed){
         switch(optionSelected){
             case 0:
+                // Continue playing
                 Audio::play(input.currentSoundtrack, true);
                 return State::PLAY_ROUND;
                 break;
             case 1:
+                // Options menu
                 Audio::play(Soundtrack::OPTIONS, true);
                 return State::OPTIONS;
                 break;
             case 2:
+                // Main menu
                 Audio::stop(input.currentSoundtrack);
                 return State::START;
                 break;
             case 3:
+                // Close the game
                 sf::sleep(sf::milliseconds(Audio::getDurationSfx(Sfx::MENU_SELECTION_CONFIRM).asMilliseconds()));
                 return State::EXIT;
         }
     }
     else if (escapePressed)
+        // Game has been closed
         return State::EXIT;
-}
-
-
-void MenuPause::changeButtonSelected(const bool& menuUpPressed){
-    if (menuUpPressed){
-        if (optionSelected != 0){
-            optionSelected--;
-            menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_HOVER);
-            menuButtons[optionSelected + 1].setButtonState(ButtonState::BUTTON_IDLE);
-            Audio::play(Sfx::MENU_SELECTION_MOVE, false);
-        }
-    }
-    else {
-        if (optionSelected != int(menuButtons.size() - 1)){
-            optionSelected++;
-            menuButtons[optionSelected].setButtonState(ButtonState::BUTTON_HOVER);
-            menuButtons[optionSelected - 1].setButtonState(ButtonState::BUTTON_IDLE);
-            Audio::play(Sfx::MENU_SELECTION_MOVE, false);
-        }
-    }
-}
-
-void MenuPause::setGameStatus(State& _gameStatus){
-    gameStatus = _gameStatus;
 }
 
 

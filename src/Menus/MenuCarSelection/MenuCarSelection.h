@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,6 +17,12 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+
+/*
+ * Interface file of the module MenuCarSelection
+ */
+
 #pragma once
 
 #ifndef MENU_CAR_SELECTION_H
@@ -30,36 +35,108 @@ class MenuCarSelection : public Menu {
 
     private:
 
+        // Font of the text indicators
         sf::Font fontMenu;
-        sf::Texture backgroundMenu, garageTexture;
-        sf::Sprite mainMenu, vehicleCar, shadow;
 
-        sf::RectangleShape shape, vehicleShape;
-        sf::Text titleText, carDescription;
-        sf::CircleShape leftTriangle, rightTriangle;
+        // Background image texture
+        sf::Texture backgroundMenu;
 
+        // Garage image texture
+        sf::Texture garageTexture;
+
+        // Sprite of the background
+        sf::Sprite mainMenu;
+
+        // Sprite to store the car texture
+        sf::Sprite vehicleCar;
+
+        // Sprite to store the shadow texture
+        sf::Sprite shadow;
+
+        // Main panel rectangle
+        sf::RectangleShape mainPanel;
+
+        // Vehicle sub-panel
+        sf::RectangleShape vehiclePanel;
+
+        // Title of the menu
+        sf::Text titleMenuText;
+
+        // Description of the menu navigation to change the color car
+        sf::Text carDescriptionText;
+
+        // Triangle left sprite
+        sf::CircleShape leftTriangle;
+
+        // Triangle right sprite
+        sf::CircleShape rightTriangle;
+
+        // Texture of the shadow that makes the cars
         sf::Texture shadowTexture;
+
+        // Matrix with the textures of the car in the different available colors
         sf::Texture vehiclePlayerTextures[TOTAL_PLAYER_CARS][TOTAL_COLOR_TEXTURES];
 
+        // Index of the color car selected
         int colorCarSprite;
 
-        bool cursorLeftPressed, cursorRightPressed;
+        // Flag to control if the key to move left has been pressed
+        bool cursorLeftPressed;
 
+        // Flag to control if the key to move right has been pressed
+        bool cursorRightPressed;
+
+        // Factor of resolution to control the size of the car
         float factorResolution;
 
     public:
 
+
+
+        /**
+         * Default constructor
+         */
         MenuCarSelection();
 
+
+
+        /**
+         * Returns if the player has selected a color car or not
+         */
+        int hasPlayerCarSelected();
+
+
+
+        /**
+         * Load the menu with all its configuration
+         * @param input is the module that has all the configuration of the game
+         */
         void loadMenu(Input& input) override;
 
+
+
+        /**
+         * Detect an action of the player and executes it
+         * @param input is the module that has all the configuration of the game
+         */
         void handleEvent(Input& input) override;
 
+
+
+        /**
+         * Draw the menu in the screen
+         * @param input is the module that has all the configuration of the game
+         */
         void draw(Input& input) override;
 
-        State returnMenu(Input& input) override;
 
-        int hasPlayerCarSelected();
+
+        /**
+         * Return the next status of the game after and option of the menu
+         * has been selected by the player
+         * @param input is the module that has all the configuration of the game
+         */
+        State returnMenu(Input& input) override;
 
 };
 

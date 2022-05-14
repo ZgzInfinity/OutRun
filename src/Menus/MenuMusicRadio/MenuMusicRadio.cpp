@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2022 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -18,15 +17,61 @@
  * along with Out Run.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+/*
+ * Implementation file of the module MenuMusicRadio
+ */
+
 #include "MenuMusicRadio.h"
 
 
-MenuMusicRadio::MenuMusicRadio() : Menu()
-{
+
+/**
+ * Default constructor
+ */
+MenuMusicRadio::MenuMusicRadio() : Menu(){
+    // Default soundtrack to be played
     optionSelected = 0;
 }
 
+
+
+/**
+ * Changes the soundtrack to be listened in the menu
+ * @param menuLeftPressed controls if the move left key has been pressed or not
+ */
+void MenuMusicRadio::changeGameMusic(Input& input, const bool& menuLeft){
+    // Control if the left or right cursor keys are pressed or not
+    if (menuLeft) {
+        // Change the soundtrack selected in the list (left changing)
+        if (input.currentSoundtrack != 1) {
+            // The current soundtrack is not the first one
+            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            Audio::stop(input.currentSoundtrack);
+            input.currentSoundtrack--;
+            Audio::play(input.currentSoundtrack, true);
+        }
+    }
+    else {
+        // Change the soundtrack selected in the list (right changing)
+        if (input.currentSoundtrack != Audio::NUM_SOUNDTRACKS) {
+            // The current soundtrack is not the last one
+            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
+            Audio::stop(input.currentSoundtrack);
+            input.currentSoundtrack++;
+            Audio::play(input.currentSoundtrack, true);
+        }
+    }
+}
+
+
+
+/**
+ * Load the menu with all its configuration
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuMusicRadio::loadMenu(Input& input){
+
     // Loading the background texture of the panel radio
     backgroundMusic.loadFromFile("Resources/Menus/MusicMenu/radioBackground.png");
     radioMenu.setTexture(backgroundMusic);
@@ -35,6 +80,7 @@ void MenuMusicRadio::loadMenu(Input& input){
                        (float) input.gameWindow.getSize().y / backgroundMusic.getSize().y);
 
     // Load the titles of the soundtracks
+    sf::Texture t;
     for (int i = 1; i <= Audio::NUM_SOUNDTRACKS; i++) {
         // Loading the icon texture
         t.loadFromFile("Resources/Menus/MusicMenu/soundtrack" + to_string(i) + ".png");
@@ -57,66 +103,64 @@ void MenuMusicRadio::loadMenu(Input& input){
 }
 
 
-void MenuMusicRadio::changeGameMusic(Input& input, const bool& menuLeft){
-    // Control if the left or right cursor keys are pressed or not
-    if (menuLeft) {
-        // Up cursor pressed and change the soundtrack selected in the list
-        if (input.currentSoundtrack != 1) {
-            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
-            Audio::stop(input.currentSoundtrack);
-            input.currentSoundtrack--;
-            Audio::play(input.currentSoundtrack, true);
-        }
-    }
-    else {
-        // Down cursor pressed and change the soundtrack selected in the list
-        if (input.currentSoundtrack != Audio::NUM_SOUNDTRACKS) {
-            Audio::play(Sfx::MENU_SELECTION_CHOOSE, false);
-            Audio::stop(input.currentSoundtrack);
-            input.currentSoundtrack++;
-            Audio::play(input.currentSoundtrack, true);
-        }
-    }
-}
 
+/**
+ * Detect an action of the player and executes it
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuMusicRadio::handleEvent(Input& input){
     sf::Event event;
+    // Detect possible actions of the player
     input.gameWindow.pollEvent(event);
     if (input.closed(event)){
+        // Close the game
         if (!escapePressed)
             escapePressed = true;
     }
     else {
         if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+            // Soundtrack has been selected
             if (!startPressed){
+                // Only can be select once
                 startPressed = true;
                 Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
             }
         }
         else if (input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
+            // The player returns back (cancel)
             if (!backPressed){
+                // Only can be selected once
                 backPressed = true;
                 Audio::play(Sfx::MENU_SELECTION_BACK, false);
             }
         }
-        else if (input.pressed(Key::MENU_LEFT, event) && input.held(Key::MENU_LEFT)){
+        else if (input.pressed(Key::MENU_LEFT, event) && input.held(Key::MENU_LEFT))
+            // Change the soundtrack list to the left and plays the new song
             changeGameMusic(input, true);
-        }
-        else if (input.pressed(Key::MENU_RIGHT, event) && input.held(Key::MENU_RIGHT)){
+        else if (input.pressed(Key::MENU_RIGHT, event) && input.held(Key::MENU_RIGHT))
+            // Change the soundtrack list to the right and plays the new song
             changeGameMusic(input, false);
-        }
     }
 }
 
+
+
+/**
+ * Draw the menu in the screen
+ * @param input is the module that has all the configuration of the game
+ */
 void MenuMusicRadio::draw(Input& input){
 
+    // Select a default soundtracks and play it with the intro sfx
     input.currentSoundtrack = 1;
     Audio::play(Sfx::MENU_SELECTION_MUSIC, false);
     Audio::play(Sfx::WAVE, true);
     Audio::play(input.currentSoundtrack, true);
 
+    // The music radio menu is in course
     while (!startPressed && !escapePressed && !backPressed){
 
+        // Detect the possible actions of the player
         handleEvent(input);
 
         // Load the texture of the soundtrack to display in the radio panel
@@ -146,21 +190,27 @@ void MenuMusicRadio::draw(Input& input){
         input.gameWindow.draw(hand);
         input.gameWindow.display();
     }
+
+    // Stop the sfx and the soundtrack selected
     Audio::stop(Sfx::WAVE);
     Audio::stop(input.currentSoundtrack);
 }
 
 
 
+/**
+ * Return the next status of the game after and option of the menu
+ * has been selected by the player
+ */
 State MenuMusicRadio::returnMenu(Input& input){
-    if (startPressed){
+    if (startPressed)
+        // Loading animation
         return State::LOADING;
-    }
-    else if (backPressed){
+    else if (backPressed)
+        // Gears menu (canceled)
         return State::GEARS;
-    }
-    else if (escapePressed){
+    else if (escapePressed)
+        // Game closed
         return State::EXIT;
-    }
 }
 
