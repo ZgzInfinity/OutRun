@@ -357,7 +357,7 @@ float Biome::easeIn(float a, float b, float percent){
  * @param percent is the factor to build the descending slope
  */
 float Biome::easeInOut(float a, float b, float percent){
-	return (a + (b - a) * ((-cos(percent * (float)M_PI) / 2.f) + 0.5f));
+	return (a + (b - a) * ((-cos(percent * (float)PI) / 2.f) + 0.5f));
 }
 
 

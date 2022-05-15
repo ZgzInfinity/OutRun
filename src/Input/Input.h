@@ -177,7 +177,7 @@ struct Input {
 
         // Assign an icon to the window of the game
         sf::Image i;
-        i.loadFromFile("Resources/Icon/OutRun.png");
+        i.loadFromFile("Resources/Icon/Outrun.png");
         gameWindow.setIcon(i.getSize().x, i.getSize().y, i.getPixelsPtr());
         gameWindow.setMouseCursorVisible(false);
     }

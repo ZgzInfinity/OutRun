@@ -869,7 +869,7 @@ State Game::playRound(Input& input){
     }
 
     // Start the thread that counts the time
-    timeCounter = std::thread(updateTime, this);
+    timeCounter = std::thread(&Game::updateTime, this);
 
     // Updates all the internal measures with the clocks
     gameClockTime.restart().asSeconds();
@@ -1104,7 +1104,7 @@ void Game::run(Input& input){
                 // Main menu
                 if (firstLoad || outOfTime || arrival){
                     // Load the biomes
-                    biomesLoader = std::thread(loadBiomes, this, ref(input));
+                    biomesLoader = std::thread(&Game::loadBiomes, this, ref(input));
                     biomesLoader.detach();
                 }
                 MenuStart mS = MenuStart();
@@ -1172,7 +1172,7 @@ void Game::run(Input& input){
                 // Gears menu
 
                 // Load the traffic cars
-                trafficCarLoader = std::thread(loadTrafficCars, this, ref(input));
+                trafficCarLoader = std::thread(&Game::loadTrafficCars, this, ref(input));
                 trafficCarLoader.detach();
 
                 MenuGears mGe = MenuGears(playerCarSelected);

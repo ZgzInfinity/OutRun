@@ -28,6 +28,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <cmath>
 #include <mutex>
 #include <thread>
 #include "SFML/Graphics.hpp"
@@ -41,7 +42,7 @@ using namespace std;
 const int FPS = 60;
 const int TIME_CREDIT_SCREEN = 300;
 
-const float M_PI = 3.14159265358979323846264338327950288;
+const float PI = 3.14159265358979323846264338327950288;
 const float SEGMENTL = 150.f;
 const float RUMBLE_LENGTH = 3.f;
 
@@ -85,7 +86,7 @@ const int TOTAL_SCORES = 7;
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;
 const float FOV = 120.f;
-const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * M_PI / 180.0f));
+const float CAMERA_DISTANCE = 1 / tan((float)((FOV / 2.f) * PI / 180.0f));
 const float CAMERA_HEIGHT = 800.f;
 const float HUD_SPEED_FACTOR = 1.65f;
 
