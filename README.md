@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.ibb.co/d6hxFq1/logo.png" alt="Logo" width=100 height=100>
+  <img src="https://i.ibb.co/KwngWQn/Outrun.png" alt="Logo" width=100 height=100>
 
   <h3 align="center">Out Run</h3>
 
@@ -8,17 +8,21 @@
   </p>
 </p>
 
+&nbsp;
+
 ![State](https://img.shields.io/badge/Context-Up%20to%20date-%20%2329f305)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 
 [![windows](https://img.shields.io/badge/Windows%20-compatible-f305b2.svg)](https://www.microsoft.com/es-es/windows)
 [![Linux](https://img.shields.io/badge/Linux%20-compatible-f305b2.svg)](https://www.linux.org/)
-[![Version](https://img.shields.io/badge/Version%20-3.0-0fd5f9.svg)](https://github.com/ZgzInfinity/OutRun/releases)
+[![Version](https://img.shields.io/badge/Version%20-4.0-0fd5f9.svg)](https://github.com/ZgzInfinity/OutRun/releases)
 ![made-with-C++](https://img.shields.io/badge/Made%20with-C++-600ff9.svg)
 [![SFML](https://img.shields.io/badge/Requeriment%20-SFML-f9720f.svg)](https://www.sfml-dev.org/)
 
 ![GitHub All Releases](https://img.shields.io/github/downloads/ZgzInfinity/OutRun/total?color=%20%23f34605&label=Release%20downloads&logoColor=%20)
 [![Github Stars](https://img.shields.io/github/stars/ZgzInfinity/OutRun?logo=github)](https://github.com/ZgzInfinity/OutRun/stargazers)
 [![Github forks](https://img.shields.io/github/forks/ZgzInfinity/OutRun?logo=github)](https://github.com/ZgzInfinity/OutRun/network/members)
+
+&nbsp;
 
 # Introduction
 
@@ -31,15 +35,15 @@ which correspond to the 1986 arcade machine version and the 1991 Sega Mega Drive
 
 This new the following features with respect to the original versions:
 
-* Realistic and spectacular graphics in 2.5D.
-* Compatible with many screen resolutions.
-* Automatic and manual gears.
-* Fantastic soundtracks and SFX fully customizable.
-* Various difficulty levels.
-* Numerous types of artificial intelligence integrated.
-* Configuration of the controllers customizable.
-* Completely new maps available.
-* Customizable settings.
+* Realistic and spectacular graphics in 2.5D
+* Compatible with many screen resolutions
+* Automatic and manual gears
+* Fantastic soundtracks and SFX fully customizable
+* Various difficulty levels
+* Numerous types of artificial intelligence integrated
+* Configuration of the controllers customizable
+* Completely new maps available
+* Customizable settings
 
 &nbsp;
 
@@ -47,7 +51,6 @@ This new the following features with respect to the original versions:
 * C++14
 * OpenGL 6.14.10.13440
 * SFML 2.5.1
-* Clion 2020.1
 * CodeBlocks 17.02
 * MinGW 
 
@@ -57,14 +60,14 @@ This new the following features with respect to the original versions:
 
 These are the default controllers of the game, but the player can change them whenever he wants:
 
-* Acceleration: Left Control.
-* Braking: Left Alt.
-* Turning left: Left arrow of the cursor.
-* Turning right: Right arrow of the cursor.
-* Up gear: Z.
-* Down gear: Right control.
-* Select an option: Enter.
-* Exit the game during the navigation in the interface, pause the game while the player is driving: Esc.
+* Acceleration: Left Control
+* Braking: Left Alt
+* Turning left: Left arrow of the cursor
+* Turning right: Right arrow of the cursor
+* Up gear: Z
+* Down gear: Right control
+* Select an option: Enter
+* Exit menus and pause the game while the player is driving: Esc
 
 &nbsp;
 
@@ -83,74 +86,104 @@ https://www.sfml-dev.org/download.php
 
 In order to run Out Run on your personal computer you can either compile and run the project you have created locally 
 on your computer or make use of the executables provided in the Release section of the repository. Now, Out Run can be 
-played Windows, like before, and also it is available for Linux. 
-
-**Windows version**: [Out Run Windows x64](https://github.com/ZgzInfinity/OutRun/releases/download/v3.0-Windows/outrun-3.0-W64.zip)
-<pre><code>1. Extract all files from outrun-3.0-W64.zip
-2. Run the executable file Outrun.exe
-</code></pre>
-  
-**Linux based version**: [Out Run Linux](https://github.com/ZgzInfinity/OutRun/releases/download/v3.0-Linux/outrun-3.0-linux.zip)
-<pre><code>1. sudo apt-get install libsfml-dev 
-2. Extract all files from outrun-3.0-linux.zip
-3. ./Outrun
-</code></pre>
+played in Windows, like before, and also it is available for Linux. (STILL IN PROGRESS)
 
 &nbsp;
 
 # Supporting the project
 
-This is the third version of the video game. We have tested it as best as we could but we are absolutely aware that some fault may have due to its
-complexity. The fact that the project is open source is the real way for the community to solve all the possible problems together, feel free to open an issue or do a pull request. See the open issues for a list of known issues (and proposed features).
+This is the fourth version of the video game. I have tested it as best as I could but I'm absolutely aware that some fault may have due to its
+complexity. The fact that the project is open source is the real way for the community to solve all the possible problems together, feel free 
+to open an issue or do a pull request. See the open issues for a list of known issues (and proposed features).
 
 &nbsp;
 
 # Screenshoots
 
-Below are some captures of the video game developed:
+&nbsp;
 
-![initial menu](https://i.ibb.co/KbSv89S/init.png)
+<table align="center">
+ <tr>
+    <td>
+      <img src="https://i.ibb.co/LZTc93m/Intro.png" alt="Intro" width=400>
+    </td>
+    <td>
+      <img src="https://i.ibb.co/zrDbbBV/Options.png" alt="Options menu" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://i.ibb.co/7CzwPRX/Controls.png" alt="Controls Menu" width=400>
+    </td>
+    <td>
+      <img src="https://i.ibb.co/3RpyXkP/Gears.png" alt="Gears menu" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://i.ibb.co/82KdXpL/Vehicle.png" alt="Vehicle Menu" width=400>
+    </td>
+    <td>
+      <img src="https://i.ibb.co/MNsyHNY/Radio.png" alt="Radio Music menu" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://i.ibb.co/0VCNQ2m/Scenario2.png" alt="Scenario Two" width=400>
+    </td>
+    <td>
+      <img src="https://i.ibb.co/09dF63h/Scenario5.png" alt="Scenario Five" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://i.ibb.co/jWSQLQ1/Scenario6.png" alt="Scenario Six" width=400>
+    </td>
+    <td>
+      <img src="https://i.ibb.co/hyGj3NX/Scenario8.png" alt="Scenario Eight" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://i.ibb.co/bN7s5vt/Scenario10.png" alt="Scenario Ten" width=400>
+    </td>
+    <td>
+      <img src="https://github.com/ZgzInfinity/OutRun/blob/master/Resources/Gifs/Salida.gif" alt="Start" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://github.com/ZgzInfinity/OutRun/blob/master/Resources/Gifs/Fork.gif" alt="Fork" width=400>
+    </td>
+    <td>
+      <img src="https://github.com/ZgzInfinity/OutRun/blob/master/Resources/Gifs/GreenCar.gif" alt="Green car" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://github.com/ZgzInfinity/OutRun/blob/master/Resources/Gifs/OrangeCar.gif" alt="Orange car" width=400>
+    </td>
+    <td>
+      <img src="https://github.com/ZgzInfinity/OutRun/blob/master/Resources/Gifs/YellowCar.gif" alt="Yellow car" width=400>
+    </td>
+ </tr>
+ <tr>
+    <td>
+      <img src="https://github.com/ZgzInfinity/OutRun/blob/master/Resources/Gifs/CianCar.gif" alt="Cian car" width=400>
+    </td>
+    <td>
+      <img src="https://github.com/ZgzInfinity/OutRun/blob/master/Resources/Gifs/DarkBlueCar.gif" alt="Dark blue car car" width=400>
+    </td>
+ </tr>
+</table>
 
-![gears menu](https://i.ibb.co/VwvyXPq/gears.png)
 
-![Radio](https://i.ibb.co/mR7VCHf/music.png)
-
-![Start](https://i.ibb.co/cg57Crz/start.png)
-
-![Beach](https://i.ibb.co/XX2rBpb/beach.png)
-
-![Desert](https://i.ibb.co/xYp0bf1/check-Point.png)
-
-![Desert2](https://i.ibb.co/swVzdjS/fork.png)
-
-![Desert3](https://i.ibb.co/pQ5M9Kk/desert.png)
-
-![Grass](https://i.ibb.co/nzgGNZC/forest2.png)
-
-![Grass2](https://i.ibb.co/KqSkXKk/forest.png)
-
-![City](https://i.ibb.co/fCNKRtv/city.png)
-
-![Ice](https://i.ibb.co/wzMVKqX/snow.png)
-
-![CheckPoint](https://i.ibb.co/qm40VVG/fog.png)
-
-![Crash](https://i.ibb.co/PjPwGpX/crash.png)
-
-![Options](https://i.ibb.co/D8Q1WNf/options.png)
-
-![Controllers](https://i.ibb.co/XWmqZ01/controllers.png
-)
 
 &nbsp;
 
 # Trailer and gameplay
 
-The following link shows the trailer and a gameplay of the videogame in the followuing links:
-
-https://www.youtube.com/watch?v=0_w2vPQEhbo
-
-https://www.youtube.com/watch?v=eC4hLKCD8O0
+The following link shows the trailer and a gameplay of the videogame in the followuing links: (STILL IN PROGRESS)
 
 &nbsp;
 
@@ -158,5 +191,4 @@ https://www.youtube.com/watch?v=eC4hLKCD8O0
 
 This version of **Out Run** has been programmed by the following developers:
 
-* [Andrés Gavín](https://github.com/agavinm)
 * [Rubén Rodríguez](https://github.com/ZgzInfinity)
