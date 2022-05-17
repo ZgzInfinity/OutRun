@@ -302,7 +302,7 @@ void MenuOptions::loadMenu(Input& input){
     fontMenu.loadFromFile("Resources/Fonts/DisposableDroid.ttf");
 
     // Set the title of the menu
-    titleText.setString("CONTROLS");
+    titleText.setString("OPTIONS");
     titleText.setCharacterSize(static_cast<unsigned int>(int(55.0f * input.screenScaleX)));
     titleText.setFont(fontMenu);
     titleText.setStyle(sf::Text::Bold | sf::Text::Underlined);
