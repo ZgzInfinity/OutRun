@@ -293,6 +293,11 @@ void MenuCarSelection::draw(Input& input){
 
         sf::sleep(sf::milliseconds(100));
     }
+
+    // Stop playing the sound
+    if (Audio::isPlaying(Sfx::BLONDE_WOMAN_CHOOSE_CAR))
+        Audio::stop(Sfx::BLONDE_WOMAN_CHOOSE_CAR);
+
     Audio::stop(Soundtrack::VEHICLE_SELECTION);
     sf::sleep(Audio::getDurationSfx(Sfx::MENU_SELECTION_CONFIRM));
 }

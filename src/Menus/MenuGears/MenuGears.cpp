@@ -173,8 +173,8 @@ void MenuGears::handleEvent(Input& input){
                 }
             }
             else if (input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
-                // Control if the player selects a transmission (automatic or manual)
-                if (!startPressed){
+                // Control if the player selects a transmission (automatic or manual) and the intro panel animation has entered
+                if (mainTextArrived && descriptionTextArrived && !startPressed){
                     // Only once
                     startPressed = true;
                     Audio::stop(Sfx::WIND);
@@ -182,8 +182,8 @@ void MenuGears::handleEvent(Input& input){
                 }
             }
             else if (input.pressed(Key::MENU_CANCEL, event) && input.held(Key::MENU_CANCEL)){
-                // Control if the player cancels the transmission selection
-                if (!backPressed){
+                // Control if the player cancels the transmission selection and the intro panel animation has entered
+                if (mainTextArrived && descriptionTextArrived && !backPressed){
                     // Only once
                     backPressed = true;
                     Audio::play(Sfx::MENU_SELECTION_BACK, false);

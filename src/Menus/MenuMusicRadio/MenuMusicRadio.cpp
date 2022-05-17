@@ -207,8 +207,8 @@ State MenuMusicRadio::returnMenu(Input& input){
         // Loading animation
         return State::LOADING;
     else if (backPressed)
-        // Gears menu (canceled)
-        return State::GEARS;
+        // Vehicle menu (canceled)
+        return State::VEHICLE;
     else if (escapePressed)
         // Game closed
         return State::EXIT;
