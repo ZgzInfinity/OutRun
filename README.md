@@ -198,8 +198,6 @@ The following link shows the trailer and a gameplay of the videogame in the foll
 
 Trailer: https://www.youtube.com/watch?v=CdCh8Meg8Yo
 
-&nbsp;
-
 Gameplay: https://www.youtube.com/watch?v=Nuy-7PLy_IM
 
 &nbsp;
