@@ -735,11 +735,11 @@ void PlayerCar::controlCentrifugalForce(const Line* playerLine, const float& tim
 bool PlayerCar::hasCrashed(float x1, int w1, float x2, float w2, float scale){
 
     // Get the limit points of collision and compares them
-	float min1 = x1 - (((float)w1*3.2f) / 2.f);
-	float max1 = x1 + (((float)w1*3.2f) / 2.f);
+	float min1 = x1 - (((float)w1 * 3.2f) / 2.f);
+	float max1 = x1 + (((float)w1 * 3.2f) / 2.f);
 
-	float min2 = x2 - ((w2*scale) / 2.f);
-	float max2 = x2 + ((w2*scale) / 2.f);
+	float min2 = x2 - ((w2 * scale) / 2.f);
+	float max2 = x2 + ((w2 * scale) / 2.f);
 
 	return (max1 >= min2 && max2 >= min1);
 }
@@ -776,7 +776,7 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
             x2 = x2 - width * scale * (1 - sprite->getPivotColLeft().x);
 
         // Check if there is collision
-        if (hasCrashed(((float) input.gameWindow.getSize().x) / 2.0f + 5,
+        if (hasCrashed((((int) input.gameWindow.getSize().x) / 2.0f) + 5,
                        playerW, x2, sprite->getWidthCol(), scale))
         {
             // Get the collision cure coefficient

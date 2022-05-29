@@ -755,8 +755,7 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
             // If the player has not crashed with the map elements checks collisions with the traffic cars
             if (!hasCrashed){
-                for (auto& car : cars)
-                {
+                for (auto& car : cars){
                     Line* lc = currentBiome->lines[(int)(car->getPosZ() / SEGMENT_LENGTH) % currentBiome->lines.size()];
                     p.checkCollisionTrafficCar(input, playerLine, lc, car, hasCrashed);
 
@@ -817,9 +816,8 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 			p.setStateWheelLeft(StateWheel::SMOKE);
 			p.setStateWheelRight(StateWheel::SMOKE);
 		}
-		else {
+		else
             p.setSkidding(false);
-		}
     }
 
     // Detect the checkpoint when the scenario is not the starting and goal (there are not checkpoints in that scenarios
