@@ -86,7 +86,18 @@ https://www.sfml-dev.org/download.php
 
 In order to run Out Run on your personal computer you can either compile and run the project you have created locally 
 on your computer or make use of the executables provided in the Release section of the repository. Now, Out Run can be 
-played in Windows, like before, and also it is available for Linux. (STILL IN PROGRESS)
+played in Windows, like before, and also it is available for Linux.
+
+**Windows version**: [Out Run Windows x64](https://github.com/ZgzInfinity/OutRun/releases/download/v4.0-Windows/outrun-4.0-W64.zip)
+<pre><code>1. Extract all files from outrun-4.0-W64.zip
+2. Run the executable file Outrun.exe
+</code></pre>
+  
+**Linux based version**: [Out Run Linux](https://github.com/ZgzInfinity/OutRun/releases/download/v4.0-Linux/outrun-4.0-linux.zip)
+<pre><code>1. sudo apt-get install libsfml-dev 
+2. Extract all files from outrun-4.0-linux.zip
+3. ./Outrun
+</code></pre>
 
 &nbsp;
 
@@ -183,7 +194,13 @@ to open an issue or do a pull request. See the open issues for a list of known i
 
 # Trailer and gameplay
 
-The following link shows the trailer and a gameplay of the videogame in the followuing links: (STILL IN PROGRESS)
+The following link shows the trailer and a gameplay of the videogame in the followuing links:
+
+Trailer: https://www.youtube.com/watch?v=CdCh8Meg8Yo
+
+&nbsp;
+
+Gameplay: https://www.youtube.com/watch?v=Nuy-7PLy_IM
 
 &nbsp;
 
