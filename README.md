@@ -196,9 +196,9 @@ to open an issue or do a pull request. See the open issues for a list of known i
 
 The following link shows the trailer and a gameplay of the videogame in the followuing links:
 
-Trailer: https://www.youtube.com/watch?v=CdCh8Meg8Yo
+* Trailer: https://www.youtube.com/watch?v=CdCh8Meg8Yo
 
-Gameplay: https://www.youtube.com/watch?v=Nuy-7PLy_IM
+* Gameplay: https://www.youtube.com/watch?v=Nuy-7PLy_IM
 
 &nbsp;
 
