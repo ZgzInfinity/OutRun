@@ -55,7 +55,7 @@ Input::Input(){
 
         // Driving actions
         set(Key::ACCELERATE, sf::Keyboard::LControl);
-        set(Key::BRAKE, sf::Keyboard::RAlt);
+        set(Key::BRAKE, sf::Keyboard::LAlt);
         set(Key::TURN_LEFT, sf::Keyboard::Left);
         set(Key::TURN_RIGHT, sf::Keyboard::Right);
         set(Key::UP_GEAR, sf::Keyboard::Z);
@@ -223,7 +223,7 @@ void Input::writeDefaultInput(){
         f << "VOLUME_EFFECTS: 100" << endl;
         f << "FULL_SCREEN: DISABLED" << endl;
         f << "RESOLUTION: 0" << endl;
-        f << "CONTROL LEFT: LEFT CURSOR" << endl;
+        f << "CONTROL_LEFT: LEFT CURSOR" << endl;
         f << "CONTROL_RIGHT: RIGHT CURSOR" << endl;
         f << "CONTROL_ACCELERATE: LEFT CONTROL" << endl;
         f << "CONTROL_BRAKE: LEFT ALT" << endl;
