@@ -64,7 +64,7 @@ SpriteInfo::SpriteInfo(sf::Texture* _textureSprite, const fPoint _pivotLeft, con
     offsetX = _offsetX;
     offsetY = _offsetY;
     side = _side;
-    pivotColLeft = pivotColLeft;
+    pivotColLeft = _pivotColLeft;
     pivotColRight = _pivotColRight;
 };
 

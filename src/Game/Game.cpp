@@ -467,10 +467,11 @@ void Game::handleEvent(Input& input, const float& time){
 
     /*
      * Check if the game is showing the initial animation and it is not in
-     * pause neither in game over neither the player car is crashing
+     * pause neither in game over neither the player car is crashing or is
+     * been relocated in the center of the road after the crashing animation
      */
 
-    if (gameStatus != State::PREPARE_ROUND && !escape && !pauseMode && !outOfTime && !player->getCrashing())
+    if (gameStatus != State::PREPARE_ROUND && !escape && !pauseMode && !outOfTime && !player->getCrashing() && player->getDrawCar())
         // Control the player car
         player->accelerationControl(input, gameStatus, time);
 }

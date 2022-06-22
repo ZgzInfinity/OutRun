@@ -228,7 +228,7 @@ void Input::writeDefaultInput(){
         f << "CONTROL_ACCELERATE: LEFT CONTROL" << endl;
         f << "CONTROL_BRAKE: LEFT ALT" << endl;
         f << "CONTROL_UP_GEAR: Z" << endl;
-        f << "CONTROL_LOW_GEAR: RIGHT CTRL" << endl;
+        f << "CONTROL_DOWN_GEAR: RIGHT CONTROL" << endl;
     }
     // Close the flux of the Input file
     f.close();

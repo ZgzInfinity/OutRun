@@ -366,6 +366,15 @@ float PlayerCar::getCollisionCurve() const {
 
 
 /**
+ * Get if the player car has to be drawn
+ */
+bool PlayerCar::getDrawCar() const {
+    return drawCar;
+}
+
+
+
+/**
  * Get the number of angers done by the blond woman
  */
 int PlayerCar::getNumAngers() const {
@@ -771,12 +780,11 @@ void PlayerCar::checkCollisionSpriteInfo(Input& input, const Line* playerLine, b
 
         if (sprite->getOffsetX() >= 0)
             x2 = x2 + width * scale * sprite->getPivotColRight().x;
-
         else
             x2 = x2 - width * scale * (1 - sprite->getPivotColLeft().x);
 
         // Check if there is collision
-        if (hasCrashed((((int) input.gameWindow.getSize().x) / 2.0f) + 5,
+        if (hasCrashed(((float) input.gameWindow.getSize().x) / 2.0f + 5,
                        playerW, x2, sprite->getWidthCol(), scale))
         {
             // Get the collision cure coefficient

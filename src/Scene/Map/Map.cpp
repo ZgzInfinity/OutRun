@@ -741,7 +741,6 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         if (!currentBiome->end && !p.getCrashing()){
 
             // Check the map elements and detects collision with them until one is true (the rest ignored)
-
             if (playerLine->hasSpriteFarLeft)
                 p.checkCollisionSpriteInfo(input, playerLine, hasCrashed, playerLine->spriteFarLeft);
             if (!hasCrashed && playerLine->hasSpriteNearLeft)
@@ -802,7 +801,8 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     }
 
     // Update the wheel statuses
-	updateCarPlayerWheels(p);
+    if (p.getDrawCar())
+        updateCarPlayerWheels(p);
 
 	//Make smoke if sliding to the side when in a huge curve
 	if (p.getStateWheelLeft() != StateWheel::SAND && p.getStateWheelRight() != StateWheel::SAND &&

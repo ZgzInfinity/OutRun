@@ -447,6 +447,13 @@ public:
 
 
     /**
+     * Get if the player car has to be drawn
+     */
+    bool getDrawCar() const;
+
+
+
+    /**
      * Get the number of angers done by the blond woman
      */
     int getNumAngers() const;

@@ -186,4 +186,4 @@ typedef Point<int> iPoint;
 
 typedef Point<float> fPoint;
 
-#endif // __POINT_H__
+#endif // POINT_H
