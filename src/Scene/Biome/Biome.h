@@ -48,6 +48,9 @@ struct Biome{
 	// Right scenario in the fork
 	Biome *right;
 
+    // Next scenario
+	Biome *next;
+
 	// Control if the next scenario is the goal
 	bool end;
 
@@ -262,10 +265,11 @@ struct Biome{
      * @param curve is the curve coefficient of the new portion
      * @param y is the final position of the relief in axis Y
      * @param mirror controls if the relief has to be duplicated (fork effect)
+     * @param forceSwap controls when the transition between must be forced
      * @param distance is the width distance of the road in that part of the relief
      * @param linesOfBiome is the number of lines in the scenario
      */
-    void addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, int distance, int& linesOfBiome);
+    void addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, bool forceSwap, int distance, int& linesOfBiome);
 
 
 
@@ -325,6 +329,13 @@ struct Biome{
      * Get the right scenario in the fork
      */
     Biome* getRight() const;
+
+
+
+    /**
+     * Get the next biome
+     */
+    Biome* getNext() const;
 
 
 

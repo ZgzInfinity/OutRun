@@ -22,12 +22,15 @@
  * Module Score interface file
  */
 
+#pragma once
+
 #ifndef SCORE_H
 #define SCORE_H
 
 #include <string>
 #include <vector>
 #include "../Input/Input.h"
+#include "../Menus/Menu/Menu.h"
 
 
 
@@ -72,9 +75,10 @@ struct Score {
  * The size of the vector is between zero (no records) and seven (there are seven records in the
  * positions zero to six)
  * @param input is the module that has all the configuration of the game
+ * @param gameMode is the game mode selected by the player
  * @return and array with the best scores registered in the game
  */
-std::vector<Score> getGlobalScores(Input& input);
+std::vector<Score> getGlobalScores(Input& input, const GameMode& gameMode);
 
 
 
@@ -95,7 +99,8 @@ int isNewRecord(const std::vector<Score> &globalScores, unsigned long score);
  * @param input is the module that has all the configuration of the game
  * @param globalScores is a vector which stores all the records of the game mode
  * @param newRecord is the new record of the game mode which is going to be stored
+ * @param gameMode is the game mode selected by the player
  */
-bool saveNewRecord(Input& input, const std::vector<Score> &globalScores, const Score &newRecord);
+bool saveNewRecord(Input& input, const std::vector<Score> &globalScores, const Score &newRecord, const GameMode& gameMode);
 
 #endif // SCORE_H

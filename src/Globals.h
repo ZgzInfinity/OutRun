@@ -70,6 +70,7 @@ const int BACKGROUND_MOVING_OFFSET = 91;
 const int TIME_RANKING_MENU = 28;
 const int TOTAL_PLAYER_CARS = 14;
 const int TOTAL_COLOR_TEXTURES = 8;
+const int TOTAL_CIRCUITS = 15;
 const int NOT_COUNT_LINES = -1;
 const int GRADIENT_FACTOR = 80;
 const int LEVEL_FACTOR = 5;
@@ -94,6 +95,8 @@ const float MULTI_FACTOR_SECOND_LEVEL = 0.53125f;
 const float MULTI_FACTOR_THIRD_LEVEL = 0.5f;
 const float MULTI_FACTOR_FOURTH_LEVEL = 0.46875f;
 const float MULTI_FACTOR_FIFTH_LEVEL = 0.4375f;
+
+const float MULTI_FACTOR_CONTINUOUS_MODE = 0.4875f;
 
 
 #define MIN( a, b ) ( ((a) < (b)) ? (a) : (b) )

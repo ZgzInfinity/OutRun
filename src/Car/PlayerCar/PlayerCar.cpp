@@ -660,7 +660,7 @@ void PlayerCar::accelerationControl(Input& input, const State gameStatus, const 
                 if (gear == 0)
                     gear = 1;
 
-                maxHighSpeed = (int)SEGMENT_LENGTH;
+                maxHighSpeed = (int)SEGMENT_LENGTH + 50.f;
                 speed += lowAccel * time;
                 if (speed > maxHighSpeed)
                     speed = maxHighSpeed;

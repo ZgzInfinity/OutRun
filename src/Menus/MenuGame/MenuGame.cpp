@@ -217,7 +217,7 @@ State MenuGame::returnMenu(Input& input){
         switch(optionSelected){
             case 0:
                 // Start option selected
-                return State::GEARS;
+                return State::MODE;
                 break;
             case 1:
                 // Options selected

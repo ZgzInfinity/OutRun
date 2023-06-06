@@ -56,6 +56,44 @@ bool MenuGears::getAutomaticMode() const {
 }
 
 
+/**
+ * Set the start menu configuration flags
+ * @param _firstLoad controls if it the first load of the menu
+ * @param _newGame controls if it is a new game round
+ */
+void MenuGears::setMenuGears(const bool _firstLoad, const bool _newGame){
+    firstLoad = _firstLoad;
+    newGame = _newGame;
+}
+
+
+
+/**
+ * Get if it is the first time that the menu has been loaded
+ */
+bool MenuGears::getFirstLoad() const {
+    return firstLoad;
+}
+
+
+
+/**
+ * Set the game mode to be played
+ * @param _gameMode is the default game mode to be played
+ */
+void MenuGears::setGameMode(const GameMode _gameMode){
+    gameMode = _gameMode;
+}
+
+
+
+/**
+ * Get the game mode selected by the player
+ */
+GameMode MenuGears::getGameMode() const {
+    return gameMode;
+}
+
 
 /**
  * Load the menu with all its configuration
@@ -436,10 +474,11 @@ State MenuGears::returnMenu(Input& input){
         return State::EXIT;
     else if (backPressed)
         // Menu canceled
-        return State::GAME;
+        return State::MODE;
     else
         // Gear transmission selected
         return State::VEHICLE;
+
 }
 
 

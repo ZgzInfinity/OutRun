@@ -65,6 +65,10 @@ Input::Input(){
         difficulty = Level_Difficulty::NORMAL;
         traffic = Level_Traffic::MEDIUM;
 
+        // Sound parameters
+        volumeMusic = 100;
+        volumeEffects = 80;
+
         // By default any aspect of the Input has been modified
         modifiedConfig = false;
     }

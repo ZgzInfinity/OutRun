@@ -210,8 +210,9 @@ class TrafficCar : public Vehicle {
          * @param p is the player car
          * @param playerLine is the line in the biome where the player car is located
          * @param trafficCarLine is the line in the biome where the traffic car is located
+         * @param mapDistance is the width of the road
          */
-        void controlAiTrack(const PlayerCar& p, const Line* playerLine, const Line* trafficCarLine);
+        void controlAiTrack(const PlayerCar& p, const Line* playerLine, const Line* trafficCarLine, int mapDistance);
 
 
 

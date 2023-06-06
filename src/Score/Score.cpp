@@ -58,14 +58,25 @@ Score::Score(long long int _score, const std::string _name,
  * The size of the vector is between zero (no records) and seven (there are seven records in the
  * positions zero to six)
  * @param input is the module that has all the configuration of the game
+ * @param gameMode is the game mode selected by the player
+ * @return and array with the best scores registered in the game
  */
-vector<Score> getGlobalScores(Input& input){
+vector<Score> getGlobalScores(Input& input, const GameMode& gameMode){
 
     // Vector of scores
     vector<Score> globalScores;
 
     // Determine the path depending on the level and traffic difficulty the scores to load
-    string path;
+    std::string path = "Resources/Score/";
+
+    switch (gameMode)
+    {
+        case GameMode::ORIGINAL_MODE:
+            path += "/OriginalMode/";
+            break;
+        case GameMode::CONTINUOUS_MODE:
+            path += "/ContinuousMode/";
+    }
 
     // Check difficulty level
     switch(input.difficulty){
@@ -156,25 +167,35 @@ int isNewRecord(const vector<Score> &globalScores, unsigned long score) {
  * @param input is the module that has all the configuration of the game
  * @param globalScores is a vector which stores all the records of the game mode
  * @param newRecord is the new record of the game mode which is going to be stored
+ * @param gameMode is the game mode selected by the player
  */
-bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score &newRecord) {
+bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score &newRecord, const GameMode& gameMode) {
 
     // Controls if the record has been saved correctly
     bool saved = false;
 
     // Determine the path depending on the level and traffic difficulty the scores to load
-    string path;
+    std::string path = "Resources/Score/";
+
+    switch (gameMode)
+    {
+        case GameMode::ORIGINAL_MODE:
+            path += "/OriginalMode/";
+            break;
+        case GameMode::CONTINUOUS_MODE:
+            path += "/ContinuousMode/";
+    }
 
     // Check difficulty level
     switch(input.difficulty){
         case Level_Difficulty::EASY:
-            path = "Resources/Score/scoresEasy";
+            path += "/scoresEasy";
             break;
         case Level_Difficulty::NORMAL:
-            path = "Resources/Score/scoresNormal";
+            path += "scoresNormal";
             break;
         case Level_Difficulty::HARD:
-            path = "Resources/Score/scoresHard";
+            path += "scoresHard";
     }
 
     // Check traffic level

@@ -192,8 +192,9 @@ class Map {
          * Make the transition between scenarios when the player is in the fork
          * @param input is the module that has all the configuration of the game
          * @param p is the player car
+         * @param gameMode is the game mode selected by the player
          */
-        void interpolateBiomes(Input& input, PlayerCar& p);
+        void interpolateBiomes(Input& input, PlayerCar& p, const GameMode& gameMode);
 
 
 
@@ -255,8 +256,9 @@ class Map {
         /**
          * Set the total distance of the biome and add the fork part to the scenario
          * @param ending controls if the current scenario is the goal
+         * @param gameMode is the game mode selected by the player
          */
-        void setMapDistanceAndTrackLength(const bool ending);
+        void setMapDistanceAndTrackLength(const bool ending, const GameMode& gameMode);
 
 
 
@@ -268,14 +270,17 @@ class Map {
          * @param gameStatus is the status of the game
          * @param time is the real time elapsed between each iteration (allows the movement of the cars)
          * @param score is the current score of the player
+         * @param levelsToComplete is the total of levels to complete in the game mode
          * @param checkPoint controls if the checkpoint animation has to be displayed
          * @param checkPointDisplayed controls if the checkpoint animation has been already displayed
          * @param treeMapPos is the current scenario where the player is driving in the tree indicator of the hud round (lower right corner)
          * @param level is the current level where the player is driving (1..5)
          * @param startCodeAi is the type of AI that can be assigned possibly to a traffic car
+         * @param gameMode is the game mode selected by the player
          */
         void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
-                       bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level, int& startCodeAi);
+                       const int levelsToComplete, bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level,
+                       int& startCodeAi, const GameMode& gameMode);
 
 
 
@@ -285,9 +290,10 @@ class Map {
          * @param cars is the vector with all the traffic cars
          * @param p is the player car
          * @param gameStatus is the status of the game
+         * @param gameMode is the game mode selected by the player
          * @param pauseMode controls if the game is in pause mode or not
          */
-        void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode);
+        void renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, GameMode& gameMode, const bool pauseMode);
 
 
 

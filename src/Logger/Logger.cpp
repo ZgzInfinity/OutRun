@@ -671,7 +671,7 @@ bool Logger::checkReliefStraight(Biome& m){
     }
     // Compute the number of road tracks and add the new part to the biome
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold, leave, 0, 0, mirror, numTracks, instance.linesOfBiome);
+    m.addBiome(enter, hold, leave, 0, 0, mirror, false, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
@@ -841,7 +841,7 @@ bool Logger::checkReliefCurve(Biome& m, const bool leftDirection){
     }
     // Compute the number of tracks and add the curve relief part to the scenario
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold * factor_length, leave, direction, 0, mirror, numTracks, instance.linesOfBiome);
+    m.addBiome(enter, hold * factor_length, leave, direction, 0, mirror, false, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
@@ -973,7 +973,7 @@ bool Logger::checkReliefHillStraight(Biome& m){
     }
     // Compute the number of road tracks and add the straight hill to the scenario
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold * factor_length, leave, 0, slope, false, numTracks, instance.linesOfBiome);
+    m.addBiome(enter, hold * factor_length, leave, 0, slope, false, false, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
@@ -1137,7 +1137,7 @@ bool Logger::checkReliefHillCurve(Biome& m, const bool leftDirection){
     }
     // Compute the tracks and add the curve hill to the scenario
     numTracks = m.computeRoadTracks(numTracks);
-    m.addBiome(enter, hold, enter, direction, slope, mirror, numTracks, instance.linesOfBiome);
+    m.addBiome(enter, hold, enter, direction, slope, mirror, false, numTracks, instance.linesOfBiome);
     return instance.failDetected;
 }
 
@@ -1417,7 +1417,7 @@ void Logger::loadGoalBiomeSprites(Biome& m){
      * Public people in both sides of the road
      */
 
-    for (int i = 250; i <= 590; i++){
+    for (int i = 250; i <= 668; i++){
         if (i >= 270){
             if (i % 52 == 0){
                 SpriteInfo* cameramanLeft = new SpriteInfo(&m.objects[24], m.pivotLeftPoints[24], m.pivotRightPoints[24],
@@ -1532,11 +1532,11 @@ void Logger::loadGoalBiomeSprites(Biome& m){
         m.addSpriteInfo(j, publicLeft, Sprite_Position::FAR_LEFT, false);
         m.addSpriteInfo(j, publicRight, Sprite_Position::FAR_RIGHT, false);
 
-        if (j < 590)
+        if (j < 668)
             j += 3;
     }
 
-    for (int i = 594; i <= 607; i++){
+    for (int i = 668; i <= 681; i++){
         SpriteInfo* publicLeft = new SpriteInfo(&m.objects[33], m.pivotLeftPoints[33], m.pivotRightPoints[33],
                                            m.scaleCoeffs[33], m.widthCollisionCoeffs[33], m.showTerrainCoeffs[33],
                                            m.pivotLeftColPoints[33], m.pivotRightColPoints[33], m.collisions[33],
@@ -1589,9 +1589,9 @@ void Logger::loadGoalBiomeSprites(Biome& m){
     m.addSpriteInfo(506, endFlag, Sprite_Position::NEAR_LEFT, false);
 
     // Second log goal flag
-    m.addSpriteInfo(608, logLeft, Sprite_Position::NEAR_LEFT, false);
-    m.addSpriteInfo(608, logRight, Sprite_Position::NEAR_RIGHT, false);
-    m.addSpriteInfo(609, endFlag, Sprite_Position::NEAR_LEFT, false);
+    m.addSpriteInfo(682, logLeft, Sprite_Position::NEAR_LEFT, false);
+    m.addSpriteInfo(682, logRight, Sprite_Position::NEAR_RIGHT, false);
+    m.addSpriteInfo(683, endFlag, Sprite_Position::NEAR_LEFT, false);
 
 }
 

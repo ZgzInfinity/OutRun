@@ -73,6 +73,9 @@ class MenuPause : public Menu {
         // Status of the game
         State gameStatus;
 
+        // Game mode
+        GameMode gameMode;
+
         // Terrain of the scenario to be drawn
         int terrain;
 
@@ -97,6 +100,14 @@ class MenuPause : public Menu {
          * @param _gameStatus is the current status of the game
          */
         void setGameStatus(const State _gameStatus);
+
+
+
+        /**
+         * Set the game mode selected by the player
+         * @param _gameMode is the game mode selected by the player
+         */
+        void setGameMode(const GameMode _gameMode);
 
 
 

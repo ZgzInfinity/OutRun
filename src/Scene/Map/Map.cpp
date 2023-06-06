@@ -158,8 +158,9 @@ sf::Color Map::interpolateColors(const sf::Color& c1, const sf::Color& c2){
  * Make the transition between scenarios when the player is in the fork
  * @param input is the module that has all the configuration of the game
  * @param p is the player car
+ * @param gameMode is the game mode selected by the player
  */
-void Map::interpolateBiomes(Input& input, PlayerCar& p){
+void Map::interpolateBiomes(Input& input, PlayerCar& p, const GameMode& gameMode){
 
     // Check if the moving transition of the backgrounds in axis X as finished
     if (backgroundSwapOffset < input.gameWindow.getSize().x){
@@ -209,10 +210,18 @@ void Map::interpolateBiomes(Input& input, PlayerCar& p){
             p.setTerrain(currentBiome->getLeft()->getTerrain());
         }
         else {
-            // Right scenario
-            setTerrain(currentBiome->getRight()->getTerrain());
-            p.setRoadTerrain(currentBiome->getRight()->getRoadTerrain());
-            p.setTerrain(currentBiome->getRight()->getTerrain());
+            if (gameMode == GameMode::ORIGINAL_MODE){
+                // Right scenario
+                setTerrain(currentBiome->getRight()->getTerrain());
+                p.setRoadTerrain(currentBiome->getRight()->getRoadTerrain());
+                p.setTerrain(currentBiome->getRight()->getTerrain());
+            }
+            else if (gameMode == GameMode::CONTINUOUS_MODE){
+                // Left scenario
+                setTerrain(currentBiome->getLeft()->getTerrain());
+                p.setRoadTerrain(currentBiome->getLeft()->getRoadTerrain());
+                p.setTerrain(currentBiome->getLeft()->getTerrain());
+            }
         }
     }
 }
@@ -400,7 +409,7 @@ void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p,
 			c->setDirection(Direction::TURNRIGHT);
 
         // Move the traffic car depending on its AI code
-        c->controlAiTrack(p, playerLine, l);
+        c->controlAiTrack(p, playerLine, l, mapDistance);
 	}
 }
 
@@ -481,25 +490,32 @@ void Map::setMapColors(){
 /**
  * Set the total distance of the biome and add the fork part to the scenario
  * @param ending controls if the current scenario is the goal
+ * @param gameMode is the game mode selected by the player
  */
-void Map::setMapDistanceAndTrackLength(const bool ending){
+void Map::setMapDistanceAndTrackLength(const bool ending, const GameMode& gameMode){
     int not_count_lines = NOT_COUNT_LINES;
     int gradient;
 
-    // Check if it is the goal scenario and select the slope of the fork
-    if (ending)
-        gradient = 1;
-    else
-        gradient = random_int(-1, 1);
+    switch (gameMode){
+        case GameMode::ORIGINAL_MODE:
+            // Check if it is the goal scenario and select the slope of the fork
+            if (ending)
+                gradient = 1;
+            else
+                gradient = random_int(-1, 1);
 
-
-    // Add the fork to the current scenario
-    currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, currentBiome->threeTracksDistance, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, true, currentBiome->twoTracksDistance, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->fiveTracksDistance, not_count_lines);
-    currentBiome->addBiome(100, 150, 150, 0, 0, false, currentBiome->threeTracksDistance, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->threeTracksDistance, not_count_lines);
-    currentBiome->addBiome(100, 100, 100, 0, 0, false, currentBiome->threeTracksDistance, not_count_lines);
+            // Add the fork to the current scenario
+            currentBiome->addBiome(10, 300, 50, -2.0, gradient * GRADIENT_FACTOR, true, false, currentBiome->threeTracksDistance, not_count_lines);
+            currentBiome->addBiome(100, 100, 100, 0, 0, true, false, currentBiome->twoTracksDistance, not_count_lines);
+            currentBiome->addBiome(100, 100, 100, 0, 0, false, false, currentBiome->fiveTracksDistance, not_count_lines);
+            currentBiome->addBiome(100, 150, 150, 0, 0, false, false, currentBiome->threeTracksDistance, not_count_lines);
+            currentBiome->addBiome(100, 100, 100, 0, 0, false, false, currentBiome->threeTracksDistance, not_count_lines);
+            currentBiome->addBiome(100, 100, 100, 0, 0, false, false, currentBiome->threeTracksDistance, not_count_lines);
+            break;
+        case GameMode::CONTINUOUS_MODE:
+            currentBiome->addBiome(200, 200, 200, 0, 0, false, true, currentBiome->threeTracksDistance, not_count_lines);
+            currentBiome->addBiome(200, 200, 200, 0, 0, false, false, currentBiome->threeTracksDistance, not_count_lines);
+    }
 
     // Set the default width road of the scenario with the total length and its last line added
     mapDistance = (int)currentBiome->lines[0]->distance;
@@ -517,14 +533,17 @@ void Map::setMapDistanceAndTrackLength(const bool ending){
  * @param gameStatus is the status of the game
  * @param time is the real time elapsed between each iteration (allows the movement of the cars)
  * @param score is the current score of the player
+ * @param levelsToComplete is the total of levels to complete in the game mode
  * @param checkPoint controls if the checkpoint animation has to be displayed
  * @param checkPointDisplayed controls if the checkpoint animation has been already displayed
  * @param treeMapPos is the current scenario where the player is driving in the tree indicator of the hud round (lower right corner)
  * @param level is the current level where the player is driving (1..5)
  * @param startCodeAi is the type of AI that can be assigned possibly to a traffic car
+ * @param gameMode is the game mode selected by the player
  */
 void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
-                    bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level, int& startCodeAi){
+                    const int levelsToComplete, bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level,
+                    int& startCodeAi, const GameMode& gameMode){
 
     // Update all the traffic cars
     updateCars(input, cars, p, score, startCodeAi);
@@ -561,18 +580,29 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
 
 	// Check if the player has arrived to the swapping line and not has chosen direction (only one time)
 	if (playerLine->index > currentBiome->swapLine && !newBiomeChosen){
-        // Choose the left road
-        if (p.getPlayerRoad() == Player_Road::LEFTROAD){
-            currentBiome->left->end = true;
-            nextBiome = currentBiome->getLeft();
-            treeMapPos += level;
+
+        switch (gameMode){
+            case GameMode::ORIGINAL_MODE:
+                    // Choose the left road
+                    if (p.getPlayerRoad() == Player_Road::LEFTROAD){
+                        currentBiome->left->end = true;
+                        nextBiome = currentBiome->getLeft();
+                        treeMapPos += level;
+                    }
+                    // Choose the right road
+                    else if (p.getPlayerRoad() == Player_Road::RIGHTROAD){
+                        currentBiome->right->end = true;
+                        nextBiome = currentBiome->getRight();
+                        treeMapPos += (level + 1);
+                    }
+                    break;
+            case GameMode::CONTINUOUS_MODE:
+                nextBiome = currentBiome->getLeft();
+                treeMapPos++;
         }
-        // Choose the right road
-        else if (p.getPlayerRoad() == Player_Road::RIGHTROAD){
-            currentBiome->right->end = true;
-            nextBiome = currentBiome->getRight();
-            treeMapPos += (level + 1);
-        }
+
+
+        // LOGICA CONTINUOUS_MODE
         // Selection done
         newBiomeChosen = true;
 	}
@@ -592,11 +622,11 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         numBiomesVisited++;
 
         // If there are more stages to visit deactivate the ending flag
-        if (numBiomesVisited != LEVELS_TO_COMPLETE)
+        if (numBiomesVisited != levelsToComplete)
             currentBiome->end = false;
 
         // Prepare the fork for the next scenario and set its colors
-        setMapDistanceAndTrackLength(numBiomesVisited == (LEVELS_TO_COMPLETE - 1));
+        setMapDistanceAndTrackLength(numBiomesVisited == (levelsToComplete - 1), gameMode);
         setMapColors();
 
         // Let the swapping animation when the next biome is finished and checkpoint status is deactivated (must be passed)
@@ -634,7 +664,8 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
         // Select the next scenario to load
         swapping = true;
         Biome* biome = currentBiome->left;
-        if (p.getPlayerRoad() == Player_Road::RIGHTROAD)
+
+        if (gameMode == GameMode::ORIGINAL_MODE && p.getPlayerRoad() == Player_Road::RIGHTROAD)
             biome = currentBiome->right;
 
         // Prepare the backgrounds and colors of the chosen scenario
@@ -835,9 +866,10 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
  * @param cars is the vector with all the traffic cars
  * @param p is the player car
  * @param gameStatus is the status of the game
+ * @param gameMode is the game mode selected by the player
  * @param pauseMode controls if the game is in pause mode or not
  */
-void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const bool pauseMode){
+void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, GameMode& gameMode, const bool pauseMode){
 
     // Clear the window
     input.gameWindow.clear();
@@ -845,7 +877,7 @@ void Map::renderMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
     // Check if the game is not pause and it's not in game over
     if (gameStatus != State::GAME_OVER && !pauseMode && swapping)
         // If the scenarios are swapping interpolate the colors between them
-        interpolateBiomes(input, p);
+        interpolateBiomes(input, p, gameMode);
 
     // Get the position line of the player car in the scenario
     Line* playerLine = currentBiome->lines[(int)((position + p.getPosZ()) / SEGMENTL) % currentBiome->lines.size()];

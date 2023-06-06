@@ -87,17 +87,21 @@ void MenuSound::changeVolume(Input& input, const bool menuLeftPressed){
                 // Soundtracks
                 volumeMusicPct = std::fmaxf(volumeMusicPct - 0.05f, 0.0f);
                 Audio::setVolumeMusic(volumeMusicPct);
-                volMusic = to_string((int)((Audio::getMusicVolume() + 0.005f) * 100));
+                newVolMusic = (int)((Audio::getMusicVolume() + 0.005f) * 100);
+                volMusic = to_string(newVolMusic);
                 menuButtons[optionSelected + 2].setTextButton(volMusic);
                 Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                input.volumeMusic = newVolMusic;
                 break;
             case 1:
                 // Sfx
                 volumeSfxPct = std::fmaxf(volumeSfxPct - 0.05f, 0.0f);
                 Audio::setVolumeSfx(volumeSfxPct);
-                volSfx = to_string((int)((Audio::getSfxVolume() + 0.005f) * 100));
+                newVolSfx = (int)((Audio::getSfxVolume() + 0.005f) * 100);
+                volSfx = to_string(newVolSfx);
                 menuButtons[optionSelected + 2].setTextButton(volSfx);
                 Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                input.volumeEffects = newVolSfx;
         }
     }
     else {
@@ -111,6 +115,7 @@ void MenuSound::changeVolume(Input& input, const bool menuLeftPressed){
                 volMusic = to_string(newVolMusic);
                 menuButtons[optionSelected + 2].setTextButton(volMusic);
                 Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                input.volumeMusic = newVolMusic;
                 break;
             case 1:
                 // Sfx
@@ -120,11 +125,11 @@ void MenuSound::changeVolume(Input& input, const bool menuLeftPressed){
                 volSfx = to_string(newVolSfx);
                 menuButtons[optionSelected + 2].setTextButton(volSfx);
                 Audio::play(Sfx::MENU_SELECTION_MOVE, false);
+                input.volumeEffects = newVolSfx;
         }
     }
+
     // Update the new volume values
-    input.volumeMusic = newVolMusic;
-    input.volumeEffects = newVolSfx;
     input.modifiedConfig = true;
 }
 

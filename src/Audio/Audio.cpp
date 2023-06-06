@@ -88,6 +88,7 @@ void Audio::loadAll(Input& input){
 
     instance.load(Soundtrack::GAME_OVER, "Resources/Soundtracks/Game_Over.ogg");
     instance.load(Soundtrack::VEHICLE_SELECTION, "Resources/Soundtracks/Vehicle_Selection.ogg");
+    instance.load(Soundtrack::CIRCUIT_SELECTION, "Resources/Soundtracks/Circuit_Selection.ogg");
     instance.load(Soundtrack::LOADING, "Resources/Soundtracks/Loading.ogg");
     instance.load(Soundtrack::CREDITS, "Resources/Soundtracks/Credits.ogg");
 
@@ -107,10 +108,16 @@ void Audio::loadAll(Input& input){
 
     instance.load(Sfx::RACE_SEMAPHORE_PREPARE, "Resources/SoundEffects/Race_Semaphore_Prepare.ogg");
     instance.load(Sfx::RACE_SEMAPHORE_START, "Resources/SoundEffects/Race_Semaphore_Start.ogg");
-    instance.load(Sfx::RACE_START, "Resources/SoundEffects/Race_Start.ogg");
-    instance.load(Sfx::RACE_END_FIRST, "Resources/SoundEffects/Race_End_First.ogg");
-    instance.load(Sfx::RACE_END_SECOND, "Resources/SoundEffects/Race_End_Second.ogg");
-    instance.load(Sfx::RACE_END_THIRD, "Resources/SoundEffects/Race_End_Third.ogg");
+    instance.load(Sfx::RACE_START_ORIGINAL_MODE, "Resources/SoundEffects/Race_Start_Original_Mode.ogg");
+    instance.load(Sfx::RACE_START_CONTINUOUS_MODE, "Resources/SoundEffects/Race_Start_Continuous_Mode.ogg");
+    instance.load(Sfx::RACE_START_TIME_TRIAL_MODE, "Resources/SoundEffects/Race_Start_Time_Trial_Mode.ogg");
+
+    instance.load(Sfx::RACE_END_FIRST_ORIGINAL_MODE, "Resources/SoundEffects/Race_End_First_Original_Mode.ogg");
+    instance.load(Sfx::RACE_END_SECOND_ORIGINAL_MODE, "Resources/SoundEffects/Race_End_Second_Original_Mode.ogg");
+    instance.load(Sfx::RACE_END_THIRD_ORIGINAL_MODE, "Resources/SoundEffects/Race_End_Third_Original_Mode.ogg");
+
+    instance.load(Sfx::RACE_END_FIRST_CONTINUOUS_MODE, "Resources/SoundEffects/Race_End_First_Continuous_Mode.ogg");
+    instance.load(Sfx::RACE_END_SECOND_CONTINUOUS_MODE, "Resources/SoundEffects/Race_End_Second_Continuous_Mode.ogg");
 
     instance.load(Sfx::FERRARI_ENGINE_START, "Resources/SoundEffects/Ferrari_Engine_Start.ogg");
     instance.load(Sfx::FERRARI_ENGINE_RUN, "Resources/SoundEffects/Ferrari_Engine_Run.ogg");
@@ -153,7 +160,8 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::TRAFFIC_FOURTH_CLAXON, "Resources/SoundEffects/Traffic_Fourth_Claxon.ogg");
 
     instance.load(Sfx::CHECKPOINT_ALARM, "Resources/SoundEffects/Checkpoint_Alarm.ogg");
-    instance.load(Sfx::CHECKPOINT_VOICE, "Resources/SoundEffects/Checkpoint_Voice.ogg");
+    instance.load(Sfx::CHECKPOINT_VOICE_FIRST, "Resources/SoundEffects/Checkpoint_Voice_First.ogg");
+    instance.load(Sfx::CHECKPOINT_VOICE_SECOND, "Resources/SoundEffects/Checkpoint_Voice_Second.ogg");
 
     instance.load(Sfx::SCORE_BONUS, "Resources/SoundEffects/Score_Bonus.ogg");
 

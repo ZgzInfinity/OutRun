@@ -37,6 +37,7 @@
 #include "../Menus/MenuLogo/MenuLogo.h"
 #include "../Menus/MenuStart/MenuStart.h"
 #include "../Menus/MenuGame/MenuGame.h"
+#include "../Menus/MenuMode/MenuMode.h"
 #include "../Menus/MenuGears/MenuGears.h"
 #include "../Menus/MenuMusicRadio/MenuMusicRadio.h"
 #include "../Menus/MenuCredits/MenuCredits.h"
@@ -52,7 +53,6 @@
 #include "../Gui/Huds/HudBonus/HudBonus.h"
 #include "../Gui/Huds/HudCheckPoint/HudCheckPoint.h"
 #include "../Logger/Logger.h"
-
 
 
 
@@ -75,8 +75,6 @@ class Game {
 
         const sf::Time bonus_delay = sf::seconds(0.01);
 
-        const sf::Time blink_delay = sf::seconds(0.5f);
-
         /*
          * Internal clocks of the game
          */
@@ -87,10 +85,11 @@ class Game {
 
         sf::Clock bonusClock;
 
-        sf::Clock blinkTime;
-
         // State of the game (AFD)
         State gameStatus;
+
+        // Game mode to play
+        GameMode gameMode;
 
         // Control if the player car is going to be driven in automatic or manual mode
         bool automaticMode;
@@ -115,12 +114,6 @@ class Game {
 
         // Time of the scenario
         float time;
-
-        // Time when the checkpoint animation starts
-        float checkPointInitial;
-
-        // Time that controls how much the checkpoint hud is being displayed
-        float checkPointElapsed;
 
         // Measure the time
         clock_t tick_timer;
@@ -168,7 +161,10 @@ class Game {
         int level;
 
         // Time when the checkpoint hud starts to be displayed
-        int timeCheck;
+        int checkPointTime;
+
+        // Times to display the checkpoint animation
+        int countCheckPointDisplays;
 
         // Position of the map in the tree map hud round panel
         int treeMapPos;
@@ -229,6 +225,10 @@ class Game {
 
         // Threads of the game
         thread timeCounter, biomesLoader, trafficCarLoader;
+
+        // Levels to complete in a game mode
+        int levelsToComplete;
+
 
     public:
 

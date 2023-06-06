@@ -56,6 +56,22 @@ int MenuCarSelection::hasPlayerCarSelected(){
 
 
 
+/**
+ * Set the game mode to be played
+ * @param _gameMode is the default game mode to be played
+ */
+void MenuCarSelection::setGameMode(const GameMode _gameMode){
+    gameMode = _gameMode;
+}
+
+
+
+/**
+ * Get the game mode selected by the player
+ */
+GameMode MenuCarSelection::getGameMode() const {
+    return gameMode;
+}
 
 /**
  * Load the menu with all its configuration
@@ -68,7 +84,7 @@ void MenuCarSelection::loadMenu(Input& input){
         factorResolution = 225.f;
 
     // Loading the background
-    backgroundMenu.loadFromFile("Resources/Menus/CarSelectionMenu/LogoMain1.png");
+    backgroundMenu.loadFromFile("Resources/Menus/CarSelectionMenu/LogoMain.png");
     mainMenu.setTexture(backgroundMenu);
     mainMenu.setPosition(0, 0);
     mainMenu.setScale((float) input.gameWindow.getSize().x / backgroundMenu.getSize().x,
@@ -314,7 +330,7 @@ State MenuCarSelection::returnMenu(Input& input){
         // Game window closed
         return State::EXIT;
     else if (backPressed)
-        // Goes back to the gears menu
+        // Return to the gear selection menu
         return State::GEARS;
     else if (startPressed)
         // Goes to the radio music selection menu

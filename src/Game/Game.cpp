@@ -165,7 +165,7 @@ void Game::loadBiomes(Input& input){
         // Set the starting biome with all its data
         currentMap->setCurrentBiome(biomes[0][0]);
         currentMap->setTerrain(currentMap->getCurrentBiome()->getTerrain());
-        currentMap->setMapDistanceAndTrackLength(false);
+        currentMap->setMapDistanceAndTrackLength(false, gameMode);
         currentMap->setMapColors();
         Logger::setSpriteScreenY(*currentMap->getCurrentBiome());
 
@@ -173,18 +173,38 @@ void Game::loadBiomes(Input& input){
         goalBiome = new Biome();
         goalBiome->setGoalBiome();
 
-        // Initialize for each biome the following left and right biomes in the tree
-        for (int i = 0; i <= 3; i++){
-            for (int j = 0; j <= i; j++){
-                biomes[i][j].left = &biomes[i + 1][j];
-                biomes[i][j].right = &biomes[i + 1][j + 1];
-            }
-        }
+        switch (gameMode)
+        {
+            case GameMode::ORIGINAL_MODE:
+                // Initialize for each biome the following left and right biomes in the tree
+                for (int i = 0; i <= 3; i++){
+                    for (int j = 0; j <= i; j++){
+                        biomes[i][j].left = &biomes[i + 1][j];
+                        biomes[i][j].right = &biomes[i + 1][j + 1];
+                    }
+                }
 
-        // For the last level the following biome is the goal
-        for (int i = 0; i <= 4; i++){
-            biomes[4][i].left = goalBiome;
-            biomes[4][i].right = goalBiome;
+                // For the last level the following biome is the goal
+                for (int i = 0; i <= 4; i++){
+                    biomes[4][i].left = goalBiome;
+                    biomes[4][i].right = goalBiome;
+                }
+                break;
+            case GameMode::CONTINUOUS_MODE:
+                 // Initialize for each biome the following left and right biomes in the tree
+                for (int i = 0; i <= 4; i++){
+                    for (int j = 0; j <= i; j++){
+                        if (i == j){
+                            if (i != 4 && j != 4)
+                                biomes[i][j].left = &biomes[i + 1][0];
+                            else
+                                biomes[i][j].left = goalBiome;
+                        }
+                        else
+                            biomes[i][j].left = &biomes[i][j + 1];
+                    }
+                }
+                break;
         }
 
         // Close the logger
@@ -397,6 +417,7 @@ Game::Game(Input& input){
     spectatorsCongrats = false;
     showmanCongrats = false;
     countHudBonus = 0;
+    levelsToComplete = 0;
     score = 0;
     time = 0;
     minutes = 0.f;
@@ -406,7 +427,9 @@ Game::Game(Input& input){
     secsTrip = 0.f;
     cents_secondTrip = 0.f;
     level = 1;
-    timeCheck = 0;
+    countCheckPointDisplays = 0;
+    checkPointTime = 0;
+    countCheckPointDisplays = 0;
     startCodeAi = 0;
     playerCarSelected = 0;
     treeMapPos = LEVEL_FACTOR;
@@ -496,7 +519,7 @@ State Game::startRound(Input& input){
     startingRound = true;
     checkPoint = false;
     checkPointDisplayed = false;
-    blinkCheckPoint = false;
+    blinkCheckPoint = true;
     escape = false;
     arrival = false;
 
@@ -549,7 +572,16 @@ State Game::startRound(Input& input){
     blackShape.setSize(sf::Vector2f(input.gameWindow.getSize().x, input.gameWindow.getSize().y));
 
     int j = 255;
-    Audio::play(Sfx::RACE_START, false);
+
+    // Play intro sound mode depending on game mode selected
+    switch (gameMode)
+    {
+        case GameMode::ORIGINAL_MODE:
+            Audio::play(Sfx::RACE_START_ORIGINAL_MODE, false);
+            break;
+        case GameMode::CONTINUOUS_MODE:
+            Audio::play(Sfx::RACE_START_CONTINUOUS_MODE, false);
+    }
 
     // Draw the initial start
     while(!escape && j >= 0){
@@ -559,7 +591,7 @@ State Game::startRound(Input& input){
 
         // Clear the screen and draw
         input.gameWindow.clear();
-        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
+        currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
 
         // Player car on the right side without drift
         player->drawStartStaticRound(input);
@@ -577,7 +609,7 @@ State Game::startRound(Input& input){
         input.gameWindow.clear();
 
         // Render the scenario with the player car drifting
-        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
+        currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
         player->drawStartDriftRound(input, float(i), code);
         HudRound::drawHudRound(input);
         input.gameWindow.display();
@@ -598,7 +630,7 @@ State Game::startRound(Input& input){
     float timeElapsed = 0.f;
 
     input.gameWindow.clear();
-    currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
+    currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
     player->drawPlayRound(input, true, currentMap->getTerrain());
     HudRound::drawHudRound(input);
     input.gameWindow.display();
@@ -634,7 +666,7 @@ State Game::startRound(Input& input){
         }
 
         // Draw all the components
-        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
+        currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
         player->drawPlayRound(input, true, currentMap->getTerrain());
         HudRound::drawHudRound(input);
         input.gameWindow.display();
@@ -689,11 +721,11 @@ void Game::updateRound(Input& input){
     // Check if the game is in game over
     if (gameStatus != State::GAME_OVER)
         // Update the position of the player car in the scenario
-        currentMap->updateMap(input, cars, *player, gameStatus, time, score, checkPoint, checkPointDisplayed,
-                              treeMapPos, currentLevel, startCodeAi);
+        currentMap->updateMap(input, cars, *player, gameStatus, time, score, levelsToComplete, checkPoint, checkPointDisplayed,
+                              treeMapPos, currentLevel, startCodeAi, gameMode);
 
     // Draw the scenario with the car
-    currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
+    currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
 
     // Check if the round is still in course
     if (gameStatus == State::PLAY_ROUND){
@@ -723,17 +755,21 @@ void Game::updateRound(Input& input){
         int timeToAdd = 0;
 
         // Increase to time to play
-        if (level == 2)
-            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_SECOND_LEVEL);
-        else if (level == 3)
-            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_THIRD_LEVEL);
-        else if (level == 4)
-            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_FOURTH_LEVEL);
-        else if (level == 5)
-            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_FIFTH_LEVEL);
+        if (gameMode == GameMode::ORIGINAL_MODE){
+            if (level == 2)
+                timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_SECOND_LEVEL);
+            else if (level == 3)
+                timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_THIRD_LEVEL);
+            else if (level == 4)
+                timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_FOURTH_LEVEL);
+            else if (level == 5)
+                timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_FIFTH_LEVEL);
+        }
+        else
+            timeToAdd = int(currentMap->getCurrentBiome()->getTime() * MULTI_FACTOR_CONTINUOUS_MODE);
+
 
         timeToPlay += timeToAdd;
-        timeCheck = timeToPlay;
 
         // Set the new changes of the game status in the hud round
         HudRound::setHudRound(timeToPlay, score, minutes, secs, cents_second, level, treeMapPos, checkPoint,
@@ -743,31 +779,36 @@ void Game::updateRound(Input& input){
         mtx.unlock();
         checkPointDisplayed = true;
 
-        // Play checkpoint sound
-        Audio::play(Sfx::CHECKPOINT_VOICE, false);
+        if (gameMode == GameMode::ORIGINAL_MODE)
+            Audio::play(Sfx::CHECKPOINT_VOICE_FIRST, false);
+        else if (gameMode == GameMode::CONTINUOUS_MODE)
+            Audio::play(Sfx::CHECKPOINT_VOICE_SECOND, false);
     }
 
     // Check if the checkpoint hus has to be displayed
     if (checkPoint) {
-        checkPointElapsed = blinkTime.getElapsedTime().asSeconds();
-        if (checkPointElapsed - checkPointInitial >= blink_delay.asSeconds()){
-            // Hud the checkpoint hud
+
+        if (checkPointTime < 20)
+            checkPointTime++;
+        else {
+            checkPointTime = 0;
+            countCheckPointDisplays++;
             blinkCheckPoint = !blinkCheckPoint;
-            blinkTime.restart();
+
+            if (countCheckPointDisplays == 15){
+                checkPoint = false;
+                countCheckPointDisplays = 0;
+                checkPointTime = 0;
+                blinkCheckPoint = false;
+            }
         }
+
         if (blinkCheckPoint){
-            // Draw the checkpoint hud
-            Audio::play(Sfx::CHECKPOINT_ALARM, false);
+            if (checkPointTime == 1)
+                Audio::play(Sfx::CHECKPOINT_ALARM, false);
+
             HudCheckPoint::drawHudCheckPoint(input);
         }
-
-        mtx.lock();
-        int timeHideCheck = timeToPlay;
-        mtx.unlock();
-
-        // Hide the checkpoint
-        if (timeCheck - timeHideCheck > 5)
-            checkPoint = false;
     }
     else
         // Stop the checkpoint sound
@@ -879,9 +920,6 @@ State Game::playRound(Input& input){
     gameClockLap.restart();
     elapsed3 = gameClockLap.getElapsedTime().asSeconds();
 
-    blinkTime.restart();
-    checkPointInitial = blinkTime.getElapsedTime().asSeconds();
-
     // Check the final conditions
     while (!escape && !pauseMode && !outOfTime && !arrival)
         // Update the status
@@ -936,13 +974,28 @@ State Game::endRound(Input& input){
         Audio::stop(static_cast<Sfx>(i));
 
     // Play randomly one final race sound
-    if (!Audio::isPlaying(Sfx::RACE_END_FIRST) &&
-        !Audio::isPlaying(Sfx::RACE_END_SECOND) &&
-        !Audio::isPlaying(Sfx::RACE_END_THIRD))
+    switch (gameMode)
     {
-        int code = random_int((int)Sfx::RACE_END_FIRST, (int)Sfx::RACE_END_THIRD);
-        Audio::play(static_cast<Sfx>(code), false);
+        case GameMode::ORIGINAL_MODE:
+            if (!Audio::isPlaying(Sfx::RACE_END_FIRST_ORIGINAL_MODE) &&
+                !Audio::isPlaying(Sfx::RACE_END_SECOND_ORIGINAL_MODE) &&
+                !Audio::isPlaying(Sfx::RACE_END_THIRD_ORIGINAL_MODE))
+            {
+                int code = random_int((int)Sfx::RACE_END_FIRST_ORIGINAL_MODE, (int)Sfx::RACE_END_THIRD_ORIGINAL_MODE);
+                Audio::play(static_cast<Sfx>(code), false);
+            }
+            break;
+        case GameMode::CONTINUOUS_MODE:
+            if (!Audio::isPlaying(Sfx::RACE_END_FIRST_CONTINUOUS_MODE) &&
+                !Audio::isPlaying(Sfx::RACE_END_SECOND_CONTINUOUS_MODE))
+            {
+                int code = random_int((int)Sfx::RACE_END_FIRST_CONTINUOUS_MODE, (int)Sfx::RACE_END_SECOND_CONTINUOUS_MODE);
+                Audio::play(static_cast<Sfx>(code), false);
+            }
     }
+
+
+
 
     // Play the score bonus
     if (!Audio::isPlaying(Sfx::SCORE_BONUS))
@@ -977,7 +1030,7 @@ State Game::endRound(Input& input){
         while (!escape && i <= 100){
             handleEvent(input, time);
             input.gameWindow.clear();
-            currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
+            currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
             player->drawEndDriftRound(input);
             HudRound::drawHudRound(input);
             input.gameWindow.display();
@@ -1051,7 +1104,7 @@ State Game::gameOverRound(Input& input){
         handleEvent(input, time);
 
         // Draw the game over status
-        currentMap->renderMap(input, cars, *player, gameStatus, pauseMode);
+        currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
         player->drawPlayRound(input, true, currentMap->getTerrain(), false);
         HudRound::drawHudRound(input);
         input.gameWindow.display();
@@ -1102,12 +1155,6 @@ void Game::run(Input& input){
                 break;
             }
             case State::START: {
-                // Main menu
-                if (firstLoad || outOfTime || arrival){
-                    // Load the biomes
-                    biomesLoader = std::thread(&Game::loadBiomes, this, ref(input));
-                    biomesLoader.detach();
-                }
                 MenuStart mS = MenuStart();
                 mS.setMenuStart(firstLoad, outOfTime);
                 mS.loadMenu(input);
@@ -1124,6 +1171,28 @@ void Game::run(Input& input){
                 mG.loadMenu(input);
                 mG.draw(input);
                 gameStatus = mG.returnMenu(input);
+                break;
+            }
+            case State::MODE: {
+                // Default mode
+                gameMode = GameMode::ORIGINAL_MODE;
+
+                // Game menu
+                MenuMode mO = MenuMode();
+                mO.setGameMode(gameMode);
+                mO.loadMenu(input);
+                mO.draw(input);
+                gameStatus = mO.returnMenu(input);
+                gameMode = mO.getGameMode();
+
+                switch (gameMode)
+                {
+                    case GameMode::ORIGINAL_MODE:
+                        levelsToComplete = 5;
+                        break;
+                    case GameMode::CONTINUOUS_MODE:
+                        levelsToComplete = 15;
+                }
                 break;
             }
             case State::CREDITS: {
@@ -1172,21 +1241,32 @@ void Game::run(Input& input){
             case State::GEARS: {
                 // Gears menu
 
-                // Load the traffic cars
-                trafficCarLoader = std::thread(&Game::loadTrafficCars, this, ref(input));
-                trafficCarLoader.detach();
+                firstLoad = true;
+                if (firstLoad || outOfTime || arrival){
+                    // Load the biomes
+                    biomesLoader = std::thread(&Game::loadBiomes, this, ref(input));
+                    biomesLoader.detach();
+                }
 
                 MenuGears mGe = MenuGears(playerCarSelected);
+                mGe.setGameMode(gameMode);
                 mGe.loadMenu(input);
                 mGe.draw(input);
                 automaticMode = mGe.getAutomaticMode();
                 gameStatus = mGe.returnMenu(input);
-                playerCarSelected = -1;
+                playerCarSelected = 0;
+                firstLoad = false;
                 break;
             }
             case State::VEHICLE: {
+
+                // Load the traffic cars
+                trafficCarLoader = std::thread(&Game::loadTrafficCars, this, ref(input));
+                trafficCarLoader.detach();
+
                 // Car menu selection
                 MenuCarSelection mCs = MenuCarSelection();
+                mCs.setGameMode(gameMode);
                 mCs.loadMenu(input);
                 mCs.draw(input);
                 playerCarSelected = mCs.hasPlayerCarSelected();
@@ -1250,6 +1330,7 @@ void Game::run(Input& input){
                 HudRound::setAllHudRoundIndicators(input);
 
                 MenuPause mP = MenuPause(*currentMap, *player, cars, currentMap->getTerrain());
+                mP.setGameMode(gameMode);
                 mP.loadMenu(input);
                 mP.draw(input);
                 gameStatus = mP.returnMenu(input);
@@ -1269,6 +1350,7 @@ void Game::run(Input& input){
             case State::RANKING: {
                 // Rankin menu
                 MenuRanking mR = MenuRanking(score, (int)minutesTrip, (int)secsTrip, (int)cents_secondTrip);
+                mR.setGameMode(gameMode);
                 mR.loadMenu(input);
                 mR.draw(input);
                 gameStatus = mR.returnMenu(input);

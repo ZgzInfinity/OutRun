@@ -32,11 +32,21 @@
 #include "../../Input/Input.h"
 
 
+
+// Possible modes of game
+enum class GameMode : int {
+    ORIGINAL_MODE,
+    CONTINUOUS_MODE
+};
+
+
+
 // Possible states of the game
 enum class State : int {
     ANIMATION,
     START,
     GAME,
+    MODE,
     OPTIONS,
     MUSIC_CONF,
     CONTROLS,

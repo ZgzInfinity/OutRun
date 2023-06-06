@@ -223,8 +223,9 @@ float TrafficCar::getScale() const {
  * @param p is the player car
  * @param playerLine is the line in the biome where the player car is located
  * @param trafficCarLine is the line in the biome where the traffic car is located
+ * @param mapDistance is the width of the road
  */
-void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, const Line* trafficCarLine){
+void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, const Line* trafficCarLine, int mapDistance){
 
     // Check if the traffic car has to move away from the player car when it is near (type of AI EASIVE)
     if (typeAi == Traffic_Ai::EVASIVE && abs(trafficCarLine->index - playerLine->index) <= MINIMUM_DISTANCE_Y){
@@ -322,8 +323,10 @@ void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, cons
                                 offset -= 0.005f;
                                 if (offset < -0.9f)
                                     offset = -0.9f;
-
                             }
+
+                            if (offset * ROAD_WIDTH + mapDistance <= p.getPosX() * ROAD_WIDTH)
+                                offset += 0.005f;
                             break;
                     }
                 }
@@ -339,6 +342,9 @@ void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, cons
                                 if (offset > 0.9f)
                                     offset = 0.9f;
                             }
+
+                            if (offset * ROAD_WIDTH + mapDistance >= p.getPosX() * ROAD_WIDTH)
+                                offset += 0.005f;
                             break;
                     }
                 }
@@ -358,8 +364,10 @@ void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, cons
                                 offset -= 0.005f;
                                 if (offset < -0.9f)
                                     offset = -0.9f;
-
                             }
+
+                            if (offset * ROAD_WIDTH <= p.getPosX() * ROAD_WIDTH)
+                                offset += 0.005f;
                             break;
                     }
                 }
@@ -375,6 +383,9 @@ void TrafficCar::controlAiTrack(const PlayerCar& p, const Line* playerLine, cons
                                 if (offset > 0.9f)
                                     offset = 0.9f;
                             }
+
+                            if (offset * ROAD_WIDTH >= p.getPosX() * ROAD_WIDTH)
+                                offset -= 0.005f;
                             break;
                     }
                 }

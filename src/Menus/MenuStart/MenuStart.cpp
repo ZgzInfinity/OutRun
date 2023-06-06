@@ -149,7 +149,7 @@ void MenuStart::loadMenu(Input& input){
     textElements[5].setPosition(input.gameWindow.getSize().x * 0.7f,
                                 input.gameWindow.getSize().y / 2.f + 230.0f * input.screenScaleY);
 
-    textElements[6].setString("2022");
+    textElements[6].setString("2023");
     textElements[6].setCharacterSize(static_cast<unsigned int>(int(30.0f * input.screenScaleX)));
     textElements[6].setFont(fontMenu);
     textElements[6].setFillColor(sf::Color::Green);

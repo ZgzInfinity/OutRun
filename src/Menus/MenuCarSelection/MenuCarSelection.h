@@ -89,6 +89,9 @@ class MenuCarSelection : public Menu {
         // Factor of resolution to control the size of the car
         float factorResolution;
 
+        // Game mode selected by the player
+        GameMode gameMode;
+
     public:
 
 
@@ -104,6 +107,20 @@ class MenuCarSelection : public Menu {
          * Returns if the player has selected a color car or not
          */
         int hasPlayerCarSelected();
+
+
+        /**
+         * Set the game mode to be played
+         * @param _gameMode is the default game mode to be played
+         */
+        void setGameMode(const GameMode _gameMode);
+
+
+
+        /**
+         * Get the game mode selected by the player
+         */
+        GameMode getGameMode() const;
 
 
 

@@ -120,7 +120,7 @@ class MenuRanking : public Menu {
         int offsetRecordIndicator;
 
         // Offset position in axis Y of the index text indicator depending on the screen resolution
-        int  offsetIndexIndicator;
+        int offsetIndexIndicator;
 
         // Flags to measure the time elapsed since the ranking menu started
         float elapsed1, elapsed2, elapsed3, elapsed4;
@@ -155,6 +155,9 @@ class MenuRanking : public Menu {
         // Total hundredths of second elapsed by the player to complete the game round
         int cents_second;
 
+        // Game mode selected by the player
+        GameMode gameMode;
+
     public:
 
 
@@ -167,6 +170,21 @@ class MenuRanking : public Menu {
          * @param _cents_seconds are the total hundredths of second elapsed by the player to complete the game round
          */
         MenuRanking(const int long long _score, const int _minutes, const int _secs, const int _cents_second);
+
+
+
+        /**
+         * Set the game mode to be played
+         * @param _gameMode is the default game mode to be played
+         */
+        void setGameMode(const GameMode _gameMode);
+
+
+
+        /**
+         * Get the game mode selected by the player
+         */
+        GameMode getGameMode() const;
 
 
 

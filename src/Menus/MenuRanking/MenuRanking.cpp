@@ -66,6 +66,25 @@ MenuRanking::MenuRanking(const int long long _score, const int _minutes,
 
 
 /**
+ * Set the game mode to be played
+ * @param _gameMode is the default game mode to be played
+ */
+void MenuRanking::setGameMode(const GameMode _gameMode){
+    gameMode = _gameMode;
+}
+
+
+
+/**
+ * Get the game mode selected by the player
+ */
+GameMode MenuRanking::getGameMode() const {
+    return gameMode;
+}
+
+
+
+/**
  * Load the menu with all its configuration
  * @param input is the module that has all the configuration of the game
  */
@@ -101,7 +120,7 @@ void MenuRanking::loadMenu(Input& input){
     }
 
     // Get the scores for the current traffic and difficulty levels
-    scoreRankingPlayer = getGlobalScores(input);
+    scoreRankingPlayer = getGlobalScores(input, gameMode);
 
     // Check if the player has beaten a new record
     record = isNewRecord(scoreRankingPlayer, score);
@@ -622,7 +641,7 @@ State MenuRanking::returnMenu(Input& input){
             if (lettersIntroduced == 3){
                 // If the name has been entered it is going to be stored
                 Score s = Score(score, name, minutes, secs, cents_second);
-                saveNewRecord(input, scoreRankingPlayer, s);
+                saveNewRecord(input, scoreRankingPlayer, s, gameMode);
             }
         }
     }

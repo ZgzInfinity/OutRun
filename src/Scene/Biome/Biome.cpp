@@ -38,6 +38,7 @@ Biome::Biome(){
 
     left = nullptr;
     right = nullptr;
+    next = nullptr;
 	end = false;
 	biomeSwap = false;
 	startBiome = false;
@@ -240,7 +241,7 @@ void Biome::setGoalBiome(){
     // Set a default time and create a straight road
     time = 80;
     int not_count_lines = NOT_COUNT_LINES;
-    addBiome(250, 250, 250, 0, 0, false, threeTracksDistance, not_count_lines);
+    addBiome(350, 350, 350, 0, 0, false, false, threeTracksDistance, not_count_lines);
 
     // Fill the scenario with the sprites
 	vector<string> objectNames;
@@ -415,10 +416,11 @@ void Biome::addSegment(float curve, float y, bool mirror, float dist, int& lines
  * @param curve is the curve coefficient of the new portion
  * @param y is the final position of the relief in axis Y
  * @param mirror controls if the relief has to be duplicated (fork effect)
+ * @param forceSwap controls when the transition between must be forced
  * @param distance is the width distance of the road in that part of the relief
  * @param linesOfBiome is the number of lines in the scenario
  */
-void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, int distance, int& linesOfBiome){
+void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool mirror, bool forceSwap, int distance, int& linesOfBiome){
 
     // Determine the length of the new sub-biome
 	float firstY, dist, distPerc;
@@ -464,7 +466,7 @@ void Biome::addBiome(int enter, int hold, int leave, float curve, float y, bool 
         addSegment(curve, easeInOut(firstY, endY, (float)(enter + n) / total), mirror, dist, linesOfBiome);
 
         if (n == (int)(hold / 2))
-			if (mirror && swapLine == 0)
+			if ((mirror || forceSwap) && swapLine == 0)
 				swapLine = (int)lines.size();
 	}
 
@@ -597,6 +599,15 @@ Biome *Biome::getLeft() const {
  */
 Biome *Biome::getRight() const {
     return right;
+}
+
+
+
+/**
+ * Get the next biome
+ */
+Biome *Biome::getNext() const {
+    return next;
 }
 
 

@@ -57,6 +57,13 @@ void MenuPause::setGameStatus(const State _gameStatus){
 }
 
 
+/**
+ * Set the game mode selected by the player
+ * @param _gameMode is the game mode selected by the player
+ */
+void MenuPause::setGameMode(const GameMode _gameMode){
+    gameMode = _gameMode;
+}
 
 /**
  * Change the option menu selected
@@ -195,7 +202,7 @@ void MenuPause::draw(Input& input){
 
         // Clear the screen and draw all the menu components
         input.gameWindow.clear();
-        m.renderMap(input, cars, player, gameStatus, true);
+        m.renderMap(input, cars, player, gameStatus, gameMode, true);
         player.drawPlayRound(input, true, terrain, false);
         HudRound::drawHudRound(input);
         input.gameWindow.draw(blackScreen);
