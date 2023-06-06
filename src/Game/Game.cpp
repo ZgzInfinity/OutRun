@@ -176,7 +176,7 @@ void Game::loadBiomes(Input& input){
         switch (gameMode)
         {
             case GameMode::ORIGINAL_MODE:
-                // Initialize for each biome the following left and right biomes in the tree
+            // Initialize for each biome the following left and right biomes in the tree
                 for (int i = 0; i <= 3; i++){
                     for (int j = 0; j <= i; j++){
                         biomes[i][j].left = &biomes[i + 1][j];
@@ -191,6 +191,7 @@ void Game::loadBiomes(Input& input){
                 }
                 break;
             case GameMode::CONTINUOUS_MODE:
+            case GameMode::SURVIVAL_MODE:
                  // Initialize for each biome the following left and right biomes in the tree
                 for (int i = 0; i <= 4; i++){
                     for (int j = 0; j <= i; j++){
@@ -330,10 +331,11 @@ void Game::updateTime(){
      * Pause mode
      * Escape key pressed
      */
-    bool arrived = false , endOfGame = false, pause = false, escaped = false;
+    bool arrived = false , endOfGame = false,
+         pause = false, escaped = false, survival = false;
 
     // Check if there is any escape condition as true
-    while(!arrived && !endOfGame && !pause && !escaped){
+    while(!arrived && !endOfGame && !pause && !escaped && !survival){
 
         // Check if there is no pause
         if (!pause){
@@ -387,6 +389,7 @@ void Game::updateTime(){
             outOfTime = endOfGame;
             pause = pauseMode;
             escaped = escape;
+            survival = survivalFinished;
             mtx.unlock();
         }
     }
@@ -448,6 +451,7 @@ Game::Game(Input& input){
     checkPoint = false;
     checkPointDisplayed = false;
     failBiomesLoaded = false;
+    survivalFinished = false;
 
     Audio::loadAll(input);
 }
@@ -480,7 +484,7 @@ void Game::handleEvent(Input& input, const float& time){
         }
         else if (gameStatus == State::GAME_OVER){
             // Game in game over status (time is over)
-            if (!start && outOfTime && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
+            if (!start && (outOfTime || survivalFinished) && input.pressed(Key::MENU_ACCEPT, event) && input.held(Key::MENU_ACCEPT)){
                 // Check if the player pressed enter key to exit and return to the initial menu
                 start = true;
                 Audio::play(Sfx::MENU_SELECTION_CONFIRM, false);
@@ -517,6 +521,7 @@ State Game::startRound(Input& input){
     int numTrafficCars = 0;
     treeMapPos = LEVEL_FACTOR;
     startingRound = true;
+    survivalFinished = false;
     checkPoint = false;
     checkPointDisplayed = false;
     blinkCheckPoint = true;
@@ -581,6 +586,9 @@ State Game::startRound(Input& input){
             break;
         case GameMode::CONTINUOUS_MODE:
             Audio::play(Sfx::RACE_START_CONTINUOUS_MODE, false);
+            break;
+        case GameMode::SURVIVAL_MODE:
+            Audio::play(Sfx::RACE_START_SURVIVAL_MODE, false);
     }
 
     // Draw the initial start
@@ -595,7 +603,7 @@ State Game::startRound(Input& input){
 
         // Player car on the right side without drift
         player->drawStartStaticRound(input);
-        HudRound::drawHudRound(input);
+        HudRound::drawHudRound(input, survivalFinished);
         input.gameWindow.draw(blackShape);
         input.gameWindow.display();
         j -= 5;
@@ -611,7 +619,7 @@ State Game::startRound(Input& input){
         // Render the scenario with the player car drifting
         currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
         player->drawStartDriftRound(input, float(i), code);
-        HudRound::drawHudRound(input);
+        HudRound::drawHudRound(input, survivalFinished);
         input.gameWindow.display();
 
         i -= 3;
@@ -632,7 +640,7 @@ State Game::startRound(Input& input){
     input.gameWindow.clear();
     currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
     player->drawPlayRound(input, true, currentMap->getTerrain());
-    HudRound::drawHudRound(input);
+    HudRound::drawHudRound(input, survivalFinished);
     input.gameWindow.display();
 
     // Play the showman starting race announcement
@@ -668,7 +676,7 @@ State Game::startRound(Input& input){
         // Draw all the components
         currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
         player->drawPlayRound(input, true, currentMap->getTerrain());
-        HudRound::drawHudRound(input);
+        HudRound::drawHudRound(input, survivalFinished);
         input.gameWindow.display();
     }
 
@@ -722,7 +730,7 @@ void Game::updateRound(Input& input){
     if (gameStatus != State::GAME_OVER)
         // Update the position of the player car in the scenario
         currentMap->updateMap(input, cars, *player, gameStatus, time, score, levelsToComplete, checkPoint, checkPointDisplayed,
-                              treeMapPos, currentLevel, startCodeAi, gameMode);
+                              treeMapPos, currentLevel, startCodeAi, gameMode, survivalFinished);
 
     // Draw the scenario with the car
     currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
@@ -738,7 +746,7 @@ void Game::updateRound(Input& input){
         player->drawEndDriftRound(input);
 
     // Draw the hud round in the screen
-    HudRound::drawHudRound(input);
+    HudRound::drawHudRound(input, survivalFinished);
 
     // The player has passed the checkpoint of the scenario
     if (checkPoint && !checkPointDisplayed){
@@ -783,6 +791,9 @@ void Game::updateRound(Input& input){
             Audio::play(Sfx::CHECKPOINT_VOICE_FIRST, false);
         else if (gameMode == GameMode::CONTINUOUS_MODE)
             Audio::play(Sfx::CHECKPOINT_VOICE_SECOND, false);
+        else if (gameMode == GameMode::SURVIVAL_MODE)
+            Audio::play(Sfx::CHECKPOINT_VOICE_THIRD, false);
+
     }
 
     // Check if the checkpoint hus has to be displayed
@@ -921,7 +932,7 @@ State Game::playRound(Input& input){
     elapsed3 = gameClockLap.getElapsedTime().asSeconds();
 
     // Check the final conditions
-    while (!escape && !pauseMode && !outOfTime && !arrival)
+    while (!escape && !pauseMode && !outOfTime && !arrival && !survivalFinished)
         // Update the status
         updateRound(input);
 
@@ -943,7 +954,7 @@ State Game::playRound(Input& input){
     else if (pauseMode)
         return State::PAUSE;
     // Game over
-    else if (outOfTime)
+    else if (outOfTime || survivalFinished)
         return State::GAME_OVER;
 }
 
@@ -992,6 +1003,14 @@ State Game::endRound(Input& input){
                 int code = random_int((int)Sfx::RACE_END_FIRST_CONTINUOUS_MODE, (int)Sfx::RACE_END_SECOND_CONTINUOUS_MODE);
                 Audio::play(static_cast<Sfx>(code), false);
             }
+            break;
+        case GameMode::SURVIVAL_MODE:
+            if (!Audio::isPlaying(Sfx::RACE_END_FIRST_SURVIVAL_MODE) &&
+                !Audio::isPlaying(Sfx::RACE_END_SECOND_SURVIVAL_MODE))
+            {
+                int code = random_int((int)Sfx::RACE_END_FIRST_SURVIVAL_MODE, (int)Sfx::RACE_END_SECOND_SURVIVAL_MODE);
+                Audio::play(static_cast<Sfx>(code), false);
+            }
     }
 
 
@@ -1032,7 +1051,7 @@ State Game::endRound(Input& input){
             input.gameWindow.clear();
             currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
             player->drawEndDriftRound(input);
-            HudRound::drawHudRound(input);
+            HudRound::drawHudRound(input, survivalFinished);
             input.gameWindow.display();
             i++;
         }
@@ -1106,7 +1125,7 @@ State Game::gameOverRound(Input& input){
         // Draw the game over status
         currentMap->renderMap(input, cars, *player, gameStatus, gameMode, pauseMode);
         player->drawPlayRound(input, true, currentMap->getTerrain(), false);
-        HudRound::drawHudRound(input);
+        HudRound::drawHudRound(input, survivalFinished);
         input.gameWindow.display();
     }
 
@@ -1156,7 +1175,7 @@ void Game::run(Input& input){
             }
             case State::START: {
                 MenuStart mS = MenuStart();
-                mS.setMenuStart(firstLoad, outOfTime);
+                mS.setMenuStart(firstLoad, outOfTime || survivalFinished);
                 mS.loadMenu(input);
                 mS.draw(input);
                 gameStatus = mS.returnMenu(input);
@@ -1191,6 +1210,7 @@ void Game::run(Input& input){
                         levelsToComplete = 5;
                         break;
                     case GameMode::CONTINUOUS_MODE:
+                    case GameMode::SURVIVAL_MODE:
                         levelsToComplete = 15;
                 }
                 break;

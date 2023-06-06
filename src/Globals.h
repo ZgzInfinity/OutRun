@@ -83,6 +83,7 @@ const int TRAFFIC_CARS_HARD = 32;
 const int SPRITES_PER_COLLISION = 8;
 const int LEVELS_TO_COMPLETE = 5;
 const int TOTAL_SCORES = 7;
+const int TOTAL_NUM_ANGERS = 3;
 
 const float RUMBLE_WIDTH = 1.08f;
 const float XINC = 0.06f;

@@ -110,7 +110,7 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::RACE_SEMAPHORE_START, "Resources/SoundEffects/Race_Semaphore_Start.ogg");
     instance.load(Sfx::RACE_START_ORIGINAL_MODE, "Resources/SoundEffects/Race_Start_Original_Mode.ogg");
     instance.load(Sfx::RACE_START_CONTINUOUS_MODE, "Resources/SoundEffects/Race_Start_Continuous_Mode.ogg");
-    instance.load(Sfx::RACE_START_TIME_TRIAL_MODE, "Resources/SoundEffects/Race_Start_Time_Trial_Mode.ogg");
+    instance.load(Sfx::RACE_START_SURVIVAL_MODE, "Resources/SoundEffects/Race_Start_Survival_Mode.ogg");
 
     instance.load(Sfx::RACE_END_FIRST_ORIGINAL_MODE, "Resources/SoundEffects/Race_End_First_Original_Mode.ogg");
     instance.load(Sfx::RACE_END_SECOND_ORIGINAL_MODE, "Resources/SoundEffects/Race_End_Second_Original_Mode.ogg");
@@ -118,6 +118,9 @@ void Audio::loadAll(Input& input){
 
     instance.load(Sfx::RACE_END_FIRST_CONTINUOUS_MODE, "Resources/SoundEffects/Race_End_First_Continuous_Mode.ogg");
     instance.load(Sfx::RACE_END_SECOND_CONTINUOUS_MODE, "Resources/SoundEffects/Race_End_Second_Continuous_Mode.ogg");
+
+    instance.load(Sfx::RACE_END_FIRST_SURVIVAL_MODE, "Resources/SoundEffects/Race_End_First_Survival_Mode.ogg");
+    instance.load(Sfx::RACE_END_SECOND_SURVIVAL_MODE, "Resources/SoundEffects/Race_End_Second_Survival_Mode.ogg");
 
     instance.load(Sfx::FERRARI_ENGINE_START, "Resources/SoundEffects/Ferrari_Engine_Start.ogg");
     instance.load(Sfx::FERRARI_ENGINE_RUN, "Resources/SoundEffects/Ferrari_Engine_Run.ogg");
@@ -162,6 +165,7 @@ void Audio::loadAll(Input& input){
     instance.load(Sfx::CHECKPOINT_ALARM, "Resources/SoundEffects/Checkpoint_Alarm.ogg");
     instance.load(Sfx::CHECKPOINT_VOICE_FIRST, "Resources/SoundEffects/Checkpoint_Voice_First.ogg");
     instance.load(Sfx::CHECKPOINT_VOICE_SECOND, "Resources/SoundEffects/Checkpoint_Voice_Second.ogg");
+    instance.load(Sfx::CHECKPOINT_VOICE_THIRD, "Resources/SoundEffects/Checkpoint_Voice_Third.ogg");
 
     instance.load(Sfx::SCORE_BONUS, "Resources/SoundEffects/Score_Bonus.ogg");
 

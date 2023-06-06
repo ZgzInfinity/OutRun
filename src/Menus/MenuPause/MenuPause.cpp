@@ -204,7 +204,7 @@ void MenuPause::draw(Input& input){
         input.gameWindow.clear();
         m.renderMap(input, cars, player, gameStatus, gameMode, true);
         player.drawPlayRound(input, true, terrain, false);
-        HudRound::drawHudRound(input);
+        HudRound::drawHudRound(input, false);
         input.gameWindow.draw(blackScreen);
         input.gameWindow.draw(pausePanel);
         input.gameWindow.draw(titleTextMenu);

@@ -211,6 +211,9 @@ class Game {
         // Control if the loading biomes thread has failed
         bool failBiomesLoaded;
 
+        // Control if survivalMode is finished
+        bool survivalFinished;
+
         // Flag measures to control the interval measures done by the internal clocks
         float elapsed1, elapsed2, elapsed3, elapsed4, bonusTime, elapsedBonusTime;
 

@@ -216,7 +216,9 @@ void Map::interpolateBiomes(Input& input, PlayerCar& p, const GameMode& gameMode
                 p.setRoadTerrain(currentBiome->getRight()->getRoadTerrain());
                 p.setTerrain(currentBiome->getRight()->getTerrain());
             }
-            else if (gameMode == GameMode::CONTINUOUS_MODE){
+            else if (gameMode == GameMode::CONTINUOUS_MODE ||
+                     gameMode == GameMode::SURVIVAL_MODE)
+            {
                 // Left scenario
                 setTerrain(currentBiome->getLeft()->getTerrain());
                 p.setRoadTerrain(currentBiome->getLeft()->getRoadTerrain());
@@ -513,6 +515,7 @@ void Map::setMapDistanceAndTrackLength(const bool ending, const GameMode& gameMo
             currentBiome->addBiome(100, 100, 100, 0, 0, false, false, currentBiome->threeTracksDistance, not_count_lines);
             break;
         case GameMode::CONTINUOUS_MODE:
+        case GameMode::SURVIVAL_MODE:
             currentBiome->addBiome(200, 200, 200, 0, 0, false, true, currentBiome->threeTracksDistance, not_count_lines);
             currentBiome->addBiome(200, 200, 200, 0, 0, false, false, currentBiome->threeTracksDistance, not_count_lines);
     }
@@ -540,10 +543,11 @@ void Map::setMapDistanceAndTrackLength(const bool ending, const GameMode& gameMo
  * @param level is the current level where the player is driving (1..5)
  * @param startCodeAi is the type of AI that can be assigned possibly to a traffic car
  * @param gameMode is the game mode selected by the player
+ * @param survivalFinished controls if the game has finished
  */
 void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
                     const int levelsToComplete, bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level,
-                    int& startCodeAi, const GameMode& gameMode){
+                    int& startCodeAi, const GameMode& gameMode, bool& survivalFinished){
 
     // Update all the traffic cars
     updateCars(input, cars, p, score, startCodeAi);
@@ -597,12 +601,11 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                     }
                     break;
             case GameMode::CONTINUOUS_MODE:
+            case GameMode::SURVIVAL_MODE:
                 nextBiome = currentBiome->getLeft();
                 treeMapPos++;
         }
 
-
-        // LOGICA CONTINUOUS_MODE
         // Selection done
         newBiomeChosen = true;
 	}
@@ -696,23 +699,29 @@ void Map::updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State&
                     if (offsetX < 0.f)
                         offsetX = -offsetX;
 
-                    p.setPosX(p.getPosX() - MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 0.6f * offsetX * time);
+                    p.setPosX(p.getPosX() - MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 0.2f * offsetX * time);
                 }
                 else {
                     if (offsetX < 0.f)
                         offsetX = -offsetX;
 
-                    p.setPosX(p.getPosX() + MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 0.6f * offsetX * time);
+                    p.setPosX(p.getPosX() + MIN(p.getSpeed() / p.getHighMaxSpeed(), 1.f) * 0.2f * offsetX * time);
                 }
             }
             else {
+
                 // Car is stopped (set all the status to let the player boot)
                 p.setSpeed(0.f);
                 p.setGear();
                 p.setLowAccel(p.getLowMaxSpeed() / 6.5f);
                 p.setCollisionDir();
                 p.setCollisionCurve();
-                if (p.getNumAngers() == 3){
+
+                // End of the game in SURVIVAL_MODE
+                if (gameMode == GameMode::SURVIVAL_MODE)
+                    survivalFinished = true;
+
+                if (p.getNumAngers() == TOTAL_NUM_ANGERS){
                     p.setAngryWoman();
                     p.setTrafficCrash();
                     p.setDrawCar(false);
@@ -1202,7 +1211,7 @@ Biome* Map::getCurrentBiome() const {
 /**
  * Get the type of terrain outside the road
  */
-int Map::getTerrain() const {
+                    int Map::getTerrain() const {
     return terrain;
 }
 

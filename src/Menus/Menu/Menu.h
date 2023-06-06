@@ -36,7 +36,8 @@
 // Possible modes of game
 enum class GameMode : int {
     ORIGINAL_MODE,
-    CONTINUOUS_MODE
+    CONTINUOUS_MODE,
+    SURVIVAL_MODE,
 };
 
 

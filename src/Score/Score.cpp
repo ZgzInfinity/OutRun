@@ -76,6 +76,9 @@ vector<Score> getGlobalScores(Input& input, const GameMode& gameMode){
             break;
         case GameMode::CONTINUOUS_MODE:
             path += "/ContinuousMode/";
+            break;
+        case GameMode::SURVIVAL_MODE:
+            path += "/SurvivalMode/";
     }
 
     // Check difficulty level
@@ -184,6 +187,9 @@ bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score 
             break;
         case GameMode::CONTINUOUS_MODE:
             path += "/ContinuousMode/";
+            break;
+        case GameMode::SURVIVAL_MODE:
+            path += "/SurvivalMode/";
     }
 
     // Check difficulty level

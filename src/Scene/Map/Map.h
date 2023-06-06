@@ -277,10 +277,11 @@ class Map {
          * @param level is the current level where the player is driving (1..5)
          * @param startCodeAi is the type of AI that can be assigned possibly to a traffic car
          * @param gameMode is the game mode selected by the player
+         * @param survivalFinished controls if the game has finished
          */
         void updateMap(Input &input, vector<TrafficCar*> cars, PlayerCar& p, State& gameStatus, const float time, int long long& score,
                        const int levelsToComplete, bool& checkPoint, bool& checkPointDisplayed, int& treeMapPos, const int level,
-                       int& startCodeAi, const GameMode& gameMode);
+                       int& startCodeAi, const GameMode& gameMode, bool& survivalFinished);
 
 
 

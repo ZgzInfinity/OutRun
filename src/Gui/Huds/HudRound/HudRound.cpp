@@ -440,8 +440,9 @@ void HudRound::setHudRound(const int _time, const long long int _score, const fl
 /**
  * Draw the round hud in the screen
  * @param input is the module that has all the configuration of the game
+ * @param survivalModeFinished controls if the survival mode has been finished
  */
-void HudRound::drawHudRound(Input& input){
+void HudRound::drawHudRound(Input& input, const bool survivalModeFinished){
 
     /*
      * Draw all the hud round indicators (text and sprites)
@@ -466,7 +467,7 @@ void HudRound::drawHudRound(Input& input){
     input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::LEVEL_TEXT]);
     input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::GEAR_TEXT]);
 
-    if (instance.time == 0)
+    if (instance.time == 0 || survivalModeFinished)
         input.gameWindow.draw(instance.hudTexts[(int)Hud_Text_Indicator::GAME_OVER_TEXT]);
 }
 

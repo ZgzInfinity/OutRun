@@ -248,11 +248,16 @@ class HudRound {
                                 const float _secs, const float _cents_second, const int _level, const int _treeMapPos,
                                 const bool _checkPoint, const int _gear, const float _speed, const float _maxSpeed);
 
+
+
         /**
          * Draw the round hud in the screen
          * @param input is the module that has all the configuration of the game
+         * @param survivalModeFinished controls if the survival mode has been finished
          */
-        static void drawHudRound(Input& input);
+        static void drawHudRound(Input& input, const bool survivalModeFinished);
+
+
 };
 
 #endif // HUD_ROUND_H

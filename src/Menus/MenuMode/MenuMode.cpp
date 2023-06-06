@@ -89,7 +89,7 @@ void MenuMode::loadMenu(Input& input){
     row.setTexture(rowSelector);
     row.setScale(0.06f * input.screenScaleX, 0.06f * input.screenScaleX);
     row.setPosition((input.gameWindow.getSize().x / 2.f) - 160.0f * input.screenScaleX,
-                    input.gameWindow.getSize().y / 2.f + 75.0f * input.screenScaleX);
+                    input.gameWindow.getSize().y / 2.f + 25.0f * input.screenScaleX);
 
     /*
      * Prepare all the texts indicators of the menu
@@ -97,7 +97,7 @@ void MenuMode::loadMenu(Input& input){
 
     textElements[0].setString("ORIGINAL MODE");
     textElements[0].setPosition((input.gameWindow.getSize().x / 2.f) - 80.0f * input.screenScaleX,
-                                input.gameWindow.getSize().y / 2.f + 70.0f * input.screenScaleX);
+                                input.gameWindow.getSize().y / 2.f + 20.0f * input.screenScaleX);
     textElements[0].setCharacterSize(static_cast<unsigned int>(int(30.0f * input.screenScaleX)));
     textElements[0].setFont(fontMenu);
     textElements[0].setFillColor(sf::Color::Green);
@@ -106,12 +106,22 @@ void MenuMode::loadMenu(Input& input){
 
     textElements[1].setString("CONTINUOUS MODE");
     textElements[1].setPosition(input.gameWindow.getSize().x / 2.f - 80.0f * input.screenScaleX,
-                                input.gameWindow.getSize().y / 2.f + 120.0f * input.screenScaleX);
+                                input.gameWindow.getSize().y / 2.f + 70.0f * input.screenScaleX);
     textElements[1].setCharacterSize(static_cast<unsigned int>(int(30.0f * input.screenScaleX)));
     textElements[1].setFont(fontMenu);
     textElements[1].setFillColor(sf::Color::Green);
     textElements[1].setOutlineColor(sf::Color::Black);
     textElements[1].setOutlineThickness(3.0f * input.screenScaleX);
+
+    textElements[2].setString("SURVIVAL MODE");
+    textElements[2].setPosition(input.gameWindow.getSize().x / 2.f - 80.0f * input.screenScaleX,
+                                input.gameWindow.getSize().y / 2.f + 120.0f * input.screenScaleX);
+    textElements[2].setCharacterSize(static_cast<unsigned int>(int(30.0f * input.screenScaleX)));
+    textElements[2].setFont(fontMenu);
+    textElements[2].setFillColor(sf::Color::Green);
+    textElements[2].setOutlineColor(sf::Color::Black);
+    textElements[2].setOutlineThickness(3.0f * input.screenScaleX);
+
 }
 
 
@@ -134,15 +144,15 @@ void MenuMode::handleEvent(Input& input){
                 // Move the row selector in up direction
                 if (optionSelected != 0){
                     // The row was pointing the options tag
-                    optionSelected = 0;
+                    optionSelected--;
                     Audio::play(Sfx::MENU_SELECTION_MOVE, false);
                 }
             }
             else if (input.pressed(Key::MENU_DOWN, event) && input.held(Key::MENU_DOWN)){
                 // Move the row selector in down direction
-                if (optionSelected != 1){
+                if (optionSelected != 2){
                     // The row was pointing the start tag
-                    optionSelected = 1;
+                    optionSelected++;
                     Audio::play(Sfx::MENU_SELECTION_MOVE, false);
                 }
             }
@@ -193,9 +203,14 @@ void MenuMode::draw(Input& input){
             case 0:
                 // Up position selected
                 row.setPosition((input.gameWindow.getSize().x / 2.f) - 160.0f * input.screenScaleX,
-                                input.gameWindow.getSize().y / 2.f + 75.0f * input.screenScaleX);
+                                input.gameWindow.getSize().y / 2.f + 25.0f * input.screenScaleX);
                 break;
             case 1:
+                // Down position selected
+                row.setPosition((input.gameWindow.getSize().x / 2.f) - 160.0f * input.screenScaleX,
+                                input.gameWindow.getSize().y / 2.f + 75.0f * input.screenScaleX);
+                break;
+            case 2:
                 // Down position selected
                 row.setPosition((input.gameWindow.getSize().x / 2.f) - 160.0f * input.screenScaleX,
                                 input.gameWindow.getSize().y / 2.f + 125.0f * input.screenScaleX);
@@ -241,6 +256,8 @@ State MenuMode::returnMenu(Input& input){
             case 1:
                 gameMode = GameMode::CONTINUOUS_MODE;
                 break;
+            case 2:
+                gameMode = GameMode::SURVIVAL_MODE;
         }
         // Start option selected
         return State::GEARS;
