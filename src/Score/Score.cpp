@@ -84,13 +84,13 @@ vector<Score> getGlobalScores(Input& input, const GameMode& gameMode){
     // Check difficulty level
     switch(input.difficulty){
         case Level_Difficulty::EASY:
-            path = "Resources/Score/scoresEasy";
+            path += "scoresEasy";
             break;
         case Level_Difficulty::NORMAL:
-            path = "Resources/Score/scoresNormal";
+            path = "scoresNormal";
             break;
         case Level_Difficulty::HARD:
-            path = "Resources/Score/scoresHard";
+            path = "Score/scoresHard";
     }
 
     // Check the traffic level
@@ -195,7 +195,7 @@ bool saveNewRecord(Input& input, const vector<Score> &globalScores, const Score 
     // Check difficulty level
     switch(input.difficulty){
         case Level_Difficulty::EASY:
-            path += "/scoresEasy";
+            path += "scoresEasy";
             break;
         case Level_Difficulty::NORMAL:
             path += "scoresNormal";
