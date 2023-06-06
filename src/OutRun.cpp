@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2022 Ruben Rodriguez
+ * Copyright (c) 2023 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
@@ -20,6 +20,9 @@
 
 /*
  * Main program file of Out Run
+ * Author: ZgzInfinity
+ * Start date: 20-20-2020
+ * End date: 06-06-2023
  */
 
 #include <iostream>

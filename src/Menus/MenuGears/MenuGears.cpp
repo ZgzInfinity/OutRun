@@ -1,7 +1,6 @@
 
 /*
- * Copyright (c) 2021 Andres Gavin
- * Copyright (c) 2021 Ruben Rodriguez
+ * Copyright (c) 2023 Ruben Rodriguez
  *
  * This file is part of Out Run.
  * Out Run is free software: you can redistribute it and/or modify
