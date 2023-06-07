@@ -97,7 +97,7 @@ const float MULTI_FACTOR_THIRD_LEVEL = 0.5f;
 const float MULTI_FACTOR_FOURTH_LEVEL = 0.46875f;
 const float MULTI_FACTOR_FIFTH_LEVEL = 0.4375f;
 
-const float MULTI_FACTOR_CONTINUOUS_MODE = 0.4875f;
+const float MULTI_FACTOR_CONTINUOUS_MODE = 0.52f;
 
 
 #define MIN( a, b ) ( ((a) < (b)) ? (a) : (b) )

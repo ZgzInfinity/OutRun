@@ -87,10 +87,10 @@ vector<Score> getGlobalScores(Input& input, const GameMode& gameMode){
             path += "scoresEasy";
             break;
         case Level_Difficulty::NORMAL:
-            path = "scoresNormal";
+            path += "scoresNormal";
             break;
         case Level_Difficulty::HARD:
-            path = "Score/scoresHard";
+            path += "scoresHard";
     }
 
     // Check the traffic level
