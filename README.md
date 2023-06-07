@@ -201,7 +201,7 @@ The following link shows the trailer and a gameplay of the videogame in the foll
 
 * Gameplay of Original Mode: https://www.youtube.com/watch?v=Nuy-7PLy_IM
 
-* Gameplay of Original Mode: https://youtu.be/fkvf05UzE_o
+* Gameplay of Continuous Mode: https://youtu.be/fkvf05UzE_o
 
 &nbsp;
 
