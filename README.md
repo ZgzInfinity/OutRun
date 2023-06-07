@@ -14,7 +14,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 
 [![windows](https://img.shields.io/badge/Windows%20-compatible-f305b2.svg)](https://www.microsoft.com/es-es/windows)
 [![Linux](https://img.shields.io/badge/Linux%20-compatible-f305b2.svg)](https://www.linux.org/)
-[![Version](https://img.shields.io/badge/Version%20-4.0-0fd5f9.svg)](https://github.com/ZgzInfinity/OutRun/releases)
+[![Version](https://img.shields.io/badge/Version%20-5.0-0fd5f9.svg)](https://github.com/ZgzInfinity/OutRun/releases)
 ![made-with-C++](https://img.shields.io/badge/Made%20with-C++-600ff9.svg)
 [![SFML](https://img.shields.io/badge/Requeriment%20-SFML-f9720f.svg)](https://www.sfml-dev.org/)
 
@@ -44,6 +44,7 @@ This new the following features with respect to the original versions:
 * Configuration of the controllers customizable
 * Completely new maps available
 * Customizable settings
+* Multiple game modes: Original Mode, Continuous Mode and Survival Mode
 
 &nbsp;
 
@@ -198,7 +199,9 @@ The following link shows the trailer and a gameplay of the videogame in the foll
 
 * Trailer: https://www.youtube.com/watch?v=CdCh8Meg8Yo
 
-* Gameplay: https://www.youtube.com/watch?v=Nuy-7PLy_IM
+* Gameplay of Original Mode: https://www.youtube.com/watch?v=Nuy-7PLy_IM
+
+* Gameplay of Original Mode: https://youtu.be/fkvf05UzE_o
 
 &nbsp;
 
