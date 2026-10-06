@@ -28,6 +28,7 @@
 #ifndef HUD_CHECKPOINT_H
 #define HUD_CHECKPOINT_H
 
+#include <array>
 #include <SFML/Graphics.hpp>
 #include "../../../Input/Input.h"
 

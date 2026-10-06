@@ -28,6 +28,7 @@
 #ifndef HUD_BONUS_H
 #define HUD_BONUS_H
 
+#include <array>
 #include <SFML/Graphics.hpp>
 #include "../../../Input/Input.h"
 

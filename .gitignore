@@ -36,4 +36,3 @@
 .cmake-build-*/
 cmake-build-*/
 .directory
-CMakeLists.txt

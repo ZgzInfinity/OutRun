@@ -29,6 +29,7 @@
 #define AUDIO_H
 
 
+#include <array>
 #include <iostream>
 #include <mutex>
 #include <memory>

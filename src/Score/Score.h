@@ -89,7 +89,7 @@ std::vector<Score> getGlobalScores(Input& input, const GameMode& gameMode);
  * @param globalScores is a vector which stores all the records of the game mode
  * @param score is the score which is going to be test to check if it's a new record or not
  */
-int isNewRecord(const std::vector<Score> &globalScores, unsigned long score);
+int isNewRecord(const std::vector<Score> &globalScores, long long int score);
 
 
 
