@@ -52,6 +52,7 @@ void Game::loadBiomes(Input& input){
     int nm = 0;
 
     // Prepare the map (compsed by biomes) and clear the vector
+    delete currentMap;
     currentMap = new Map();
     std::string path = "";
     biomes.clear();
@@ -242,7 +243,9 @@ void Game::loadTrafficCars(Input& input){
             numTrafficCars = TRAFFIC_CARS_HARD;
     }
 
-    // Clear the vector of the cars and set the correct space
+    // Free the cars of the previous game, clear the vector and set the correct space
+    for (TrafficCar* car : cars)
+        delete car;
     cars.clear();
     cars.reserve(numTrafficCars);
     float posZ = 0.f;
@@ -255,22 +258,22 @@ void Game::loadTrafficCars(Input& input){
      */
 
     TrafficCar* car1 = new TrafficCar(0, 0, 190.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car1", 1, 0.5f, false, true, true, startCodeAi);
-    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+    startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
 
     TrafficCar* car2 = new TrafficCar(0, 0, 170.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car2", 2, 0.f, false, true, true, startCodeAi);
-    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+    startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
 
     TrafficCar* car3 = new TrafficCar(0, 0, 165.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car3", 3, -0.5f, false, true, true, startCodeAi);
-    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+    startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
 
     TrafficCar* car4 = new TrafficCar(0, 0, 160.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car4", 4, -0.25f, false, true, true, startCodeAi);
-    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+    startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
 
     TrafficCar* car5 = new TrafficCar(0, 0, 155.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car5", 5, 0.f, false, true, true, startCodeAi);
-    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+    startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
 
     TrafficCar* car6 = new TrafficCar(0, 0, 150.f * SEGMENT_LENGTH, 120.f, "TrafficCars/Car6", 6, 0.25f, false, true, true, startCodeAi);
-    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+    startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
 
     // Push the cars
     cars.push_back(car1);
@@ -296,7 +299,7 @@ void Game::loadTrafficCars(Input& input){
         }
 
         // Srt the AI and push it to the vector
-        startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+        startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
         TrafficCar* c = new TrafficCar(0, 0, posZ, random_int(10, 16) * 10.f,
                                        "TrafficCars/Car" + std::to_string(i), i, random_int(-6, 6) * 0.15f, false,
                                        random_int(0, 1), true, startCodeAi);
@@ -548,6 +551,7 @@ State Game::startRound(Input& input){
 
     // Create the player car
     float scale = (input.currentIndexResolution <= 1) ? 3.2f : 3.5f;
+    delete player;
     player = new PlayerCar(0.f, 0, (int)(CAMERA_HEIGHT * CAMERA_DISTANCE) + 241, 0.f, scale,
                            "Ferraris/Ferrari" + to_string(playerCarSelected + 1), automaticMode, false,
                            currentMap->getCurrentBiome()->getRoadTerrain());
@@ -954,8 +958,8 @@ State Game::playRound(Input& input){
     else if (pauseMode)
         return State::PAUSE;
     // Game over
-    else if (outOfTime || survivalFinished)
-        return State::GAME_OVER;
+    // Game over (also the fallback if no other exit condition holds)
+    return State::GAME_OVER;
 }
 
 
@@ -1152,6 +1156,9 @@ State Game::gameOverRound(Input& input){
     // Player closes the game
     else if (escape)
         return State::EXIT;
+
+    // Fallback: go back to the main menu
+    return State::START;
 }
 
 
@@ -1390,10 +1397,11 @@ void Game::run(Input& input){
     delete player;
     delete goalBiome;
     biomes.clear();
-    int trafficCars = cars.size();
-    if (trafficCars > 0){
-        for (int i = 0; i < trafficCars; i++)
-            delete cars[i];
-    }
+    for (TrafficCar* car : cars)
+        delete car;
+    cars.clear();
+    currentMap = nullptr;
+    player = nullptr;
+    goalBiome = nullptr;
 
 }

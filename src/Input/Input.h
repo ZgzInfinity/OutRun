@@ -28,6 +28,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <array>
 #include <utility>
 #include <iostream>
 #include <fstream>

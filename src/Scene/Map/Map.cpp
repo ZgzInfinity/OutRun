@@ -367,7 +367,7 @@ void Map::updateCars(Input& input, vector<TrafficCar*> cars, const PlayerCar& p,
                     c->setActive(true);
                     c->setSpeed(random_int(10, 16) * 10.f);
 
-                    startCodeAi = (startCodeAi <= 3) ? startCodeAi + 1 : 1;
+                    startCodeAi = (startCodeAi < 3) ? startCodeAi + 1 : 1;
                     c->setAi(startCodeAi);
                 }
                 break;

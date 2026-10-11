@@ -28,6 +28,7 @@
 #ifndef HUD_ROUND_H
 #define HUD_ROUND_H
 
+#include <array>
 #include <SFML/Graphics.hpp>
 #include "../../../Input/Input.h"
 

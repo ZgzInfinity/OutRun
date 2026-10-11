@@ -112,7 +112,7 @@ vector<Score> getGlobalScores(Input& input, const GameMode& gameMode){
 
         // Iterate the different lines of the file
         for (int i = 0; getline(fin, line) && i < TOTAL_SCORES; i++) {
-            unsigned long score;
+            long long int score;
             string name;
             int minutes;
             int secs;
@@ -120,7 +120,8 @@ vector<Score> getGlobalScores(Input& input, const GameMode& gameMode){
             istringstream iss(line);
 
             // Read all the data
-            iss >> score >> name >> minutes >> secs >> cents_second;
+            if (!(iss >> score >> name >> minutes >> secs >> cents_second))
+                continue;
 
             // Store it in the vector
             globalScores.emplace_back(score, name, minutes, secs, cents_second);
@@ -140,7 +141,7 @@ vector<Score> getGlobalScores(Input& input, const GameMode& gameMode){
  * @param globalScores is a vector which stores all the records of the game mode
  * @param score is the score which is going to be test to check if it's a new record or not
  */
-int isNewRecord(const vector<Score> &globalScores, unsigned long score) {
+int isNewRecord(const vector<Score> &globalScores, long long int score) {
     // Index of the current record to be check
     int i;
 
